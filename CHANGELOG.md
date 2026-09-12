@@ -1,5 +1,7 @@
 # Changelog — v0.6.1-alpha.16
 
+Published 2026-09-12: payment-reference application commit **8c2e303df7765430fb247ee57c56cd9f0ad3c331** is live at https://purchase.dvjassociates.com. Coolify deployment **4n8iiclyxsmdrk1n8ctn4zct** finished; health HTTP 200. Nineteen signed-in live checks passed, including Indian-bank label, optional BOC column/field, mobile modal heading and persistent guide. All three changed runtime assets match the committed build. Business-record, user and approval-control hashes/revision match the pre-release baseline; no live payment or receipt was created. Evidence: ignored test-output/payment-rates-live-report.json and payment-rates-live-mobile.png. DEC-027/028 and WF-021/022 are now published; this supersedes their earlier local-only release notes.
+
 ## Payment reference release prepared - 2026-09-12
 
 Rebuilt DEC-027 payment labels and optional BOC reference; corrected mobile form-heading overlap and reserved notification space above the mascot (DEC-028 / WF-022). Publication verification follows deployment.
