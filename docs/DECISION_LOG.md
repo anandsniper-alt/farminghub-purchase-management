@@ -214,7 +214,15 @@ All original orders and prior audit entries were retained. One concurrent user e
 
 Release validation also passed **110 native tests**, **31 bulk-order browser checks**, **13 approval-role browser checks** and **37 full-workflow browser checks**. Ignored local live evidence: test-output/admin-release-live-report.json and test-output/admin-release-concurrent-check.json. Historical workflow completion reports remain separate from this deployment.
 
-## Record template - next DEC-018
+## DEC-018 - Administrator-maintained approval controls
+
+**Date:** 2026-09-12. **Area:** Purchase, payments, PLM and administration. **State/evidence:** IMPLEMENTED from explicit user request for a window to relax approvals now and change them later, with every approval stage listed. Implementing controls is authorized; no particular live relaxation was requested or applied.
+**Existing behavior:** fixed Manager/Product Manager approval allowlist; independent editor-based sample and initial-payment shortcuts. Manager-only testing stops at artwork approval. **Proposed behavior:** Admin maintains stage-specific allowed roles without redeploying or changing account roles.
+**Alternatives considered:** changing user roles (affects unrelated permissions); permanent Manager-wide grant (cannot selectively revoke); returning to calendar-based delegation (requires a new deadline); configurable per-stage controls. **Advantages:** targeted coverage, reversible operational control, visible audit trail. **Disadvantages:** administrators must review and later restore temporary grants; additional configuration to manage. **Risks/assumptions:** role grants permit scoped self-approval; there is no automatic expiry. These effects are explicitly communicated in the window. Admin is always retained to avoid approval lockout; Viewer remains excluded.
+**Dependencies:** shared catalog/helper/execute, server sessions and optimistic Store transactions, browser views, review builder. **Workflow impact:** eligibility for subsequent approvals can change immediately; all stage/evidence/finance gates continue. **Other modules:** no implicit user/master/general-edit rights; sample and initial-payment authorization receive explicit controls so shortcuts cannot bypass configured restrictions.
+**Final decision/reason:** persist a full validated matrix under approvalControls with defaults equal to the current implementation; Admin-only reasoned/confirmed saves, monotonically increasing control revision and before/after audit. Restore fills the form and requires save. Existing approvals remain; new approval events reference active policy revision. **Files/components:** shared/domain.mjs, web/app.mjs, review build, native/browser tests, six memory documents and test reports. **Scope:** GLOBAL management/security rule with MODULE-SPECIFIC LAE Import stages. **Documentation:** B-20, WF-017, baseline/learnings/brand and changelog updated. **Verification:** native grant/revoke/session/validation/shortcut guards; server/review controls UI; three configured Manager-only full workflows. **Relationship:** extends DEC-017/B-19 defaults; never restores the September time rule. No live policy change or deployment in this record.
+
+## Record template - next DEC-019
 
 **Date:**
 **Area/module:**

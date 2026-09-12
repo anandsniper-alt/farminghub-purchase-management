@@ -1,5 +1,10 @@
 # Farming Hub brand rulebook
 
+## Approval controls window - 2026-09-12
+
+Reuse Users & settings, panel heading/action, shared wide dialog, labelled native role checkboxes grouped in fieldsets, existing two-column grid (single column on mobile), warning/info notes, reason textarea and Cancel/Save footer. Show all stages and Admin-always-allowed in each group. The controls panel lists effective roles and append-only change history; Restore standard roles is a form action, not an immediate write. No new brand tokens, fonts, colours or layout framework. Mobile dialog verified at 390px; existing scrollable body keeps actions accessible.
+
+
 Admin bulk actions (2026-09-12, DEC-016/017): reuse native labelled checkboxes, existing table/board controls, small serial column, order-list dropdown, standard danger/primary buttons and shared reason/confirmation modal. Deleted order detail reuses heads, warning note, badges, tables, document downloads and history. No new fonts, colours, logos or CSS tokens. Remove the withdrawn September notice. Server/review delete dialogs checked at 390px.
 
 Role editing (2026-09-12, DEC-015): reuse the small ghost edit action in User / role cells, existing select/helper/textarea and modal footer. Display current role and immediate-effect guidance in the shared warning note. No new style tokens or navigation. Mobile checked at 390px.

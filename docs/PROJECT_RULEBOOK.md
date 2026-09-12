@@ -1,5 +1,22 @@
 # Project rulebook
 
+## Configurable approval controls - B-20 (DEC-018 / WF-017)
+
+**GLOBAL RULE:** only ADMIN can save approval controls, using SAVE_APPROVAL_CONTROLS, a complete validated stage-to-role matrix, explicit confirmation, reason and expected workspace revision. Persist in approvalControls; append APPROVAL_CONTROLS_UPDATED with full before/after, actor, timestamp and increasing control revision. Existing databases with no controls use standard B-19 defaults. B-19's removal of automatic September delegation continues; its role assignments are now restorable defaults rather than unchangeable permissions.
+
+**MODULE-SPECIFIC RULE: LAE Import.** All 13 stages below use shared canPerformApproval with persisted workspace controls on every command. ADMIN always retains access; only MANAGER, PRODUCT_MANAGER and EXECUTIVE may be selected; VIEWER cannot approve. Unchecked all roles means ADMIN-only. Division/active-user checks remain. Executive sample approval and initial-payment completion still require assigned ownership. Other configured approvals allow in-scope self-approval, explicitly disclosed on save. An approval grant does not grant master editing, user management or arbitrary order editing.
+
+| Group | Configurable approval stages |
+|---|---|
+| Purchase | PO approval/issue; return PO; amendment approval; PI approval |
+| Payments | Milestone authorization; void payment record; initial payment completion/automatic authorization |
+| Artwork | Order artwork approval |
+| Product Lifecycle | Technical specification approval; technical rejection; brand-specific change approval; brand artwork approval |
+| Production | Pre-production sample approval/rejection |
+
+Changes apply to subsequent requests, including existing sessions/pending records, and remain until manually changed/restored. No automatic expiry or date-based relaxation. Restore standard roles populates the edit form; reason, confirmation and Save are still required. Completed approvals/snapshots/financials remain unchanged. New approval events identify control revision and allowed roles; previous history stays intact. Never skip evidence, verification, readiness, financial validation, deleted-order or transaction guards. Supplier responses, PI verification, QC, shipping and settlement remain operational gates, not additional approval permissions.
+
+
 ## Current admin/order rules (DEC-016 / DEC-017)
 
 **GLOBAL RULE B-17 - Recoverable deletion.** Only ADMIN may issue DELETE_ORDERS / RESTORE_ORDERS, selecting 1-200 distinct IDs with a reason and current workspace revision. Validate the complete selection before mutation. Deletion marks deletedAt/deletedBy/deletedById/deletionReason, retains the order and all linked records, and appends ORDER_DELETED. Restoration clears current deletion markers, appends ORDER_RESTORED, and preserves the original stage, serial, PO number and issued snapshots. No hard purge is implemented.

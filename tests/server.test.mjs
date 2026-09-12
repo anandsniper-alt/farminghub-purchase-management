@@ -7,7 +7,7 @@ import {join} from 'node:path';
 import {Store} from '../server/store.mjs';
 import {makeServer,scopedState} from '../server/index.mjs';
 import {createSeed} from '../shared/seed.mjs';
-import {MAX_UPLOAD_BYTES} from '../shared/domain.mjs';
+import {MAX_UPLOAD_BYTES,APPROVAL_STAGES} from '../shared/domain.mjs';
 
 test('legacy serial initialization persists once without renumbering PO references or snapshots',()=>{
  const dir=mkdtempSync(join(tmpdir(),'fh-serial-')),file=join(dir,'test.sqlite'),seed=createSeed('2026-09-11');delete seed.nextOrderSerial;for(const o of seed.orders)delete o.serialNumber;const original=structuredClone(seed);let store=new Store(file,seed);
@@ -114,3 +114,13 @@ test('business data persists when the local store is reopened',async()=>{const d
 
 test('local account utility commits profile and hashed credential together',async()=>{const f=await serverFixture();try{const profile={id:'new-pilot-user',name:'New pilot user',role:'EXECUTIVE',scopes:['LAE_IMPORT']};f.store.createLocalAccount(profile,'new-user@example.test','Test-only-new-password-1234');assert.ok(f.store.login('new-user@example.test','Test-only-new-password-1234'));assert.equal(f.store.read().users.filter(u=>u.id===profile.id).length,1);assert.ok(f.store.read().events.some(e=>e.action==='USER_PROFILE_CREATED'&&e.entityId===profile.id));assert.ok(!JSON.stringify(f.store.read()).includes('Test-only-new-password'));}finally{await f.close();}});
 test('duplicate account creation rolls back the new profile and audit entries',async()=>{const f=await serverFixture();try{const before=structuredClone(f.store.read());assert.throws(()=>f.store.createLocalAccount({id:'must-not-exist',name:'Duplicate account test',role:'VIEWER',scopes:['LAE_IMPORT']},'u-manager@example.test','Test-only-new-password-1234'),/already exists/);assert.deepEqual(f.store.read(),before);assert.throws(()=>f.store.createLocalAccount({id:'bad-scope',name:'Bad scope',role:'EXECUTIVE',scopes:['UNKNOWN']},'invalid@example.test','Test-only-new-password-1234'),/scopes/);}finally{await f.close();}});
+
+test('approval controls affect existing sessions immediately and reject stale or unauthorized changes',async()=>{
+ const f=await serverFixture();try{const admin=await f.login('u-admin'),manager=await f.login('u-manager');const stages=Object.fromEntries(APPROVAL_STAGES.map(s=>[s.command,[...s.roles]]));stages.APPROVE_ARTWORK.push('MANAGER');
+ const save=(session,revision=f.store.read().revision)=>f.req('/api/commands',{method:'POST',...session,payload:{type:'SAVE_APPROVAL_CONTROLS',payload:{stages,remarks:'Coverage test',confirm:true},expectedRevision:revision}});
+ assert.equal((await save(manager)).status,403);const old=f.store.read().revision;assert.equal((await save(admin)).status,200);assert.equal((await save(admin,old)).status,409);
+ const command=()=>f.req('/api/commands',{method:'POST',...manager,payload:{type:'APPROVE_ARTWORK',payload:{orderId:f.store.read().orders[0].id},expectedRevision:f.store.read().revision}});
+ assert.equal((await command()).status,400,'Manager reaches readiness validation without logging in again');stages.APPROVE_ARTWORK=['PRODUCT_MANAGER'];assert.equal((await save(admin)).status,200);assert.equal((await command()).status,403,'Restoration immediately rejects the same Manager session');
+ assert.equal((await f.req('/api/bootstrap',manager)).data.state.approvalControls.revision,2);assert.equal(f.store.read().events.filter(e=>e.action==='APPROVAL_CONTROLS_UPDATED').length,2);
+ }finally{await f.close();}
+});

@@ -214,7 +214,17 @@ All original orders and prior audit entries were retained. One concurrent user e
 
 Release validation also passed **110 native tests**, **31 bulk-order browser checks**, **13 approval-role browser checks** and **37 full-workflow browser checks**. Ignored local live evidence: test-output/admin-release-live-report.json and test-output/admin-release-concurrent-check.json. Historical workflow completion reports remain separate from this deployment.
 
-## Record template - next WF-017
+## WF-017 - Maintain approval-stage permissions
+
+**Date:** 2026-09-12. **Module/workflow:** Administration / approval coverage. **State/evidence:** IMPLEMENTED from user's explicit request.
+**Previous workflow:** (1) login under fixed role; (2) submit/verify purchase; (3) hand off to fixed Manager/Product Manager approver; (4) request a code or account-role change when coverage is unavailable. Sample/initial-payment shortcuts follow editor access.
+**Requested change/reason:** a window listing every approval stage to make temporary relaxations and later restore access without code changes.
+**New workflow:** (1) Admin opens Users & settings > Manage approval controls; (2) reviews all 13 stages/current roles; (3) selects Manager, Product Manager or Executive per stage, with Admin always retained; (4) reviews self-approval/scope/persistence impact; (5) enters reason and confirms; (6) server validates role, complete matrix and current workspace revision; (7) atomically saves controls and before/after audit; (8) next approval requests use stored permissions and all existing readiness gates; (9) Admin later edits or chooses Restore standard roles, reviews, supplies reason/confirms and saves again.
+**Added:** matrix window/history, shared catalog, validated settings command and per-approval policy revision. **Removed:** need to deploy source for each coverage change. **Modified:** role eligibility is configurable; sample/initial-payment shortcuts use explicit controls. **Status changes:** no workflow statuses changed; existing approved records stay approved.
+**Roles/users affected:** Admin controls settings; selected active roles approve within assigned scope; sample/initial Executive access remains assigned-order only; Viewer never approves. **Dependencies:** domain/UI/store/session/build. **Calculations affected:** none. **Reports affected:** settings before/after audit and approval policy revision. **Data/database impact:** additive optional workspace metadata, no schema migration/account rewrite; existing absence uses defaults. **API impact:** SAVE_APPROVAL_CONTROLS via existing command endpoint with expected revision/CSRF/session. **UI impact:** settings panel and shared edit modal, effective roles and history; separate technical approve/reject visibility.
+**Backward compatibility:** old workspace and historical approvals unchanged; stale UI requests are checked against server's current matrix. **Risks:** temporary grants do not expire automatically; scoped self-approval permitted and disclosed. **Final implementation/verification:** controls tested server/review/mobile, default restore and session revocation; three configured Manager-only flows complete through port arrival/settlement. **Related decisions:** DEC-018/B-20; extends WF-016 standard-role baseline. No live grants or workflow transactions performed.
+
+## Record template - next WF-018
 
 **Date:**
 **Workflow Change ID:**

@@ -1,5 +1,17 @@
 # Current product baseline
 
+## Approval controls source update - 2026-09-12
+
+Implemented DEC-018 / WF-017: ADMIN > Users & settings > Manage approval controls. All 13 approval/correction/authorization stages have role checkboxes, permanent Admin access, required reason/confirmation, manual Restore standard roles and before/after history. Standard permissions remain active until an administrator saves a change. No automatic expiry. New workspace approvalControls metadata is additive; no schema migration, account-role rewrite or historical-approval edit.
+
+The earlier Manager-only blocker below remains true under standard roles. With configured Manager artwork coverage, three isolated Manager-only workflows now reach PORT_ARRIVED and SETTLED with zero balances. See [current test report](WORKFLOW_BROWSER_TEST_REPORT.md). This is local source, not a live publication claim; live permissions have not been relaxed.
+
+
+## Verified single-role limitation - 2026-09-12
+
+Purchase Manager alone cannot complete a fresh PO lifecycle under B-19: artwork approval requires Product Manager/Admin. Three isolated browser scenarios stopped at this gate after PO issue and PI approval (39 checks); production/shipping/settlement were not reached. See [Manager-only test report](WORKFLOW_BROWSER_TEST_REPORT.md). This records existing behavior, not a permission change or new release.
+
+
 ## Admin/order release live publication - 2026-09-12
 
 Application commit **cc08c5de04bf3ccc1e6ed1a065cebee95039c4b7** is live at https://purchase.dvjassociates.com through Coolify deployment **iofjlpttbwbeibjdbyxb698s** (finished; application running:healthy). This publishes DEC-016/017 and WF-015/016: admin bulk deletion/restoration, permanent independent serial numbers and withdrawal of the September Executive approval delegation. Existing administrator role editing remains available. This record supersedes earlier source-only/pending-publication statements for these features.

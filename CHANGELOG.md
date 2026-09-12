@@ -1,5 +1,13 @@
 # Changelog — v0.6.1-alpha.16
 
+## Configurable approval controls - 2026-09-12 (local source)
+
+- Admin can maintain all 13 approval stages in Users & settings, select allowed roles, save with reason/confirmation and restore standard roles later.
+- Changes are server-enforced immediately for subsequent requests; Admin remains enabled, Viewer excluded, scope/evidence/financial rules and completed approvals preserved.
+- Sample and initial-payment authorization shortcuts also obey their dedicated controls; technical approval/rejection can be assigned independently.
+- Audit history records previous/new roles and approver control revisions. No automatic expiry, live policy change or publication yet. DEC-018 / WF-017.
+
+
 Published 2026-09-12: application commit **cc08c5d** is live at https://purchase.dvjassociates.com (healthy). Admin bulk deletion/restoration, non-reused serials and standard Manager/Product Manager approvals are deployed. All 19 live checks passed; verification made no live business or role changes. See docs/CURRENT_PRODUCT_BASELINE.md for publication evidence.
 
 ## Admin bulk deletion, stable serials and standard approvals - 2026-09-12

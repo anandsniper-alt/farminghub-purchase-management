@@ -1,5 +1,19 @@
 # Project learnings
 
+## Configurable approval stages - 2026-09-12
+
+APPROVAL_STAGES is the 13-stage catalog for UI, defaults and validation; approvalRoles reads optional persisted approvalControls; canPerformApproval accepts workspace/order context without broadening canEdit/canApprove/canProductApprove. Admin edits the complete matrix atomically; default absence is backward compatible. New audit events carry approvalControl revision/command/roles, linking them to the append-only settings history.
+
+Sample approval and initial-payment auto-authorization were previously editor shortcuts. Both now check their own configurable approval stage, retaining assigned Executive ownership by default. Technical approval and rejection require separate UI conditions; checking APPROVE_SPEC for both buttons would hide an independently granted rejection role. Browser coverage explicitly checks rejection-only access.
+
+Manager-only coverage succeeds when artwork is granted via controls; restoring defaults removes the grant without reversing completed approvals. The full-flow test uses an explicit configured-policy fixture, then only Manager credentials for every order action. The dedicated controls browser test independently saves/restores the policy through UI in server and review modes. Direct-command test actions wait for rendered DOM replacement before checking visibility; a click alone can return before its asynchronous request finishes.
+
+
+## Purchase Manager only workflow boundary - 2026-09-12
+
+The three-scenario Manager-only browser run verifies that purchase authority does not include artwork approval. Manager can create/issue PO, verify/approve PI and submit supplier technical confirmation/artwork; APPROVE_ARTWORK is server-rejected for MANAGER. Pending artwork prevents production-window start. Do not report an entire single-role workflow as passing when a Product Manager/Admin handoff is required by B-19. The --manager-only runner creates only Manager credentials, checks actor audit identity and records BLOCKED_BY_ROLE separately from successful permission assertions. See [current report](WORKFLOW_BROWSER_TEST_REPORT.md); no business policy changed.
+
+
 ## Bulk deletion, stable serials and approval withdrawal - 2026-09-12
 
 DEC-016 / WF-015: use recoverable order markers instead of removing rows, files, payments or events. Separate visibleOrders (active operations) from recordOrders (all scope-authorized retained records). getOrder uses retained records so finance links remain meaningful. Deleted-order detail has a dedicated read-only renderer; generic editable detail must not accidentally expose approval or payment controls. The server rejects deleted targets even for admins until restoration. Forwarder preview rejects a matched deleted PO, and uploads cannot link it.

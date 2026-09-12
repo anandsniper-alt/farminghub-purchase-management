@@ -1,5 +1,51 @@
 # Complete purchase workflow browser tests
 
+## Approval controls and configured Manager workflows - 2026-09-12
+
+**Current source verification: PASS.** 115 native tests passed with no failures (`node --test --test-reporter=tap tests/*.test.mjs`). New tests cover Admin-only full-matrix validation, reason/confirmation, invalid/duplicate roles, scope/inactive/Viewer denial, Admin retention, immediate current-session grant/revoke, stale revision rejection, historical approval retention and sample/initial-payment shortcut enforcement. Existing native regression tests remain passing.
+
+**29 controls browser checks passed** in authenticated server and standalone review modes: all 13 stages; non-editable Admin/Viewer grants; cancellation; required reason and confirmation; mobile 390px fit; saved settings survive reload; non-admin control visibility; independent technical rejection permission; actual Manager artwork approval; restore-form versus save distinction; appended history; completed approval retention; revoked UI access. Zero browser runtime errors. Evidence: D:/CodexTestTemp/FarmingHub/reports/approval-controls/2026-09-12T15-09-11-384Z/.
+
+**55 full-flow browser checks passed across three configured Manager-only workflows.** Policy fixture explicitly represents an Admin granting Manager coverage; every order/financial/shipping action then used only the Manager account and its audit identity. No Product Manager/Executive/Admin workflow handoffs or seeded order approvals. UI saving/restoration of settings is independently covered above.
+
+| Synthetic order | Quantity | Shipments | Payments | Final status | Balance |
+|---|---|---|---|---|---|
+| WF-A-TEST (USD advance/BL) | 10 | 1 | 2 | PORT_ARRIVED / SETTLED | 0 |
+| WF-B-TEST (CNY advance/shipment/BL) | 20 | 1 | 3 | PORT_ARRIVED / SETTLED | 0 |
+| WF-C-TEST (USD credit/partial shipments) | 12 | 2 | 2 | PORT_ARRIVED / SETTLED | 0 |
+
+All three cover creation/submission/issue, supplier acknowledgement, PI, technical confirmation, artwork approval/acknowledgement, applicable initial payment, sample/bulk/QC, shipping documents/BL/insurance/arrival and supplier realization. Evidence: D:/CodexTestTemp/FarmingHub/reports/manager-relaxed-workflows/2026-09-12T15-10-18-290Z/. Command: `node tests/three_workflow_browser_flow.mjs --manager-relaxed`. This does not replace the earlier standard-role blocked result: defaults still require the Product Manager artwork handoff until controls are changed.
+
+Earlier development test attempts found two harness problems: an artwork fixture lacked the existing PI gate, and an immediate visibility assertion ran before the submit request rendered. The fixture now satisfies the PI gate and direct-action tests wait for DOM replacement; reruns above passed. No production gate was removed to make tests pass.
+
+Build and syntax checks passed; git diff --check clean. Native output: D:/CodexTestTemp/FarmingHub/approval-controls-final-native.tap. All artifacts and SQLite data remain ignored/local. No live approvals, account roles or settings were changed; this is not a publication record.
+
+
+## Purchase Manager only browser run - 2026-09-12
+
+**Outcome: BLOCKED_BY_ROLE, not a completed end-to-end workflow.** User requested the entire flow with only Purchase Manager access. Tested current application source cc08c5d using the native local server, Chrome/Playwright and isolated clean masters/synthetic data. The runner created credentials only for u-manager, rejected attempts to switch to another role and verified every order audit event belonged to that manager. No live site login, order change, role change or permission bypass occurred.
+
+Command: `node tests/three_workflow_browser_flow.mjs --manager-only`, with FH_TEST_OUTPUT_ROOT set to the D: test-artifact directory and process TMP/TEMP on D:. **39 checks passed across three attempted scenarios; none reached full completion.**
+
+| Scenario | Intended workflow | Observed result |
+|---|---|---|
+| WF-A-TEST | USD, 10 units, 30/70 terms, one shipment | PI approved; blocked at artwork approval |
+| WF-B-TEST | CNY, 20 units, advance/shipment/BL terms, multiple evidence files | PI approved; blocked at artwork approval |
+| WF-C-TEST | USD, 12 units, credit terms, two planned partial shipments | PI approved; blocked at artwork approval |
+
+All three completed Manager-only draft creation, submission, immutable PO issue, supplier PO acknowledgement, PI receipt/verification/approval, supplier technical confirmation and artwork submission. Buyer assignment to the seeded executive was retained as order metadata; that user never logged in or performed any action.
+
+**Exact blocker:** APPROVE_ARTWORK requires PRODUCT_MANAGER or ADMIN under B-19 / DEC-017 / WF-016. The UI hides Approve artwork from MANAGER. An intentional authenticated API probe returned HTTP 403 with "Product Manager final approval is required." The complete workspace remained unchanged after each denied request. All three orders remain AWAITING_ARTWORK_CONFIRM, with pending artwork and no production-window start.
+
+**Not reached in this run:** supplier artwork acknowledgement, production lead-time start, sample/bulk production/QC, shipment booking through arrival, remittances and final supplier settlement. No approval was pre-seeded or granted by a second role to bypass the blocker. Historical multi-role completed runs below do not establish Manager-only completion.
+
+**Errors:** zero browser runtime errors; no unexpected API failures. The three intentional 403 responses and initial unauthenticated bootstrap 401 were expected. An initial harness run misclassified the normal login bootstrap 401; its assertion was corrected and all three scenarios rerun. This was a test-harness correction, not an application change.
+
+**Evidence:** D:/CodexTestTemp/FarmingHub/reports/manager-only-workflows/2026-09-12T15-03-07-467Z/ contains report.json, three screenshots, trace.zip and isolated SQLite data; artifacts stay out of Git. The report deliberately separates verificationStatus PASS from workflow status BLOCKED_BY_ROLE.
+
+**Follow-up:** keep the established Product Manager/Admin approval handoff. Allowing Purchase Manager to approve artwork would be a new permissions decision requiring explicit instruction and a decision/workflow record. This test request does not authorize that change.
+
+
 ## Admin/order release live publication - 2026-09-12
 
 Application commit **cc08c5de04bf3ccc1e6ed1a065cebee95039c4b7** is live at https://purchase.dvjassociates.com through Coolify deployment **iofjlpttbwbeibjdbyxb698s** (finished; application running:healthy). This publishes DEC-016/017 and WF-015/016: admin bulk deletion/restoration, permanent independent serial numbers and withdrawal of the September Executive approval delegation. Existing administrator role editing remains available. This record supersedes earlier source-only/pending-publication statements for these features.

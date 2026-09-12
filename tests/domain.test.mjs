@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createSeed} from '../shared/seed.mjs';
-import {APPROVAL_ROLES,canPerformApproval,canApprove,canProductApprove,canEdit,execute,TERMS,orderTotal,orderStatus,financials,paymentSchedule,flagsFor,shipmentTotals,proportionalSlices,toMinor,toRate,convertMinor,previewImport,major,currentApprovedPrice,priceVarianceForLine} from '../shared/domain.mjs';
+import {APPROVAL_STAGES,approvalRoles,APPROVAL_ROLES,canPerformApproval,canApprove,canProductApprove,canEdit,execute,TERMS,orderTotal,orderStatus,financials,paymentSchedule,flagsFor,shipmentTotals,proportionalSlices,toMinor,toRate,convertMinor,previewImport,major,currentApprovedPrice,priceVarianceForLine} from '../shared/domain.mjs';
 import {previewTrackingImport,previewRateImport,rateVariance,freightTrendFor,shippingDocReadiness} from '../shared/shipping.mjs';
 const TODAY='2026-09-11';
 
@@ -163,3 +163,27 @@ test('PO line snapshots matching supplier price list and marks a manual override
 test('later supplier price-list revision never rewrites an issued PO price or source snapshot',()=>{const f=fixture(),v=f.state.vendors.find(v=>v.id===f.base.vendorId),ref=currentApprovedPrice(f.state,v.id,f.item.id,'USD',TODAY);const id=f.draft({currency:'USD',lines:[{itemId:f.item.id,quantity:10,unitPrice:major(ref.unitPriceMinor),specId:f.base.specifications[0].id}]});f.issue(id);const snap=structuredClone(f.get(id).revisions[0].snapshot.lines[0]);f.run('SAVE_PRICE_LIST',{vendorId:v.id,itemId:f.item.id,currency:'USD',unitPrice:'255.00',effectiveDate:TODAY,reference:'New list',remarks:'Later supplier revision.'});assert.deepEqual(f.get(id).revisions[0].snapshot.lines[0],snap);assert.equal(snap.unitPriceMinor,24000);assert.equal(snap.priceListSnapshot.entryId,ref.id);});
 
 test('TAT override reason is required only when supplier commitment differs from vendor standard',()=>{const f=fixture(),v=f.state.vendors.find(v=>v.id===f.base.vendorId);const same=f.draft({productionDays:v.productionDays,productionOverrideReason:''});assert.ok(f.get(same));rejects(f,'CREATE_ORDER',{number:'TEST-OVERRIDE-MISSING',vendorId:f.base.vendorId,buyerId:f.role('EXECUTIVE').id,currency:'USD',paymentTerms:TERMS[0],productionDays:v.productionDays-1,productionOverrideReason:'',planningTat:60,routeId:f.state.routes[0].id,requestedPortDate:'2026-10-25',lines:[{itemId:f.item.id,quantity:100,unitPrice:'100.00',specId:f.base.specifications[0].id}]},/production-time override/i);const overridden=f.draft({productionDays:v.productionDays-1,productionOverrideReason:'Supplier agreed shorter TAT for this order.'});assert.ok(f.get(overridden));});
+
+const standardApprovalStages=()=>Object.fromEntries(APPROVAL_STAGES.map(s=>[s.command,[...s.roles]]));
+test('approval controls require admin, complete validated matrix and confirmation; preserve existing transactions',()=>{
+ const f=fixture(),before=structuredClone(f.state),stages=standardApprovalStages();
+ for(const user of ['MANAGER','PRODUCT_MANAGER','EXECUTIVE','VIEWER'])assert.throws(()=>f.run('SAVE_APPROVAL_CONTROLS',{stages,remarks:'Test',confirm:true},f.role(user)),/Administrator/);
+ for(const payload of [{stages,remarks:'',confirm:true},{stages,remarks:'Test',confirm:false},{stages:{...stages,UNKNOWN:[]},remarks:'Test',confirm:true},{stages:{...stages,APPROVE_ORDER:['VIEWER']},remarks:'Test',confirm:true},{stages:{...stages,APPROVE_ORDER:['MANAGER','MANAGER']},remarks:'Test',confirm:true},{stages:{},remarks:'Test',confirm:true}])assert.throws(()=>f.run('SAVE_APPROVAL_CONTROLS',payload,f.role('ADMIN')));
+ assert.deepEqual(f.state,before);stages.APPROVE_ARTWORK.push('MANAGER');f.run('SAVE_APPROVAL_CONTROLS',{stages,remarks:'Temporary artwork coverage',confirm:true},f.role('ADMIN'));
+ assert.deepEqual(f.state.orders,before.orders);assert.deepEqual(f.state.users,before.users);assert.deepEqual(f.state.payments,before.payments);assert.equal(f.state.approvalControls.revision,1);assert.equal(f.state.events.at(-1).action,'APPROVAL_CONTROLS_UPDATED');
+});
+test('all approval controls support role changes, scope/active denial, admin retention and immediate restore',()=>{
+ const f=fixture(),stages=standardApprovalStages();for(const s of APPROVAL_STAGES)stages[s.command]=['MANAGER'];f.run('SAVE_APPROVAL_CONTROLS',{stages,remarks:'Manager coverage',confirm:true},f.role('ADMIN'));
+ for(const s of APPROVAL_STAGES){assert.equal(canPerformApproval(f.role('MANAGER'),s.command,'LAE_IMPORT',null,f.state),true);assert.equal(canPerformApproval({...f.role('MANAGER'),active:false},s.command,'LAE_IMPORT',null,f.state),false);assert.equal(canPerformApproval({...f.role('MANAGER'),scopes:[]},s.command,'LAE_IMPORT',null,f.state),false);assert.equal(canPerformApproval(f.role('VIEWER'),s.command,'LAE_IMPORT',null,f.state),false);}
+ const restricted=Object.fromEntries(APPROVAL_STAGES.map(s=>[s.command,[]]));f.run('SAVE_APPROVAL_CONTROLS',{stages:restricted,remarks:'Admin only',confirm:true},f.role('ADMIN'));for(const s of APPROVAL_STAGES){assert.equal(canPerformApproval(f.role('MANAGER'),s.command,'LAE_IMPORT',null,f.state),false);assert.equal(canPerformApproval(f.role('ADMIN'),s.command,'LAE_IMPORT',null,f.state),true);}
+ f.run('SAVE_APPROVAL_CONTROLS',{stages:standardApprovalStages(),remarks:'Restore',confirm:true},f.role('ADMIN'));assert.equal(canPerformApproval(f.role('MANAGER'),'APPROVE_ARTWORK','LAE_IMPORT',null,f.state),false);assert.equal(f.state.events.filter(e=>e.action==='APPROVAL_CONTROLS_UPDATED').length,3);
+});
+test('configured Manager artwork approval executes with policy revision; restore retains prior approvals',()=>{
+ const f=fixture(),id=f.draft();f.issue(id);f.pi(id);f.technical(id);f.run('SUBMIT_ARTWORK',{orderId:id,fileId:f.file([id]),remarks:'Artwork'});assert.throws(()=>f.run('APPROVE_ARTWORK',{orderId:id}),/Product Manager/);
+ const stages=standardApprovalStages();stages.APPROVE_ARTWORK.push('MANAGER');f.run('SAVE_APPROVAL_CONTROLS',{stages,remarks:'Temporary cover',confirm:true},f.role('ADMIN'));f.run('APPROVE_ARTWORK',{orderId:id});const approved=structuredClone(f.get(id).artwork.current);assert.equal(f.state.events.at(-1).approvalControl.revision,1);
+ f.run('SAVE_APPROVAL_CONTROLS',{stages:standardApprovalStages(),remarks:'Restore standard',confirm:true},f.role('ADMIN'));assert.deepEqual(f.get(id).artwork.current,approved);f.run('SUBMIT_ARTWORK',{orderId:id,fileId:f.file([id]),remarks:'Revision'});assert.throws(()=>f.run('APPROVE_ARTWORK',{orderId:id}),/Product Manager/);
+});
+test('sample and initial-payment controls cannot be bypassed by existing editor rights',()=>{
+ const f=fixture(),id=f.draft(),stages=standardApprovalStages();for(const cmd of ['APPROVE_PREPRODUCTION_SAMPLE','COMPLETE_INITIAL_PAYMENT']){assert.equal(canPerformApproval(f.role('EXECUTIVE'),cmd,'LAE_IMPORT',null,f.state,f.get(id)),true);assert.equal(canPerformApproval({...f.role('EXECUTIVE'),id:'unassigned'},cmd,'LAE_IMPORT',null,f.state,f.get(id)),false);stages[cmd]=[];}
+ f.run('SAVE_APPROVAL_CONTROLS',{stages,remarks:'Restrict shortcuts',confirm:true},f.role('ADMIN'));for(const cmd of ['APPROVE_PREPRODUCTION_SAMPLE','COMPLETE_INITIAL_PAYMENT'])for(const role of ['MANAGER','EXECUTIVE'])assert.throws(()=>f.run(cmd,{orderId:id},f.role(role)),/not allowed/);
+});
