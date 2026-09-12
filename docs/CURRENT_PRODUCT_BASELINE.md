@@ -1,5 +1,16 @@
 # Current product baseline
 
+## Admin/order release live publication - 2026-09-12
+
+Application commit **cc08c5de04bf3ccc1e6ed1a065cebee95039c4b7** is live at https://purchase.dvjassociates.com through Coolify deployment **iofjlpttbwbeibjdbyxb698s** (finished; application running:healthy). This publishes DEC-016/017 and WF-015/016: admin bulk deletion/restoration, permanent independent serial numbers and withdrawal of the September Executive approval delegation. Existing administrator role editing remains available. This record supersedes earlier source-only/pending-publication statements for these features.
+
+**19 live checks passed**, including HTTPS health, exact served app/domain/shipping source, serial initialization audit, serial column, Deleted orders, required deletion reason/confirmation, mobile layout, role editor and absence of the September notice. Exact deployed policy rejects the withdrawn Executive approval powers; this policy check used live profiles plus an in-memory scoped test profile, not a live Executive login. No business or role writes and no browser runtime errors occurred during verification; the deletion dialog was canceled and the administrator logged out.
+
+All original orders and prior audit entries were retained. One concurrent user evidence upload/technical confirmation was reconciled against its audit events separately from the serial migration; original order content, payments, users and pre-existing file metadata otherwise matched the predeployment fingerprints. Serial migration is idempotent and creates a pre-initialization SQLite backup beside the database before updating metadata. No live order was deleted, restored or approved by deployment verification.
+
+Release validation also passed **110 native tests**, **31 bulk-order browser checks**, **13 approval-role browser checks** and **37 full-workflow browser checks**. Ignored local live evidence: test-output/admin-release-live-report.json and test-output/admin-release-concurrent-check.json. Historical workflow completion reports remain separate from this deployment.
+
+
 **Admin/order source update, 2026-09-12 (DEC-016/017; WF-015/016):** ADMIN can select POs across pages, delete with a reason/confirmation, review Deleted orders, and restore with original workflow/serial/number. Deleted POs leave operations but retain scope-authorized read-only details, documents, payments and balances; no write-off/cancellation/purge. Automatic S.No. is separate from existing PO numbers, assigned once and never reused. Legacy initialization takes a pre-migration SQLite backup and appends audit.
 
 The September Executive approval delegation is withdrawn in source. Purchase Manager/Admin and Product Manager/Admin approvals resume without date rules; historical approvals remain. User-role editing continues. This update awaits the publication record; no live PO deletion or user-role change is part of deployment.

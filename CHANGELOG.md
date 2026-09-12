@@ -1,5 +1,7 @@
 # Changelog — v0.6.1-alpha.16
 
+Published 2026-09-12: application commit **cc08c5d** is live at https://purchase.dvjassociates.com (healthy). Admin bulk deletion/restoration, non-reused serials and standard Manager/Product Manager approvals are deployed. All 19 live checks passed; verification made no live business or role changes. See docs/CURRENT_PRODUCT_BASELINE.md for publication evidence.
+
 ## Admin bulk deletion, stable serials and standard approvals - 2026-09-12
 
 - Admins can select multiple POs and delete them from active operations, with explicit selected-order confirmation and a reason.
