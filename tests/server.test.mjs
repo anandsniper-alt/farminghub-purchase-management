@@ -8,6 +8,30 @@ import {makeServer,scopedState} from '../server/index.mjs';
 import {createSeed} from '../shared/seed.mjs';
 import {MAX_UPLOAD_BYTES} from '../shared/domain.mjs';
 
+test('admin role changes immediately update existing sessions and retain identity and audit',async()=>{
+ const f=await serverFixture();try{
+  const a=await f.login('u-admin'),executive=await f.login('u-exec'),before=f.store.read(),hash=f.store.db.prepare('SELECT password_hash FROM accounts WHERE id=?').get('u-exec').password_hash;
+  const change=(role,revision=f.store.read().revision)=>f.req('/api/commands',{method:'POST',...a,payload:{type:'CHANGE_USER_ROLE',payload:{userId:'u-exec',role,remarks:'Staffing change'},expectedRevision:revision}});
+  const promoted=await change('MANAGER');assert.equal(promoted.status,200);assert.equal((await f.req('/api/bootstrap',executive)).data.user.role,'MANAGER');
+  const managerAction=await f.req('/api/commands',{method:'POST',...executive,payload:{type:'ADD_CATEGORY',payload:{name:'ROLE-CHANGE-TEST'},expectedRevision:f.store.read().revision}});assert.equal(managerAction.status,200);
+  const stale=await change('VIEWER',before.revision);assert.equal(stale.status,409);assert.equal(f.store.read().users.find(u=>u.id==='u-exec').role,'MANAGER');
+  assert.equal((await change('VIEWER')).status,200);assert.equal((await f.req('/api/bootstrap',executive)).data.user.role,'VIEWER');
+  const denied=await f.req('/api/commands',{method:'POST',...executive,payload:{type:'ADD_CATEGORY',payload:{name:'FORGED',user:{role:'ADMIN'}},expectedRevision:f.store.read().revision}});assert.equal(denied.status,403);
+  const target=f.store.read().users.find(u=>u.id==='u-exec');assert.deepEqual(target.scopes,before.users.find(u=>u.id==='u-exec').scopes);assert.equal(target.name,executive.user.name);assert.equal(f.store.db.prepare('SELECT password_hash FROM accounts WHERE id=?').get('u-exec').password_hash,hash);
+  const events=f.store.read().events.filter(e=>e.action==='USER_ROLE_CHANGED');assert.equal(events.length,2);assert.ok(events.every(e=>e.actorId==='u-admin'));assert.deepEqual(events.map(e=>[e.oldValue.role,e.newValue.role]),[['EXECUTIVE','MANAGER'],['MANAGER','VIEWER']]);
+ }finally{await f.close();}
+});
+
+test('role editing rejects self-demotion, invalid roles, unauthorized callers and missing reasons',async()=>{
+ const f=await serverFixture();try{
+  const a=await f.login('u-admin'),before=f.store.read();
+  for(const payload of [{userId:'u-admin',role:'MANAGER',remarks:'Self'},{userId:'u-exec',role:'OWNER',remarks:'Bad'},{userId:'u-exec',role:'MANAGER',remarks:''},{userId:'u-exec',role:'EXECUTIVE',remarks:'No change'}]){const out=await f.req('/api/commands',{method:'POST',...a,payload:{type:'CHANGE_USER_ROLE',payload,expectedRevision:before.revision}});assert.equal(out.status,400);assert.deepEqual(f.store.read(),before);}
+  const payload={type:'CHANGE_USER_ROLE',payload:{userId:'u-exec',role:'ADMIN',remarks:'Attempted elevation'},expectedRevision:before.revision};
+  for(const id of ['u-manager','u-exec','u-product','u-viewer']){const actor=await f.login(id);assert.equal((await f.req('/api/commands',{method:'POST',...actor,payload})).status,403);}
+  assert.equal((await f.req('/api/commands',{method:'POST',token:a.token,payload})).status,403);assert.deepEqual(f.store.read(),before);
+ }finally{await f.close();}
+});
+
 test('authenticated executive delegation expires on server time and audits the real account',async t=>{
  t.mock.timers.enable({apis:['Date'],now:new Date('2026-09-30T18:29:59.999Z')});
  const f=await serverFixture();try{

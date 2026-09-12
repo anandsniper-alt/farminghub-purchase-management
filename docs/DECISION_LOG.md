@@ -166,7 +166,16 @@ Live verification passed 11 checks: HTTPS health, exact served app/domain source
 
 Ignored local verification report: test-output/september-release-live-report.json. Application expiry remains **1 October 2026 00:00 IST**; completed approvals remain valid.
 
-## Record template - next DEC-015
+## DEC-015 - Administrator role changes
+
+**Date:** 2026-09-12. **Area:** User access portal. **State/evidence:** IMPLEMENTED; explicit user request to change Purchase Executive to Purchase Manager when needed. **Scope:** GLOBAL user-profile authorization.
+
+**Existing behaviour:** admins create accounts and assign divisions but cannot edit roles through the UI. **Proposed behaviour:** change another user's supported role from the existing portal. **Alternatives considered:** recreate accounts (loses stable identity/ownership continuity); edit SQLite manually (bypasses audit/concurrency); add a profile command (selected). **Advantages:** preserves identity, credentials and assignments; uses existing authorization/audit path; active sessions immediately enforce current persisted role. **Disadvantages:** stale open pages may display old controls until reload; server still enforces new permissions. **Risks:** unintended privilege changes and administrator lockout. Mitigate with explicit role/reason form, ADMIN-only server check, supported-role validation and blocking own-role changes.
+
+**Dependencies:** USER_ROLES, execute, /api/commands, Store.session/transact, settings row/dialog helpers. **Workflow impact:** admin opens target row, selects role and reason, saves; user keeps existing account. **Other-module impact:** effective permissions change according to existing role rules; scopes/order ownership/calculations unchanged. September delegation remains a separate expiring policy.
+**Final decision/reason:** shared CHANGE_USER_ROLE with revision check and USER_ROLE_CHANGED audit. A distinct credential endpoint is unnecessary because no secret changes. Preserve all unrelated profile/account fields. **Files:** shared/domain.mjs, web/app.mjs, generated review, tests/server.test.mjs, tests/admin_management_browser_flow.mjs and docs. **Documentation updated:** B-16, learnings, brand, baseline, changelog, WF-014. **Verification:** API promotion/demotion with already-authenticated session, no password hash changes, invalid/stale/unauthorized/self changes rejected; server/review/mobile browser checks pass. **Related:** extends DEC-012, retains DEC-014 expiry and DEC-003 scope-audit exception. Local source only.
+
+## Record template - next DEC-016
 
 **Date:**
 **Area/module:**

@@ -1,5 +1,11 @@
 # Project learnings
 
+## Role editing - 2026-09-12
+
+CHANGE_USER_ROLE is profile metadata, so reuse shared execute and /api/commands rather than credential-specific /api/users. Store.session and Store.transact already read current profiles; role changes affect existing authenticated sessions without persisting role claims in cookies. Do not rewrite accounts/password hashes or reassign owned orders. Preserve scopes and audit the change, unlike the older SAVE_SCOPES exception. The browser refreshes its current actor from returned state after commands.
+
+User access rows now reuse the standard Change role button, labelled select, role help, reason textarea and shared dialog. Self-role editing is hidden and server-blocked. Real-account creation stays unavailable in standalone mode; role changes there affect sample profiles only.
+
 ## Temporary approval delegation - 2026-09-12
 
 DEC-014 / WF-013 implements the confirmed September exception for both purchase and product approvals. Existing canApprove also governs vendor/route/category maintenance, editing, cancellation and short closure; canProductApprove also governs templates and uploads. Broadening either helper would silently grant unrelated powers. Use the separate command-specific canPerformApproval allowlist in domain and UI.

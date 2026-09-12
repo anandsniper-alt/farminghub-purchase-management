@@ -1,5 +1,11 @@
 # Project rulebook
 
+## Administrator role editing (DEC-015 / WF-014)
+
+**GLOBAL RULE B-16:** an authenticated ADMIN may change another user's role through Users & settings > Change role. Reuse USER_ROLES and CHANGE_USER_ROLE in the shared domain, with expected workspace revision. Require a supported different role, target user and reason. Do not allow changing the acting administrator's own role; this preserves administrator access. Non-admin roles require an assigned division.
+
+Preserve user ID, name, credentials, assigned scopes, account status and existing order ownership. Record USER_ROLE_CHANGED with the authenticated admin, target, previous/new role and reason. This is distinct from the existing scope-assignment logging exception. Session lookup re-reads the current profile on every request, so promotion/demotion takes effect on the server immediately. Existing accounts need no password reset or recreation. Review mode supports profile-role simulation only.
+
 ## Temporary executive approvals (DEC-014 / WF-013)
 
 **GLOBAL RULE B-15 / exception EX-05:** the user confirmed that Purchase Executives may perform both Purchase Manager and Product Manager approvals through September 2026. The window is 12 September 2026 00:00 IST inclusive to 1 October 2026 00:00 IST exclusive (expiry UTC: 30 September 18:30). This temporarily overrides the approver-role portions of B-06/B-07/B-11, DEC-003/004 and WF-001/002/004; other workflow rules remain authoritative.

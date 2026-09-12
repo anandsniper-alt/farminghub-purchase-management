@@ -1,5 +1,7 @@
 # Farming Hub brand rulebook
 
+Role editing (2026-09-12, DEC-015): reuse the small ghost edit action in User / role cells, existing select/helper/textarea and modal footer. Display current role and immediate-effect guidance in the shared warning note. No new style tokens or navigation. Mobile checked at 390px.
+
 Temporary approvals (2026-09-12, DEC-014): reuse the existing warning note and gap above page content for the September deadline. Reuse approval buttons and placement. No new CSS tokens, colours, typography, icons or layout system. Server and standalone review notices checked at 390px width; expiry removes the notice and delegated actions.
 
 Multiple uploads (2026-09-12, DEC-013): retain native file controls, existing form labels/helper text, inline errors and modal footer. The shared evidence picker uses **Choose files** and **50 MB per file** guidance; the existing submit button displays sequential upload progress. Existing small file buttons expose each attachment. No new brand tokens, icons or styles. Mobile form checked at 390px width.

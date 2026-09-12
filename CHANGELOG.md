@@ -1,5 +1,12 @@
 # Changelog — v0.6.1-alpha.16
 
+## Administrator role editing - 2026-09-12
+
+- Users & settings now provides Change role for other users, including Purchase Executive to Purchase Manager.
+- Roles apply immediately to existing server sessions; credentials, scope assignments and order ownership remain unchanged.
+- Administrator-only enforcement, reason/audit, stale-request rejection and self-demotion protection.
+- Tested through isolated API and browser workflows, including standalone review and mobile. DEC-015 / WF-014. Not yet published.
+
 Published 2026-09-12: application commit 64e6764 deployed successfully to https://purchase.dvjassociates.com; 11 live checks passed. This publishes the temporary executive approvals and multiple 50 MB uploads below.
 
 ## Temporary executive approval access - 2026-09-12

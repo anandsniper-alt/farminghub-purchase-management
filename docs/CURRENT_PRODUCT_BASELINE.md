@@ -1,5 +1,7 @@
 # Current product baseline
 
+**Role editing source update, 2026-09-12 (DEC-015 / WF-014):** administrators can change another user's role from Users & settings. Existing ID, password, scopes and owned orders are retained. Server requests use the current role immediately, with auditable reason and optimistic revision protection. Acting administrators cannot change their own role. Server and standalone UI promotion/demotion/mobile checks passed; isolated API tests verify existing-session enforcement. Local source only, not a publication claim.
+
 ## Live publication - 2026-09-12
 
 Published application commit **64e67648cdc1adc315f2b20c8c5d68bdc546db45** from main to https://purchase.dvjassociates.com through Coolify deployment **e7p6hs4p1eatsbhp3mvg71ql** (finished; application running:healthy). This publishes DEC-013/WF-012 multiple attachments with 50 MB per file and DEC-014/WF-013 temporary purchase/product approval delegation. The existing domain, Docker configuration and persistent data volume were retained; no migration or role rewrite.
@@ -56,7 +58,7 @@ Active brands generated per base: GJ/KD/TT; two other seed brands are inactive. 
 | `#/prices` | Supplier price lists by supplier/base/currency, effective dates, revisions and warnings. |
 | `#/plm` | Product register, templates, brand variants, approval queue; category/template-driven controls. |
 | `#/product/:id` | Base product detail, specifications, successor lineage, brand deltas/artwork, complaint counts/history/supporting files. |
-| `#/settings` | ADMIN creates users with email/password, existing role and divisions, sees account email/sign-in status, and manages scopes/settings. No web password reset or account editing/deactivation. |
+| `#/settings` | ADMIN creates users with email/password, existing role and divisions, sees account email/sign-in status, and manages scopes/settings. Role editing for other users is available (DEC-015). No web password reset, identity editing or deactivation. |
 | `#/versions` | In-app version/edit history; some content is static and stale compared with current deployment. |
 | `#/roadmap` / fallback | Planned expansion; not an implemented Sales/ERP module. |
 | Login (no dedicated hash) | Shared branded two-panel login, email/password, validation message; shown when bootstrap cannot load authenticated state. |
@@ -79,7 +81,7 @@ Calculation authority: CAL-01..CAL-15 in [learnings](PROJECT_LEARNINGS.md), impl
 
 | Actor | Implemented authority |
 |---|---|
-| ADMIN | Scope bypass; purchase and product approvals, settings/scope administration, user creation and account metadata list. |
+| ADMIN | Scope bypass; purchase/product approvals, settings/scopes, user creation, role editing for other users and account metadata list. |
 | MANAGER | Scoped purchase create/edit/approve, authorize/void payments, master/category/route management, cancellations/short closure. Not automatically Product Manager. |
 | EXECUTIVE | Scoped create; assigned-order edits and operational actions; correction requests. Purchase and product approvals temporarily allowed by B-15/DEC-014 until October 1 IST; then no generic manager approval. Initial payment shortcut remains a separate exception. |
 | PRODUCT_MANAGER | Scoped specification/artwork/template approvals and selected PLM edits/uploads; no automatic purchase-manager permission or generic PO creation. |

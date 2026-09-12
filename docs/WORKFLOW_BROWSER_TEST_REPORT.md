@@ -1,5 +1,14 @@
 # Complete purchase workflow browser tests
 
+## Administrator role editing verification - 2026-09-12
+
+Local source DEC-015 / WF-014: **108 native tests pass**, including changing Executive to Manager and then Viewer while keeping an already-authenticated session, immediate permission enforcement, unchanged credentials/scopes/ownership, correct audit, and rejection of self-demotion, unsupported roles, missing reasons, unauthorized callers, CSRF failures and stale revisions.
+
+**11 browser checks passed** across server and standalone review: role-change form, promotion/demotion, self-change protection, non-admin visibility and 390px mobile layout. No browser runtime errors. Runner: tests/admin_management_browser_flow.mjs. Ignored evidence: test-output/admin-management/2026-09-12T14-14-14-900Z/ and test-output/admin-management-native.tap.
+
+This source change is not published. Bulk PO deletion and automatic serial work remain pending clarification of retained-deletion versus draft-only deletion and separate S.No. versus automatic PO number. The user has confirmed that deleted serials must stay unused and remaining records must never be renumbered. No PO was deleted or real user role changed during implementation/testing.
+
+
 ## Live publication - 2026-09-12
 
 Published application commit **64e67648cdc1adc315f2b20c8c5d68bdc546db45** from main to https://purchase.dvjassociates.com through Coolify deployment **e7p6hs4p1eatsbhp3mvg71ql** (finished; application running:healthy). This publishes DEC-013/WF-012 multiple attachments with 50 MB per file and DEC-014/WF-013 temporary purchase/product approval delegation. The existing domain, Docker configuration and persistent data volume were retained; no migration or role rewrite.

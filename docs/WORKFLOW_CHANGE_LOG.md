@@ -168,7 +168,16 @@ Live verification passed 11 checks: HTTPS health, exact served app/domain source
 
 Ignored local verification report: test-output/september-release-live-report.json. Application expiry remains **1 October 2026 00:00 IST**; completed approvals remain valid.
 
-## Record template - next WF-014
+## WF-014 - Change an existing user's role
+
+**Date:** 2026-09-12. **Module:** Administration. **Workflow:** user-role maintenance. **Evidence/state:** IMPLEMENTED from explicit user request.
+**Previous workflow:** create account with role; role stays fixed in web UI; only division checkboxes can change. **Requested change:** switch Executive to Manager or another supported role. **Reason:** administrators need staffing flexibility without replacing accounts.
+**New workflow:** (1) admin opens Users & settings; (2) selects Change role on another user's row; (3) reviews current role, selects new role and supplies reason; (4) server validates admin/target/role/scopes/revision; (5) atomically updates profile and appends audit; (6) existing user sessions enforce the current persisted role on subsequent requests.
+**Steps added:** role-edit dialog, reason, profile command, USER_ROLE_CHANGED audit. **Steps removed:** need for account recreation/manual database editing for a role change. **Steps modified:** portal now manages role as well as existing divisions.
+**Status changes:** no account-active/order status changes. **Roles affected:** ADMIN can edit others; all supported target roles retain existing permission definitions. **Dependencies:** shared domain, current session profile, revision transaction and UI helper reuse. **Calculations:** none. **Reports:** role history identifies admin/target/old/new/reason. **Data/database:** profile role and appended event only; no schema/account/password/ownership changes. **API:** existing /api/commands accepts CHANGE_USER_ROLE. **UI:** Change role action with role select/reason; no own-role button. **Compatibility:** credentials and IDs remain valid; open pages may need refresh to show new role, while server enforcement is immediate. **Risks:** privilege elevation and lockout; admin authorization and self-change block apply.
+**Final implementation/verification:** isolated API tests cover promotions/demotions in existing sessions, rejected unauthorized/invalid/stale/self edits and immutable credentials; browser checks cover server/review/mobile and non-admin visibility. **Related decisions:** DEC-015, extends WF-011; WF-013 temporary approvals remain unchanged. Local source only.
+
+## Record template - next WF-015
 
 **Date:**
 **Workflow Change ID:**
