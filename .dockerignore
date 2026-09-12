@@ -1,0 +1,11 @@
+**
+!Dockerfile
+!package.json
+!server/
+!server/**
+!shared/
+!shared/**
+!web/
+!web/**
+!templates/
+!templates/**
