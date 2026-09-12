@@ -1,6 +1,16 @@
 # Test Report — v0.6.1-alpha.16
 
-## Automated native tests
+> Current project memory (2026-09-12): see [Project Rulebook](PROJECT_RULEBOOK.md), [Current Product Baseline](CURRENT_PRODUCT_BASELINE.md), [Decision Log](DECISION_LOG.md) and [Workflow Change Log](WORKFLOW_CHANGE_LOG.md). Historical release statements below remain evidence of their date, not necessarily current behaviour.
+
+## User access portal verification — 2026-09-12
+
+- `node scripts/build.mjs`: standalone review regenerated successfully.
+- `node --test tests/*.test.mjs`: **97 passed, 0 failed** (`test-output/user-access-native-tests.tap`). New coverage includes admin creation/login, secret exclusion, permission/Origin/CSRF enforcement, input validation and duplicate/stale rollback.
+- `node tests/user_access_browser_flow.mjs`: isolated Playwright/Chrome checks passed for creation, password confirmation, duplicate email with retained fields, mobile dialog, new-user login, non-admin visibility and standalone review. The script requires a development Playwright installation and optional `FH_PLAYWRIGHT_MODULE`/`CHROMIUM_PATH`; no application runtime dependency was added.
+- Desktop and 390px mobile screenshots inspected. Tests create accounts only in disposable temporary databases.
+- Restarted the local server and verified health, configured administrator login, authenticated account-list endpoint and logout. No real user was created during verification. This does not establish deployment of the feature to the live domain.
+
+## Historical automated native tests
 Command: `npm test`
 
 Result: **93 passed / 0 failed**.

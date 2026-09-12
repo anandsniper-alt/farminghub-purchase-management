@@ -1,0 +1,15 @@
+# Farming Hub project memory
+
+Read [docs/PROJECT_RULEBOOK.md](docs/PROJECT_RULEBOOK.md), [docs/BRAND_RULEBOOK.md](docs/BRAND_RULEBOOK.md), [docs/CURRENT_PRODUCT_BASELINE.md](docs/CURRENT_PRODUCT_BASELINE.md), and the relevant entries in [docs/PROJECT_LEARNINGS.md](docs/PROJECT_LEARNINGS.md), [docs/DECISION_LOG.md](docs/DECISION_LOG.md), and [docs/WORKFLOW_CHANGE_LOG.md](docs/WORKFLOW_CHANGE_LOG.md) before changing code. These files are persistent project memory, established by the user's 2026-09-12 master instruction.
+
+- Preserve established behaviour, calculations, terminology, branding, workflows, and conventions unless the user explicitly changes them. Search first: reuse -> extend -> refactor -> create new.
+- Distinguish ideas, options, recommendations, proposed decisions, confirmed decisions, and implemented decisions. An observed implementation is a baseline, not proof of business approval. Preserve behaviour when a material requirement is ambiguous.
+- Evaluate important proposals: existing rule, proposed change, practical issue, alternatives, trade-offs, recommendation. Discuss material conflicts in finance, permissions, data, architecture, workflows or major UX. Follow the user's final explicit decision consistently; do not silently change requirements or repeatedly reopen settled decisions without new evidence.
+- Update applicable memory documents in the same development cycle. Use append-only decision/workflow records, stable IDs and supersession links. Classify GLOBAL RULE versus MODULE-SPECIFIC RULE and document deliberate exceptions.
+- Keep business enforcement in `shared/domain.mjs` and shared helpers. Server identity, authorization, transactions, optimistic revisions, immutable issued snapshots and append-only audit history must remain authoritative.
+- The application is vanilla JavaScript ESM + native Node HTTP/SQLite, not the React/Express/Prisma stack in `vms-reference/`. That directory is recovered reference material; do not run, deploy or modify it as the active application by assumption.
+- Keep `.env`, credentials, tokens, databases, backups, logs and test artifacts out of documentation and Git. Refer to variable names, never values. Do not read private database contents for a documentation task.
+- Verify only what the change requires. For code changes run relevant native tests; verify both server and standalone review modes when shared code is affected. Browser results from old documents are historical evidence, not a current test run.
+- Do not redesign or rewrite during a documentation pass. Known gaps are recorded in the baseline; recording one does not authorize a fix or a new product policy.
+
+Local start: `node --env-file=.env server/index.mjs`. Native tests: `node --test tests/*.test.mjs`. Review build: `node scripts/build.mjs`. See the baseline and `docs/COOLIFY_DEPLOYMENT.md` for deployment boundaries.

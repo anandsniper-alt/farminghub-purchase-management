@@ -1,5 +1,7 @@
 # Farming Hub Purchase Management — v0.6.1-alpha.16
 
+> Before development, read [AGENTS.md](AGENTS.md) and the [Project Rulebook](docs/PROJECT_RULEBOOK.md), which links all six persistent project-memory documents. Current behaviour, deployment facts and known gaps are in [Current Product Baseline](docs/CURRENT_PRODUCT_BASELINE.md).
+
 Clean-transaction LAE Import review build using the user-approved Vendor Master, final Base Item Master, filtered supplier price lists and historical freight buy-rate workbook.
 
 ## Current master structure

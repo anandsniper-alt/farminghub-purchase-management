@@ -1,5 +1,7 @@
 # Software version history
 
+> Current project memory (2026-09-12): see [Project Rulebook](PROJECT_RULEBOOK.md), [Current Product Baseline](CURRENT_PRODUCT_BASELINE.md), [Decision Log](DECISION_LOG.md) and [Workflow Change Log](WORKFLOW_CHANGE_LOG.md). Historical release statements below remain evidence of their date, not necessarily current behaviour.
+
 ## 0.6.1-alpha.16 — 2026-09-12
 
 Controlled PLM availability correction. A Base Item with no approved PLM revision no longer blocks PO submission or issue. The order displays a persistent amber **PLM specification not available** warning, records the condition in the audit trail and issued snapshot, and continues through the existing workflow without falsely approving PLM or requiring an override reason. If approved PLM revisions exist, selection remains mandatory.

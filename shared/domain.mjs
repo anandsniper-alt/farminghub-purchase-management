@@ -7,6 +7,7 @@ import {TRACKING_MILESTONES,previewTrackingImport,previewRateImport,rateVariance
  */
 export const APP_VERSION='0.6.1-alpha.16';
 export const SCHEMA_VERSION=7;
+export const USER_ROLES=['ADMIN','MANAGER','EXECUTIVE','PRODUCT_MANAGER','VIEWER'];
 export const SCOPES=['LAE_IMPORT','LAE_DOMESTIC','UTILITY_DOMESTIC','IMPLEMENTS_DOMESTIC'];
 export const SCOPE_LABELS={LAE_IMPORT:'LAE · Import',LAE_DOMESTIC:'LAE · Domestic',UTILITY_DOMESTIC:'Utility · Domestic',IMPLEMENTS_DOMESTIC:'Implements · Domestic'};
 export const REASONS=['Supplier production','Supplier documentation','Internal purchase','Artwork confirmation','Specification confirmation','Payment processing','Shipping / forwarder','Customs / clearance','Late sales requirement','Other'];

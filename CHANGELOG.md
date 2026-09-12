@@ -1,5 +1,13 @@
 # Changelog — v0.6.1-alpha.16
 
+## User access portal — 2026-09-12
+
+- Administrators can open **Users & settings → Create user** and enter name, unique email, password, existing role and division access.
+- New accounts can sign in immediately. Administrator account metadata includes email and sign-in status; existing scope assignments remain available.
+- Server enforces ADMIN permission, Origin/CSRF, supported fields, duplicate-email checks and optimistic revisions. Profile, hashed credentials and creation audit are saved atomically without exposing passwords.
+- CLI provisioning remains available; standalone review cannot create sign-in accounts. No schema or business-calculation changes.
+- Verification: 97 native tests pass; isolated browser creation/login, validation, mobile, permissions and standalone checks pass. Decision DEC-012; workflow WF-011.
+
 ## Missing PLM warning bypass
 - If a Base Item has no approved PLM revision, PO submission and issue now continue with the visible warning **PLM specification not available**.
 - No override reason is required for this condition.

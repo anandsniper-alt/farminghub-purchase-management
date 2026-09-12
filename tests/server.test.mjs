@@ -6,6 +6,42 @@ import {join} from 'node:path';
 import {Store} from '../server/store.mjs';
 import {makeServer,scopedState} from '../server/index.mjs';
 import {createSeed} from '../shared/seed.mjs';
+
+test('admin portal creates a sign-in account atomically without exposing credentials',async()=>{
+ const f=await serverFixture();try{
+  const admin=await f.login('u-admin'),password='Portal-test-password-1234';
+  const created=await f.req('/api/users',{method:'POST',...admin,payload:{name:'  New colleague  ',email:'  New.Colleague@Example.Test  ',password,role:'EXECUTIVE',scopes:['LAE_IMPORT','LAE_IMPORT'],expectedRevision:admin.state.revision,id:'client-picked-id',active:false,password_hash:'injected'}});
+  assert.equal(created.status,201);assert.notEqual(created.data.user.id,'client-picked-id');assert.equal(created.data.user.name,'New colleague');assert.equal(created.data.user.active,true);assert.deepEqual(created.data.user.scopes,['LAE_IMPORT']);assert.equal(created.data.state.revision,admin.state.revision+1);
+  const account=created.data.users.find(u=>u.id===created.data.user.id);assert.equal(account.email,'new.colleague@example.test');assert.equal(account.hasAccount,true);
+  const event=created.data.state.events.at(-1);assert.equal(event.actorId,admin.user.id);assert.equal(event.source,'User access portal');assert.equal(event.action,'USER_PROFILE_CREATED');
+  const list=await f.req('/api/users',admin);assert.equal(list.status,200);assert.ok(list.data.users.some(u=>u.id===account.id));
+  for(const value of [created.data,list.data,f.store.read()]){const output=JSON.stringify(value);assert.ok(!output.includes(password));assert.ok(!output.includes('password_hash'));assert.ok(!output.includes('client-picked-id'));}
+  const signedIn=await f.req('/api/login',{method:'POST',payload:{email:account.email,password}});assert.equal(signedIn.status,200);assert.equal(signedIn.data.user.role,'EXECUTIVE');
+  const token=signedIn.headers.get('set-cookie').match(/fh_session=([^;]+)/)[1];const own=await f.req('/api/bootstrap',{token});assert.equal(own.status,200);assert.equal(own.data.user.id,account.id);
+ }finally{await f.close();}
+});
+
+test('user administration rejects unauthenticated, non-admin, CSRF and cross-origin requests',async()=>{
+ const f=await serverFixture();try{
+  assert.equal((await f.req('/api/users')).status,401);
+  const payload={name:'Blocked',email:'blocked@example.test',password:'Portal-test-password-1234',role:'ADMIN',scopes:['LAE_IMPORT'],expectedRevision:f.store.read().revision};
+  assert.equal((await f.req('/api/users',{method:'POST',payload})).status,401);
+  for(const id of ['u-manager','u-exec','u-product','u-viewer','u-utility']){const a=await f.login(id);assert.equal((await f.req('/api/users',a)).status,403);assert.equal((await f.req('/api/users',{method:'POST',...a,payload})).status,403);}
+  const a=await f.login('u-admin');assert.equal((await f.req('/api/users',{method:'POST',token:a.token,payload})).status,403);assert.equal((await f.req('/api/users',{method:'POST',...a,originHeader:'https://untrusted.example',payload})).status,403);
+  assert.ok(!f.store.read().users.some(u=>u.name==='Blocked'));
+ }finally{await f.close();}
+});
+
+test('user creation validates fields and preserves state on duplicate or stale requests',async()=>{
+ const f=await serverFixture();try{
+  const a=await f.login('u-admin'),before=structuredClone(f.store.read());const payload={name:'Colleague',email:'colleague@example.test',password:'Portal-test-password-1234',role:'VIEWER',scopes:['LAE_IMPORT'],expectedRevision:before.revision};
+  for(const change of [{name:' '},{name:'x'.repeat(121)},{email:'invalid'},{email:'a'.repeat(255)+'@example.test'},{password:'short'},{password:'x'.repeat(257)},{role:'OWNER'},{scopes:[]},{scopes:['UNKNOWN']},{expectedRevision:null}]){const r=await f.req('/api/users',{method:'POST',...a,payload:{...payload,...change}});assert.equal(r.status,400,JSON.stringify(Object.keys(change)));assert.deepEqual(f.store.read(),before);}
+  const duplicate=await f.req('/api/users',{method:'POST',...a,payload:{...payload,email:' U-ADMIN@EXAMPLE.TEST '}});assert.equal(duplicate.status,409);assert.deepEqual(f.store.read(),before);
+  const first=await f.req('/api/users',{method:'POST',...a,payload});assert.equal(first.status,201);const after=structuredClone(f.store.read());
+  const stale=await f.req('/api/users',{method:'POST',...a,payload:{...payload,email:'second@example.test'}});assert.equal(stale.status,409);assert.deepEqual(f.store.read(),after);assert.equal(f.store.login('second@example.test',payload.password),null);
+ }finally{await f.close();}
+});
+
 async function serverFixture(){const dir=mkdtempSync(join(tmpdir(),'fh-test-')),s=createSeed('2026-09-11');s.users.push({id:'u-utility',name:'Utility-only test viewer',role:'VIEWER',scopes:['UTILITY_DOMESTIC'],active:true});const store=new Store(join(dir,'test.sqlite'),s);for(const id of['u-admin','u-manager','u-exec','u-product','u-viewer','u-utility'])store.addAccount(id,id+'@example.test','Test-only-password-0123');const server=makeServer(store);await new Promise(r=>server.listen(0,'127.0.0.1',r));const origin='http://127.0.0.1:'+server.address().port;async function req(path,{method='GET',payload,token,csrf,originHeader=origin}={}){const res=await fetch(origin+path,{method,headers:{'Content-Type':'application/json',...(method!=='GET'?{Origin:originHeader}:{}),...(token?{Cookie:'fh_session='+token}:{}),...(csrf?{'X-CSRF-Token':csrf}:{})},...(payload!==undefined?{body:JSON.stringify(payload)}:{})});const text=await res.text();let data;try{data=JSON.parse(text);}catch{data=text;}return {status:res.status,data,headers:res.headers};}async function login(id='u-manager'){const r=await req('/api/login',{method:'POST',payload:{email:id+'@example.test',password:'Test-only-password-0123'}});const token=r.headers.get('set-cookie').match(/fh_session=([^;]+)/)[1],b=await req('/api/bootstrap',{token});return {token,csrf:b.data.csrf,state:b.data.state,user:b.data.user,cookie:r.headers.get('set-cookie')};}return{store,req,login,origin,close:async()=>{await new Promise(r=>server.close(r));store.close();rmSync(dir,{recursive:true,force:true});}};}
 
 test('unauthenticated state and evidence access return 401',async()=>{const f=await serverFixture();try{assert.equal((await f.req('/api/bootstrap')).status,401);assert.equal((await f.req('/api/files/anything')).status,401);}finally{await f.close();}});

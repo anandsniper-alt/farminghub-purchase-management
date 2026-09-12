@@ -2,7 +2,7 @@ import {DatabaseSync} from 'node:sqlite';
 import {randomBytes,randomUUID,scryptSync,timingSafeEqual,createHash} from 'node:crypto';
 import {mkdirSync} from 'node:fs';
 import {dirname} from 'node:path';
-import {execute,RuleError} from '../shared/domain.mjs';
+import {execute,RuleError,USER_ROLES,SCOPES} from '../shared/domain.mjs';
 const hashToken=s=>createHash('sha256').update(s).digest('hex');
 function hashPassword(p){const salt=randomBytes(16).toString('hex');return salt+':'+scryptSync(p,salt,64).toString('hex');}
 function matchPassword(p,s){const [salt,hash]=s.split(':'),actual=scryptSync(p,salt,64),expected=Buffer.from(hash,'hex');return actual.length===expected.length&&timingSafeEqual(actual,expected);}
@@ -22,22 +22,29 @@ export class Store{
  saveFile(meta,bytes,expected,actor){this.db.exec('BEGIN IMMEDIATE');try{const previous=this.read(),next=structuredClone(previous);next.files.push(meta);next.revision++;next.events.push({id:randomUUID(),at:new Date().toISOString(),actorId:actor.id,actorName:actor.name,entityType:'file',entityId:meta.id,action:'FILE_UPLOADED',summary:'Protected evidence uploaded: '+meta.name,oldValue:null,newValue:{name:meta.name,size:meta.size,orderIds:meta.orderIds},source:'User action'});this.db.prepare('INSERT INTO file_bodies VALUES(?,?)').run(meta.id,bytes);this.commit(next,expected,previous);this.db.exec('COMMIT');return next;}catch(e){this.db.exec('ROLLBACK');throw e;}}
  fileBytes(id){return this.db.prepare('SELECT body FROM file_bodies WHERE id=?').get(id)?.body;}
  addAccount(id,email,password){if(password.length<12)throw new Error('Passwords must have at least 12 characters.');if(!this.read().users.some(u=>u.id===id))throw new Error('The user profile must exist first.');this.db.prepare('INSERT INTO accounts(id,email,password_hash) VALUES(?,?,?)').run(id,email.trim().toLowerCase(),hashPassword(password));}
- createLocalAccount(profile,email,password){
-  if(!['ADMIN','MANAGER','EXECUTIVE','PRODUCT_MANAGER','VIEWER'].includes(profile.role))throw new Error('Unsupported local role.');
-  if(!profile.id||!profile.name||!Array.isArray(profile.scopes)||!profile.scopes.length||profile.scopes.some(s=>!['LAE_IMPORT','LAE_DOMESTIC','UTILITY_DOMESTIC','IMPLEMENTS_DOMESTIC'].includes(s)))throw new Error('Name, persistent ID and valid assigned scopes are required.');
+ listAccounts(){const accounts=new Map(this.db.prepare('SELECT id,email,active FROM accounts').all().map(a=>[a.id,a]));return this.read().users.map(u=>{const a=accounts.get(u.id);return {id:u.id,name:u.name,role:u.role,scopes:u.scopes,email:a?.email||null,active:!!a?.active&&u.active!==false,hasAccount:!!a};});}
+ createLocalAccount(profile,email,password,{actorId=null,expectedRevision}={}){
+  if(!USER_ROLES.includes(profile.role))throw new RuleError('Unsupported local role.');
+  if(typeof profile.name!=='string'||!profile.name.trim()||profile.name.trim().length>120)throw new RuleError('Name must contain 1–120 characters.');
+  if(!profile.id||!Array.isArray(profile.scopes)||!profile.scopes.length||profile.scopes.some(s=>!SCOPES.includes(s)))throw new RuleError('Name, persistent ID and valid assigned scopes are required.');
+  const cleanProfile={id:profile.id,name:profile.name.trim(),role:profile.role,scopes:[...new Set(profile.scopes)],active:true};
   email=String(email||'').trim().toLowerCase();
-  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))throw new Error('A valid email is required.');
-  if(typeof password!=='string'||password.length<12||password.length>256)throw new Error('Use a password of 12–256 characters.');
+  if(email.length>254||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))throw new RuleError('A valid email is required.');
+  if(typeof password!=='string'||password.length<12||password.length>256)throw new RuleError('Use a password of 12–256 characters.');
   const encoded=hashPassword(password);
   this.db.exec('BEGIN IMMEDIATE');
   try{
-   const previous=this.read();
-   if(previous.users.some(u=>u.id===profile.id)||this.db.prepare('SELECT id FROM accounts WHERE email=?').get(email))throw new Error('Account ID or email already exists.');
-   const next=structuredClone(previous);next.users.push({...profile,active:true});next.revision++;
-   next.events.push({id:randomUUID(),at:new Date().toISOString(),actorId:'local-admin-cli',actorName:'Local account administrator',entityType:'user',entityId:profile.id,action:'USER_PROFILE_CREATED',summary:'Local pilot account created.',oldValue:null,newValue:{id:profile.id,name:profile.name,role:profile.role},source:'Account setup'});
-   this.commit(next,previous.revision,previous);
+   const previous=this.read(),actor=actorId?previous.users.find(u=>u.id===actorId):null;
+   if(actorId&&(!actor||actor.active===false||actor.role!=='ADMIN'))throw new RuleError('Administrator access is required to create users.','FORBIDDEN');
+   if(actorId&&!Number.isSafeInteger(expectedRevision))throw new RuleError('Expected workspace revision is required.');
+   if(expectedRevision!==undefined&&expectedRevision!==previous.revision)throw new RuleError('Another user changed this workspace. Reload before saving; nothing was overwritten.','CONFLICT');
+   if(previous.users.some(u=>u.id===profile.id)||this.db.prepare('SELECT id FROM accounts WHERE email=?').get(email))throw new RuleError('Account ID or email already exists.','CONFLICT');
+   const next=structuredClone(previous);next.users.push(cleanProfile);next.revision++;
+   next.events.push({id:randomUUID(),at:new Date().toISOString(),actorId:actor?.id||'local-admin-cli',actorName:actor?.name||'Local account administrator',entityType:'user',entityId:profile.id,action:'USER_PROFILE_CREATED',summary:'User account created.',oldValue:null,newValue:{id:cleanProfile.id,name:cleanProfile.name,role:cleanProfile.role},source:actor?'User access portal':'Account setup'});
+   this.commit(next,expectedRevision??previous.revision,previous);
    this.db.prepare('INSERT INTO accounts(id,email,password_hash) VALUES(?,?,?)').run(profile.id,email,encoded);
    this.db.exec('COMMIT');
+   return cleanProfile;
   }catch(e){this.db.exec('ROLLBACK');throw e;}
  }
  addProfile(profile){this.db.exec('BEGIN IMMEDIATE');try{const previous=this.read();if(previous.users.some(u=>u.id===profile.id))throw new Error('User ID exists.');const next=structuredClone(previous);next.users.push(profile);next.revision++;next.events.push({id:randomUUID(),at:new Date().toISOString(),actorId:'local-admin-cli',actorName:'Local account administrator',entityType:'user',entityId:profile.id,action:'USER_PROFILE_CREATED',summary:'Local pilot account profile added.',oldValue:null,newValue:{id:profile.id,name:profile.name,role:profile.role},source:'Account setup'});this.commit(next,previous.revision,previous);this.db.exec('COMMIT');}catch(e){this.db.exec('ROLLBACK');throw e;}}

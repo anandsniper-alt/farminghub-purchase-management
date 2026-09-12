@@ -1,5 +1,8 @@
 # VS Code — Start Here
 
+> Current project memory (2026-09-12): see [Project Rulebook](docs/PROJECT_RULEBOOK.md), [Current Product Baseline](docs/CURRENT_PRODUCT_BASELINE.md), [Decision Log](docs/DECISION_LOG.md) and [Workflow Change Log](docs/WORKFLOW_CHANGE_LOG.md). Historical release statements below remain evidence of their date, not necessarily current behaviour.
+> On this Windows setup, start with `node --env-file=.env server/index.mjs` after saving the required admin settings. The existing `npm start` script does not load `.env` automatically.
+
 ## Requirements
 - Node.js 22.16 or newer
 - VS Code

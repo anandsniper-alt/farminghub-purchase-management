@@ -1,5 +1,7 @@
 # Policy assumptions exposed by the first working build
 
+> Current project memory (2026-09-12): see [Project Rulebook](PROJECT_RULEBOOK.md), [Current Product Baseline](CURRENT_PRODUCT_BASELINE.md), [Decision Log](DECISION_LOG.md) and [Workflow Change Log](WORKFLOW_CHANGE_LOG.md). Historical release statements below remain evidence of their date, not necessarily current behaviour.
+
 These are explicit pilot behaviors, not approvals inferred from a button or from this document.
 
 | Topic | Alpha behavior | Before live rollout |

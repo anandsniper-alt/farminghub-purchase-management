@@ -1,5 +1,7 @@
 # Farming Hub brand implementation reference
 
+> Current project memory (2026-09-12): see [Project Rulebook](PROJECT_RULEBOOK.md), [Current Product Baseline](CURRENT_PRODUCT_BASELINE.md), [Decision Log](DECISION_LOG.md) and [Workflow Change Log](WORKFLOW_CHANGE_LOG.md). Historical release statements below remain evidence of their date, not necessarily current behaviour.
+
 Authoritative source files bundled with this release:
 
 - `docs/brand/Farming_Hub_Brand_Guidelines.pdf`

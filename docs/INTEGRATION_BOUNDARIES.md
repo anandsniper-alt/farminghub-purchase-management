@@ -1,5 +1,7 @@
 # Integration boundaries — alpha 0.1.0-alpha.1
 
+> Current project memory (2026-09-12): see [Project Rulebook](PROJECT_RULEBOOK.md), [Current Product Baseline](CURRENT_PRODUCT_BASELINE.md), [Decision Log](DECISION_LOG.md) and [Workflow Change Log](WORKFLOW_CHANGE_LOG.md). Historical release statements below remain evidence of their date, not necessarily current behaviour.
+
 ## Existing systems are not overwritten
 
 - Existing VMS: authoritative real vendor identity, vendor-development data, qualification and historic interactions. The new website's pilot vendor records are isolated examples, not a second live master. No sync worker or API credential is active.
