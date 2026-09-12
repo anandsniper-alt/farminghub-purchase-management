@@ -1,5 +1,14 @@
 # Current product baseline
 
+## Role-editing live publication - 2026-09-12
+
+Application commit **dd8656cb02c7ea47aa45eb29143270095aa21e87** deployed from main to https://purchase.dvjassociates.com via Coolify deployment **heiuia7nadcjjtlvrxiaktdc** (finished; running:healthy). This publishes DEC-015 / WF-014 administrator role editing. Existing domain, persistent data volume and application configuration retained.
+
+**12 live checks passed:** HTTPS health, exact served app/domain source, administrator settings, self-role protection, current role/five supported choices, Purchase Manager selection, required reason, mobile layout, cancellation preserving the original role, no role/business writes and no browser runtime errors. Administrator logged out after checking. No live role or PO was changed. Actual promotion/demotion and existing-session enforcement were already tested in the isolated suite (108 native tests, 11 browser checks).
+
+Use Users & settings > Change role on another user's row. Earlier local-only/unpublished role-editing notes below are superseded by this deployment. Bulk deletion/serial-number work is not included. Ignored verification artifact: test-output/role-editing-live-report.json.
+
+
 **Role editing source update, 2026-09-12 (DEC-015 / WF-014):** administrators can change another user's role from Users & settings. Existing ID, password, scopes and owned orders are retained. Server requests use the current role immediately, with auditable reason and optimistic revision protection. Acting administrators cannot change their own role. Server and standalone UI promotion/demotion/mobile checks passed; isolated API tests verify existing-session enforcement. Local source only, not a publication claim.
 
 ## Live publication - 2026-09-12

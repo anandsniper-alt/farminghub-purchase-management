@@ -175,6 +175,14 @@ Ignored local verification report: test-output/september-release-live-report.jso
 **Dependencies:** USER_ROLES, execute, /api/commands, Store.session/transact, settings row/dialog helpers. **Workflow impact:** admin opens target row, selects role and reason, saves; user keeps existing account. **Other-module impact:** effective permissions change according to existing role rules; scopes/order ownership/calculations unchanged. September delegation remains a separate expiring policy.
 **Final decision/reason:** shared CHANGE_USER_ROLE with revision check and USER_ROLE_CHANGED audit. A distinct credential endpoint is unnecessary because no secret changes. Preserve all unrelated profile/account fields. **Files:** shared/domain.mjs, web/app.mjs, generated review, tests/server.test.mjs, tests/admin_management_browser_flow.mjs and docs. **Documentation updated:** B-16, learnings, brand, baseline, changelog, WF-014. **Verification:** API promotion/demotion with already-authenticated session, no password hash changes, invalid/stale/unauthorized/self changes rejected; server/review/mobile browser checks pass. **Related:** extends DEC-012, retains DEC-014 expiry and DEC-003 scope-audit exception. Local source only.
 
+### DEC-015 publication evidence
+
+Application commit **dd8656cb02c7ea47aa45eb29143270095aa21e87** deployed from main to https://purchase.dvjassociates.com via Coolify deployment **heiuia7nadcjjtlvrxiaktdc** (finished; running:healthy). This publishes DEC-015 / WF-014 administrator role editing. Existing domain, persistent data volume and application configuration retained.
+
+**12 live checks passed:** HTTPS health, exact served app/domain source, administrator settings, self-role protection, current role/five supported choices, Purchase Manager selection, required reason, mobile layout, cancellation preserving the original role, no role/business writes and no browser runtime errors. Administrator logged out after checking. No live role or PO was changed. Actual promotion/demotion and existing-session enforcement were already tested in the isolated suite (108 native tests, 11 browser checks).
+
+Use Users & settings > Change role on another user's row. Earlier local-only/unpublished role-editing notes below are superseded by this deployment. Bulk deletion/serial-number work is not included. Ignored verification artifact: test-output/role-editing-live-report.json.
+
 ## Record template - next DEC-016
 
 **Date:**

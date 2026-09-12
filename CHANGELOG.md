@@ -1,5 +1,7 @@
 # Changelog — v0.6.1-alpha.16
 
+Role editing published 2026-09-12: application commit dd8656c is live at https://purchase.dvjassociates.com. Twelve live checks passed; no user role changed during verification.
+
 ## Administrator role editing - 2026-09-12
 
 - Users & settings now provides Change role for other users, including Purchase Executive to Purchase Manager.

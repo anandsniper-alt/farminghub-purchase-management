@@ -177,6 +177,14 @@ Ignored local verification report: test-output/september-release-live-report.jso
 **Status changes:** no account-active/order status changes. **Roles affected:** ADMIN can edit others; all supported target roles retain existing permission definitions. **Dependencies:** shared domain, current session profile, revision transaction and UI helper reuse. **Calculations:** none. **Reports:** role history identifies admin/target/old/new/reason. **Data/database:** profile role and appended event only; no schema/account/password/ownership changes. **API:** existing /api/commands accepts CHANGE_USER_ROLE. **UI:** Change role action with role select/reason; no own-role button. **Compatibility:** credentials and IDs remain valid; open pages may need refresh to show new role, while server enforcement is immediate. **Risks:** privilege elevation and lockout; admin authorization and self-change block apply.
 **Final implementation/verification:** isolated API tests cover promotions/demotions in existing sessions, rejected unauthorized/invalid/stale/self edits and immutable credentials; browser checks cover server/review/mobile and non-admin visibility. **Related decisions:** DEC-015, extends WF-011; WF-013 temporary approvals remain unchanged. Local source only.
 
+### WF-014 publication evidence
+
+Application commit **dd8656cb02c7ea47aa45eb29143270095aa21e87** deployed from main to https://purchase.dvjassociates.com via Coolify deployment **heiuia7nadcjjtlvrxiaktdc** (finished; running:healthy). This publishes DEC-015 / WF-014 administrator role editing. Existing domain, persistent data volume and application configuration retained.
+
+**12 live checks passed:** HTTPS health, exact served app/domain source, administrator settings, self-role protection, current role/five supported choices, Purchase Manager selection, required reason, mobile layout, cancellation preserving the original role, no role/business writes and no browser runtime errors. Administrator logged out after checking. No live role or PO was changed. Actual promotion/demotion and existing-session enforcement were already tested in the isolated suite (108 native tests, 11 browser checks).
+
+Use Users & settings > Change role on another user's row. Earlier local-only/unpublished role-editing notes below are superseded by this deployment. Bulk deletion/serial-number work is not included. Ignored verification artifact: test-output/role-editing-live-report.json.
+
 ## Record template - next WF-015
 
 **Date:**
