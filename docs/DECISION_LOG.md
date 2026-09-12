@@ -158,6 +158,14 @@ The user explicitly requested publication. Application commit `8a96a27` was push
 
 **Related/supersession:** temporarily supersedes only approval eligibility in DEC-003/004 and WF-001/002/004; other requirements continue. Normal roles resume automatically at expiry. Extension requires another confirmed record; see WF-013.
 
+### DEC-013 / DEC-014 publication evidence
+
+Published application commit **64e67648cdc1adc315f2b20c8c5d68bdc546db45** from main to https://purchase.dvjassociates.com through Coolify deployment **e7p6hs4p1eatsbhp3mvg71ql** (finished; application running:healthy). This publishes DEC-013/WF-012 multiple attachments with 50 MB per file and DEC-014/WF-013 temporary purchase/product approval delegation. The existing domain, Docker configuration and persistent data volume were retained; no migration or role rewrite.
+
+Live verification passed 11 checks: HTTPS health, exact served app/domain source, administrator login/bootstrap, deadline notice, executive eligibility across all delegated actions using live profiles and the exact deployed policy, October 1 IST expiry, multiple-file/50 MB form, mobile notice fit, no runtime errors and no business-write requests. Logout completed. This was read-only verification: no live executive password login or approval transaction was performed. Full Executive-only transactions were already verified in the isolated browser workflow. Earlier local-only statements below are superseded by this publication record.
+
+Ignored local verification report: test-output/september-release-live-report.json. Application expiry remains **1 October 2026 00:00 IST**; completed approvals remain valid.
+
 ## Record template - next DEC-015
 
 **Date:**

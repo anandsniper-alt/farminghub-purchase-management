@@ -1,5 +1,7 @@
 # Changelog — v0.6.1-alpha.16
 
+Published 2026-09-12: application commit 64e6764 deployed successfully to https://purchase.dvjassociates.com; 11 live checks passed. This publishes the temporary executive approvals and multiple 50 MB uploads below.
+
 ## Temporary executive approval access - 2026-09-12
 
 - Purchase Executives may perform purchase and Product Manager approvals within assigned scopes through 30 September 2026, 11:59 pm IST, including their own submissions.
