@@ -1,5 +1,12 @@
 # Current product baseline
 
+## PO pipeline sorting source update - 2026-09-12
+
+DEC-019 / WF-018 adds exact supplier filtering, clickable ascending/descending S.No./Purchase order/Supplier headers, matching Sort orders dropdown and Reset view. Supplier names accompany codes; search includes codes. Sorting applies before pagination and carries through board lanes and full filtered CSV export; Supplier name is appended to CSV. Original ordering remains default. All records/serials/permissions are preserved; selection clears on filter/sort changes.
+
+52 server/review sorting checks, 31 bulk regression checks, native startup and review build passed. This is local source, not yet published. No live orders or approval settings changed.
+
+
 ## Approval controls live publication - 2026-09-12
 
 Application commit **36a0198304ec3c1f723f9fcb4aabe0376b2018f8** deployed to https://purchase.dvjassociates.com through Coolify deployment **evhfg1nzclwtzvfdlfsedofd** (finished; application running:healthy). This publishes DEC-018 / WF-017 / B-20. Earlier local-source/unpublished notes for these controls are superseded by this publication record. Domain, runtime configuration and persistent data volume retained; no schema migration or live role/policy rewrite.

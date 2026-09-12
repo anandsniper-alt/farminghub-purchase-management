@@ -1,5 +1,13 @@
 # Changelog — v0.6.1-alpha.16
 
+## Supplier and serial sorting - 2026-09-12 (local source)
+
+- PO pipeline supports exact supplier filtering and ascending/descending supplier, S.No. and PO-number sorting from headers or dropdown.
+- Global sorting precedes pagination; board and full CSV export follow the same filter/order. Supplier names now accompany codes and are appended to CSV.
+- Original order default and Reset view; filter/sort changes clear bulk selections. Permanent serial numbers and all stored PO data remain unchanged.
+- 52 sorting and 31 bulk browser checks passed in server/review modes, plus native startup/build checks. DEC-019 / WF-018. Not yet published.
+
+
 Published 2026-09-12: approval controls commit **36a0198** is live at https://purchase.dvjassociates.com (healthy). All 15 live checks passed. No live permission changes were saved during verification.
 
 ## Configurable approval controls - 2026-09-12 (local source)

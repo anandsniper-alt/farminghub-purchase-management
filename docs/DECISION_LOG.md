@@ -232,7 +232,14 @@ Use Users & settings > Manage approval controls, select role permissions, provid
 
 Ignored live report: test-output/approval-controls-live-report.json. Local mobile evidence: D:/CodexTestTemp/FarmingHub/approval-controls-live-mobile.png.
 
-## Record template - next DEC-019
+## DEC-019 - Supplier and PO serial sorting in the pipeline
+
+**Date:** 2026-09-12. **Module:** Purchase pipeline. **State/evidence:** IMPLEMENTED from user request to sort/view by supplier and PO serials like Excel.
+**Existing behavior:** text/stage filtering, original array order, 12-row table pages, board view, admin current-page bulk selection and CSV. Supplier cell showed code/SKUs, with no sortable headers or exact supplier filter.
+**Proposed behavior:** supplier filter and sort headers/dropdown for supplier, permanent serial and manual PO number. **Alternatives considered:** current-page sorting (breaks full-list ordering); spreadsheet/grid dependency (unnecessary architecture and UX expansion); reusable existing filter pipeline (chosen). **Advantages:** familiar ordering, consistent export/pages, supplier identities remain distinct. **Disadvantages:** one selected supplier and one primary sort at a time; no arbitrary Excel multi-column filters/formulas. **Risks:** hidden selections or accidental renumbering; avoided by clearing selection and sorting only a filtered copy.
+**Dependencies:** filteredOrders, pipeline rows/board, event handlers, CSV and review build. **Workflow impact:** read-only list exploration; no business-stage changes. **Other-module impact:** none; filter state resets on route/role change. **Final decision/reason:** preserve original order by default, add ascending/descending natural supplier/PO text and numeric S.No., deterministic serial ties, exact supplier-ID filtering and reset. Append supplier name to CSV while retaining existing positions. **Files:** web/app.mjs, generated review HTML, pipeline_sort_browser_flow.mjs, bulk browser header assertion, memory/test docs. **Scope:** MODULE-SPECIFIC PO pipeline; UX-12. **Documentation:** all six memory documents updated plus test reports/changelog. **Verification:** 52 browser sorting checks, 31 bulk checks, startup graph and build. **Related:** extends DEC-016 serial/deletion rules; WF-018. Local source, not live publication.
+
+## Record template - next DEC-020
 
 **Date:**
 **Area/module:**

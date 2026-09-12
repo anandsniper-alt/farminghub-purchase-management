@@ -234,7 +234,16 @@ Use Users & settings > Manage approval controls, select role permissions, provid
 
 Ignored live report: test-output/approval-controls-live-report.json. Local mobile evidence: D:/CodexTestTemp/FarmingHub/approval-controls-live-mobile.png.
 
-## Record template - next WF-018
+## WF-018 - Filter and sort the PO pipeline
+
+**Date:** 2026-09-12. **Module/workflow:** Purchase / pipeline exploration. **Evidence/state:** IMPLEMENTED from user's Excel-like supplier/serial viewing request.
+**Previous workflow:** (1) open pipeline; (2) search or select stage; (3) navigate original-order pages; (4) export filtered records. No explicit supplier selector or sorting.
+**Requested change/reason:** find supplier POs and arrange them by supplier or serial without exporting first.
+**New workflow:** (1) open active/deleted pipeline; (2) select supplier, optional stage/search; (3) click Supplier / item, S.No. or Purchase order header to toggle order, or use Sort orders; (4) read globally sorted pages/board; (5) export the same full sorted result; (6) Reset view to clear filters/sort and restore original order.
+**Added:** exact supplier selection, sort headers/dropdown/indicators, reset, visible supplier name and final CSV name column. **Removed:** nothing from business workflows. **Modified:** sorting/filter changes clear selection and reset page; supplier/name/code viewing and CSV ordering. **Status changes:** none. **Roles affected:** all scoped pipeline readers; Admin retains exclusive bulk controls. **Dependencies:** shared UI list calculation, pagination, board, export. **Calculations:** numeric serial comparison only; no financial/serial allocation formula change. **Reports:** CSV includes supplier name and respects visible sort/filter across pages. **Data/database:** no writes or migration. **API:** no new endpoint/command. **UI:** existing toolbar/header patterns, mobile selects, keyboard focus and aria-sort.
+**Backward compatibility:** Original order default; same PO numbers/serials and original CSV columns; existing board-lane coverage retained. **Risks:** duplicate supplier names and hidden selection; use ID filters and clear selection. **Final verification:** server/review 52 view checks and 31 bulk regression checks; stored state unchanged by view actions, startup/build pass. **Related decision:** DEC-019 / UX-12; extends WF-015 viewing without changing deletion workflow.
+
+## Record template - next WF-019
 
 **Date:**
 **Workflow Change ID:**

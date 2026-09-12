@@ -1,5 +1,16 @@
 # Project rulebook
 
+## UX-12 - Pipeline supplier filter and sorting (DEC-019 / WF-018)
+
+**MODULE-SPECIFIC RULE: PO pipeline.** Reuse one filteredOrders result for table pagination, current-page selection, board lanes and CSV export. Apply active/deleted and scope visibility, exact supplier ID, existing stage and substring search first; sort the complete result before slicing 12-row pages. Supplier choices show name/code and include suppliers represented in the visible active/deleted list, without stage/search narrowing the choices.
+
+Keep Original order as default. Supplier sorting uses name A-Z/Z-A, case-insensitive natural text comparison, with ascending permanent S.No. for ties. S.No. sorts numerically in either direction; manual PO number sorts naturally (PO-2 before PO-10). Missing sort values go last; serial/ID tie-breakers keep results deterministic. Do not mutate persisted order arrays or renumber records.
+
+Headers toggle ascending/descending and expose aria-sort; toolbar Sort orders provides the same choices for mobile/board. Supplier/sort/search/stage changes reset page and clear bulk selections; switching active/deleted clears supplier filtering; route/role changes reset pipeline filter/sort. Header/select focus remains usable after render. Reset view clears search/stage/supplier/sort/page/selection and restores original ordering. Existing board-lane status coverage remains unchanged.
+
+Show supplier name plus established code/SKUs in the pipeline; CSV appends Supplier name after existing columns and exports all filtered rows in chosen order. Preserve all original CSV column positions and csvCell escaping. These view controls never change approval rights, financials, PO identities or deletion history.
+
+
 ## Configurable approval controls - B-20 (DEC-018 / WF-017)
 
 **GLOBAL RULE:** only ADMIN can save approval controls, using SAVE_APPROVAL_CONTROLS, a complete validated stage-to-role matrix, explicit confirmation, reason and expected workspace revision. Persist in approvalControls; append APPROVAL_CONTROLS_UPDATED with full before/after, actor, timestamp and increasing control revision. Existing databases with no controls use standard B-19 defaults. B-19's removal of automatic September delegation continues; its role assignments are now restorable defaults rather than unchangeable permissions.

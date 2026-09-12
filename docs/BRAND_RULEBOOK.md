@@ -1,5 +1,10 @@
 # Farming Hub brand rulebook
 
+## Pipeline sort/filter controls - 2026-09-12
+
+Reuse pipeline toolbar native selects for Filter by supplier and Sort orders, the existing small ghost button for Reset view, and small ghost header buttons for S.No., Purchase order and Supplier / item. Ascending/descending indicators use text arrows with accessible aria-sort; keyboard focus is restored. Show supplier name/code/SKUs without changing fonts, colours or layout tokens. Keep horizontal table overflow and wrapping filters; mobile selects verified at 390px. Board cards also show supplier name/code and permanent S.No.
+
+
 ## Approval controls window - 2026-09-12
 
 Reuse Users & settings, panel heading/action, shared wide dialog, labelled native role checkboxes grouped in fieldsets, existing two-column grid (single column on mobile), warning/info notes, reason textarea and Cancel/Save footer. Show all stages and Admin-always-allowed in each group. The controls panel lists effective roles and append-only change history; Restore standard roles is a form action, not an immediate write. No new brand tokens, fonts, colours or layout framework. Mobile dialog verified at 390px; existing scrollable body keeps actions accessible.

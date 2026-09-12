@@ -1,5 +1,14 @@
 # Complete purchase workflow browser tests
 
+## PO pipeline supplier/serial sorting - 2026-09-12
+
+**52 browser checks passed** in isolated authenticated server and standalone review modes. Scenarios cover original order default; numeric serial sorting over multiple pages; ascending/descending headers and accessibility/focus; supplier-name sort with permanent serial ties; exact supplier ID for duplicate names; composed stage/search/code filtering; exported full filtered order with appended supplier name; empty/reset; cleared bulk selections; natural PO number order; deleted view; board filtering; 390px mobile controls; Manager access without Admin controls. Zero browser runtime errors, no business-write requests, and full stored state unchanged.
+
+**31 bulk delete/restore regression checks passed** after updating the serial-header selector to its accessible sort-button name. Native `node --test tests/startup.test.mjs` passed (1 test); syntax check, `node scripts/build.mjs` and git diff --check passed. Shared domain/server code did not change, so no unrelated full financial suite rerun was needed.
+
+Evidence: D:/CodexTestTemp/FarmingHub/reports/pipeline-sort/2026-09-12T15-28-04-138Z/ (report, screenshots, CSV downloads, traces and synthetic SQLite); bulk-orders/2026-09-12T15-28-29-304Z/. Runner: `node tests/pipeline_sort_browser_flow.mjs` with process TMP/TEMP and FH_TEST_OUTPUT_ROOT on D:. Test artifacts remain outside Git. No live orders/settings changed. Local implementation, not a publication record.
+
+
 ## Approval controls live publication - 2026-09-12
 
 Application commit **36a0198304ec3c1f723f9fcb4aabe0376b2018f8** deployed to https://purchase.dvjassociates.com through Coolify deployment **evhfg1nzclwtzvfdlfsedofd** (finished; application running:healthy). This publishes DEC-018 / WF-017 / B-20. Earlier local-source/unpublished notes for these controls are superseded by this publication record. Domain, runtime configuration and persistent data volume retained; no schema migration or live role/policy rewrite.

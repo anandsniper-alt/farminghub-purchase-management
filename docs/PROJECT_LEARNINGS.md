@@ -1,5 +1,14 @@
 # Project learnings
 
+## Pipeline sorting/filtering - 2026-09-12
+
+filteredOrders is shared by row pagination, current-page bulk selection, board lanes and CSV. It filters into a new array and sorts that array; never sort state.orders in place. Supplier ID is the filter identity, since names can duplicate. Sorting the current page alone would misorder pagination/export. Numeric S.No. remains independent of manual PO number; natural case-insensitive comparison handles PO-2/PO-10.
+
+Sorting/filtering clears selectedOrders before re-render to avoid hidden admin selections. Header focus is restored after DOM replacement, while native selects provide mobile/board access. Search now includes supplier code alongside name. A Supplier name column is appended to CSV so existing column positions remain stable. Defaults and route/role reset behavior preserve current pipeline conventions.
+
+Verification: 52 server/review sorting checks and 31 bulk regression checks, native startup graph and standalone build; database snapshots unchanged by view operations. C: disk space was reclaimed by archiving two earlier generated workflow trace ZIPs to D:/CodexTestTemp/FarmingHub/archived-c-traces/ after SHA-256 copy verification; original locations contain archive pointers. No database or source files were removed.
+
+
 ## Configurable approval stages - 2026-09-12
 
 APPROVAL_STAGES is the 13-stage catalog for UI, defaults and validation; approvalRoles reads optional persisted approvalControls; canPerformApproval accepts workspace/order context without broadening canEdit/canApprove/canProductApprove. Admin edits the complete matrix atomically; default absence is backward compatible. New audit events carry approvalControl revision/command/roles, linking them to the append-only settings history.
