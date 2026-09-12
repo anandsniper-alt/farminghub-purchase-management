@@ -1,3 +1,4 @@
+import {GUIDE_POSES} from '../web/guide-poses.mjs';
 import {readFileSync,writeFileSync,copyFileSync} from 'node:fs';
 import {resolve,dirname,join} from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -5,10 +6,11 @@ import {APP_VERSION} from '../shared/domain.mjs';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..'),read=p=>readFileSync(join(root,p),'utf8');
 if(JSON.parse(read('package.json')).version!==APP_VERSION)throw new Error('package.json and shared APP_VERSION must match before issuing a build.');
 const strip=s=>s.replace(/^import\s+[^\n]*;\s*$/gm,'').replace(/^export\s+/gm,'');
-const js=['shared/plm.mjs','shared/shipping.mjs','shared/domain.mjs','shared/final-master-data.mjs','shared/clean-seed.mjs','web/app.mjs'].map(p=>'\n// '+p+'\n'+strip(read(p))).join('\n');
+const js=['shared/plm.mjs','shared/shipping.mjs','shared/domain.mjs','shared/final-master-data.mjs','shared/clean-seed.mjs','web/app.mjs','web/theme.mjs','web/support.mjs','web/guide-poses.mjs','web/experience.mjs'].map(p=>'\n// '+p+'\n'+strip(read(p))).join('\n');
 const safe=s=>s.replace(/<\/script/gi,'<\\/script');
 const template=readFileSync(join(root,'templates/LAE_Item_Master_Upload_Template_v0.1.xlsx')).toString('base64');
 const logo=readFileSync(join(root,'web/assets/farming-hub-logo.png')).toString('base64');
 const logoData='data:image/png;base64,'+logo;
-const html=`<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#204321"><title>Farming Hub · Purchase Management · PLM + Shipping + LAE Import clean review</title><link rel="icon" type="image/png" href="${logoData}"><style>${read('web/styles.css')}</style></head><body><div id="app"><div class="boot">Preparing Farming Hub Purchase Management…</div></div><div id="modal-root"></div><div id="toast-root" aria-live="polite"></div><script>window.FH_MODE='clean';window.FH_TEMPLATE_BASE64='${template}';window.FH_LOGO_URL='${logoData}';</script><script>${safe(read('web/jszip.min.js'))}</script><script type="module">${safe(js)}</script></body></html>`;
+const guidePoses=structuredClone(GUIDE_POSES);for(const p of Object.values(guidePoses))p.src='data:image/png;base64,'+readFileSync(join(root,'web'+p.src)).toString('base64');
+const html=`<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#204321"><title>Farming Hub · Purchase Management · PLM + Shipping + LAE Import clean review</title><link rel="icon" type="image/png" href="${logoData}"><style>${read('web/styles.css')}\n${read('web/theme.css')}\n${read('web/support.css')}</style></head><body><div id="app"><div class="boot">Preparing Farming Hub Purchase Management…</div></div><div id="modal-root"></div><div id="toast-root" aria-live="polite"></div><script>window.FH_GUIDE_POSES=${JSON.stringify(guidePoses)};window.FH_MODE='clean';window.FH_TEMPLATE_BASE64='${template}';window.FH_LOGO_URL='${logoData}';</script><script>${safe(read('web/jszip.min.js'))}</script><script type="module">${safe(js)}</script></body></html>`;
 const out=join(root,'Farming_Hub_Purchase_Management_Clean_Review.html');writeFileSync(out,html);console.log('Built '+out+' ('+Buffer.byteLength(html)+' bytes)');if(process.argv.includes('--deliver'))copyFileSync(out,resolve(root,'..',`Farming_Hub_Purchase_Management_Clean_v${APP_VERSION}.html`));

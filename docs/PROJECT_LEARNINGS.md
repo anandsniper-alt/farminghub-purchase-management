@@ -1,5 +1,19 @@
 # Project learnings
 
+## Production presentation integration - DEC-026
+
+Wrap the reviewed theme and guide in mount functions to preserve separate scope when the standalone builder strips ESM imports. Keep one GUIDE_POSES manifest for runtime URLs and embedded standalone assets. Native serving must explicitly allow every module/CSS/PNG; test the experience entry point as well as app.mjs. Appearance storage failures should not break the app. Preserve authenticated APIs and startup, and never carry prototype FH_PREVIEW_SEED/storage initialization into web/ runtime. The review builder embeds assets; the server loads same-origin PNGs.
+
+
+## Minimal theme prototype learnings - 2026-09-12
+
+Reuse the real standalone application/domain for a functional sample, but isolate the localStorage/IndexedDB namespaces and seed illustrative records before startup. The generator never reads .env or live SQLite. Current/Minimal toggles presentation only. The preview's sample-data strip replaces the normal clean-seed banner to avoid an inaccurate claim that no sample POs are loaded.
+
+Use disclosure for explanatory chrome and long timelines; preserve warnings, form hints, required labels, primary stage/actions, amounts and statuses. Animate main-page replacement only when route/tab identity changes, not on every filter input render; animate new dialogs once. Respect prefers-reduced-motion in both CSS and Web Animations. Retain existing colour/font/logo sources. Strip BOMs when concatenating CSS: an embedded BOM can invalidate the first :root declaration and break preview-strip offsets.
+
+Prototype verified with 32 browser checks and syntax/build checks. A first test locator omitted the required-field marker; using the label prefix fixed the test, with no application changes. Production source remains untouched. See prototypes/minimal-theme/README.md and current browser report.
+
+
 ## Pipeline sorting/filtering - 2026-09-12
 
 filteredOrders is shared by row pagination, current-page bulk selection, board lanes and CSV. It filters into a new array and sorts that array; never sort state.orders in place. Supplier ID is the filter identity, since names can duplicate. Sorting the current page alone would misorder pagination/export. Numeric S.No. remains independent of manual PO number; natural case-insensitive comparison handles PO-2/PO-10.
@@ -234,3 +248,42 @@ The following are **observed implementation contracts**. They are preserved by t
 ## Adding a learning
 
 Record discovery date, source symbol/path, reason/evidence, affected consumers, reproducible example or test, decision/workflow links and whether it is global or module-specific. Update calculation contracts when formulas/units/null behaviour change; retain the superseded rule through a DEC/WF link. Recommendations are not confirmed implementation requirements.
+
+
+## Prototype animation follow-up - 2026-09-12
+
+Track one Web Animation per element, cancel its predecessor on replay, and remove finished entries only if still current. Cancel only prototype-owned motion on theme/preference changes. Native details toggle capture supports mouse and keyboard reveal without intercepting disclosure state. Keep preview controls wrapping at 320px. 41 browser checks passed; see the current browser report. DEC-020 experiment only.
+
+
+## Guided-help learnings - 2026-09-12, DEC-021
+
+Keep authored tour configuration beside the prototype, resolve only rendered controls and close stale tours on route/DOM changes. Native dialog provides background inertness; explicitly wrap Tab at the first/last button because browser focus can otherwise leave the dialog for browser chrome. Never place instructional controls inside application forms or trigger their data-action handlers. Cancel only guide-owned animation on reduced-motion changes. Use HTML entities for new markup symbols passed through PowerShell to avoid encoding loss. The generated cutout is embedded locally; there is no runtime asset service or chatbot.
+
+
+## Mascot variant learnings - 2026-09-12, DEC-022
+
+Keep pose paths and alt text in one manifest consumed by the standalone builder. Predecode embedded image sources and keep a fixed object-fit box to avoid layout shifts when stepping quickly. Select poses by filtered guide position, not by financial or approval state. Preserve original source art and record new prompts as sibling variants. Verify actual PNG alpha: a generated checkerboard can be opaque image content and needs a targeted transparency correction, not a CSS imitation.
+
+
+**DEC-022 background follow-up:** the targeted alpha correction also returned a checkerboard. The final edit requests opaque pure white, matching the fixed white card/launcher without changing the character or adding runtime masking. Record this limitation in the asset provenance; never label a white-background PNG as transparent.
+
+
+## Mascot logo replacement - 2026-09-12, DEC-023
+
+Use the repository logo as a separate visual input when replacing garment branding; preserve the character and requested palette. In HTML, embed the exact original logo instead of redrawing it. Adding a header logo creates a second image in the guide, so scope mascot assertions to .support-mascot. Scan visible copy and accessible labels as well as artwork when retiring a mascot name. Keep historical images/prompts outside the active manifest.
+
+
+## Persistent contextual guide - 2026-09-12, DEC-024
+
+A high z-index does not put a launcher above a native modal dialog: move the same dock into the open dialog and restore it to the body on close. Extend the app form's keyboard loop to include help, while the guide keeps its own loop. Focus-only Take me there preserves destructive/financial action boundaries. Build next-action hints from the already authorized rendered primary action; query validity.valid without calling reportValidity or reading field values. Close stale guidance on DOM replacement. Reserve mobile space for the dock and verify unsaved form content survives help open/close.
+
+
+## Consistency and boundary repairs - 2026-09-12
+
+A standalone concatenated build can hide a missing ESM import; exercise populated Vendor master in native browser mode. Derive pre-production presentation membership from STATUS_LABELS and keep later groups explicit so new early stages cannot disappear silently. Board/Overview must partition the same visible set.
+
+A globally allowed import command still needs per-target ownership/scope checks. Preflight all tracking matches before allocating the batch or mutating shipments. Projection must filter related price/complaint references and division-specific histories, not only orders. Normalize composite identity before enforcing immutability and uniqueness; never let an ordinary save's caller supply approval state.
+
+Reuse productionReferenceDaysForOrderInput with expandedDraftLines to preserve the existing item maximum/supplier/30-day contract. Updating hints should not recreate focused quantity inputs or discard unsaved notes. Distinguish base-master metadata from the authoritative order commitment comparison. Existing future-price activation and invoice/price-list currency behavior need business decisions, not guessed fixes.
+
+Browser fixture failures exposed invalid duplicate serials and missing legacy sample brandPrefix values in test data; corrected the isolated fixtures. Two initial browser assertions used the wrong heading/label ancestor; screenshots confirmed the implementation and locators were corrected. These failed attempts are retained as evidence, not counted as passes.

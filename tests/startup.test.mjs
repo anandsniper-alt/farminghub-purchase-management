@@ -20,6 +20,7 @@ test('browser startup module graph is served without authentication', async () =
   }
   try {
     await visit('/app.mjs');
+    await visit('/experience.mjs');
   } finally {
     await new Promise(resolve => server.close(resolve));
   }

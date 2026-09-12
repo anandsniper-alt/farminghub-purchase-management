@@ -1,5 +1,67 @@
 # Complete purchase workflow browser tests
 
+
+## Production presentation release verification - DEC-026 / WF-020
+
+2026-09-12: node --test tests/*.test.mjs -> 122 passed. Browser consistency run after integration -> 36 passed (D:/CodexTestTemp/FarmingHub/reports/consistency-fixes/2026-09-12T17-01-25-173Z/). New presentation release suite -> 44 passed in native server and standalone review (D:/CodexTestTemp/FarmingHub/reports/presentation-release/2026-09-12T17-04-35-822Z/). Checks cover default/persisted appearance, visible Show page guides, loaded mascot poses, contextual guidance, preserved form input, real animations/reduced motion, 320/390px controls, no runtime errors and unchanged stored data/no business writes. Visual review found a narrow-phone header overflow; runtime CSS hides the redundant breadcrumb below 420px and truncates long account names while retaining navigation/sign-out. Explicit no-page-overflow checks now pass at 320/390px in both modes. Startup graph includes experience.mjs and its imports. Normal standalone build passes; production sample/replay controls absent. First presentation attempt missed expanding More actions in the test; locator flow corrected, no app workaround. Live verification follows deployment.
+
+
+## Consistency fixes and guide-toggle preservation - 2026-09-12 (DEC-025 / WF-019)
+
+Local source/review/preview verification; not a live deployment or live database audit.
+
+- Native: node --test tests/*.test.mjs -> 122 passed, 0 failed. Includes seven new projection, tracking ownership/atomicity, forged approval, vendor identity, master scope and unchanged production-reference contract tests. After adding vendor-import-history projection, the seven targeted tests were rerun and passed.
+- Browser: node tests/consistency_browser_flow.mjs -> 36 passed, 0 errors across native server and standalone review. Covers 16 currently derivable stages appearing once in Board, six previously missing filtered stages, complete Overview totals, populated Vendor master, short sidebar reachability, bootstrap 503/retry/401 login, item-versus-base production reference, override visibility and preservation of input focus/unsaved notes. Persisted business state unchanged. SAMPLE_REQUIRED remains a catalog label currently not returned by orderStatus; grouping includes it without changing status derivation.
+- Preview: node prototypes/minimal-theme/check.mjs -> 42 passed; node prototypes/minimal-theme/check-support.mjs -> 66 passed. Minimal Show page guides visible/enabled, explanations toggle, responsive controls at 320/390px, theme/motion/reduced-motion and persistent mascot guide remain functional. No external host/API business writes or runtime errors.
+- Builds: node scripts/build.mjs and node prototypes/minimal-theme/build.mjs passed. Syntax checks for changed runtime modules and git diff --check passed.
+
+Current artifacts (ignored, synthetic fixtures): D:/CodexTestTemp/FarmingHub/reports/consistency-fixes/2026-09-12T16-55-35-696Z/, theme-preview/2026-09-12T16-56-01-380Z/, gaja-guide/2026-09-12T16-56-19-082Z/. Each directory has report.json and browser evidence. Earlier failed attempts remain separate and are not counted: duplicate fixture serials/missing sample prefix, then wrong heading/label-parent locators were corrected.
+
+Scope limits: no production publication; no changes to active approval controls, payments, FX formulas or historical records. Future-effective price activation and invoice/price-list currency policy remain unresolved business decisions. Minimal theme and mascot remain isolated proposals, with Show page guides explicitly preserved.
+
+## Persistent instruction-only guide verification - 2026-09-12, DEC-024
+
+**66 guide checks and 41 theme regression checks passed.** Verified dock visibility in pages/forms/native tour, current order primary-action guidance, missing-required-field guidance, Take me there focus with no submission/state mutation, preserved unsaved remarks and underlying form on Escape, existing tour controls, brand/poses, reduced motion and 320/390px fit. Theme regressions include form validation/save, approval/deletion disclosures and filter/sort behavior with the reserved dock space. Desktop and mobile screenshots inspected.
+
+Both browser runners saw no external requests, business API calls or runtime errors. Generated HTML has no AI endpoint/composer; provisional AI source/test files were removed and serve.mjs is GET-only again. No provider key or external model call was used. Syntax/build and diff checks passed. Guide evidence: D:/CodexTestTemp/FarmingHub/reports/gaja-guide/2026-09-12T16-42-18-784Z/. Theme evidence: D:/CodexTestTemp/FarmingHub/reports/theme-preview/2026-09-12T16-43-27-617Z/. Each directory includes report.json, trace.zip and screenshots. This remains local sample verification; no production publication.
+
+
+## Farming Hub logo replacement verification - 2026-09-12, DEC-023
+
+**58 guide browser checks passed.** Header logo matches the original repository logo source; guide text/image alternatives omit the former mascot name. All three replacement assets load and the welcome/pointing/final progression, Back/reopen, guide controls, role filtering, modal suppression, keyboard/Escape and reduced-motion checks pass. Mobile card verified at 320/390px; artwork and screenshot visually inspected. No browser errors, live-host/API writes or changes to saved purchase state. Syntax, isolated build and diff checks passed.
+
+Evidence: D:/CodexTestTemp/FarmingHub/reports/gaja-guide/2026-09-12T16-29-12-692Z/ (report.json, trace.zip and desktop/mobile screenshots). Runner: prototypes/minimal-theme/check-support.mjs. Active assets: assets/farminghub-welcome.png, farminghub-pointing.png, farminghub-ready.png; full edit prompt/source reference: assets/BRANDING_PROMPT.md. Garment patches are generated renderings of the logo; HTML header uses the exact original. Local preview only; no deployment.
+
+
+## Green/lime GAJA pose verification - 2026-09-12, DEC-022
+
+**56 guide browser checks passed.** Verified three distinct bundled assets, welcome launcher/first step, pointing explanations, thumbs-up final step, reopening pose reset and unchanged purchase data. Existing guide checks still pass: Next/Back/Skip/Finish, focus containment, Escape/focus restoration, available-role filtering, route cleanup, business-dialog suppression, Current comparison, eleven additional pages, 320/390px layouts and reduced motion. No browser errors or live/API writes. Syntax checks and isolated build passed.
+
+Desktop and mobile screenshots visually inspected; green/lime clothing, readable GAJA identity and clean white image surfaces fit the card. Original transparency requests returned opaque checkerboards; those outputs were replaced by white-background edits and are not included in the project. Final pose assets are RGB/white-background, not transparent; see assets/POSE_PROMPTS.md.
+
+Evidence: D:/CodexTestTemp/FarmingHub/reports/gaja-guide/2026-09-12T16-23-14-147Z/ (report.json, trace.zip, desktop welcome/pointing/final and mobile screenshots). Runner: node prototypes/minimal-theme/check-support.mjs. This is current local guide verification only, not production deployment or a new full business-workflow test. Earlier 41 theme checks remain historical evidence for the preceding revision.
+
+
+## GAJA guided support verification - 2026-09-12
+
+**50 guide checks and 41 theme regression checks passed.** Guide coverage: opt-in entry, bundled mascot, seven pipeline steps, targeted highlight, Next/Back, focus containment, Escape/focus restore, Skip/Finish/reopen, Current/Minimal, order-stage explanation, business-dialog suppression, eleven additional page tours, stale-route cleanup, 320/390px layout, reduced motion and Viewer omission of unavailable creation controls. Saved order state remains identical after tours. Both runners report no browser errors, no live-host/API calls and no business writes from the guide. Syntax/build and diff checks passed.
+
+Guide evidence: D:/CodexTestTemp/FarmingHub/reports/gaja-guide/2026-09-12T16-16-43-317Z/ (report.json, trace.zip, desktop/mobile screenshots). Theme regression evidence: D:/CodexTestTemp/FarmingHub/reports/theme-preview/2026-09-12T16-16-43-338Z/. Runners: prototypes/minimal-theme/check-support.mjs and check.mjs. An initial guide test caught Tab leaving the card for browser chrome; explicit boundary wrapping fixed it. Visual QA also corrected markup symbols affected by shell encoding. Final screenshots inspected on desktop and mobile. This verifies the isolated sample, not production UAT. DEC-021.
+
+
+## Animation follow-up verification - 2026-09-12
+
+**41 browser checks passed.** Page entrance now uses a 280 ms fade/12px slide; dialogs use 240 ms fade/12px slide with subtle scale; expanded workflow/guidance/actions use a 220 ms reveal. Replay animation restarts page motion without altering sample data or stacking animations. Current comparison disables replay. Reduced-motion preference cancels active prototype motion and disables replay; native disclosure and keyboard behavior remain available. Verified keyboard expansion, repeated replay without stacking or state mutation, reduced-motion disable/re-enable, 320/390px toolbar fit and existing sorting/filtering/forms/approval disclosures. No browser errors or live/API requests. Syntax and isolated build passed. Evidence: D:/CodexTestTemp/FarmingHub/reports/theme-preview/2026-09-12T16-07-55-863Z/ (report.json, trace.zip and screenshots). Runner: node prototypes/minimal-theme/check.mjs. Earlier 32-check record describes the initial version; this result verifies the updated prototype only. Live source/site unchanged.
+
+## Isolated minimal theme trial - 2026-09-12
+
+**32 browser checks passed** against http://127.0.0.1:8137 with eight illustrative sample orders. Verified Current/Minimal comparison without state mutation, separate normal-review storage, guide reveal, supplier/serial controls, expandable timeline with visible current stage, working required-field validation and a sample interaction-note save, visible deletion and approval risk disclosures, nine module views, actual page/dialog animation durations, reduced-motion disabling, mobile compare/filter controls, no live-host/business API requests and no runtime errors. CSS/JS/build syntax checks passed. Production application source/domain and normal build were not modified, so this is not a production UAT or full financial regression claim.
+
+Evidence: D:/CodexTestTemp/FarmingHub/reports/theme-preview/2026-09-12T16-01-58-720Z/ (report.json, trace.zip, Current/Minimal pipeline, overview, order, form and mobile screenshots). Runner: node prototypes/minimal-theme/check.mjs. Generated preview HTML is ignored and uses separate localStorage/IndexedDB namespaces. The local server exposes only GET preview HTML and binds to loopback.
+
+Early visual inspection found an embedded CSS BOM affecting the preview-strip offset; the generator now strips it. An initial exact-label test locator failed on a required-field marker; prefix matching corrected the locator. Final checks passed after both fixes. The user has not yet accepted/rejected the visual proposal. Live site unchanged; see DEC-020 and prototype README.
+
+
 ## Pipeline sorting live publication and requested test batch - 2026-09-12
 
 Application commit **db6978cc249c7d8b039c34cdbceee4bedc7daea0** is live at https://purchase.dvjassociates.com through Coolify deployment **6fwkw5g3hzfiqxrq1bqry7me** (finished; application running:healthy). This publishes DEC-019 / WF-018 / UX-12. Earlier local-only statements for sorting are superseded by this record. Existing domain, runtime configuration and persistent volume retained.

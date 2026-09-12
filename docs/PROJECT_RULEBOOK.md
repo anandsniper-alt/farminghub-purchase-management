@@ -1,5 +1,15 @@
 # Project rulebook
 
+## Current approved presentation - DEC-026 / WF-020 (2026-09-12)
+
+The user's publication request approves production adoption of the reviewed Minimal theme, animations and persistent Farming Hub mascot guide. This supersedes earlier local-only/adoption-pending notes below for this presentation. Runtime files live in web/; the prototype remains historical test material. Default Minimal, retain Current choice and Show/Hide page guides in the fixed appearance toolbar. Keep colors/fonts/logo and reduced-motion support. Help is authored, never an AI chat, and Take me there only focuses the existing control. Live identity/data/approval logic remain authoritative; do not deploy the sample seed or test-only replay controls.
+
+
+## Theme experiment boundary - DEC-020
+
+**GLOBAL preservation rule remains:** the user's request to build/test a sample does not authorize production theme replacement. Prototype files are isolated under prototypes/minimal-theme, excluded from the runtime/build/Docker deployment paths. Compare Current/Minimal against synthetic state in separate browser storage; keep warning/error/required-field/financial/permission behavior intact. Production adoption, rejection or partial adoption needs the user's review decision and a subsequent decision/workflow record. No business workflow changed in this experiment.
+
+
 ## UX-12 - Pipeline supplier filter and sorting (DEC-019 / WF-018)
 
 **MODULE-SPECIFIC RULE: PO pipeline.** Reuse one filteredOrders result for table pagination, current-page selection, board lanes and CSV export. Apply active/deleted and scope visibility, exact supplier ID, existing stage and substring search first; sort the complete result before slicing 12-row pages. Supplier choices show name/code and include suppliers represented in the visible active/deleted list, without stage/search narrowing the choices.
@@ -179,3 +189,26 @@ Names are trimmed and required (maximum 120 characters); email is normalized to 
 ## Documentation maintenance contract
 
 Every meaningful decision gets a DEC record; workflow evolution gets a WF record. Keep old records, mark `Superseded by DEC-...` or `Replaced by WF-...`, and link both directions. Update reusable rules, calculation contracts, baseline and branding where affected. Add source paths, relevant tests and verification date. Preserve earlier release evidence; correct stale current summaries through an explicit addendum. Start the next IDs after the highest existing number. Documentation-only work does not bump product/schema versions or require a redeployment.
+
+
+## Prototype support boundary - DEC-021
+
+**MODULE-SPECIFIC, local theme experiment only:** keep help opt-in, concise, read-only and tied to visible controls. Do not infer authority from a tour step or auto-complete business actions. Reuse real validation/authorization messages; explain configurable approvals without inventing role grants. Hide help during business dialogs and preserve keyboard, Escape and reduced-motion behavior. User requested the mascot guide in the ongoing sample; this does not confirm production theme adoption.
+
+
+## Always-visible instruction guide - DEC-024
+
+**MODULE-SPECIFIC RULE: local prototype.** The Farming Hub logo and mascot remain in a fixed, keyboard-accessible dock on pages, in business forms and while the tour is open. Tap to open guidance; tap again to close. Order guidance starts with the actual primary action already rendered for the current role. In a form, it starts with a displayed error or invalid visible field, then a review/submission explanation. Take me there closes help and focuses the target without clicking it, submitting, approving or changing values. Guide Escape leaves the underlying form and unsaved entries intact. Back/Next/Skip/Finish remain, and mobile reserves space for the dock. No AI, API key, chat input or external model call is used. This explicitly supersedes DEC-021's instruction to hide help during business dialogs. Keep the help launcher in the keyboard loop and preserve form drafts/focus. Reuse rendered next actions and native validity instead of duplicating approval/readiness logic. Do not label authored instructions as AI answers. The user deferred OpenAI integration; do not retain endpoints or request an API key for this feature. Production adoption remains pending.
+
+
+## Consistency corrections - DEC-025 / WF-019
+
+**GLOBAL RULE:** project scope applies to related prices, complaints and import histories as well as primary records. Tracking imports must preflight every matched PO using the same edit/ownership check as manual updates; reject the whole batch if any target is forbidden. Master writes validate target scope, and vendor immutability/uniqueness applies to the final normalized composite code. SAVE_ITEM cannot grant brand approval; use the dedicated approval command and current controls.
+
+**MODULE-SPECIFIC RULE: PO pipeline.** Board and Overview reuse pipelineStageGroups. Every current STATUS_LABELS value occurs in exactly one group; Preparation covers pre-production statuses, followed by In production, Shipment readiness, Transit and Port arrived / closed. This supersedes UX-12's preservation of incomplete board coverage. Status derivation, filtering, sorting, totals and permanent serials are unchanged.
+
+**MODULE-SPECIFIC RULE: draft planning.** Production-day hints call productionReferenceDaysForOrderInput with expanded ordered lines. Do not invent a separate base-day formula. Input quantities update hint/override visibility without changing quantities, commitment or unrelated unsaved text. Base-master reference is labelled separately.
+
+**GLOBAL UI RULE:** HTTP 401 at startup opens login; other bootstrap failures show a retryable workspace error. Preserve the existing brand and allow short sidebars to scroll.
+
+**MODULE-SPECIFIC RULE: local Minimal prototype.** Keep Show page guides visible and enabled in Minimal, including narrow screens. It toggles to Hide page guides and remains separate from the persistent mascot. This is explicit user steering, not approval to publish the prototype.

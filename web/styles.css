@@ -68,7 +68,8 @@ a{color:var(--fh-green)}
   color:#e8eddd;
   border-right:0;
   box-shadow:none;
-  overflow:hidden;
+  overflow-x:hidden;
+  overflow-y:auto;
 }
 .sidebar:before,.sidebar:after{
   content:'';position:absolute;pointer-events:none;z-index:0;

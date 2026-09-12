@@ -1,0 +1,5 @@
+{
+  "welcome": {"file": "farminghub-welcome.png", "alt": "Farming Hub elephant waving hello in Farming Hub green and lime"},
+  "pointing": {"file": "farminghub-pointing.png", "alt": "Farming Hub elephant pointing to the guide in Farming Hub green and lime"},
+  "ready": {"file": "farminghub-ready.png", "alt": "Farming Hub elephant giving a thumbs-up at the final guide step"}
+}

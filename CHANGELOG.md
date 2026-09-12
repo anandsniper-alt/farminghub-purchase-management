@@ -1,5 +1,20 @@
 # Changelog — v0.6.1-alpha.16
 
+## Release prepared - Minimal theme and guide (2026-09-12)
+
+- Publish reviewed Minimal presentation, subtle motion and reduced-motion support; retain Current theme choice and visible Show page guides.
+- Persistent Farming Hub mascot provides authored page/form/next-action instructions without AI/API; Take me there focuses only.
+- Include unreleased consistency fixes below. Production authentication, records and approval settings retained. DEC-026 / WF-020. Deployment confirmation follows verification.
+
+
+## Unreleased - consistency fixes (2026-09-12)
+
+- Restore every PO stage in Board and consistent Overview counts; fix populated Vendor master browser startup.
+- Enforce division projections, tracking ownership, master target scope, pending item approvals and normalized vendor identity.
+- Reuse server production-reference calculations in draft hints; preserve typed inputs during hint updates.
+- Add retryable workspace startup errors and scrollable short-screen navigation.
+- Rebuild local review and minimal/animation/mascot preview; retain Show page guides in Minimal. Not published. DEC-025 / WF-019.
+
 Published 2026-09-12: pipeline sorting commit **db6978c** is live and healthy. Added the user-requested one-time batch TEST-SORT-001 through TEST-SORT-010 as unapproved drafts across ten suppliers. Sixteen live browser and eight batch checks passed; pre-existing business records and permissions retained.
 
 ## Supplier and serial sorting - 2026-09-12 (local source)

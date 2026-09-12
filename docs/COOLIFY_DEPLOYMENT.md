@@ -22,3 +22,6 @@ Admin environment variables create the first account only when the database does
 Health check: `GET /api/health`, HTTP port `8000`, expected status `200`. The image runs as the unprivileged `node` user. Its build context excludes local environment files, databases, and test output.
 
 Use Coolify's Deploy action after pushing updates. This deployment uses the application's isolated SQLite pilot store; it does not connect to a live ERP or VMS database.
+
+
+Presentation release (DEC-026): Docker continues to copy web/, server/, shared/ and templates/ only. The approved presentation modules/styles/guide assets are in web/. Do not deploy prototypes/minimal-theme/preview.html, transfer its browser storage, or run its synthetic seed against the live database. Persistent volume/environment/instance settings remain unchanged.

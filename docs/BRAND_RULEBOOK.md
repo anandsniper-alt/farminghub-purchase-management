@@ -1,5 +1,15 @@
 # Farming Hub brand rulebook
 
+## Current approved presentation - DEC-026 / WF-020 (2026-09-12)
+
+The user's publication request approves production adoption of the reviewed Minimal theme, animations and persistent Farming Hub mascot guide. This supersedes earlier local-only/adoption-pending notes below for this presentation. Runtime files live in web/; the prototype remains historical test material. Default Minimal, retain Current choice and Show/Hide page guides in the fixed appearance toolbar. Keep colors/fonts/logo and reduced-motion support. Help is authored, never an AI chat, and Take me there only focuses the existing control. Live identity/data/approval logic remain authoritative; do not deploy the sample seed or test-only replay controls.
+
+
+## Proposed theme experiment - 2026-09-12 (not a production rule)
+
+The user authorized a reversible sample, not adoption. prototypes/minimal-theme retains approved logo, palette, font stack and icons while testing quieter borders/shadows, lighter headings, optional explanatory chrome, expandable workflow/secondary actions and short transitions. Minimal omits unimplemented division placeholders; Current comparison retains them. Reduced-motion disables animation. This exception exists only inside the local prototype and establishes no new global visual standard. Live brand rules below remain authoritative until a confirmed adoption decision. DEC-020.
+
+
 ## Pipeline sort/filter controls - 2026-09-12
 
 Reuse pipeline toolbar native selects for Filter by supplier and Sort orders, the existing small ghost button for Reset view, and small ghost header buttons for S.No., Purchase order and Supplier / item. Ascending/descending indicators use text arrows with accessible aria-sort; keyboard focus is restored. Show supplier name/code/SKUs without changing fonts, colours or layout tokens. Keep horizontal table overflow and wrapping filters; mobile selects verified at 390px. Board cards also show supplier name/code and permanent S.No.
@@ -138,3 +148,38 @@ Print uses a generated `.print-sheet`, hides other body children, A4 with8mm pag
 ## Changes and exceptions
 
 Brand changes require an explicit reason/decision. Update this file, affected shared styles/assets, baseline and decision log together; record source/licensing for new assets. Existing legacy hardcodes and fallback fonts are documented limitations. No dark mode, alternative logo, new font or replacement component system is approved by this documentation pass.
+
+
+## Motion experiment refinement - 2026-09-12 (DEC-020 addendum)
+
+Page entrance now uses a 280 ms fade/12px slide; dialogs use 240 ms fade/12px slide with subtle scale; expanded workflow/guidance/actions use a 220 ms reveal. Replay animation restarts page motion without altering sample data or stacking animations. Current comparison disables replay. Reduced-motion preference cancels active prototype motion and disables replay; native disclosure and keyboard behavior remain available. This remains a local proposed treatment; production brand rules are unchanged.
+
+
+## GAJA support mascot experiment - DEC-021, 2026-09-12
+
+The user supplied an elephant illustration and explicitly requested it for guiding popups. A transparent generated adaptation is stored in prototypes/minimal-theme/assets/gaja-guide.png, with exact prompt/provenance in assets/README.md. Preserve red GAJA clothing, safety goggles and thumbs-up character; do not replace the Farming Hub logo or global green/lime tokens. The guide uses existing fonts/button classes with a compact white card, lime target outline and a restrained 220ms entrance. This visual exception applies to the local experiment only.
+
+
+## GAJA green/lime poses - DEC-022, 2026-09-12
+
+**MODULE-SPECIFIC RULE: local guide experiment.** User explicitly replaced the red-clothing direction in DEC-021 with Farming Hub green #204321 and lime #C5DA41 trim. That prior red-clothing requirement is superseded for the sample; other GAJA identity rules remain. Keep tan elephant, safety goggles, white GAJA lettering and sticker outline. Current assets: prototypes/minimal-theme/assets/gaja-welcome.png (wave), gaja-pointing.png (explanation), gaja-ready.png (last guide step). Stable mascot box, no continuous animation or new global palette. Manifest/alt text: poses.json; full prompts/provenance: POSE_PROMPTS.md. Old red PNG retained as history, not loaded by the build. Production adoption remains unconfirmed.
+
+
+**DEC-022 asset surface:** the final pose set uses plain white backgrounds to match the existing white launcher/card. Image generation returned opaque checkerboards for the transparency request, including a correction attempt; those variants are not shipped. Do not claim the new poses have transparent alpha or use them on non-white surfaces without preparing new assets.
+
+
+## Farming Hub mascot branding - DEC-023, 2026-09-12
+
+**MODULE-SPECIFIC RULE: local guide experiment.** User explicitly replaced GAJA wording with the Farming Hub logo. This supersedes the GAJA-lettering requirement of DEC-021/DEC-022 only. Use the approved web/assets/farming-hub-logo.png as the cap/chest edit reference and the exact original asset in the guide header. Current pose files: prototypes/minimal-theme/assets/farminghub-welcome.png, farminghub-pointing.png, farminghub-ready.png. Guide copy and alt/accessibility labels say Farming Hub, with no old mascot name. Preserve existing green/lime clothing, elephant/goggles/poses and white image surfaces. Older artwork and records remain historical, excluded from the active pose manifest. Production adoption remains pending.
+
+
+## Persistent guide dock - DEC-024, 2026-09-12
+
+The Farming Hub logo and current green/lime elephant remain visible together in a compact fixed dock labelled Guide me. In an open native tour, move that same dock into the top layer so it remains usable. Reserve room beneath the card and business dialogs, including narrow viewports, rather than covering Save/Cancel. Continue the same three poses and 220ms/reduced-motion treatment. Take me there is a normal branded button; no AI branding or chat composer is present. Prototype only.
+
+
+## Consistency fix presentation - DEC-025
+
+Keep existing colors, fonts, logo and controls. Sidebar gains vertical scrolling at short heights; no navigation redesign. Startup error uses existing boot/button styling. Show page guides remains visible in the Minimal preview toolbar and changes to Hide page guides while explanations are shown.
+
+DEC-026 mobile refinement: below 420px hide the redundant topbar breadcrumb and truncate long account labels to keep navigation and Sign out within the viewport. Page titles remain. Both 320px and 390px have no document-level horizontal overflow; tables retain their own horizontal scrolling.

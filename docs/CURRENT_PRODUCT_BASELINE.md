@@ -1,5 +1,17 @@
 # Current product baseline
 
+## Current approved presentation - DEC-026 / WF-020 (2026-09-12)
+
+The user's publication request approves production adoption of the reviewed Minimal theme, animations and persistent Farming Hub mascot guide. This supersedes earlier local-only/adoption-pending notes below for this presentation. Runtime files live in web/; the prototype remains historical test material. Default Minimal, retain Current choice and Show/Hide page guides in the fixed appearance toolbar. Keep colors/fonts/logo and reduced-motion support. Help is authored, never an AI chat, and Take me there only focuses the existing control. Live identity/data/approval logic remain authoritative; do not deploy the sample seed or test-only replay controls.
+
+
+## Experimental minimal theme preview - 2026-09-12
+
+User requested a sample theme with smoother transitions and less visible text, to test and either discard or later integrate. **Experiment built; final theme is PROPOSED, not approved or live.** See [prototype instructions](../prototypes/minimal-theme/README.md), DEC-020 and the current browser report. Production application source and normal generated build remain unchanged.
+
+Local preview: http://127.0.0.1:8137/#/orders. Current/Minimal comparison uses the same isolated illustrative records, with optional page guides, expandable timeline/additional actions, lighter visual hierarchy and 280ms page/240ms dialog transitions, 220ms disclosure reveals and a Replay animation control. Reduced motion is respected; financial/approval/readiness logic and safety disclosures remain. The prototype can be discarded without production rollback.
+
+
 ## Pipeline sorting live publication and requested test batch - 2026-09-12
 
 Application commit **db6978cc249c7d8b039c34cdbceee4bedc7daea0** is live at https://purchase.dvjassociates.com through Coolify deployment **6fwkw5g3hzfiqxrq1bqry7me** (finished; application running:healthy). This publishes DEC-019 / WF-018 / UX-12. Earlier local-only statements for sorting are superseded by this record. Existing domain, runtime configuration and persistent volume retained.
@@ -293,3 +305,36 @@ Payment methods: `TT` (TT / Telegraphic Transfer), `LC` (Letter of Credit (LC)),
 Cost categories: Freight; Insurance; Bank charges; Forwarder charges; Port charges; Customs-related charges; Inland logistics; Other.
 
 Delay/closure reasons: Supplier production; Supplier documentation; Internal purchase; Artwork confirmation; Specification confirmation; Payment processing; Shipping / forwarder; Customs / clearance; Late sales requirement; Other.
+
+
+## Optional GAJA page guide - local experiment, 2026-09-12
+
+An opt-in Guide me launcher opens a native modal walkthrough with the user-requested GAJA elephant, step count, highlighted control, concise explanation, Next/Back, Skip, Finish and Escape. Reopening restarts the current page tour. Pipeline, order detail, overview, payments and settings have tailored steps; other pages use only visible heading/filter/tab/table steps. Unavailable controls are omitted. The tour never invokes application actions or changes orders, forms, roles, approvals or financials. It hides during business dialogs, closes on route/target replacement, contains keyboard focus and restores it on close. Mobile uses a bottom card; 220ms entry respects reduced motion.
+
+Available at http://127.0.0.1:8137/#/orders in the same isolated sample. The user requested this extension; production adoption/publication remains pending. It provides page explanations, not automated completion of the full purchase lifecycle. DEC-021.
+
+
+## GAJA pose refinement - 2026-09-12, DEC-022
+
+The local sample uses three green/lime mascot poses: welcoming wave in the launcher/first tour step, pointing in intermediate steps, thumbs-up on the last available step. Pose selection follows the filtered visible-step sequence, including Back/reopen. Images are bundled locally and predecoded; no business workflow or stored data changes. This supersedes the single red mascot presentation in the sample only.
+
+
+## Farming Hub guide branding - 2026-09-12, DEC-023
+
+The local guide uses Farming Hub branding on all three mascot poses and the original Farming Hub logo in its header. Launcher, introductions and image alternatives use Farming Hub wording. This replaces the GAJA-labelled sample artwork/copy; pose progression, controls, access checks and business data are unchanged. Current asset manifest points only to farminghub-*.png.
+
+
+## Persistent next-step instructions - 2026-09-12, DEC-024
+
+The Farming Hub logo and mascot remain in a fixed, keyboard-accessible dock on pages, in business forms and while the tour is open. Tap to open guidance; tap again to close. Order guidance starts with the actual primary action already rendered for the current role. In a form, it starts with a displayed error or invalid visible field, then a review/submission explanation. Take me there closes help and focuses the target without clicking it, submitting, approving or changing values. Guide Escape leaves the underlying form and unsaved entries intact. Back/Next/Skip/Finish remain, and mobile reserves space for the dock. No AI, API key, chat input or external model call is used.
+
+The user first considered OpenAI and then explicitly chose no API for now. The provisional AI handler, chat UI and AI tests were removed before release; preview serving remains GET-only. No key was supplied or model request executed. This local sample can be used without OpenAI setup or usage charges. Live application remains unchanged.
+
+
+## Consistency fixes - 2026-09-12, local build (DEC-025 / WF-019)
+
+Resolved locally: TD-01 UI production-day hint divergence, TD-02 missing Board/Overview status coverage, TD-21 missing Vendor master browser import. TD-03 sidebar clipping corrected; broader CSS cascade debt remains. TD-07 price/complaint/freight/import projection and tracking-batch edit checks corrected; this is not a certification of every possible multi-division operation. TD-08 forged item approval and normalized vendor identity paths corrected. TD-11 bootstrap errors now distinguish login from retryable load failures; unsaved-dialog protection, session recovery and refresh policy remain future work.
+
+Board and Overview use the same five complete groups. Production hints now use the unchanged server item/supplier rule; no finance calculation changed. Master target scope validation was added to item, price, complaint and vendor saves. No database migration or live record changes occurred. Normal standalone review and the isolated minimal/animation/mascot build are rebuilt. Show page guides remains visible in Minimal by explicit instruction.
+
+Unresolved business decisions: TD-04 invoice versus price-list currency treatment and TD-05 future-effective price activation. Preserve these existing rules pending explicit policy decisions; do not silently introduce conversion or revise historical price records. Suggested My work dashboard, saved views, and broader upload redesign remain proposals. The theme is still awaiting adoption, and none of these local fixes is deployed yet.
