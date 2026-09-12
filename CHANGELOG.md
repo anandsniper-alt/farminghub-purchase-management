@@ -1,5 +1,7 @@
 # Changelog — v0.6.1-alpha.16
 
+Published 2026-09-12: approval controls commit **36a0198** is live at https://purchase.dvjassociates.com (healthy). All 15 live checks passed. No live permission changes were saved during verification.
+
 ## Configurable approval controls - 2026-09-12 (local source)
 
 - Admin can maintain all 13 approval stages in Users & settings, select allowed roles, save with reason/confirmation and restore standard roles later.
