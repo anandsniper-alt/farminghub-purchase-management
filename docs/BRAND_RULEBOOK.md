@@ -183,3 +183,9 @@ The Farming Hub logo and current green/lime elephant remain visible together in 
 Keep existing colors, fonts, logo and controls. Sidebar gains vertical scrolling at short heights; no navigation redesign. Startup error uses existing boot/button styling. Show page guides remains visible in the Minimal preview toolbar and changes to Hide page guides while explanations are shown.
 
 DEC-026 mobile refinement: below 420px hide the redundant topbar breadcrumb and truncate long account labels to keep navigation and Sign out within the viewport. Page titles remain. Both 320px and 390px have no document-level horizontal overflow; tables retain their own horizontal scrolling.
+
+
+Payment-rate wording (DEC-027): reuse native labelled numeric fields and existing table styling. Show plain currency pairs and Indian bank/BOC attribution. The BOC field explicitly says optional; retain required markers on mandatory fields. Keep a brief RMB-per-USD reference-only hint, no rate feed or extra brand treatment.
+
+
+DEC-028: modal backdrop z-index 270, above appearance toolbar 250 and below mascot dock 300. Notifications use bottom 94px to reserve mascot space. Existing form colors, type, spacing and dimensions remain.

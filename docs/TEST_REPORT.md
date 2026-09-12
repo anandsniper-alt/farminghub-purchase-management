@@ -1,5 +1,17 @@
 # Test Report — v0.6.1-alpha.16
 
+
+## Payment reference build release checks - DEC-027/028
+
+2026-09-12: normal review and isolated prototype builds pass; native startup module graph passes. The unchanged payment domain was verified by 124 native tests in the preceding implementation run. Final browser runs after the overlay fix: 31 payment checks in server/review (D:/CodexTestTemp/FarmingHub/reports/payment-rates/2026-09-12T17-19-16-583Z/) and 44 presentation/guide checks (D:/CodexTestTemp/FarmingHub/reports/presentation-release/2026-09-12T17-19-43-255Z/), no runtime errors. Mobile title hit-testing confirms appearance controls cannot obscure the form. Read-only live record hashes captured before deployment; live checks follow publication.
+
+
+## Payment rate clarity and optional BOC reference - DEC-027 / WF-021
+
+2026-09-12, local verification: node --test tests/*.test.mjs -> 124 passed, 0 failed. node tests/payment_rates_browser_flow.mjs -> 27 passed across native server and standalone review; no runtime errors. Verified initial/regular remittance currency labels, optional blank rate, six-decimal persistence/table display, supplier receipt inheritance/override/clear, actual-amount independence, non-USD visibility/stale-rate clearing, and 390px layout. Native tests cover invalid/zero/negative/overprecision/non-USD values, atomic rejection, correction reasons, legacy omission and unchanged settlement.
+
+Evidence: D:/CodexTestTemp/FarmingHub/reports/payment-rates/2026-09-12T17-17-11-372Z/. First attempt found a focused BOC field could emit its old value while currency change replaced the form; clearing the DOM field before replacement fixes this. Normal standalone and isolated theme builds regenerated; syntax and git diff checks passed. Synthetic databases/evidence only; no live update or deployment performed.
+
 Published 2026-09-12: application commit **b9d76e0e5a5017465994ce9c0c631018fc3b504b** is live at https://purchase.dvjassociates.com. Coolify deployment **wco6vztxn3hp1ptmhqgnslsy** finished; health HTTP 200. Fifteen signed-in live checks passed for Minimal/Current, Show page guides, mascot steps, Vendor master, mobile layout and no business writes/runtime errors. Eleven published module/style/pose assets match the local committed build. Hashes of orders, payments, files, events, users, vendors, items, bases, costs and approval controls, plus workspace revision, match the pre-release baseline. No business records, roles or approval controls changed. Evidence: ignored test-output/presentation-live-report.json and presentation-live-mobile.png. DEC-026 / WF-020; this supersedes earlier unpublished/local-only status notes for the adopted theme and DEC-025 fixes.
 
 

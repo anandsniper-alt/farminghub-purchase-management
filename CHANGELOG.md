@@ -1,5 +1,15 @@
 # Changelog — v0.6.1-alpha.16
 
+## Payment reference release prepared - 2026-09-12
+
+Rebuilt DEC-027 payment labels and optional BOC reference; corrected mobile form-heading overlap and reserved notification space above the mascot (DEC-028 / WF-022). Publication verification follows deployment.
+
+## Unreleased - payment rate labels and BOC reference (2026-09-12)
+
+- Plain currency-pair Indian-bank and supplier labels, including USD to INR (Indian bank).
+- Optional USD to RMB (BOC) reference on remittances/initial payments and supplier receipts, with table columns and audited receipt overrides.
+- Reference-only: actual receipts and all conversion/settlement calculations remain unchanged. DEC-027 / WF-021. Local build only.
+
 Published 2026-09-12: application commit **b9d76e0e5a5017465994ce9c0c631018fc3b504b** is live at https://purchase.dvjassociates.com. Coolify deployment **wco6vztxn3hp1ptmhqgnslsy** finished; health HTTP 200. Fifteen signed-in live checks passed for Minimal/Current, Show page guides, mascot steps, Vendor master, mobile layout and no business writes/runtime errors. Eleven published module/style/pose assets match the local committed build. Hashes of orders, payments, files, events, users, vendors, items, bases, costs and approval controls, plus workspace revision, match the pre-release baseline. No business records, roles or approval controls changed. Evidence: ignored test-output/presentation-live-report.json and presentation-live-mobile.png. DEC-026 / WF-020; this supersedes earlier unpublished/local-only status notes for the adopted theme and DEC-025 fixes.
 
 ## Release prepared - Minimal theme and guide (2026-09-12)

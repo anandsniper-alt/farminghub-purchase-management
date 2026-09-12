@@ -287,3 +287,13 @@ A globally allowed import command still needs per-target ownership/scope checks.
 Reuse productionReferenceDaysForOrderInput with expandedDraftLines to preserve the existing item maximum/supplier/30-day contract. Updating hints should not recreate focused quantity inputs or discard unsaved notes. Distinguish base-master metadata from the authoritative order commitment comparison. Existing future-price activation and invoice/price-list currency behavior need business decisions, not guessed fixes.
 
 Browser fixture failures exposed invalid duplicate serials and missing legacy sample brandPrefix values in test data; corrected the isolated fixtures. Two initial browser assertions used the wrong heading/label ancestor; screenshots confirmed the implementation and locators were corrected. These failed attempts are retained as evidence, not counted as passes.
+
+
+## Optional BOC reference contract - DEC-027
+
+**Purpose:** retain a supplier-side RMB-per-USD comparison rate. **Representation/formula:** toRate(value) = decimal rate * 1,000,000; display stored integer / 1,000,000. This encoding is not a payment conversion. **Input:** blank or positive decimal with up to six places, only for USD remittances. **Output/units:** nullable fixed-point RMB per USD; no calculated monetary output. **Rounding:** no rounding; excess decimals rejected. **Edge cases:** blank -> null, zero/negative/invalid -> reject; non-USD nonblank -> reject; legacy missing allocation attribute inherits parent reference, explicit null stays cleared; an omitted property on a legacy receipt request preserves its current override. **Example:** 7.123456 -> 7,123,456 stored. Entering BOC 7.2 with actual USD receipt 0.90 preserves actual 90 minor units and does not convert it to RMB.
+
+Use separate fields for bank-rate facts and reference rates. Clearing a currency-dependent field before replacing focused DOM prevents its pending change event from restoring a stale value to ui.payment. Reuse the same currency-label helper in regular and initial payment dialogs, allocations, receipts and register rows.
+
+
+Modal visual QA (DEC-028): a bounding-box visibility check alone misses a higher-z-index toolbar obscuring a form heading. Hit-test the title center with elementFromPoint at mobile widths; verify the native guide remains above the business dialog and Escape preserves the underlying form.

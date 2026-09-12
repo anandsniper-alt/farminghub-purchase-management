@@ -340,3 +340,11 @@ Resolved locally: TD-01 UI production-day hint divergence, TD-02 missing Board/O
 Board and Overview use the same five complete groups. Production hints now use the unchanged server item/supplier rule; no finance calculation changed. Master target scope validation was added to item, price, complaint and vendor saves. No database migration or live record changes occurred. Normal standalone review and the isolated minimal/animation/mascot build are rebuilt. Show page guides remains visible in Minimal by explicit instruction.
 
 Unresolved business decisions: TD-04 invoice versus price-list currency treatment and TD-05 future-effective price activation. Preserve these existing rules pending explicit policy decisions; do not silently introduce conversion or revise historical price records. Suggested My work dashboard, saved views, and broader upload redesign remain proposals. The theme is still awaiting adoption, and none of these local fixes is deployed yet.
+
+
+## Payment rate clarity - DEC-027 / WF-021, local build
+
+Indian-bank fields now use direct currency-pair labels. USD remittances and supplier receipts support a separate optional USD-to-RMB BOC reference, shown in payment register and order allocation columns. Remittance reference persists with the original payment; receipt corrections may explicitly override/clear it. No rate provider is connected. Actual receipt/conversion/balances remain separate and unchanged. No production deployment or live record updates in this task.
+
+
+DEC-028 release preparation: corrected shared modal/appearance-toolbar layering and notification position, and rebuilt the DEC-027 payment-reference update for publication. Persistent storage, native authentication, approval controls and actual receipt calculations remain unchanged. Publication evidence follows verification.

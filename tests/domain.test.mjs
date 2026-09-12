@@ -84,6 +84,29 @@ function fixture(nowDay=TODAY){let state=createSeed(TODAY),serial=0;state={...st
  return {get state(){return state;},set state(x){state=x;},role,run,file,item,base,get,draft,issue,confirm,pi,technical,artwork,commercial,pay,completeSample,approveSample,produce,shipment,bookRelease,ready,dispatch,postVessel};}
 function rejects(f,type,payload,pattern,user){const before=structuredClone(f.state);assert.throws(()=>f.run(type,payload,user),pattern);assert.deepEqual(f.state,before,'failed command must leave the caller state unchanged');}
 
+test('optional BOC reference preserves remittance and settlement calculations',()=>{
+ const f=fixture(),oid=f.draft();f.issue(oid);f.commercial(oid);f.run('AUTHORIZE_PAYMENT',{orderId:oid,termIndex:0});
+ const m=paymentSchedule(f.state,f.get(oid))[0],amount=major(m.amount),proof=f.file([oid]);
+ const p={reference:'BOC-REF',date:TODAY,currency:'USD',amount,inrRate:'85.50',bankCharges:'100',fileId:proof,bocUsdRmbRate:'7.123456',allocations:[{orderId:oid,termIndex:0,amount,invoiceRate:'1'}]};
+ const id=f.run('RECORD_PAYMENT',p).id,pay=f.state.payments.find(p=>p.id===id);
+ assert.equal(pay.bocUsdRmbRate,7123456);assert.equal(pay.inrMinor,Math.round(pay.amountMinor*85.5));assert.equal(pay.allocations[0].expectedMinor,m.amount);assert.equal(pay.allocations[0].realizedMinor,null);
+ assert.equal(financials(f.state,f.get(oid)).realized,0);assert.equal(f.state.events.find(e=>e.action==='PAYMENT_REPORTED').newValue.bocUsdRmbRate,7123456);
+ for(const rate of ['0','-1','7.1234567','abc'])rejects(f,'RECORD_PAYMENT',{...p,reference:'BAD-'+rate,bocUsdRmbRate:rate},/Exchange rate/);
+ rejects(f,'RECORD_PAYMENT',{...p,reference:'NON-USD',currency:'CNY',bocUsdRmbRate:'7.1'},/only available for USD/);
+ const receipt={paymentId:id,allocationId:pay.allocations[0].id,realizedAmount:'2900',supplierRate:'1',bocUsdRmbRate:'7.2',fileId:f.file([oid])};f.run('ACKNOWLEDGE_PAYMENT',receipt);
+ let allocation=f.state.payments.find(p=>p.id===id).allocations[0];assert.equal(allocation.bocUsdRmbRate,7200000);assert.equal(allocation.realizedMinor,290000);assert.equal(financials(f.state,f.get(oid)).realized,290000);
+ rejects(f,'ACKNOWLEDGE_PAYMENT',{...receipt,bocUsdRmbRate:'7.3'},/correction reason/);
+ f.run('ACKNOWLEDGE_PAYMENT',{...receipt,bocUsdRmbRate:'',remarks:'Clear optional reference'});allocation=f.state.payments.find(p=>p.id===id).allocations[0];assert.equal(allocation.bocUsdRmbRate,null);assert.equal(allocation.realizedMinor,290000);
+ const old=structuredClone(allocation),legacy={...receipt,remarks:'Legacy receipt client'};delete legacy.bocUsdRmbRate;f.run('ACKNOWLEDGE_PAYMENT',legacy);assert.equal(f.state.payments.find(p=>p.id===id).allocations[0].bocUsdRmbRate,null);assert.equal(old.expectedMinor,m.amount);
+});
+
+test('initial payment BOC rate is optional and never satisfies supplier receipt',()=>{
+ for(const rate of [undefined,'','7.15']){const f=fixture(),oid=f.draft();f.issue(oid);f.commercial(oid);const m=paymentSchedule(f.state,f.get(oid))[0];
+  const id=f.run('COMPLETE_INITIAL_PAYMENT',{orderId:oid,reference:'INITIAL-BOC',date:TODAY,currency:'USD',amount:major(m.amount),inrRate:'85',invoiceRate:'1',bocUsdRmbRate:rate,fileId:f.file([oid])}).id;
+  const p=f.state.payments.find(p=>p.id===id);assert.equal(p.bocUsdRmbRate,rate?7150000:null);assert.equal(p.status,'REPORTED');assert.ok(p.allocations.every(a=>a.realizedMinor===null));assert.equal(financials(f.state,f.get(oid)).realized,0);
+ }
+});
+
 test('source seed: 153 untouched raw items, six mapped brand SKUs, eight illustrative orders',()=>{const s=createSeed(TODAY);assert.equal(s.items.filter(i=>i.source==='User-supplied demo item master').length,153);assert.equal(s.items.filter(i=>i.baseId).length,6);assert.equal(s.categories.length,22);assert.equal(s.orders.length,8);assert.ok(s.orders.some(o=>orderStatus(o)==='PORT_ARRIVED'&&financials(s,o).balance>0));});
 test('money and FX math use bounded integer minor units',()=>{assert.equal(toMinor('123.45'),12345);assert.throws(()=>toMinor('1.234'));assert.throws(()=>toMinor('-3'));assert.equal(convertMinor(10000,toRate('7.1')),71000);assert.equal(convertMinor(101,toRate('1.5')),152);});
 test('pro-rata shipment allocations preserve the exact total down to the cent',()=>{assert.deepEqual(proportionalSlices(100,[1,1,1]),[33,34,33]);for(let n=1;n<1000;n++)assert.equal(proportionalSlices(n,[13,19,21,3]).reduce((a,b)=>a+b,0),n);});

@@ -212,3 +212,11 @@ Every meaningful decision gets a DEC record; workflow evolution gets a WF record
 **GLOBAL UI RULE:** HTTP 401 at startup opens login; other bootstrap failures show a retryable workspace error. Preserve the existing brand and allow short sidebars to scroll.
 
 **MODULE-SPECIFIC RULE: local Minimal prototype.** Keep Show page guides visible and enabled in Minimal, including narrow screens. It toggles to Hide page guides and remains separate from the persistent mascot. This is explicit user steering, not approval to publish the prototype.
+
+
+## Payment currency wording and BOC reference - DEC-027 / WF-021
+
+**MODULE-SPECIFIC RULE:** payment rate labels name the actual currency pair and source: USD to INR (Indian bank), USD to RMB (supplier), and optional USD to RMB (BOC). Use RMB as the CNY display name in these labels; retain CNY storage codes. Adapt labels when currency changes. The BOC rate is manual reference metadata only: positive, at most six decimals, blank allowed, USD remittances only. Never use it to replace invoice conversion, supplier actual receipt, settlement or production-readiness calculations. Preserve legacy records and receipt omission semantics; explicit receipt clearing must remain cleared even when a parent payment has a reference.
+
+
+**GLOBAL RULE - modal layering (DEC-028):** business dialogs appear above the appearance toolbar; the persistent mascot remains accessible. Keep notification space above the dock. Do not cover form headings, close controls or footer actions with presentation chrome.
