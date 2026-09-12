@@ -1,5 +1,15 @@
 # Project learnings
 
+## Bulk deletion, stable serials and approval withdrawal - 2026-09-12
+
+DEC-016 / WF-015: use recoverable order markers instead of removing rows, files, payments or events. Separate visibleOrders (active operations) from recordOrders (all scope-authorized retained records). getOrder uses retained records so finance links remain meaningful. Deleted-order detail has a dedicated read-only renderer; generic editable detail must not accidentally expose approval or payment controls. The server rejects deleted targets even for admins until restoration. Forwarder preview rejects a matched deleted PO, and uploads cannot link it.
+
+ensureOrderSerials preserves valid existing serials and initializes missing values deterministically. Store startup backs up a non-empty legacy DB with VACUUM INTO before an atomic metadata/audit migration; new creates use nextOrderSerial in the same revision transaction. Serial is not PO number, table row index, count of active orders or issued revision. Retain high-water value and deleted records; do not reuse numbers.
+
+DEC-017 / WF-016 removes the September executive delegation, not the expiry alone. The request followed adding Manager role editing; this interpretation was stated before implementation. Standard purchase/product approval roles now apply without date checks. Past events remain unchanged. Existing executive sample/initial-payment exceptions are not expanded or removed.
+
+Verification: native permission/retention/migration tests plus server/review bulk selection, cancellation, restore, mobile, immutable history and financial visibility; standard approval UI tests; complete Executive workflow with actual manager/product handoffs. A local disk-full event interrupted a write/test run; app source was recovered from the generated review, checked and browser-tested again. Temporary DBs/browser artifacts now support FH_TEST_OUTPUT_ROOT and this run used the available D: test directory. Only a prior failed-test trace was removed; real databases were untouched.
+
 ## Role editing - 2026-09-12
 
 CHANGE_USER_ROLE is profile metadata, so reuse shared execute and /api/commands rather than credential-specific /api/users. Store.session and Store.transact already read current profiles; role changes affect existing authenticated sessions without persisting role claims in cookies. Do not rewrite accounts/password hashes or reassign owned orders. Preserve scopes and audit the change, unlike the older SAVE_SCOPES exception. The browser refreshes its current actor from returned state after commands.

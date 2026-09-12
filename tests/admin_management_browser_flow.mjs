@@ -6,7 +6,7 @@ import {pathToFileURL} from 'node:url';
 import {Store} from '../server/store.mjs';
 import {makeServer} from '../server/index.mjs';
 import {createCleanSeed} from '../shared/clean-seed.mjs';
-const out=resolve('test-output/admin-management',new Date().toISOString().replace(/[:.]/g,'-'));mkdirSync(out,{recursive:true});
+const out=resolve(process.env.FH_TEST_OUTPUT_ROOT||'test-output','admin-management',new Date().toISOString().replace(/[:.]/g,'-'));mkdirSync(out,{recursive:true});
 const seed=createCleanSeed(),store=new Store(join(out,'test.sqlite'),seed),password='Isolated-admin-test-1234';
 for(const id of ['u-admin','u-exec'])store.addAccount(id,id+'@example.test',password);
 const server=makeServer(store),report={checks:[],errors:[],out};let browser,context;

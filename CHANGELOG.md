@@ -1,5 +1,14 @@
 # Changelog — v0.6.1-alpha.16
 
+## Admin bulk deletion, stable serials and standard approvals - 2026-09-12
+
+- Admins can select multiple POs and delete them from active operations, with explicit selected-order confirmation and a reason.
+- Deleted orders retain history, payments, shipments and files; admins can restore them. Financial balances remain visible and unchanged.
+- Added permanent automatic S.No., separate from existing PO numbers. Deleted serials are never reused and remaining POs are never renumbered.
+- Legacy serial initialization creates a consistent backup before committing; audit and issued snapshots are preserved.
+- Removed September Executive approval delegation and its notice. Purchase approvals use Manager/Admin; product/artwork approvals use Product Manager/Admin. Role editing remains available.
+- Native tests and server/review/mobile browser workflows verified; DEC-016/017 and WF-015/016. Publication evidence follows deployment.
+
 Role editing published 2026-09-12: application commit dd8656c is live at https://purchase.dvjassociates.com. Twelve live checks passed; no user role changed during verification.
 
 ## Administrator role editing - 2026-09-12

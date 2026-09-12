@@ -1,12 +1,28 @@
 # Project rulebook
 
+## Current admin/order rules (DEC-016 / DEC-017)
+
+**GLOBAL RULE B-17 - Recoverable deletion.** Only ADMIN may issue DELETE_ORDERS / RESTORE_ORDERS, selecting 1-200 distinct IDs with a reason and current workspace revision. Validate the complete selection before mutation. Deletion marks deletedAt/deletedBy/deletedById/deletionReason, retains the order and all linked records, and appends ORDER_DELETED. Restoration clears current deletion markers, appends ORDER_RESTORED, and preserves the original stage, serial, PO number and issued snapshots. No hard purge is implemented.
+
+Deleted POs leave the operational pipeline, task flags and shipment/document work queues. Admins manage them through Order pipeline > Deleted orders. Scope-authorized users may still read a deleted PO from retained financial links; all balances/remittances remain in Payments & settlement. Deletion does not cancel a supplier commitment, reverse a payment or write off a balance. Deleted POs are read-only: block order commands, remittance changes, linked file uploads and matched tracking imports until an admin restores them.
+
+**GLOBAL RULE B-18 - Stable S.No.** serialNumber is an automatic positive integer, separate from manual supplier-facing PO number. nextOrderSerial is a persisted high-water counter. Assign existing missing serials once by createdAt then original array order; preserve existing valid serials, references and immutable snapshots. Assign on CREATE_ORDER inside the optimistic transaction. Never renumber or reuse deleted serials, including when all orders are deleted. Display S.No. in pipeline/detail/CSV; selection/pagination do not calculate serials.
+
+Store startup performs an idempotent serial initialization. Before migrating a non-empty legacy workspace, create a consistent SQLite VACUUM INTO backup beside the database with a unique .before-order-serials-*.sqlite suffix; failed backup/migration aborts startup. Migration commits metadata plus ORDER_SERIALS_INITIALIZED audit atomically. Backup is confidential and remains outside Git/static serving. Review mode initializes its isolated browser state.
+
+**GLOBAL RULE B-19 - Standard approval roles restored.** DEC-017 supersedes B-15 / EX-05 / DEC-014 immediately upon publication. Purchase approval/review/payment authorization/correction actions require ADMIN or scoped MANAGER. Technical/artwork/brand approvals require ADMIN or scoped PRODUCT_MANAGER. EXECUTIVE has no temporary or permanent delegation of those actions. Remove date-based authorization and the September notice/timer. Retain past delegated approvals and policy audit metadata. Existing executive sample approval, initial-payment shortcut, ordinary editing and supplier-price entry remain separate established behavior.
+
+Use canPerformApproval's explicit command/role map; do not broaden management helpers. The role editor (B-16) remains available so admins can assign actual Manager/Product Manager roles. Selection controls are admin-only; select-all means the current page, cross-page selections are explicitly listed in confirmation, and filter/list/layout/navigation changes clear hidden selections.
+
 ## Administrator role editing (DEC-015 / WF-014)
 
 **GLOBAL RULE B-16:** an authenticated ADMIN may change another user's role through Users & settings > Change role. Reuse USER_ROLES and CHANGE_USER_ROLE in the shared domain, with expected workspace revision. Require a supported different role, target user and reason. Do not allow changing the acting administrator's own role; this preserves administrator access. Non-admin roles require an assigned division.
 
 Preserve user ID, name, credentials, assigned scopes, account status and existing order ownership. Record USER_ROLE_CHANGED with the authenticated admin, target, previous/new role and reason. This is distinct from the existing scope-assignment logging exception. Session lookup re-reads the current profile on every request, so promotion/demotion takes effect on the server immediately. Existing accounts need no password reset or recreation. Review mode supports profile-role simulation only.
 
-## Temporary executive approvals (DEC-014 / WF-013)
+## Temporary executive approvals (DEC-014 / WF-013) - SUPERSEDED
+
+**Superseded by B-19 / DEC-017 / WF-016.** This historical exception is withdrawn by the current release.
 
 **GLOBAL RULE B-15 / exception EX-05:** the user confirmed that Purchase Executives may perform both Purchase Manager and Product Manager approvals through September 2026. The window is 12 September 2026 00:00 IST inclusive to 1 October 2026 00:00 IST exclusive (expiry UTC: 30 September 18:30). This temporarily overrides the approver-role portions of B-06/B-07/B-11, DEC-003/004 and WF-001/002/004; other workflow rules remain authoritative.
 

@@ -1,5 +1,7 @@
 # Farming Hub brand rulebook
 
+Admin bulk actions (2026-09-12, DEC-016/017): reuse native labelled checkboxes, existing table/board controls, small serial column, order-list dropdown, standard danger/primary buttons and shared reason/confirmation modal. Deleted order detail reuses heads, warning note, badges, tables, document downloads and history. No new fonts, colours, logos or CSS tokens. Remove the withdrawn September notice. Server/review delete dialogs checked at 390px.
+
 Role editing (2026-09-12, DEC-015): reuse the small ghost edit action in User / role cells, existing select/helper/textarea and modal footer. Display current role and immediate-effect guidance in the shared warning note. No new style tokens or navigation. Mobile checked at 390px.
 
 Temporary approvals (2026-09-12, DEC-014): reuse the existing warning note and gap above page content for the September deadline. Reuse approval buttons and placement. No new CSS tokens, colours, typography, icons or layout system. Server and standalone review notices checked at 390px width; expiry removes the notice and delegated actions.

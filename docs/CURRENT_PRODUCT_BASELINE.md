@@ -1,5 +1,9 @@
 # Current product baseline
 
+**Admin/order source update, 2026-09-12 (DEC-016/017; WF-015/016):** ADMIN can select POs across pages, delete with a reason/confirmation, review Deleted orders, and restore with original workflow/serial/number. Deleted POs leave operations but retain scope-authorized read-only details, documents, payments and balances; no write-off/cancellation/purge. Automatic S.No. is separate from existing PO numbers, assigned once and never reused. Legacy initialization takes a pre-migration SQLite backup and appends audit.
+
+The September Executive approval delegation is withdrawn in source. Purchase Manager/Admin and Product Manager/Admin approvals resume without date rules; historical approvals remain. User-role editing continues. This update awaits the publication record; no live PO deletion or user-role change is part of deployment.
+
 ## Role-editing live publication - 2026-09-12
 
 Application commit **dd8656cb02c7ea47aa45eb29143270095aa21e87** deployed from main to https://purchase.dvjassociates.com via Coolify deployment **heiuia7nadcjjtlvrxiaktdc** (finished; running:healthy). This publishes DEC-015 / WF-014 administrator role editing. Existing domain, persistent data volume and application configuration retained.
@@ -56,7 +60,7 @@ Active brands generated per base: GJ/KD/TT; two other seed brands are inactive. 
 | Hash route / view | Current functionality and layout |
 |---|---|
 | `#/overview` | Scope cards, KPI cards, pipeline/task/risk summaries in shared panel grids. Only LAE Import operates. |
-| `#/orders` | Order pipeline, substring search, stage filter, table/board toggle,12-row table pagination, filtered CSV export, new PO modal. |
+| `#/orders` | Order pipeline, substring search, stage filter, table/board toggle,12-row table pagination, filtered CSV export, new PO modal, stable S.No., admin bulk delete and Deleted orders/restore. |
 | `#/order/:id` | Order detail summary, workflow timeline and next-action card, commercial/payment/production/shipment/document/history areas, revision printing and controlled actions. |
 | `#/tasks` | Due/overdue follow-ups and risk flags; add/complete follow-up with communication details and delay reasons. |
 | `#/payments` | Remittance register, supplier realization, original-order settlement, recording/void/correction actions. No bank transfer initiation. |
@@ -92,7 +96,7 @@ Calculation authority: CAL-01..CAL-15 in [learnings](PROJECT_LEARNINGS.md), impl
 |---|---|
 | ADMIN | Scope bypass; purchase/product approvals, settings/scopes, user creation, role editing for other users and account metadata list. |
 | MANAGER | Scoped purchase create/edit/approve, authorize/void payments, master/category/route management, cancellations/short closure. Not automatically Product Manager. |
-| EXECUTIVE | Scoped create; assigned-order edits and operational actions; correction requests. Purchase and product approvals temporarily allowed by B-15/DEC-014 until October 1 IST; then no generic manager approval. Initial payment shortcut remains a separate exception. |
+| EXECUTIVE | Scoped create; assigned-order edits and operational actions; correction requests. No general purchase/product approval delegation; DEC-017 withdraws B-15/DEC-014. Initial payment shortcut remains a separate exception. |
 | PRODUCT_MANAGER | Scoped specification/artwork/template approvals and selected PLM edits/uploads; no automatic purchase-manager permission or generic PO creation. |
 | VIEWER | Scoped read; business writes/uploads blocked. |
 

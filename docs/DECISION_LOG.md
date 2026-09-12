@@ -144,6 +144,8 @@ The user explicitly requested publication. Application commit `8a96a27` was push
 
 ## DEC-014 - Temporary executive purchase and product approvals
 
+**Superseded by DEC-017.** The current release withdraws this grant and keeps historical approvals intact.
+
 **Date:** 2026-09-12. **Area:** Purchase/payments/PLM authorization. **State/evidence:** IMPLEMENTED from the user's request for executive approval coverage through September and explicit clarification: "All approvals, including Product Manager." **Scope:** GLOBAL approval delegation in implemented LAE Import workflows.
 
 **Existing behaviour:** scoped MANAGER/ADMIN issue/return POs, approve amendments/PI and authorize/void payment records; PRODUCT_MANAGER/ADMIN approve artwork/specifications/brand revisions and reject specifications. EXECUTIVE operates assigned orders with existing initial-payment/sample exceptions. **Proposed behaviour:** temporarily add executives to approval actions, including their own submissions and other visible in-scope orders, retaining their real role and ordinary edit boundaries.
@@ -183,7 +185,26 @@ Application commit **dd8656cb02c7ea47aa45eb29143270095aa21e87** deployed from ma
 
 Use Users & settings > Change role on another user's row. Earlier local-only/unpublished role-editing notes below are superseded by this deployment. Bulk deletion/serial-number work is not included. Ignored verification artifact: test-output/role-editing-live-report.json.
 
-## Record template - next DEC-016
+## DEC-016 - Admin bulk deletion with retained records and stable serials
+
+**Date:** 2026-09-12. **Area:** Purchase administration and numbering. **State/evidence:** IMPLEMENTED from explicit admin multi-delete/serial request and instruction to finish deployments. User confirmed deleted numbers stay unused and remaining orders never renumber. Implementation default communicated: retained deleted history and separate S.No., preserving existing PO numbers. **Scope:** GLOBAL order record management.
+
+**Existing behavior:** no delete/restore selector; manual PO numbers; array/pagination position has no durable serial meaning. **Proposed:** admin-only recoverable bulk deletion plus independent permanent serial. **Alternatives considered:** physical purge (breaks audit/payment links); renumbering/count-based serial (explicitly rejected and unstable); reuse manual PO field (changes issued references); retained markers and high-water serial (selected). **Advantages:** satisfies selection/removal, preserves commitments/history, supports recovery, stable references. **Disadvantages:** deleted records and BLOBs retain storage; they are not supplier cancellations. **Risks:** hiding financial liabilities or accidentally updating deleted orders, stale selections/concurrent creates, legacy initialization. Mitigate with financial visibility, server write blocks, selected-order confirmation, revision transaction and pre-migration backup.
+
+**Dependencies:** domain execute/canEdit, Store initialization and audit, API upload guard, tracking preview, active-vs-retained UI queries, CSV/serial fields and build. **Workflow impact:** orders disappear from active operations but remain read-only and restorable; stages/calculations do not advance/change. **Other modules:** payment/receipt totals and documents stay available; tracking updates to deleted matches reject; ordinary operations require restoration.
+
+**Final decision/reason:** DELETE_ORDERS / RESTORE_ORDERS for ADMIN, 1-200 unique IDs, required reason, all-or-nothing validation and appended events. Preserve deleted orders in state. Allocate serialNumber with nextOrderSerial, initialize missing legacy serials by createdAt/array order, never reuse. Store creates a consistent unique pre-serial backup for non-empty legacy data, then commits metadata and system audit atomically. Separate serial preserves established PO identity.
+**Files/components:** shared/domain.mjs, shared/shipping.mjs, server/store.mjs, server/index.mjs, web/app.mjs, review build, native/browser tests and docs. **Documentation updated:** B-17/B-18, baseline/learnings/brand/changelog/test reports, WF-015. **Verification:** native atomicity/permissions/retention/migration/backup; 31 bulk browser checks in server/review, including mobile, cross-page selection and financial visibility. **Related:** extends DEC-001/003 persistence/audit; retains DEC-015 role editor. No actual live deletion authorized by this feature deployment.
+
+## DEC-017 - Withdraw the September Executive approval delegation
+
+**Date:** 2026-09-12. **Area:** Purchase/product approval permissions. **State/evidence:** IMPLEMENTED from explicit instruction to remove the September rule. Interpretation communicated during work: end the temporary Executive grant now, returning to manager roles, consistent with the preceding Manager-role access request. **Scope:** GLOBAL approval action eligibility.
+**Existing:** DEC-014 allows scoped executives 11 approval/review actions until October. **Proposed:** remove that grant and notice. **Alternatives considered:** remove only the expiry and make Executive approvals permanent (would widen permissions beyond a temporary exception); remove delegation and restore baseline (selected). **Advantages:** returns approvals to assigned manager roles with no lingering date dependency. **Disadvantages:** accounts must hold appropriate manager role; self-service executive approval stops. **Risks:** a stale page might still show an old button; domain rejects it.
+**Dependencies:** canPerformApproval, audit generation, notice/timer, tests. **Workflow impact:** manager/product handoffs resume; no status reset or reversal of completed approvals. **Other-module impact:** role editor remains, existing sample/initial-payment/price-entry exceptions and calculations stay unchanged.
+**Final decision/reason:** remove temporary policy/date helpers and new policy annotations; keep explicit per-command roles and existing historical audit data. No permanent Executive grant. **Files:** shared/domain.mjs, web/app.mjs, native tests, approval_roles_browser_flow.mjs, updated full-workflow runner, docs/review build. **Documentation:** B-19, supersession notes, WF-016, baseline/learnings/brand/changelog/reports. **Verification:** executive denied throughout September despite forged payload dates; manager/product actions pass; 13 approval browser checks and 37 full-workflow checkpoints with manager/product handoffs.
+**Supersedes:** DEC-014 / B-15 / EX-05. Historical approvals remain valid and auditable. **Related:** DEC-015 manager-role editing; WF-016 replaces WF-013.
+
+## Record template - next DEC-018
 
 **Date:**
 **Area/module:**

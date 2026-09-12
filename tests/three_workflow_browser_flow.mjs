@@ -6,9 +6,9 @@ import {pathToFileURL} from 'node:url';
 import {Store} from '../server/store.mjs';
 import {makeServer} from '../server/index.mjs';
 import {createCleanSeed} from '../shared/clean-seed.mjs';
-import {orderStatus,financials,shipmentTotals,temporaryApprovalsActive} from '../shared/domain.mjs';
+import {orderStatus,financials,shipmentTotals} from '../shared/domain.mjs';
 
-const out=resolve('test-output/three-workflows',new Date().toISOString().replace(/[:.]/g,'-'));mkdirSync(out,{recursive:true});
+const out=resolve(process.env.FH_TEST_OUTPUT_ROOT||'test-output','three-workflows',new Date().toISOString().replace(/[:.]/g,'-'));mkdirSync(out,{recursive:true});
 const seed=createCleanSeed();
 // Test fixture master only; all orders, payments, approvals and shipments are created through UI.
 if(!seed.vendors.some(v=>v.kind==='LOGISTICS'&&v.status==='ACTIVE'))seed.vendors.push({id:'test-forwarder',code:'TEST-LOGISTICS',name:'Isolated Test Forwarder',kind:'LOGISTICS',status:'ACTIVE',scopes:['LAE_IMPORT'],country:'China'});
@@ -16,7 +16,7 @@ const store=new Store(join(out,'test.sqlite'),seed),password='Isolated-workflow-
 for(const u of seed.users)store.addAccount(u.id,u.id+'@example.test',password);
 const report={started:new Date().toISOString(),environment:'Isolated local native server; clean seed and synthetic users',workflows:[],errors:[],networkFailures:[],out};
 const server=makeServer(store);let browser,context,page,current;
-const delegated=process.argv.includes('--delegated');if(delegated)assert.ok(temporaryApprovalsActive(),'Delegation must currently be active on server');
+const delegated=false;assert.ok(!process.argv.includes('--delegated'),'Temporary executive delegation was removed; use --executive for manager/product handoffs.');
 const executiveOnly=delegated||process.argv.includes('--executive');
 const scenarios=executiveOnly?[{id:delegated?'WF-DELEGATED':'WF-EXEC',title:delegated?'Purchase Executive completes all operational and approval steps':'Assigned Purchase Executive workflow under current approval policy',currency:'USD',terms:'10-20-70-bl120',quantity:15,unitPrice:100,multiple:true,shipments:[15],operator:'exec'}]:[
  {id:'WF-A',title:'Standard USD purchase, one shipment, advance and BL balance',currency:'USD',terms:'30-70',quantity:10,unitPrice:100,multiple:false,shipments:[10]},
@@ -40,7 +40,7 @@ async function settleOutstanding(){
  const {paymentSchedule}=await import('../shared/domain.mjs');
  const payable=(s,o)=>paymentSchedule(s,o).filter(m=>m.reported<m.amount&&(m.trigger==='PI'||m.shipmentId)&&(m.trigger!=='BL'||o.shipments.find(x=>x.id===m.shipmentId)?.blDate));
  const needsAuthorization=payable(store.read(),order()).filter(m=>!m.authorized);
- if(current.operator==='exec'&&needsAuthorization.length&&!temporaryApprovalsActive()){check('Executive cannot authorize payment milestones',await page.locator('[data-action=authorize-payment]').count()===0);await login('manager');await page.locator('.tab[data-value=finance]').click();}
+ if(current.operator==='exec'&&needsAuthorization.length&&!false){check('Executive cannot authorize payment milestones',await page.locator('[data-action=authorize-payment]').count()===0);await login('manager');await page.locator('.tab[data-value=finance]').click();}
  for(const m of needsAuthorization)await page.locator('[data-action=authorize-payment][data-term="'+m.index+'"][data-shipment="'+(m.shipmentId||'')+'"]').click();
  if(current.operator==='exec'&&current.activeRole!=='exec'){await login('exec');await page.locator('.tab[data-value=finance]').click();}
  for(let safety=0;safety<10;safety++){
@@ -63,16 +63,16 @@ async function workflow(config){
  await select('vendorId','vendor-v30');await select('buyerId','u-exec');await select('priceListCurrency',config.currency);await select('currency',config.currency);await select('base-0','base-bs20');await fill('qty-0-GJ',config.quantity);await fill('baseprice-0',config.unitPrice);await select('terms',config.terms);await fill('planningTat','75');await fill('number',current.id+'-TEST');
  if(await page.locator('[name=productionOverrideReason]').count())await fill('productionOverrideReason','Isolated test product commitment.');
  await fill('notes','ISOLATED BROWSER TEST. No real purchase or payment.');await submit();check('Draft created from Base Item and brand quantity',order().lines.length===1);
- await action('Submit for approval');check('Executive PO approval visibility follows the current policy',!!await page.getByRole('button',{name:'Approve & issue',exact:true}).count()===temporaryApprovalsActive());
+ await action('Submit for approval');check('Executive PO approval visibility follows the current policy',!!await page.getByRole('button',{name:'Approve & issue',exact:true}).count()===false);
  if(!delegated)await login('manager');await action('Approve & issue');check('Authorized actor issued immutable PO revision',order().revisions.length===1);check('Missing approved PLM remains an explicit warning',await page.getByText('PLM specification not available',{exact:false}).count()>0);
  if(current.operator==='exec')await login('exec');
  await response('Supplier PO acknowledgement','supplier-response');check('Supplier acknowledgement retains selected files',order().confirmation.fileIds.length===(config.multiple?2:1));
  await action('Record supplier PI');await fill('number',current.id+'-PI');await files('pi');await page.locator('[name=termsConfirmed]').check();await page.locator('[name=commitmentConfirmed]').check();await submit();await action('Verify PI');
- if(current.operator==='exec'&&!temporaryApprovalsActive()){check('Executive verifies PI but cannot give final approval',order().pi.verifiedBy==='Purchase Executive'&&await page.getByRole('button',{name:'Approve PI',exact:true}).count()===0);await login('manager');}
+ if(current.operator==='exec'&&!false){check('Executive verifies PI but cannot give final approval',order().pi.verifiedBy==='Purchase Executive'&&await page.getByRole('button',{name:'Approve PI',exact:true}).count()===0);await login('manager');}
  await action('Approve PI');check('PI received, verified and approved',order().pi.status==='APPROVED');
  if(current.operator==='exec')await login('exec');
  await response('Technical specification confirmation','technical-response');
- await response('Submit artwork','artwork');if(current.operator==='exec'&&!temporaryApprovalsActive())check('Executive submits artwork but cannot approve it',await page.getByRole('button',{name:'Approve artwork',exact:true}).count()===0);if(!delegated)await login('product');await action('Approve artwork');await login(current.operator||'manager');await response('Supplier artwork confirmation','artwork-response');check('Artwork approval and supplier artwork acknowledgement complete',!!order().artwork.supplierConfirmed);
+ await response('Submit artwork','artwork');if(current.operator==='exec'&&!false)check('Executive submits artwork but cannot approve it',await page.getByRole('button',{name:'Approve artwork',exact:true}).count()===0);if(!delegated)await login('product');await action('Approve artwork');await login(current.operator||'manager');await response('Supplier artwork confirmation','artwork-response');check('Artwork approval and supplier artwork acknowledgement complete',!!order().artwork.supplierConfirmed);
  if(await page.getByRole('button',{name:'Complete payment',exact:true}).count()){
   await action('Complete payment');await select('currency',config.currency);const advance=config.terms==='30-70'?0.3:0.1;await fill('amount',(config.quantity*config.unitPrice*advance).toFixed(2));await fill('invoiceRate','1');await fill('inrRate',config.currency==='CNY'?'12':'85');await fill('reference',current.id+'-ADV');await files('advance');await fill('remarks','Isolated test initial remittance.');await submit();
  }

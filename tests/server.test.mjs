@@ -1,12 +1,28 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtempSync,rmSync} from 'node:fs';
+import {mkdtempSync,rmSync,readdirSync} from 'node:fs';
+import {DatabaseSync} from 'node:sqlite';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {Store} from '../server/store.mjs';
 import {makeServer,scopedState} from '../server/index.mjs';
 import {createSeed} from '../shared/seed.mjs';
 import {MAX_UPLOAD_BYTES} from '../shared/domain.mjs';
+
+test('legacy serial initialization persists once without renumbering PO references or snapshots',()=>{
+ const dir=mkdtempSync(join(tmpdir(),'fh-serial-')),file=join(dir,'test.sqlite'),seed=createSeed('2026-09-11');delete seed.nextOrderSerial;for(const o of seed.orders)delete o.serialNumber;const original=structuredClone(seed);let store=new Store(file,seed);
+ try{const first=store.read(),serials=first.orders.map(o=>o.serialNumber);assert.equal(new Set(serials).size,seed.orders.length);assert.deepEqual(first.orders.map(o=>o.number),original.orders.map(o=>o.number));assert.deepEqual(first.orders.map(o=>o.revisions),original.orders.map(o=>o.revisions));assert.deepEqual(first.events.slice(0,original.events.length),original.events);assert.equal(first.events.at(-1).action,'ORDER_SERIALS_INITIALIZED');const backups=readdirSync(dir).filter(n=>n.includes('.before-order-serials-'));assert.equal(backups.length,1);const backup=new DatabaseSync(join(dir,backups[0]),{readOnly:true});try{assert.deepEqual(JSON.parse(backup.prepare('SELECT payload FROM workspace WHERE id=1').get().payload),original);}finally{backup.close();}store.close();store=new Store(file);assert.deepEqual(store.read(),first);assert.equal(readdirSync(dir).filter(n=>n.includes('.before-order-serials-')).length,1);}
+ finally{store.close();rmSync(dir,{recursive:true,force:true});}
+});
+
+test('deleted POs retain accounting visibility but reject uploads and stale bulk writes',async()=>{
+ const f=await serverFixture();try{const admin=await f.login('u-admin'),ids=admin.state.orders.slice(0,2).map(o=>o.id),payload={type:'DELETE_ORDERS',payload:{orderIds:ids,remarks:'Isolated admin test'},expectedRevision:admin.state.revision};
+  const deleted=await f.req('/api/commands',{method:'POST',...admin,payload});assert.equal(deleted.status,200);assert.deepEqual(deleted.data.state.payments,admin.state.payments);assert.equal(deleted.data.state.orders.length,admin.state.orders.length);
+  const upload=await f.req('/api/files',{method:'POST',...admin,payload:{name:'blocked.txt',base64:Buffer.from('test').toString('base64'),orderIds:[ids[0]],expectedRevision:deleted.data.state.revision}});assert.equal(upload.status,403);
+  const restore={type:'RESTORE_ORDERS',payload:{orderIds:ids,remarks:'Restore original records'},expectedRevision:admin.state.revision};assert.equal((await f.req('/api/commands',{method:'POST',...admin,payload:restore})).status,409);
+  restore.expectedRevision=deleted.data.state.revision;assert.equal((await f.req('/api/commands',{method:'POST',...admin,payload:restore})).status,200);assert.ok(f.store.read().orders.filter(o=>ids.includes(o.id)).every(o=>!o.deletedAt));
+ }finally{await f.close();}
+});
 
 test('admin role changes immediately update existing sessions and retain identity and audit',async()=>{
  const f=await serverFixture();try{
@@ -32,20 +48,8 @@ test('role editing rejects self-demotion, invalid roles, unauthorized callers an
  }finally{await f.close();}
 });
 
-test('authenticated executive delegation expires on server time and audits the real account',async t=>{
- t.mock.timers.enable({apis:['Date'],now:new Date('2026-09-30T18:29:59.999Z')});
- const f=await serverFixture();try{
-  const a=await f.login('u-exec'),o=a.state.orders.find(o=>o.status==='PENDING_APPROVAL');
-  const payload={type:'APPROVE_ORDER',payload:{orderId:o.id,user:{role:'ADMIN'},now:'2026-09-12T10:00:00Z'},now:'2026-09-12T10:00:00Z',expectedRevision:a.state.revision};
-  t.mock.timers.setTime(new Date('2026-09-30T18:30:00.000Z').getTime());
-  const denied=await f.req('/api/commands',{method:'POST',...a,payload});assert.equal(denied.status,403);assert.equal(f.store.read().revision,a.state.revision);
-  t.mock.timers.setTime(new Date('2026-09-30T18:29:59.999Z').getTime());
-  const allowed=await f.req('/api/commands',{method:'POST',...a,payload});assert.equal(allowed.status,200,allowed.data.error);
-  const event=f.store.read().events.findLast(e=>e.action==='PO_APPROVED');assert.equal(event.actorId,'u-exec');assert.equal(event.approvalPolicy.id,'DEC-014');
-  assert.equal((await f.req('/api/commands',{method:'POST',...a,payload})).status,400);
-  const saved=f.store.db.prepare('SELECT payload FROM audit_events WHERE id=?').get(event.id);assert.deepEqual(JSON.parse(saved.payload),event);
-  assert.equal(f.store.read().users.find(u=>u.id==='u-exec').role,'EXECUTIVE');
- }finally{await f.close();}
+test('server denies executive approval throughout September after delegation removal',async t=>{
+ t.mock.timers.enable({apis:['Date'],now:new Date('2026-09-12T10:00:00Z')});const f=await serverFixture();try{const a=await f.login('u-exec'),o=a.state.orders.find(o=>o.status==='PENDING_APPROVAL');const out=await f.req('/api/commands',{method:'POST',...a,payload:{type:'APPROVE_ORDER',payload:{orderId:o.id,user:{role:'ADMIN'},now:'2026-09-12T10:00:00Z'},expectedRevision:a.state.revision}});assert.equal(out.status,403);assert.equal(f.store.read().revision,a.state.revision);}finally{await f.close();}
 });
 
 test('upload accepts exactly 50 MB, persists bytes and rejects larger files without mutation',async()=>{

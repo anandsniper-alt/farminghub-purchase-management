@@ -146,6 +146,8 @@ Published on explicit user request via the retained WF-008 deployment process: p
 
 ## WF-013 - Executive approval coverage through September 2026
 
+**Replaced by WF-016.** Standard Manager/Product Manager approval eligibility resumes; historical workflow records remain.
+
 **Date:** 2026-09-12. **Module:** Purchase/payments/PLM. **Workflow name:** temporary approval handoffs. **State/evidence:** IMPLEMENTED; user requested executive approvals and explicitly included Product Manager approvals. **Reason:** no Purchase Manager currently available.
 
 **Previous workflow:** (1) executive creates/submits PO; (2) manager issues; (3) executive records/verifies PI; (4) manager approves; (5) executive submits artwork/product revisions; (6) Product Manager approves/rejects; (7) manager authorizes general payment milestones or corrects records; (8) assigned executive completes operations. Initial-payment/sample/price-list shortcuts remain independently established.
@@ -185,7 +187,24 @@ Application commit **dd8656cb02c7ea47aa45eb29143270095aa21e87** deployed from ma
 
 Use Users & settings > Change role on another user's row. Earlier local-only/unpublished role-editing notes below are superseded by this deployment. Bulk deletion/serial-number work is not included. Ignored verification artifact: test-output/role-editing-live-report.json.
 
-## Record template - next WF-015
+## WF-015 - Select, delete and restore POs with durable serials
+
+**Date:** 2026-09-12. **Module:** Purchase administration. **Workflow:** recoverable bulk removal and numbering. **State/evidence:** IMPLEMENTED from user request; non-reuse/non-renumber confirmed, retained records/separate serial default communicated.
+**Previous:** open pipeline, inspect individual POs; no delete selection or stable display serial. **Requested:** select/delete multiple and maintain continuous allocation with deleted gaps. **Reason:** admin cleanup and traceable numbering.
+**New:** (1) initialize existing serials once with backup/audit; (2) admins select rows or current page, optionally across pages; (3) Delete selected lists every chosen PO and retained balances; (4) enter reason and confirm; (5) server validates full selection/revision then marks and audits; (6) active queues exclude deleted POs, finance retains them; (7) admin chooses Deleted orders to inspect/download or restore selected records with reason/confirmation; (8) restoration resumes prior stage/serial. New POs consume next high-water serial.
+**Added:** selection, confirmation, deletion markers/read-only detail, restore, persistent serial/counter, migration backup/audit. **Removed:** none of the existing approval/evidence gates. **Modified:** active queries exclude deleted records; financial queries retain them. **Statuses:** operational status unchanged; deletion is separate metadata.
+**Roles:** ADMIN deletes/restores; scope-authorized users retain relevant financial/history reads. **Dependencies:** domain/store/API/track-preview/UI/CSV. **Calculations:** balances and milestones unchanged; serial allocation is monotonic, not a financial formula. **Reports:** active operations exclude deleted; financials retain original obligations with Deleted badge. **Database:** additive metadata/counter, appended audit, private pre-migration backup; no physical deletion/schema rewrite. **API:** existing command endpoint; deleted targets reject further writes/uploads/imports. **UI:** checkboxes, S.No., Active/Deleted selector, reason/confirmation and restore.
+**Compatibility:** existing PO numbers/snapshots/payment links preserved. **Risks:** deletion is not contractual cancellation/write-off; retained data uses storage. **Implementation/verification:** native and 31 server/review browser checks, exact retention/restore/mobile/concurrency guards; backup read verified. **Related:** DEC-016, B-17/B-18. No live order deletion performed by deployment.
+
+## WF-016 - Restore standard approval handoffs
+
+**Date:** 2026-09-12. **Module:** Purchase/payments/PLM. **Workflow:** approval eligibility. **State/evidence:** IMPLEMENTED following removal of September rule; ending the grant was communicated.
+**Previous:** executives could approve/reject within scope during September, including their submissions. **Requested:** remove September rule. **Reason:** return to Manager/Product Manager access rather than time-based delegation.
+**New:** (1) executive submits/verifies using established permissions; (2) scoped Manager/Admin performs purchase approvals and general payment authorization/correction; (3) Product Manager/Admin performs technical/artwork/brand approvals; (4) executive continues assigned operations. Standard permissions apply regardless of date.
+**Added:** ordinary approval handoffs restored. **Removed:** temporary executive grant, time checks, deadline notice/timer and new delegation annotations. **Modified:** action eligibility only. **Status changes:** none; completed delegated approvals persist. **Roles:** EXECUTIVE loses only the DEC-014 grant; actual manager/product/admin roles retain rights. **Dependencies:** shared permission map, command checks, UI/tests. **Calculations:** none. **Reports:** prior policy events retained, new events use actual approver without temporary metadata. **Database:** no account role or prior record rewrite. **API:** same endpoints; stale Executive attempts deny. **UI:** standard approval buttons by role, no September notice. **Compatibility:** historical approvals/snapshots intact. **Risks:** existing accounts may need admin-assigned manager roles.
+**Verification:** native forged-date/identity denials; 13 server/review approval checks; full workflow 37 checks with manager/product handoffs. **Decision:** DEC-017. **Replaces:** WF-013 approval eligibility; existing executive initial-payment/sample exceptions remain.
+
+## Record template - next WF-017
 
 **Date:**
 **Workflow Change ID:**

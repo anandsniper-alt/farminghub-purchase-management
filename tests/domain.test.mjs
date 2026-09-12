@@ -1,50 +1,33 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createSeed} from '../shared/seed.mjs';
-import {APPROVAL_ROLES,TEMPORARY_APPROVAL_POLICY,temporaryApprovalsActive,canPerformApproval,canApprove,canProductApprove,canEdit,execute,TERMS,orderTotal,orderStatus,financials,paymentSchedule,flagsFor,shipmentTotals,proportionalSlices,toMinor,toRate,convertMinor,previewImport,major,currentApprovedPrice,priceVarianceForLine} from '../shared/domain.mjs';
+import {APPROVAL_ROLES,canPerformApproval,canApprove,canProductApprove,canEdit,execute,TERMS,orderTotal,orderStatus,financials,paymentSchedule,flagsFor,shipmentTotals,proportionalSlices,toMinor,toRate,convertMinor,previewImport,major,currentApprovedPrice,priceVarianceForLine} from '../shared/domain.mjs';
 import {previewTrackingImport,previewRateImport,rateVariance,freightTrendFor,shippingDocReadiness} from '../shared/shipping.mjs';
 const TODAY='2026-09-11';
 
-test('temporary approval policy uses exact IST bounds and preserves role and scope restrictions',()=>{
- const f=fixture(),exec=f.role('EXECUTIVE');
- const bounds=[['2026-09-11T18:29:59.999Z',false],['2026-09-11T18:30:00.000Z',true],['2026-09-30T18:29:59.999Z',true],['2026-09-30T18:30:00.000Z',false],['invalid',false]];
- for(const [now,active] of bounds){assert.equal(temporaryApprovalsActive(now),active);for(const [command,role] of Object.entries(APPROVAL_ROLES)){
-  assert.equal(canPerformApproval(exec,command,'LAE_IMPORT',now),active,command+' '+now);
-  assert.equal(canPerformApproval(f.role(role),command,'LAE_IMPORT',now),true);
-  for(const u of [f.role('VIEWER'),{...exec,active:false},{...exec,scopes:[]}])assert.equal(canPerformApproval(u,command,'LAE_IMPORT',now),false);
- }}
- assert.equal(canApprove(exec),false);assert.equal(canProductApprove(exec),false);
- for(const command of ['SAVE_VENDOR','SAVE_TEMPLATE_FIELD','SAVE_SCOPES','CANCEL_SHIPMENT','SHORT_CLOSE_ORDER','toString'])assert.equal(canPerformApproval(exec,command,'LAE_IMPORT','2026-09-12T10:00:00Z'),false);
+test('admin bulk deletion retains financials, evidence, snapshots and original serials; restoration resumes the same order',()=>{
+ const f=fixture(),a=f.draft(),b=f.draft();f.issue(a);f.commercial(a);f.pay(a);const original=structuredClone(f.state),numbers=[f.get(a).serialNumber,f.get(b).serialNumber],finance=financials(f.state,f.get(a));
+ f.run('DELETE_ORDERS',{orderIds:[a,b],remarks:'Remove test orders'},f.role('ADMIN'));
+ assert.ok(f.get(a).deletedAt&&f.get(b).deletedAt);assert.deepEqual(financials(f.state,f.get(a)),finance);assert.deepEqual(f.state.payments,original.payments);assert.deepEqual(f.state.files,original.files);assert.deepEqual(f.get(a).revisions,original.orders.find(o=>o.id===a).revisions);assert.deepEqual(f.state.events.slice(0,original.events.length),original.events);
+ assert.deepEqual([f.get(a).serialNumber,f.get(b).serialNumber],numbers);assert.equal(canEdit(f.role('ADMIN'),f.get(a)),false);
+ for(const type of ['ADD_NOTE','APPROVE_PI','AUTHORIZE_PAYMENT'])assert.throws(()=>f.run(type,{orderId:a,remarks:'Blocked'},f.role('ADMIN')),/deleted/i);
+ assert.throws(()=>f.run('VOID_PAYMENT',{paymentId:f.state.payments[0].id,remarks:'Blocked'},f.role('ADMIN')),/deleted/i);
+ const c=f.draft({serialNumber:1});assert.ok(f.get(c).serialNumber>Math.max(...numbers));
+ f.run('RESTORE_ORDERS',{orderIds:[a,b],remarks:'Resume tests'},f.role('ADMIN'));assert.equal(f.get(a).deletedAt,undefined);assert.equal(f.get(a).serialNumber,numbers[0]);assert.deepEqual(financials(f.state,f.get(a)),finance);f.run('ADD_NOTE',{orderId:a,remarks:'Restored order can resume'});
 });
 
-test('executive completes purchase and product approval chain with original identity and policy audit',()=>{
- const f=fixture('2026-09-12'),u=f.role('EXECUTIVE'),id=f.draft(),p={orderId:id};
- f.run('SUBMIT_ORDER',p,u);f.run('RETURN_ORDER',{...p,remarks:'Review corrections'},u);f.run('SUBMIT_ORDER',p,u);f.run('APPROVE_ORDER',p,u);
- f.confirm(id);f.run('RECORD_PI',{...p,number:'DELEGATED-PI',date:TODAY,currency:'USD',amount:'10000',quantity:100,termsConfirmed:true,commitmentConfirmed:true,fileId:f.file([id])},u);
- assert.throws(()=>f.run('APPROVE_PI',p,u),/verification/i);
- f.run('VERIFY_PI',p,u);f.run('APPROVE_PI',p,u);f.technical(id);
- f.run('SUBMIT_ARTWORK',{...p,remarks:'Test artwork',fileId:f.file([id])},u);f.run('APPROVE_ARTWORK',p,u);
- f.run('CONFIRM_ARTWORK',{...p,remarks:'Confirmed',fileId:f.file([id])},u);f.run('AUTHORIZE_PAYMENT',{...p,termIndex:0},u);
- const pay=f.run('RECORD_PAYMENT',{reference:'DELEGATED',date:TODAY,currency:'USD',amount:'3000',inrRate:'85',fileId:f.file([id]),allocations:[{orderId:id,termIndex:0,amount:'3000'}]},u).id;
- f.run('VOID_PAYMENT',{paymentId:pay,remarks:'Test correction, no bank reversal'},u);
- const old=structuredClone(f.get(id).revisions[0]);f.run('PROPOSE_AMENDMENT',{...p,reason:'Test amendment',lines:f.get(id).lines.map(l=>({...l,artworkNotes:'Revised packaging'}))},u);f.run('APPROVE_AMENDMENT',p,u);assert.deepEqual(f.get(id).revisions[0],old);
- const base=f.state.bases.find(b=>b.id===f.get(id).lines[0].baseId),item=f.state.items.find(i=>i.baseId===base.id);
- for(const [version,command] of [['DELEGATED-1','APPROVE_SPEC'],['DELEGATED-2','REJECT_SPEC']]){f.run('SAVE_SPEC',{baseId:base.id,version,reason:'Test revision',description:'Test technical package'},u);const spec=f.state.bases.find(b=>b.id===base.id).specifications.at(-1);f.run(command,{baseId:base.id,specId:spec.id,remarks:'Reviewed'},u);}
- f.run('SAVE_BRAND_DELTA',{itemId:item.id,branding:item.brand,remarks:'Test delta'},u);f.run('APPROVE_BRAND_DELTA',{itemId:item.id},u);
- f.run('SUBMIT_BRAND_ARTWORK',{itemId:item.id,remarks:'Test brand artwork',fileId:f.file()},u);f.run('APPROVE_BRAND_ARTWORK',{itemId:item.id,artworkId:f.state.items.find(i=>i.id===item.id).artworkRevisions.at(-1).id},u);
- const events=f.state.events.filter(e=>e.approvalPolicy);assert.deepEqual(new Set(events.map(e=>e.approvalPolicy.command)),new Set(Object.keys(APPROVAL_ROLES)));
- assert.ok(events.every(e=>e.actorId===u.id&&e.actorName===u.name&&e.approvalPolicy.id==='DEC-014'&&e.approvalPolicy.endsAt===TEMPORARY_APPROVAL_POLICY.endsAt));
- assert.equal(f.state.users.find(x=>x.id===u.id).role,'EXECUTIVE');assert.equal(f.get(id).revisions[0].actor,u.name);
+test('bulk delete/restore enforces admin, bounded selection, reason and atomic validation',()=>{
+ const f=fixture(),a=f.draft(),b=f.draft(),before=structuredClone(f.state),admin=f.role('ADMIN');
+ for(const role of ['MANAGER','EXECUTIVE','PRODUCT_MANAGER','VIEWER'])for(const type of ['DELETE_ORDERS','RESTORE_ORDERS'])assert.throws(()=>f.run(type,{orderIds:[a],remarks:'Attempt'},f.role(role)),e=>e.code==='FORBIDDEN');
+ for(const payload of [{orderIds:[],remarks:'x'},{orderIds:[a,a],remarks:'x'},{orderIds:[a,'missing'],remarks:'x'},{orderIds:[a],remarks:''},{orderIds:Array(201).fill(a),remarks:'x'}])assert.throws(()=>f.run('DELETE_ORDERS',payload,admin));
+ assert.deepEqual(f.state,before);f.run('DELETE_ORDERS',{orderIds:[a],remarks:'Test'},admin);const deleted=structuredClone(f.state);assert.throws(()=>f.run('DELETE_ORDERS',{orderIds:[b,a],remarks:'Mixed'},admin));assert.throws(()=>f.run('RESTORE_ORDERS',{orderIds:[a,b],remarks:'Mixed'},admin));assert.deepEqual(f.state,deleted);
+ const ref=f.get(a).number;assert.throws(()=>f.draft({number:ref}),/already exists/i);
 });
 
-test('expiry denies every delegated command despite forged client dates, with no mutation',()=>{
- const f=fixture(),id=f.draft();f.run('SUBMIT_ORDER',{orderId:id});const original=structuredClone(f.state),u=f.role('EXECUTIVE');
- for(const type of Object.keys(APPROVAL_ROLES))assert.throws(()=>execute(f.state,{type,now:'2026-09-12T10:00:00Z',payload:{orderId:id,now:'2026-09-12T10:00:00Z',role:'ADMIN'}},u,{now:TEMPORARY_APPROVAL_POLICY.endsAt}),e=>e.code==='FORBIDDEN',type);
- assert.deepEqual(f.state,original);
- const other={...u,id:'other-executive'};assert.equal(canEdit(other,f.get(id)),false);
- const out=execute(f.state,{type:'APPROVE_ORDER',payload:{orderId:id}},other,{now:'2026-09-30T18:29:59.999Z'});assert.equal(out.state.orders.find(o=>o.id===id).status,'ISSUED');
- for(const actor of [{...u,scopes:[]},{...u,active:false},f.role('VIEWER')])assert.throws(()=>execute(f.state,{type:'APPROVE_ORDER',payload:{orderId:id}},actor,{now:'2026-09-12T10:00:00Z'}),e=>e.code==='FORBIDDEN');
- for(const type of ['SAVE_VENDOR','SAVE_TEMPLATE_FIELD','SAVE_SCOPES','CANCEL_SHIPMENT','SHORT_CLOSE_ORDER'])assert.throws(()=>execute(f.state,{type,payload:{orderId:id}},u,{now:'2026-09-12T10:00:00Z'}),e=>e.code==='FORBIDDEN');
+test('approval roles remain authoritative with no date-based executive delegation',()=>{
+ const f=fixture(),u=f.role('EXECUTIVE');for(const [command,role] of Object.entries(APPROVAL_ROLES)){for(const now of ['2026-09-12T10:00:00Z','2026-09-30T18:29:59Z','2026-10-01T00:00:00Z'])assert.equal(canPerformApproval(u,command,'LAE_IMPORT',now),false);assert.equal(canPerformApproval(f.role(role),command),true);assert.equal(canPerformApproval(f.role('ADMIN'),command),true);assert.equal(canPerformApproval(f.role('VIEWER'),command),false);assert.equal(canPerformApproval({...f.role(role),scopes:[]},command),false);}
+ const oid=f.draft();f.run('SUBMIT_ORDER',{orderId:oid});for(const type of Object.keys(APPROVAL_ROLES))assert.throws(()=>execute(f.state,{type,payload:{orderId:oid,now:'2026-09-12T10:00:00Z',user:{role:'ADMIN'}}},u,{now:'2026-09-12T10:00:00Z'}),e=>e.code==='FORBIDDEN',type);
+ f.run('APPROVE_ORDER',{orderId:oid});assert.ok(f.state.events.filter(e=>e.action==='PO_APPROVED').every(e=>!e.approvalPolicy));
 });
 
 test('multiple response attachments share one confirmation and preserve each document',()=>{

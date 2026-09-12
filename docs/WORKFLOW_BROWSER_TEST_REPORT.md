@@ -1,5 +1,18 @@
 # Complete purchase workflow browser tests
 
+## Admin bulk orders and approval withdrawal - 2026-09-12
+
+**110 native tests passed** on final source, including admin-only atomic delete/restore, unchanged financials/documents/issued snapshots, serial non-reuse, stale/invalid selection rollback, deleted upload/write rejection, current session role enforcement and idempotent legacy initialization. The migration test opens the pre-initialization SQLite backup read-only and verifies the original workspace is preserved.
+
+**31 bulk browser checks passed** in server and standalone review: select-all page limit, cross-page selection, cancel, explicit confirmation, 390px mobile, exact selected deletion, retained serials/history/financial visibility, read-only deleted detail, restore and hidden-selection clearing. **13 approval browser checks passed:** no September notice, Executive denied PO/technical approvals, Manager issue and Product Manager technical approval. **37 full workflow checks passed:** Executive operated the assigned synthetic PO with Manager/Product Manager handoffs through port arrival and SETTLED, zero balance.
+
+Evidence from successful reruns: D:/CodexTestTemp/FarmingHub/reports/bulk-orders/2026-09-12T14-51-32-500Z/, approval-roles/2026-09-12T14-51-48-161Z/, three-workflows/2026-09-12T14-51-56-360Z/. Reports/traces are local test artifacts, not source or live business data. Final native log: test-output/admin-release-native.tap. Runners support FH_TEST_OUTPUT_ROOT for alternate artifact storage; TMP/TEMP were set only for test processes on D:.
+
+An earlier run failed from a full C: disk, not a business-rule assertion. The interrupted app write was recovered from the generated build; source checks and complete browser reruns passed afterwards. Only a prior failed-test trace was removed. No real PO, role, payment or shipment was changed by testing. VH001's real workflow completion remains separate from this deployment and requires the actual manager/account and supporting records.
+
+Earlier pending-deletion and September-delegation reports below are historical; DEC-016/017 and WF-015/016 define the current release. Deployment evidence will identify the live commit.
+
+
 ## Role-editing live publication - 2026-09-12
 
 Application commit **dd8656cb02c7ea47aa45eb29143270095aa21e87** deployed from main to https://purchase.dvjassociates.com via Coolify deployment **heiuia7nadcjjtlvrxiaktdc** (finished; running:healthy). This publishes DEC-015 / WF-014 administrator role editing. Existing domain, persistent data volume and application configuration retained.
