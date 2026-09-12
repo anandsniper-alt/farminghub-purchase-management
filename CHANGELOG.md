@@ -1,5 +1,7 @@
 # Changelog — v0.6.1-alpha.16
 
+Published 2026-09-12: pipeline sorting commit **db6978c** is live and healthy. Added the user-requested one-time batch TEST-SORT-001 through TEST-SORT-010 as unapproved drafts across ten suppliers. Sixteen live browser and eight batch checks passed; pre-existing business records and permissions retained.
+
 ## Supplier and serial sorting - 2026-09-12 (local source)
 
 - PO pipeline supports exact supplier filtering and ascending/descending supplier, S.No. and PO-number sorting from headers or dropdown.
