@@ -4,6 +4,8 @@
 
 ## User access portal verification — 2026-09-12
 
+**Publication verification:** commit `8a96a27`, Coolify deployment `wawt555szxwx5ukuprnayjbe`, finished. Live https://purchase.dvjassociates.com returned healthy HTTPS responses and app/domain modules matching local source. Headless Chrome verified administrator login, account metadata, Create user dialog, all five role options, mobile layout and logout with no page errors. No live user was created. This supersedes the local-only deployment qualification in the earlier test record below.
+
 - `node scripts/build.mjs`: standalone review regenerated successfully.
 - `node --test tests/*.test.mjs`: **97 passed, 0 failed** (`test-output/user-access-native-tests.tap`). New coverage includes admin creation/login, secret exclusion, permission/Origin/CSRF enforcement, input validation and duplicate/stale rollback.
 - `node tests/user_access_browser_flow.mjs`: isolated Playwright/Chrome checks passed for creation, password confirmation, duplicate email with retained fields, mobile dialog, new-user login, non-admin visibility and standalone review. The script requires a development Playwright installation and optional `FH_PLAYWRIGHT_MODULE`/`CHROMIUM_PATH`; no application runtime dependency was added.

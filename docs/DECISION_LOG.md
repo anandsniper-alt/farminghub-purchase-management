@@ -122,6 +122,10 @@ Related documents: [rulebook](PROJECT_RULEBOOK.md), [learnings](PROJECT_LEARNING
 
 **Final decision/reason:** implement an authenticated admin form and distinct `/api/users` credential resource. It satisfies requested creation while keeping secret handling inside the server and preserving product conventions. **Files/components:** shared/domain.mjs, server/index.mjs, server/store.mjs, web/app.mjs, generated clean-review HTML, server/browser tests, administration and project memory docs. **Documentation updated:** rulebook B-13/G-16, learnings, baseline, brand reuse note, administration guide and changelog. **Verification:** 97 native tests pass; isolated browser checks cover creation, failed confirmation, duplicate rollback, new-user login, mobile and non-admin visibility; standalone review checked. **Related workflow:** WF-011. Extends DEC-003/009; existing scope-audit exception remains.
 
+### DEC-012 publication evidence — 2026-09-12
+
+The user explicitly requested publication. Application commit `8a96a27` was pushed to repository main and deployed through existing Coolify configuration, deployment `wawt555szxwx5ukuprnayjbe` (finished). Live HTTPS health, exact served source, administrator login/account list, Create user form and mobile rendering passed; logout completed and no live account was created. This executes the confirmed feature without adding a new role policy, workflow or database migration. Baseline and test report updated with live evidence.
+
 ## Record template — next DEC-013
 
 **Date:**

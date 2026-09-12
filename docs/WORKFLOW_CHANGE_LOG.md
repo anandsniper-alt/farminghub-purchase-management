@@ -120,6 +120,10 @@ Started 2026-09-12. Historical records are reconstructed from sources, not inven
 
 **Final implementation/verification:** 97 native tests pass plus isolated browser account lifecycle, failure, mobile, permission and standalone-review checks. Test accounts exist only in temporary test databases. **Related decision:** DEC-012. Extends administration described in DEC-003 and hosting WF-008; does not replace their retained steps or scope-audit exception.
 
+### WF-011 publication evidence — 2026-09-12
+
+Published on explicit user request via the retained WF-008 deployment process: push main commit `8a96a27` → Coolify deployment `wawt555szxwx5ukuprnayjbe` → finished → live health, administrator sign-in/account metadata and desktop/mobile Create user form checks → sign out. The workflow is now available at https://purchase.dvjassociates.com/#/settings. Existing data volume/settings retained; no migration or test-account creation on the live database. Related DEC-012.
+
 ## Record template — next WF-012
 
 **Date:**
