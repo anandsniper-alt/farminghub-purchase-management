@@ -6,6 +6,33 @@ import {join} from 'node:path';
 import {Store} from '../server/store.mjs';
 import {makeServer,scopedState} from '../server/index.mjs';
 import {createSeed} from '../shared/seed.mjs';
+import {MAX_UPLOAD_BYTES} from '../shared/domain.mjs';
+
+test('authenticated executive delegation expires on server time and audits the real account',async t=>{
+ t.mock.timers.enable({apis:['Date'],now:new Date('2026-09-30T18:29:59.999Z')});
+ const f=await serverFixture();try{
+  const a=await f.login('u-exec'),o=a.state.orders.find(o=>o.status==='PENDING_APPROVAL');
+  const payload={type:'APPROVE_ORDER',payload:{orderId:o.id,user:{role:'ADMIN'},now:'2026-09-12T10:00:00Z'},now:'2026-09-12T10:00:00Z',expectedRevision:a.state.revision};
+  t.mock.timers.setTime(new Date('2026-09-30T18:30:00.000Z').getTime());
+  const denied=await f.req('/api/commands',{method:'POST',...a,payload});assert.equal(denied.status,403);assert.equal(f.store.read().revision,a.state.revision);
+  t.mock.timers.setTime(new Date('2026-09-30T18:29:59.999Z').getTime());
+  const allowed=await f.req('/api/commands',{method:'POST',...a,payload});assert.equal(allowed.status,200,allowed.data.error);
+  const event=f.store.read().events.findLast(e=>e.action==='PO_APPROVED');assert.equal(event.actorId,'u-exec');assert.equal(event.approvalPolicy.id,'DEC-014');
+  assert.equal((await f.req('/api/commands',{method:'POST',...a,payload})).status,400);
+  const saved=f.store.db.prepare('SELECT payload FROM audit_events WHERE id=?').get(event.id);assert.deepEqual(JSON.parse(saved.payload),event);
+  assert.equal(f.store.read().users.find(u=>u.id==='u-exec').role,'EXECUTIVE');
+ }finally{await f.close();}
+});
+
+test('upload accepts exactly 50 MB, persists bytes and rejects larger files without mutation',async()=>{
+ const f=await serverFixture();try{
+  const a=await f.login(),oid=a.state.orders[0].id,bytes=Buffer.alloc(MAX_UPLOAD_BYTES,65);
+  const r=await f.req('/api/files',{method:'POST',...a,payload:{name:'limit.txt',base64:bytes.toString('base64'),orderIds:[oid],expectedRevision:a.state.revision}});
+  assert.equal(r.status,201);assert.equal(f.store.fileBytes(r.data.id).byteLength,MAX_UPLOAD_BYTES);assert.deepEqual(Buffer.from(f.store.fileBytes(r.data.id)),bytes);
+  const before=structuredClone(f.store.read());const tooLarge=await f.req('/api/files',{method:'POST',...a,payload:{name:'too-large.txt',base64:Buffer.alloc(MAX_UPLOAD_BYTES+1).toString('base64'),orderIds:[oid],expectedRevision:before.revision}});
+  assert.equal(tooLarge.status,400);assert.match(tooLarge.data.error,/50 MB/);assert.deepEqual(f.store.read(),before);
+ }finally{await f.close();}
+});
 
 test('admin portal creates a sign-in account atomically without exposing credentials',async()=>{
  const f=await serverFixture();try{
@@ -46,7 +73,7 @@ async function serverFixture(){const dir=mkdtempSync(join(tmpdir(),'fh-test-')),
 
 test('unauthenticated state and evidence access return 401',async()=>{const f=await serverFixture();try{assert.equal((await f.req('/api/bootstrap')).status,401);assert.equal((await f.req('/api/files/anything')).status,401);}finally{await f.close();}});
 test('successful local authentication uses HttpOnly SameSite cookie; invalid login is generic',async()=>{const f=await serverFixture();try{const a=await f.login();assert.match(a.cookie,/HttpOnly/);assert.match(a.cookie,/SameSite=Strict/);assert.equal(a.state.orders.length,8);const bad=await f.req('/api/login',{method:'POST',payload:{email:'missing@example.test',password:'not-a-real-password'}});assert.equal(bad.status,401);assert.equal(bad.data.error,'Invalid credentials or inactive account.');}finally{await f.close();}});
-test('role is taken from the authenticated server account, not from client payload',async()=>{const f=await serverFixture();try{const a=await f.login('u-exec'),o=a.state.orders.find(o=>o.status==='PENDING_APPROVAL');const r=await f.req('/api/commands',{method:'POST',...a,payload:{type:'APPROVE_ORDER',payload:{orderId:o.id,user:{role:'ADMIN'}},expectedRevision:a.state.revision}});assert.equal(r.status,403);assert.equal(f.store.read().orders.find(x=>x.id===o.id).status,'PENDING_APPROVAL');}finally{await f.close();}});
+test('role is taken from the authenticated server account, not from client payload',async()=>{const f=await serverFixture();try{const a=await f.login('u-viewer'),o=a.state.orders.find(o=>o.status==='PENDING_APPROVAL');const r=await f.req('/api/commands',{method:'POST',...a,payload:{type:'APPROVE_ORDER',payload:{orderId:o.id,user:{role:'ADMIN'}},expectedRevision:a.state.revision}});assert.equal(r.status,403);assert.equal(f.store.read().orders.find(x=>x.id===o.id).status,'PENDING_APPROVAL');}finally{await f.close();}});
 test('state records are scoped to allowed divisions, including evidence and vendors',async()=>{const f=await serverFixture();try{const a=await f.login('u-utility');assert.equal(a.state.orders.length,0);assert.equal(a.state.items.length,0);assert.equal(a.state.vendors.length,0);assert.equal(a.state.files.length,0);assert.equal(a.state.payments.length,0);}finally{await f.close();}});
 test('CSRF and cross-origin writes are rejected',async()=>{const f=await serverFixture();try{const a=await f.login(),o=a.state.orders[0],payload={type:'ADD_NOTE',payload:{orderId:o.id,remarks:'Must not save'},expectedRevision:a.state.revision};assert.equal((await f.req('/api/commands',{method:'POST',token:a.token,payload})).status,403);assert.equal((await f.req('/api/commands',{method:'POST',...a,originHeader:'https://untrusted.invalid',payload})).status,403);}finally{await f.close();}});
 test('optimistic revision check prevents lost updates from stale browser state',async()=>{const f=await serverFixture();try{const a=await f.login(),o=a.state.orders[0],payload={type:'ADD_NOTE',payload:{orderId:o.id,remarks:'First update'},expectedRevision:a.state.revision};const r=await f.req('/api/commands',{method:'POST',...a,payload});assert.equal(r.status,200);assert.equal((await f.req('/api/commands',{method:'POST',...a,payload})).status,409);assert.equal(f.store.read().events.filter(e=>e.summary==='First update').length,1);}finally{await f.close();}});

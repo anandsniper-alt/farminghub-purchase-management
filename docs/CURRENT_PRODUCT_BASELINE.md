@@ -1,5 +1,13 @@
 # Current product baseline
 
+**Temporary approvals source update, 2026-09-12 (DEC-014 / WF-013):** active scoped Purchase Executives may make Purchase Manager and Product Manager approvals, including their own submissions, through 30 September 2026, 11:59 pm IST. Normal approval roles resume at 1 October 00:00 IST automatically. PO issue/return/amendment, PI, payment authorization/correction, order artwork, technical approval/rejection, brand delta and brand artwork use an explicit command allowlist. Roles and ordinary editing/administration rights remain unchanged. Readiness/evidence/financial checks and immutable history remain. A shared notice displays expiry; delegated audit events identify the executive and DEC-014. No schema migration. This is local source; the last confirmed live release remains the publication record below.
+
+Approval handoffs in older workflow summaries and test reports remain historical. During the exception the executive can perform those approval steps; normal handoffs resume after expiry.
+
+**Browser verification, 2026-09-12:** three complete purchase scenarios plus a dedicated Purchase Executive scenario passed against isolated native-server databases. All four reached port arrival and settled balances, including multiple attachments and partial shipments. No application changes were required. See [Workflow browser test report](WORKFLOW_BROWSER_TEST_REPORT.md) for coverage, role handoffs, evidence and limits. These results concern current local source, not a new deployment.
+
+**Multiple-upload source update, 2026-09-12 (DEC-013 / WF-012):** evidence forms accept multiple files per submission, up to 50 MB (52,428,800 bytes) each. Supplier responses, PI, artwork, payments, QC, shipping evidence and existing PLM/complaint collections preserve every selected file. Uploads validate first, run sequentially with progress and support retry without re-uploading completed files in the same form. Business workflow advances only after the complete selection succeeds. Existing single-file records/clients remain compatible; no SQL migration. 102 native tests and isolated browser checks passed. This source update is not yet a live-deployment claim; the publication record below refers to the preceding user-access release.
+
 **Published 2026-09-12:** user-access application commit `8a96a27` is live at https://purchase.dvjassociates.com. Coolify deployment `wawt555szxwx5ukuprnayjbe` finished successfully. HTTPS health, exact served app/domain source, administrator login, account metadata loading, Create user form with five roles, 390px mobile layout and logout passed live checks with no browser errors. Verification created no live accounts. Existing deployment settings and persistent data volume were retained. The local-only status in the initial update below is superseded by this publication record.
 
 **User-access update, 2026-09-12 (DEC-012 / WF-011):** the working source now includes ADMIN-only web account creation and safe account metadata listing. The pages, permissions and API tables below reflect this change. Native tests: **97 passed, 0 failed**. Isolated Chrome checks passed for creation, confirmation/duplicate failures, mobile dialog, new-user login, non-admin visibility and standalone review. The earlier 94-test documentation-only verification below is preserved as history. Deployment details below describe the preceding deployment, not proof this update is live. TD-19's lack of bundled add-user scripts is mitigated by the web form; backup/recovery debt remains. No schema change.
@@ -64,7 +72,7 @@ Calculation authority: CAL-01..CAL-15 in [learnings](PROJECT_LEARNINGS.md), impl
 |---|---|
 | ADMIN | Scope bypass; purchase and product approvals, settings/scope administration, user creation and account metadata list. |
 | MANAGER | Scoped purchase create/edit/approve, authorize/void payments, master/category/route management, cancellations/short closure. Not automatically Product Manager. |
-| EXECUTIVE | Scoped create; assigned-order edits and operational actions; correction requests. No generic manager approval. Initial payment shortcut is a known exception. |
+| EXECUTIVE | Scoped create; assigned-order edits and operational actions; correction requests. Purchase and product approvals temporarily allowed by B-15/DEC-014 until October 1 IST; then no generic manager approval. Initial payment shortcut remains a separate exception. |
 | PRODUCT_MANAGER | Scoped specification/artwork/template approvals and selected PLM edits/uploads; no automatic purchase-manager permission or generic PO creation. |
 | VIEWER | Scoped read; business writes/uploads blocked. |
 
@@ -80,7 +88,7 @@ Only LAE_IMPORT transaction workflows are implemented. Existing scope values als
 | GET `/api/users` | ADMIN session -> `{users}` containing safe profile/email/active/hasAccount metadata, no credentials. |
 | POST `/api/users` | ADMIN session/Origin/CSRF + `{name,email,password,role,scopes,expectedRevision}` -> 201 `{user,users,state}`. Atomic profile/account/audit creation; 400 invalid / 409 duplicate or stale. |
 | POST `/api/commands` | Session/Origin/CSRF + `{type,payload,expectedRevision}` -> `{state,result}`. |
-| POST `/api/files` | Session/Origin/CSRF + filename/base64/orderIds/expectedRevision -> `{id,state}`. <=8 MiB bytes, 12 MiB total request-body limit. |
+| POST `/api/files` | Session/Origin/CSRF + name/base64/orderIds/expectedRevision -> `{id,state}`. One file per request, <=50 MiB decoded bytes; upload JSON limit = `ceil(MAX_UPLOAD_BYTES / 3) * 4 + 1 MiB`. Other API bodies remain 12 MiB. UI sends several files sequentially, then one command with `fileIds`. |
 | GET `/api/files/:id` | Authorized scoped download; Content-Disposition attachment, mapped MIME, no-store. |
 | POST `/api/logout` | Session/Origin/CSRF -> `{ok:true}` and expired cookie. |
 

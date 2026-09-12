@@ -1,5 +1,29 @@
 # Project learnings
 
+## Temporary approval delegation - 2026-09-12
+
+DEC-014 / WF-013 implements the confirmed September exception for both purchase and product approvals. Existing canApprove also governs vendor/route/category maintenance, editing, cancellation and short closure; canProductApprove also governs templates and uploads. Broadening either helper would silently grant unrelated powers. Use the separate command-specific canPerformApproval allowlist in domain and UI.
+
+Use explicit IST timestamps and an exclusive October boundary, not process/browser timezone or payload dates. The trusted execute context supplies now; Store.transact re-reads the persisted actor. Delegated events retain identity and add policy metadata. No account role/schema changes. PLM target scope is checked as well as general PLM eligibility. Self-approval and cross-owner approval within scope are temporary permissions; cross-owner editing stays restricted.
+
+Verification covers all 11 delegated commands, immutable snapshots, readiness gates, expiry, denied roles/scopes, forged dates, SQLite audit persistence, a complete Executive-only purchase lifecycle, and server/review UI with mobile and open-page expiry. Historical handoff results below describe the earlier policy. Browser PLM tests should select a specification ID explicitly: newest-first rows can make the first button refer to another pending revision.
+
+## Complete browser workflow verification — 2026-09-12
+
+The three full workflow scenarios and dedicated Purchase Executive run passed; see [workflow browser report](WORKFLOW_BROWSER_TEST_REPORT.md). The executive can operate its assigned PO through port arrival and settlement with existing manager/product approval handoffs. Initial-payment auto-authorization and sample approval remain editor capabilities under the existing implementation; do not silently redefine them as manager-only based on terminology.
+
+For UI tests, target `.tab[data-value=finance]`: both a next-action shortcut and the actual tab use `data-action=tab`/`data-value=finance`, causing ambiguous broad selectors. Use per-shipment IDs for card actions when testing partial shipments. Select only allocated outstanding payment milestones, and exercise BL payments after a final BL exists. Keep test accounts, traces and databases isolated; reports should distinguish fixture setup, real UI actions and read-only database assertions.
+
+## Multiple-file upload update — 2026-09-12
+
+DEC-013 / WF-012: evidence limits now use shared `MAX_UPLOAD_BYTES` (52,428,800 bytes) and `UPLOAD_EXTENSIONS`. Existing JSON/base64 upload transport remains: one file per HTTP request, request budget `ceil(MAX_UPLOAD_BYTES / 3) * 4 + 1 MiB` for encoding and metadata; decoded bytes enforce the actual per-file limit. Other API bodies retain 12 MiB. Spreadsheet source parsing uses the same per-file size while keeping its single-source preview workflow.
+
+Most workflow dialogs previously read only `FormData.get('file')`. Their shared picker now allows multiple files, and submission reads the actual FileList (distinguishing no selection from a selected empty file). `uploadMany` validates the entire selection first, uploads sequentially, displays file-count progress and caches successful IDs by File object, actor and order links for retry in the same form. A separate submission guard covers the upload phase before the command busy guard; double-submit cannot produce duplicate workflows. Uploads are individually committed/audited; the business command runs only after all selected uploads succeed. Abandoning a partial upload may leave uploaded evidence metadata/BLOBs, consistent with the pre-existing two-step store model; no automatic destructive cleanup is introduced.
+
+`dEvidence` accepts an old scalar ID or a collection and validates every file; `dAttach` creates a separate order-document row for every attachment. Records retain the first `fileId` for compatibility plus the full `fileIds` collection (supplier realization uses `ackFileIds`). Multi-order payment validation checks every proof against every allocation. PI, artwork and receipt buttons expose all files; PLM artwork collections also have download controls. Existing workflow gates, roles, calculations and schema version remain unchanged.
+
+Verification: 102 native tests pass, including exactly 50 MB accepted, 50 MB + 1 byte rejected without state change, grouped responses/PI/documents/payment evidence, scope failures and old single-file compatibility. Isolated browser checks cover full-selection validation before network writes, partial failure/retry without duplicate files, duplicate-submit protection, mobile layout, and standalone review/IndexedDB uploads. The user-access browser regression also passed after the shared form submit handler changed.
+
 ## User access portal update — 2026-09-12
 
 DEC-012 / WF-011 adds administrator account creation to the existing settings page. Reuse `Store.createLocalAccount` for both web and CLI: it whitelists profile fields, validates name/email/password/roles/scopes, deduplicates scopes, uses existing scrypt and commits profile/account/audit atomically. The web caller passes authenticated actor ID and expected workspace revision. `USER_ROLES` in shared/domain.mjs centralizes the supported role inventory; permissions retain their existing helpers.

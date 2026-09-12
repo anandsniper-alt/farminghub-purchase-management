@@ -1,5 +1,17 @@
 # Project rulebook
 
+## Temporary executive approvals (DEC-014 / WF-013)
+
+**GLOBAL RULE B-15 / exception EX-05:** the user confirmed that Purchase Executives may perform both Purchase Manager and Product Manager approvals through September 2026. The window is 12 September 2026 00:00 IST inclusive to 1 October 2026 00:00 IST exclusive (expiry UTC: 30 September 18:30). This temporarily overrides the approver-role portions of B-06/B-07/B-11, DEC-003/004 and WF-001/002/004; other workflow rules remain authoritative.
+
+Use shared canPerformApproval(user,command,scope,now) and the explicit APPROVAL_ROLES allowlist: RETURN_ORDER, APPROVE_ORDER, APPROVE_AMENDMENT, APPROVE_PI, AUTHORIZE_PAYMENT, VOID_PAYMENT, APPROVE_ARTWORK, APPROVE_SPEC, REJECT_SPEC, APPROVE_BRAND_DELTA, APPROVE_BRAND_ARTWORK. Returns/rejections accompany approval review; payment void remains a reasoned record correction, never a bank reversal. Existing executive sample approval, initial-payment shortcut and supplier-price entry retain their established rules.
+
+Executives may approve any visible order within their assigned scope, including their own submissions. Ordinary edits remain limited to the assigned owner. Active-user/scope checks, readiness, evidence, verification, immutable snapshots, transaction revisions and audit remain mandatory. PLM targets require their own scope validation. This exception grants no master administration, template editing, user administration, shipment cancellation or short-closure privileges.
+
+TEMPORARY_APPROVAL_POLICY centralizes dates and decision ID. Production authorization uses server command time on every transaction; never accept client dates or roles as authority. Normal Manager/Product Manager approval permissions resume automatically at expiry without restart; completed approvals remain valid history. Invalid policy times fail closed. Keep canApprove and canProductApprove unchanged for non-approval management capabilities.
+
+Each delegated command adds approvalPolicy (id, command, endsAt) to its new audit events alongside the real executive actor. Reuse existing approval buttons and warning note; refresh eligibility when the window changes on an open page. Browser time controls presentation only. Extending the window or authority scope needs a new confirmed decision and append-only history.
+
 Established: 2026-09-12. Product baseline: 0.6.1-alpha.16, schema 7, source commit `ced3d3b`. This is the authoritative change-control guide, not a claim that every pilot rule has completed management UAT.
 
 ## Read first and authority
@@ -103,6 +115,16 @@ For each future exception record base rule, exact module, reason, approving deci
 **MODULE-SPECIFIC RULE G-16 — Credential resource.** Account provisioning uses authenticated `GET/POST /api/users`, a distinct resource under G-09. Passwords must never enter shared business commands, workspace state, audit payloads or responses. `Store.createLocalAccount` validates, hashes with existing scrypt, and atomically inserts account/profile/audit with an optimistic revision check. Only whitelisted profile fields are persisted. The existing local CLI remains supported.
 
 Names are trimmed and required (maximum 120 characters); email is normalized to lowercase and must be valid and unique (maximum 254 characters); passwords are 12–256 characters; the form confirms the password. Require a supported role and at least one valid division. Preserve inline errors and entered values after failed submissions. Creation appends `USER_PROFILE_CREATED` with the authenticated actor; subsequent scope toggles retain EX-01. No invitations, public registration, password reset or account-deactivation control is implied by this feature.
+
+## Multiple attachments and upload size (DEC-013 / WF-012)
+
+**GLOBAL RULE G-17 — Evidence uploads.** Each file may contain up to `MAX_UPLOAD_BYTES = 50 * 1024 * 1024` bytes, displayed as **50 MB per file**. Use `UPLOAD_EXTENSIONS` and this shared constant for browser/server validation. Keep authenticated session, Origin/CSRF, role and order/division enforcement on every file. Only the file endpoint receives a larger JSON-body allowance for base64 expansion; ordinary API requests retain their existing limit.
+
+**GLOBAL RULE UX-12 — Multiple evidence files.** Comparable evidence forms use the shared multiple-file picker. Validate the complete selection before uploading, upload files sequentially with progress, and apply one business command containing the complete `fileIds` collection. A failed file upload prevents the business command. Keep selected files on failure and reuse successfully uploaded files when retrying the same selection/order/user. Guard duplicate submissions until uploads and the command finish. Completed uploads remain audited even if the user abandons the form; they are not automatically deleted.
+
+**GLOBAL RULE B-14 — Attachment collections.** Every attachment must pass the existing scope/order checks. Preserve `fileId` as the first file for existing clients and store all `fileIds` on the applicable response, PI, artwork, payment or QC record. Each order/shipment document retains its own download, type, revision and shipment link. Every remittance proof must link to every allocated order. Multiple files form one submission and do not create multiple payments, approvals or status transitions. Existing optional evidence remains optional.
+
+**MODULE-SPECIFIC RULE — Spreadsheet imports.** Import sources accept up to 50 MB but remain one workbook/CSV per preview and explicit commit. Row-count/header/mapping checks remain intact. Multiple evidence attachments do not authorize merging independently previewed import batches.
 
 ## Documentation maintenance contract
 

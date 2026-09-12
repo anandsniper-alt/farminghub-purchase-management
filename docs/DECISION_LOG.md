@@ -24,6 +24,8 @@ Related documents: [rulebook](PROJECT_RULEBOOK.md), [learnings](PROJECT_LEARNING
 
 ## DEC-003 — Immutable business history with explicit assignment exception
 
+**2026-09-12 addendum:** approval eligibility temporarily superseded by DEC-014 through September; other rules remain. Normal roles resume at the documented IST expiry.
+
 **Date:** observed since initial alpha; exception date unknown, recorded2026-09-12. **Area:** audit and permissions. **State/evidence:** IMPLEMENTED / code, tests, administration guide; scope-assignment exclusion explicitly attributed to user in code. **Scope:** GLOBAL with EX-01.
 
 **Decision considered:** how to record edits/corrections and access assignments. **Existing behaviour:** no earlier implementation available. **Proposed/implemented behaviour:** issued snapshots, append-only events and correction links; `SAVE_SCOPES` changes workspace revision but omits business interaction event. **Alternatives considered:** historical discussion unavailable; immutable corrections versus in-place edits assessed now.
@@ -33,6 +35,8 @@ Related documents: [rulebook](PROJECT_RULEBOOK.md), [learnings](PROJECT_LEARNING
 **Final decision/reason:** preserve immutable business history and the recorded narrow assignment exception; do not extend it to other actions. **Files:** `shared/domain.mjs`, `server/store.mjs`, `docs/ADMINISTRATION.md`, tests. **Documentation updated:** G-10/12, EX-01, learnings/baseline. **Workflow:** WF-001; future audit exceptions need new decisions.
 
 ## DEC-004 — Reported payment, supplier realization and production readiness
+
+**2026-09-12 addendum:** approval eligibility temporarily superseded by DEC-014 through September; other rules remain. Normal roles resume at the documented IST expiry.
 
 **Date:** 2026-09-12 (0.4.1 sequence); recorded2026-09-12. **Area:** finance/production. **State/evidence:** IMPLEMENTED / code, tests and SW-0023/24 workflow records; shortcut approval intent unknown. **Scope:** MODULE-SPECIFIC Purchase/Payments.
 
@@ -126,7 +130,35 @@ Related documents: [rulebook](PROJECT_RULEBOOK.md), [learnings](PROJECT_LEARNING
 
 The user explicitly requested publication. Application commit `8a96a27` was pushed to repository main and deployed through existing Coolify configuration, deployment `wawt555szxwx5ukuprnayjbe` (finished). Live HTTPS health, exact served source, administrator login/account list, Create user form and mobile rendering passed; logout completed and no live account was created. This executes the confirmed feature without adding a new role policy, workflow or database migration. Baseline and test report updated with live evidence.
 
-## Record template — next DEC-013
+## DEC-013 — Multiple attachments and 50 MB per file
+
+**Date:** 2026-09-12. **Area:** evidence, supplier responses and workflow forms. **State/evidence:** IMPLEMENTED; user explicitly requested multiple uploads and 50 MB per file. **Scope:** GLOBAL evidence handling, with a MODULE-SPECIFIC single-source import exception.
+
+**Decision considered:** attach several supplier responses/documents in one submission without losing files or changing transaction semantics. **Existing behaviour:** most forms choose/read one file, PLM/complaints already accept several, browser/server enforce 8 MiB per file, API bodies cap at 12 MiB. **Proposed behaviour:** shared multiple picker and 50 MiB byte limit, sequential uploads with a final attachment collection in one existing business command; legacy primary ID preserved.
+
+**Alternatives considered:** submit all base64 files in one large HTTP body (larger memory/request limits); issue a separate business command per file (could duplicate payments or replace confirmations); replace transport/storage with streaming/object storage (broader architecture change than required). **Advantages:** meets requested selection/size, preserves one workflow response and current SQLite/API design, bounds each request to one file, supports retry and backward compatibility. **Disadvantages:** sequential uploads take cumulative time; JSON/base64 still uses additional memory; an abandoned partially uploaded selection retains uploaded evidence without completing its workflow. **Risks/assumptions:** every attachment must be validated, retry must not duplicate successful uploads, and existing financial gates must stay authoritative. UI MB follows the established binary convention: 50 × 1024 × 1024 bytes.
+
+**Dependencies:** shared size/extension constants; file-field/upload helpers; domain dEvidence/dAttach and response collections; SQLite file BLOBs; request-body cap and auth/CSRF middleware; standalone builder; tests. **Existing-workflow impact:** several attachments now accompany one submission; workflow changes only after all upload requests succeed. **Other-module impact:** PI/artwork/payment/QC/shipping and PLM reuse the collection; import file size rises but preview/row validation and one-source commit remain.
+
+**Final decision/reason:** extend existing upload/storage and domain patterns with collections, keep first-file compatibility, validate all files before sending, retain permission checks for every file, and guard the entire submit phase. This solves the requested limitation without duplicating business actions or introducing a new storage platform. **Files/components affected:** shared/domain.mjs, server/index.mjs, web/app.mjs, generated review HTML, domain/server/browser tests and memory documents. **Documentation updated:** G-17/UX-12/B-14, learnings, brand reuse, baseline/API, changelog, test report and WF-012. **Verification:** 102 native tests pass; isolated multi-file browser tests cover failures/retries, duplicate prevention, mobile and review mode. **Related records:** WF-012; extends DEC-001 storage model, preserves DEC-003 authorization/audit and DEC-012 user administration.
+
+## DEC-014 - Temporary executive purchase and product approvals
+
+**Date:** 2026-09-12. **Area:** Purchase/payments/PLM authorization. **State/evidence:** IMPLEMENTED from the user's request for executive approval coverage through September and explicit clarification: "All approvals, including Product Manager." **Scope:** GLOBAL approval delegation in implemented LAE Import workflows.
+
+**Existing behaviour:** scoped MANAGER/ADMIN issue/return POs, approve amendments/PI and authorize/void payment records; PRODUCT_MANAGER/ADMIN approve artwork/specifications/brand revisions and reject specifications. EXECUTIVE operates assigned orders with existing initial-payment/sample exceptions. **Proposed behaviour:** temporarily add executives to approval actions, including their own submissions and other visible in-scope orders, retaining their real role and ordinary edit boundaries.
+
+**Alternatives considered:** promote executives to MANAGER (grants unrelated edits and misses product approvals); broaden generic role helpers (leaks master/template powers); manual role rollback (can be forgotten); timed command allowlist (selected). **Advantages:** resolves missing-approver bottleneck, covers both confirmed approval areas, expires automatically, preserves identity, no account/schema migration. **Disadvantages:** self-approval relaxes independent review; manager coverage is needed after September. **Risks/assumptions:** server clock accuracy, preserved readiness/scope enforcement, no reliance on client time/role. Returns/rejections and payment void-as-correction accompany approval review; cancellation, short closure, master/template/user administration remain excluded.
+
+**Dependencies:** shared execute/permission helpers/trusted now; persisted session actor; optimistic SQLite transaction/audit; purchase/product controls; standalone builder. **Existing-workflow impact:** executives can perform manager handoff steps without removing submission, verification, evidence or reasons. **Other-module impact:** financial formulas, shipping gates, immutable snapshots and ordinary editing/administration unchanged. Existing sample/initial-payment/price-list powers remain independent.
+
+**Final decision/reason:** use TEMPORARY_APPROVAL_POLICY, APPROVAL_ROLES and canPerformApproval. Start 2026-09-12T00:00:00+05:30 inclusive; end 2026-10-01T00:00:00+05:30 exclusive. Each server transaction checks time/identity; completed approvals survive expiry. Delegated audit events add policy ID, command and expiry alongside the executive actor; new submission/rejection summaries use neutral role wording. Existing management helpers retain their permissions. UI reuses buttons/warning note and refreshes at the boundary. This delivers the confirmed scope with automatic restoration and bounded powers.
+
+**Files/components affected:** shared/domain.mjs, web/app.mjs, generated review, domain/server tests, three_workflow_browser_flow.mjs, temporary_approval_browser_flow.mjs and project docs. **Documentation updated:** B-15/EX-05, learnings, brand, baseline, WF-013, changelog and reports. **Verification:** 106 native tests; Executive-only lifecycle 37 checkpoints to port arrival/settlement; 13 server/review browser checks for technical approve/reject, expiry, mobile and audit; zero runtime errors. **Deployment:** local source only; no live PO mutation/deployment.
+
+**Related/supersession:** temporarily supersedes only approval eligibility in DEC-003/004 and WF-001/002/004; other requirements continue. Normal roles resume automatically at expiry. Extension requires another confirmed record; see WF-013.
+
+## Record template - next DEC-015
 
 **Date:**
 **Area/module:**

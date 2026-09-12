@@ -1,10 +1,87 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createSeed} from '../shared/seed.mjs';
-import {execute,TERMS,orderTotal,orderStatus,financials,paymentSchedule,flagsFor,shipmentTotals,proportionalSlices,toMinor,toRate,convertMinor,previewImport,major,currentApprovedPrice,priceVarianceForLine} from '../shared/domain.mjs';
+import {APPROVAL_ROLES,TEMPORARY_APPROVAL_POLICY,temporaryApprovalsActive,canPerformApproval,canApprove,canProductApprove,canEdit,execute,TERMS,orderTotal,orderStatus,financials,paymentSchedule,flagsFor,shipmentTotals,proportionalSlices,toMinor,toRate,convertMinor,previewImport,major,currentApprovedPrice,priceVarianceForLine} from '../shared/domain.mjs';
 import {previewTrackingImport,previewRateImport,rateVariance,freightTrendFor,shippingDocReadiness} from '../shared/shipping.mjs';
 const TODAY='2026-09-11';
-function fixture(){let state=createSeed(TODAY),serial=0;state={...state,orders:[],payments:[],files:[],events:[],costs:[],imports:[],revision:0};const role=r=>state.users.find(u=>u.role===r),run=(type,payload,user=role('MANAGER'),day=TODAY)=>{const x=execute(state,{type,payload},user,{now:day+'T10:00:00.000Z',id:()=>`test-${++serial}`});state=x.state;return x.result;},file=(ids=[])=>{const id='file-'+(++serial);state.files.push({id,name:'test-evidence.txt',orderIds:ids,scope:'LAE_IMPORT',mime:'text/plain',size:4});return id;};const item=state.items.find(i=>i.code==='GJPW12'),base=state.bases.find(b=>b.id===item.baseId);const get=id=>state.orders.find(o=>o.id===id);
+
+test('temporary approval policy uses exact IST bounds and preserves role and scope restrictions',()=>{
+ const f=fixture(),exec=f.role('EXECUTIVE');
+ const bounds=[['2026-09-11T18:29:59.999Z',false],['2026-09-11T18:30:00.000Z',true],['2026-09-30T18:29:59.999Z',true],['2026-09-30T18:30:00.000Z',false],['invalid',false]];
+ for(const [now,active] of bounds){assert.equal(temporaryApprovalsActive(now),active);for(const [command,role] of Object.entries(APPROVAL_ROLES)){
+  assert.equal(canPerformApproval(exec,command,'LAE_IMPORT',now),active,command+' '+now);
+  assert.equal(canPerformApproval(f.role(role),command,'LAE_IMPORT',now),true);
+  for(const u of [f.role('VIEWER'),{...exec,active:false},{...exec,scopes:[]}])assert.equal(canPerformApproval(u,command,'LAE_IMPORT',now),false);
+ }}
+ assert.equal(canApprove(exec),false);assert.equal(canProductApprove(exec),false);
+ for(const command of ['SAVE_VENDOR','SAVE_TEMPLATE_FIELD','SAVE_SCOPES','CANCEL_SHIPMENT','SHORT_CLOSE_ORDER','toString'])assert.equal(canPerformApproval(exec,command,'LAE_IMPORT','2026-09-12T10:00:00Z'),false);
+});
+
+test('executive completes purchase and product approval chain with original identity and policy audit',()=>{
+ const f=fixture('2026-09-12'),u=f.role('EXECUTIVE'),id=f.draft(),p={orderId:id};
+ f.run('SUBMIT_ORDER',p,u);f.run('RETURN_ORDER',{...p,remarks:'Review corrections'},u);f.run('SUBMIT_ORDER',p,u);f.run('APPROVE_ORDER',p,u);
+ f.confirm(id);f.run('RECORD_PI',{...p,number:'DELEGATED-PI',date:TODAY,currency:'USD',amount:'10000',quantity:100,termsConfirmed:true,commitmentConfirmed:true,fileId:f.file([id])},u);
+ assert.throws(()=>f.run('APPROVE_PI',p,u),/verification/i);
+ f.run('VERIFY_PI',p,u);f.run('APPROVE_PI',p,u);f.technical(id);
+ f.run('SUBMIT_ARTWORK',{...p,remarks:'Test artwork',fileId:f.file([id])},u);f.run('APPROVE_ARTWORK',p,u);
+ f.run('CONFIRM_ARTWORK',{...p,remarks:'Confirmed',fileId:f.file([id])},u);f.run('AUTHORIZE_PAYMENT',{...p,termIndex:0},u);
+ const pay=f.run('RECORD_PAYMENT',{reference:'DELEGATED',date:TODAY,currency:'USD',amount:'3000',inrRate:'85',fileId:f.file([id]),allocations:[{orderId:id,termIndex:0,amount:'3000'}]},u).id;
+ f.run('VOID_PAYMENT',{paymentId:pay,remarks:'Test correction, no bank reversal'},u);
+ const old=structuredClone(f.get(id).revisions[0]);f.run('PROPOSE_AMENDMENT',{...p,reason:'Test amendment',lines:f.get(id).lines.map(l=>({...l,artworkNotes:'Revised packaging'}))},u);f.run('APPROVE_AMENDMENT',p,u);assert.deepEqual(f.get(id).revisions[0],old);
+ const base=f.state.bases.find(b=>b.id===f.get(id).lines[0].baseId),item=f.state.items.find(i=>i.baseId===base.id);
+ for(const [version,command] of [['DELEGATED-1','APPROVE_SPEC'],['DELEGATED-2','REJECT_SPEC']]){f.run('SAVE_SPEC',{baseId:base.id,version,reason:'Test revision',description:'Test technical package'},u);const spec=f.state.bases.find(b=>b.id===base.id).specifications.at(-1);f.run(command,{baseId:base.id,specId:spec.id,remarks:'Reviewed'},u);}
+ f.run('SAVE_BRAND_DELTA',{itemId:item.id,branding:item.brand,remarks:'Test delta'},u);f.run('APPROVE_BRAND_DELTA',{itemId:item.id},u);
+ f.run('SUBMIT_BRAND_ARTWORK',{itemId:item.id,remarks:'Test brand artwork',fileId:f.file()},u);f.run('APPROVE_BRAND_ARTWORK',{itemId:item.id,artworkId:f.state.items.find(i=>i.id===item.id).artworkRevisions.at(-1).id},u);
+ const events=f.state.events.filter(e=>e.approvalPolicy);assert.deepEqual(new Set(events.map(e=>e.approvalPolicy.command)),new Set(Object.keys(APPROVAL_ROLES)));
+ assert.ok(events.every(e=>e.actorId===u.id&&e.actorName===u.name&&e.approvalPolicy.id==='DEC-014'&&e.approvalPolicy.endsAt===TEMPORARY_APPROVAL_POLICY.endsAt));
+ assert.equal(f.state.users.find(x=>x.id===u.id).role,'EXECUTIVE');assert.equal(f.get(id).revisions[0].actor,u.name);
+});
+
+test('expiry denies every delegated command despite forged client dates, with no mutation',()=>{
+ const f=fixture(),id=f.draft();f.run('SUBMIT_ORDER',{orderId:id});const original=structuredClone(f.state),u=f.role('EXECUTIVE');
+ for(const type of Object.keys(APPROVAL_ROLES))assert.throws(()=>execute(f.state,{type,now:'2026-09-12T10:00:00Z',payload:{orderId:id,now:'2026-09-12T10:00:00Z',role:'ADMIN'}},u,{now:TEMPORARY_APPROVAL_POLICY.endsAt}),e=>e.code==='FORBIDDEN',type);
+ assert.deepEqual(f.state,original);
+ const other={...u,id:'other-executive'};assert.equal(canEdit(other,f.get(id)),false);
+ const out=execute(f.state,{type:'APPROVE_ORDER',payload:{orderId:id}},other,{now:'2026-09-30T18:29:59.999Z'});assert.equal(out.state.orders.find(o=>o.id===id).status,'ISSUED');
+ for(const actor of [{...u,scopes:[]},{...u,active:false},f.role('VIEWER')])assert.throws(()=>execute(f.state,{type:'APPROVE_ORDER',payload:{orderId:id}},actor,{now:'2026-09-12T10:00:00Z'}),e=>e.code==='FORBIDDEN');
+ for(const type of ['SAVE_VENDOR','SAVE_TEMPLATE_FIELD','SAVE_SCOPES','CANCEL_SHIPMENT','SHORT_CLOSE_ORDER'])assert.throws(()=>execute(f.state,{type,payload:{orderId:id}},u,{now:'2026-09-12T10:00:00Z'}),e=>e.code==='FORBIDDEN');
+});
+
+test('multiple response attachments share one confirmation and preserve each document',()=>{
+ const f=fixture(),oid=f.draft();f.issue(oid);const ids=[f.file([oid]),f.file([oid])];
+ f.run('CONFIRM_SUPPLIER',{orderId:oid,channel:'EMAIL',remarks:'Two supplier responses for one acknowledgement.',fileIds:ids});
+ assert.deepEqual(f.get(oid).confirmation.fileIds,ids);assert.equal(f.get(oid).confirmation.fileId,ids[0]);
+ assert.deepEqual(f.get(oid).documents.filter(d=>d.type==='SUPPLIER_CONFIRMATION').map(d=>d.fileId),ids);
+ const piFiles=[f.file([oid]),f.file([oid])];f.run('RECORD_PI',{orderId:oid,number:'MULTI-PI',date:TODAY,currency:'USD',amount:major(orderTotal(f.get(oid))),quantity:100,termsConfirmed:true,commitmentConfirmed:true,fileIds:piFiles});
+ assert.deepEqual(f.get(oid).pi.fileIds,piFiles);assert.equal(f.get(oid).pi.status,'RECEIVED');
+ const docs=[f.file([oid]),f.file([oid])];f.run('ATTACH_DOCUMENT',{orderId:oid,type:'OTHER',fileIds:docs});
+ assert.deepEqual(f.get(oid).documents.filter(d=>d.type==='OTHER').map(d=>d.fileId),docs);
+ assert.deepEqual(f.state.events.at(-1).newValue.fileIds,docs);
+});
+
+test('every attachment is validated before workflow mutation; single-file clients still work',()=>{
+ const f=fixture(),oid=f.draft();f.issue(oid);const valid=f.file([oid]),wrongOrder=f.file([]),wrongScope=f.file([oid]);f.state.files.find(x=>x.id===wrongScope).scope='UTILITY_DOMESTIC';
+ for(const bad of [wrongOrder,wrongScope,'missing'])rejects(f,'CONFIRM_SUPPLIER',{orderId:oid,channel:'EMAIL',remarks:'Invalid second attachment',fileIds:[valid,bad]},/evidence|order/i);
+ rejects(f,'CONFIRM_SUPPLIER',{orderId:oid,channel:'EMAIL',remarks:'No files',fileIds:[]},/evidence/i);
+ f.run('CONFIRM_SUPPLIER',{orderId:oid,channel:'EMAIL',remarks:'Legacy single file',fileId:valid});assert.equal(f.get(oid).confirmation.fileId,valid);
+});
+
+test('all remittance proofs must link to every allocation and receipt files stay grouped',()=>{
+ const f=fixture(),oid=f.draft();f.issue(oid);f.commercial(oid);f.run('AUTHORIZE_PAYMENT',{orderId:oid,termIndex:0,shipmentId:null});
+ const amount=major(paymentSchedule(f.state,f.get(oid))[0].amount),good=f.file([oid]),bad=f.file([]);
+ const p={reference:'MULTI-PAY',date:TODAY,currency:'USD',amount,inrRate:'85',fileIds:[good,bad],allocations:[{orderId:oid,termIndex:0,shipmentId:null,amount,invoiceRate:'1'}]};
+ rejects(f,'RECORD_PAYMENT',p,/every allocated order/);
+ const second=f.file([oid]);p.fileIds=[good,second];const id=f.run('RECORD_PAYMENT',p).id,payment=f.state.payments.find(p=>p.id===id);assert.deepEqual(payment.fileIds,[good,second]);
+ const proofs=[f.file([oid]),f.file([oid])];f.run('ACKNOWLEDGE_PAYMENT',{paymentId:id,allocationId:payment.allocations[0].id,realizedAmount:amount,supplierRate:'1',remarks:'Supplier proof bundle',fileIds:proofs});assert.deepEqual(f.state.payments.find(p=>p.id===id).allocations[0].ackFileIds,proofs);
+});
+
+test('optional QC and brand artwork retain multiple files without changing approval gates',()=>{
+ const f=fixture(),oid=f.draft();f.issue(oid);f.produce(oid);
+ // Optional sample evidence is represented by an empty collection when no files are chosen.
+ const other=f.draft();f.issue(other);f.commercial(other);f.pay(other);f.run('RECORD_PREPRODUCTION_SAMPLE',{orderId:other,remarks:'Sample without optional evidence',fileIds:[]});assert.equal(f.get(other).preproductionSample.fileId,null);
+ const ids=[f.file([]),f.file([])];f.run('SUBMIT_BRAND_ARTWORK',{itemId:f.item.id,remarks:'Two packaging views',fileIds:ids});const art=f.state.items.find(i=>i.id===f.item.id).artworkRevisions.at(-1);assert.deepEqual(art.fileIds,ids);assert.equal(art.status,'PENDING');
+});
+function fixture(nowDay=TODAY){let state=createSeed(TODAY),serial=0;state={...state,orders:[],payments:[],files:[],events:[],costs:[],imports:[],revision:0};const role=r=>state.users.find(u=>u.role===r),run=(type,payload,user=role('MANAGER'),day=nowDay)=>{const x=execute(state,{type,payload},user,{now:day+'T10:00:00.000Z',id:()=>`test-${++serial}`});state=x.state;return x.result;},file=(ids=[])=>{const id='file-'+(++serial);state.files.push({id,name:'test-evidence.txt',orderIds:ids,scope:'LAE_IMPORT',mime:'text/plain',size:4});return id;};const item=state.items.find(i=>i.code==='GJPW12'),base=state.bases.find(b=>b.id===item.baseId);const get=id=>state.orders.find(o=>o.id===id);
  const draft=(extra={})=>run('CREATE_ORDER',{number:'TEST-'+(++serial),vendorId:base.vendorId,buyerId:role('EXECUTIVE').id,currency:'USD',paymentTerms:TERMS[0],productionDays:30,productionOverrideReason:'Supplier order commitment.',planningTat:60,routeId:state.routes[0].id,requestedPortDate:'2026-10-25',lines:[{itemId:item.id,quantity:100,unitPrice:'100.00',specId:base.specifications[0].id}],...extra}).id;
  const issue=id=>{run('SUBMIT_ORDER',{orderId:id});run('APPROVE_ORDER',{orderId:id});};
  const confirm=id=>run('CONFIRM_SUPPLIER',{orderId:id,channel:'EMAIL',remarks:'Supplier accepted this version.',fileId:file([id])});

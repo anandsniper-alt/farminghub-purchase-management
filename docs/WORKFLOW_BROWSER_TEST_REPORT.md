@@ -1,0 +1,67 @@
+# Complete purchase workflow browser tests
+
+## Temporary approvals verification - 2026-09-12 (DEC-014 / WF-013)
+
+Current local source: **106 native tests passed**. Coverage includes all 11 delegated approval/review actions, readiness and immutable snapshots, viewer/inactive/scope denials, unrelated management rights, exact IST boundaries, forged client dates/identity and persisted SQLite audit.
+
+**WF-DELEGATED-TEST** used only Purchase Executive for the entire lifecycle: **37 checkpoints passed**, 15 units at port, one shipment, three payment records, 34 documents, SETTLED and zero balance. PO/PI/artwork/payment authorization events identify the executive and DEC-014. This is an isolated test, not a live purchase.
+
+Server and standalone review passed **13 browser checks**: executive PO issue, technical approval/rejection with remarks, persisted audit, 390px mobile notice and automatic removal of delegated controls on an open page at expiry. API tests independently verify server expiry; browser clock changes test presentation only. Browser runtime errors: zero.
+
+Runners: tests/three_workflow_browser_flow.mjs --delegated and tests/temporary_approval_browser_flow.mjs (active window and installed Playwright/Chrome required). Ignored local evidence: test-output/three-workflows/2026-09-12T13-59-02-145Z/ and test-output/temporary-approvals/2026-09-12T14-00-41-652Z/; native result test-output/temporary-approval-native.tap. Initial PLM browser harness selected the wrong newest-first revision; explicit specification ID fixed the harness and full rerun passed.
+
+Earlier executive denial/handoff results below are historical before DEC-014. Current browser runners check visibility against the active policy. No deployment or live PO approval occurred in this task.
+
+
+Date: 2026-09-12. Result: **three complete scenarios passed, followed by a dedicated Purchase Executive scenario**. Tests used installed Chrome through Playwright, authorized by the user when the computer-use connection had no available browser. The application ran against isolated SQLite databases with synthetic accounts. No live records, credentials from `.env`, bank transactions or external messages were used.
+
+## Results
+
+| Test order | Scenario | Quantity | Shipments | Payments | Evidence documents | Final result |
+|---|---|---:|---:|---:|---:|---|
+| WF-A-TEST | USD, 30% advance and 70% BL balance | 10 | 1 | 2 | 15 | Port arrived; settled; zero balance |
+| WF-B-TEST | CNY, multiple files, 10% advance / 20% before shipment / 70% BL credit | 20 | 1 | 3 | 34 | Port arrived; settled; zero balance |
+| WF-C-TEST | USD credit purchase, partial shipments of 5 and 7 | 12 | 2 | 2 | 38 | First arrival kept order open; final arrival closed it; settled |
+| WF-EXEC-TEST | Purchase Executive operates assigned order; restricted approvals use appropriate roles | 15 | 1 | 3 | 34 | Port arrived; settled; zero balance |
+
+The first three scenarios passed 49 checkpoints; the dedicated executive scenario passed 37 checkpoints. Both final runs recorded zero browser runtime errors. The initial unauthenticated `/api/bootstrap` returned the expected 401 before sign-in; no other failed API responses occurred in the successful runs.
+
+## Workflow exercised through browser forms
+
+1. Sign in as Purchase Executive; select supplier/Base Item, brand quantity, currency, price and terms; save draft; submit for approval.
+2. Sign in as Manager to issue the immutable PO revision.
+3. Record supplier acknowledgement; receive and verify PI; obtain Manager PI approval.
+4. Record technical confirmation; submit artwork; obtain Product Manager approval; record supplier artwork acknowledgement.
+5. Record applicable initial remittance or follow the no-advance credit path; verify production lead time starts.
+6. Record sample completion and approval; start bulk production; record QC PASS; complete production.
+7. Allocate shipment quantities; book and release container; record inland tracking; upload CI and packing list.
+8. Authorize and record any before-shipment payment; record vessel loading, final BL, insurance and India-port arrival.
+9. Record BL-triggered payments after the final BL exists; record supplier realization for each allocation; verify original-order balance is zero and no realization remains pending.
+10. Verify each document has retained file bytes, and partial arrival does not prematurely close unshipped quantities.
+
+All orders used the existing BS20 master, which lacks an approved technical revision. Its explicit missing-PLM warning remained visible through completion. These runs verify that permitted path, not the separate approved-PLM revision workflow. Test payments used the PO currency (no cross-currency realized-rate discrepancy scenario). Future credit obligations were deliberately settled early after BL for test completion; the tests did not wait for real credit days to elapse.
+
+## Dedicated Purchase Executive verification
+
+`WF-EXEC-TEST` used the assigned executive for supplier responses, PI entry/verification, technical/artwork submissions, initial payment, sample/production/QC, shipping, remittance reporting and supplier receipts. UI checks confirmed the executive could not issue the PO, approve the PI, approve artwork or authorize ordinary payment milestones. Manager handled PO/PI approval and ordinary payment authorization; Product Manager handled artwork approval.
+
+Audit assertions verified the executive's identity for 16 operational action types. All 34 document records were attributed to Purchase Executive. Initial-payment auto-authorization and sample approval followed existing editor permissions; this test did not introduce a stricter manager requirement or change existing roles.
+
+## Evidence and reproducibility
+
+Runner: [tests/three_workflow_browser_flow.mjs](../tests/three_workflow_browser_flow.mjs).
+
+```powershell
+node tests/three_workflow_browser_flow.mjs
+node tests/three_workflow_browser_flow.mjs --executive
+```
+
+Requires development Playwright and installed Chromium. The runner accepts `FH_PLAYWRIGHT_MODULE`, `CHROMIUM_PATH` and optional `FH_HEADED=1`. It creates only test accounts/master fixtures before launch; all transactional business writes use the browser UI. Direct database reads are assertions, not a substitute for workflow actions.
+
+Local artifacts (ignored by Git):
+
+- Three scenarios: `test-output/three-workflows/2026-09-12T13-45-30-506Z/` — report JSON, trace ZIP, six commercial/completion screenshots and isolated test database.
+- Executive scenario: `test-output/three-workflows/2026-09-12T13-47-50-868Z/` — report JSON, trace ZIP, executive screenshots and isolated test database.
+- Earlier runner attempt: `test-output/three-workflows/2026-09-12T13-44-15-294Z/`. It stopped on an ambiguous automation selector matching both the finance tab and a finance shortcut. The runner selector was narrowed and the complete three-scenario run then passed. No application-code fix was required.
+
+This is browser verification of the current local source, including unpublished multiple-upload changes. It is not a claim that the same changes have been deployed to the live domain, or that all unrelated modules have been audited. Product code, permissions, calculations and workflows were preserved during this test task.

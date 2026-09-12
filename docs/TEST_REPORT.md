@@ -1,6 +1,31 @@
 # Test Report — v0.6.1-alpha.16
 
+## Temporary approvals verification - 2026-09-12 (DEC-014 / WF-013)
+
+Current local source: **106 native tests passed**. Coverage includes all 11 delegated approval/review actions, readiness and immutable snapshots, viewer/inactive/scope denials, unrelated management rights, exact IST boundaries, forged client dates/identity and persisted SQLite audit.
+
+**WF-DELEGATED-TEST** used only Purchase Executive for the entire lifecycle: **37 checkpoints passed**, 15 units at port, one shipment, three payment records, 34 documents, SETTLED and zero balance. PO/PI/artwork/payment authorization events identify the executive and DEC-014. This is an isolated test, not a live purchase.
+
+Server and standalone review passed **13 browser checks**: executive PO issue, technical approval/rejection with remarks, persisted audit, 390px mobile notice and automatic removal of delegated controls on an open page at expiry. API tests independently verify server expiry; browser clock changes test presentation only. Browser runtime errors: zero.
+
+Runners: tests/three_workflow_browser_flow.mjs --delegated and tests/temporary_approval_browser_flow.mjs (active window and installed Playwright/Chrome required). Ignored local evidence: test-output/three-workflows/2026-09-12T13-59-02-145Z/ and test-output/temporary-approvals/2026-09-12T14-00-41-652Z/; native result test-output/temporary-approval-native.tap. Initial PLM browser harness selected the wrong newest-first revision; explicit specification ID fixed the harness and full rerun passed.
+
+Earlier executive denial/handoff results below are historical before DEC-014. Current browser runners check visibility against the active policy. No deployment or live PO approval occurred in this task.
+
+
 > Current project memory (2026-09-12): see [Project Rulebook](PROJECT_RULEBOOK.md), [Current Product Baseline](CURRENT_PRODUCT_BASELINE.md), [Decision Log](DECISION_LOG.md) and [Workflow Change Log](WORKFLOW_CHANGE_LOG.md). Historical release statements below remain evidence of their date, not necessarily current behaviour.
+
+## Full workflow and Purchase Executive browser verification — 2026-09-12
+
+Three complete purchase scenarios passed (49 checkpoints): standard USD, CNY with multiple attachments and shipment payments, and two partial shipments on credit terms. A subsequent dedicated Purchase Executive run passed 37 checkpoints, using manager/product-role handoffs only where required. All four orders reached PORT_ARRIVED and SETTLED with zero balance. Browser runtime errors: zero. No live records were modified; no application-code changes were needed. See [detailed results and evidence](WORKFLOW_BROWSER_TEST_REPORT.md).
+
+## Multiple uploads verification — 2026-09-12
+
+- `node scripts/build.mjs`: regenerated standalone review successfully.
+- `node --test tests/*.test.mjs`: **102 passed / 0 failed**, evidence `test-output/multiple-upload-native-tests.tap`. Includes exactly 50 MiB accepted and persisted,50 MiB+1 rejected without state change, multi-file supplier/PI/documents/payment records, validation of every file, scalar-ID compatibility and unchanged optional/approval behaviour.
+- `node tests/multiple_upload_browser_flow.mjs`: PASS for complete-selection validation before network writes, multiple files, partial failure/retry without duplicate uploads, duplicate-submit guard, document visibility/storage,390px mobile layout and standalone review uploads. Test databases and browser profiles are isolated; no live records are created.
+- `node tests/user_access_browser_flow.mjs`: PASS after the shared form changes, covering administrator creation, validation, duplicate rejection, new-user login, non-admin visibility and standalone review. Browser tests use development-only Playwright and Chromium through `FH_PLAYWRIGHT_MODULE`/`CHROMIUM_PATH` as documented below.
+- Deployment of this source update has not been verified. Earlier live evidence below belongs to user portal commit8a96a27.
 
 ## User access portal verification — 2026-09-12
 

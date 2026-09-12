@@ -1,5 +1,20 @@
 # Changelog — v0.6.1-alpha.16
 
+## Temporary executive approval access - 2026-09-12
+
+- Purchase Executives may perform purchase and Product Manager approvals within assigned scopes through 30 September 2026, 11:59 pm IST, including their own submissions.
+- Access expires automatically at 1 October 2026 00:00 IST; completed approvals remain valid. Roles and unrelated manager/admin powers are unchanged.
+- Server validates time, scope, readiness and identity; audit identifies the executive and temporary policy. Existing actions show the same access with a deadline notice.
+- Native permission/expiry tests, a full Executive-only lifecycle, and server/standalone/mobile browser checks passed. DEC-014 / WF-013. Local source update; no deployment implied.
+
+## Multiple attachments and 50 MB uploads — 2026-09-12
+
+- Select multiple files for a supplier response, PI, artwork, payment proof, QC or document submission. Every file remains separately downloadable and linked to the same workflow record.
+- Maximum file size is now 50 MB per file, enforced by browser and server. Existing allowed file types and permissions remain in place.
+- The complete selection is validated before upload. Files upload sequentially with progress; retries reuse successful uploads and duplicate submissions are blocked.
+- Existing single-file records remain compatible. Spreadsheet import sources also support 50 MB, with one source per preview/commit.
+- Verification: 102 native tests pass, including the exact size boundary; browser checks cover multiple files, failure/retry, mobile and standalone review. DEC-013 / WF-012.
+
 ## User access portal — 2026-09-12
 
 - Administrators can open **Users & settings → Create user** and enter name, unique email, password, existing role and division access.

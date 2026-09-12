@@ -4,6 +4,8 @@ Started 2026-09-12. Historical records are reconstructed from sources, not inven
 
 ## WF-001 — Initial controlled LAE Import purchasing
 
+**2026-09-12 addendum:** approval-role handoffs temporarily replaced by WF-013 under DEC-014; other steps continue. Ordinary handoffs resume at the documented IST expiry.
+
 **Date:** 2026-09-11. **Module:** Purchase/system. **Workflow name:** authenticated order execution. **Evidence/status:** historical SW-0001..0008, source/tests; IMPLEMENTED and later extended by WF-002..007.
 
 **Previous workflow:** no previous executable Purchase flow is present in supplied history; cannot reconstruct an earlier manual business process. **Requested change/reason:** initial working LAE Import purchase alpha with controlled execution and visible history.
@@ -13,6 +15,8 @@ Started 2026-09-12. Historical records are reconstructed from sources, not inven
 **Roles/users affected:** ADMIN, MANAGER, EXECUTIVE, PRODUCT_MANAGER, VIEWER with scoped/assigned authority. **Dependencies affected:** native server, Store, shared commands and UI adapters. **Calculations affected:** integer money/FX, payment slices, date/quantity/status helpers. **Reports affected:** pipeline, tasks, payments, PO print/history. **Data/database impact:** workspace JSON, append-only audit mirror, accounts/sessions/evidence. **API impact:** authenticated bootstrap/commands/files. **UI impact:** shared shell and modal actions. **Backward compatibility:** no earlier native schema migration documented. **Risks:** pilot assumptions are not management sign-off. **Final implementation:** active domain/server/UI architecture, subsequently revised as recorded below. **Related decisions:** DEC-001/003.
 
 ## WF-002 — Integrated product lifecycle control
+
+**2026-09-12 addendum:** approval-role handoffs temporarily replaced by WF-013 under DEC-014; other steps continue. Ordinary handoffs resume at the documented IST expiry.
 
 **Date:** 2026-09-12,0.2.0-alpha.2. **Module:** PLM/Purchase. **Workflow name:** base specifications and brand variants. **Evidence/status:** archived `cb62aea`, SW-0009..0012; IMPLEMENTED, later extended by WF-006/007.
 
@@ -33,6 +37,8 @@ Started 2026-09-12. Historical records are reconstructed from sources, not inven
 **Roles/users affected:** scoped Purchase editors/managers and product approvals. **Dependencies:** shipping helpers, evidence, payment/production/artwork context. **Calculations:** route rate variance, history trend, baseline/revised dates. **Reports:** container tracking/rates/trends. **Data/database:** shipment milestone/event/history fields, freight/shipping import arrays. **API:** shipping/import commands. **UI:** shipping workspace and expanded order controls. **Backward compatibility:** baseline dates and previous records retained. **Risks:** older policy docs describe these superseded gates as current. **Final implementation:** archived source proves this stage existed; follow WF-004 for current dispatch requirements. **Related decisions:** DEC-005, superseded by DEC-006.
 
 ## WF-004 — Current commercial-to-port sequence
+
+**2026-09-12 addendum:** approval-role handoffs temporarily replaced by WF-013 under DEC-014; other steps continue. Ordinary handoffs resume at the documented IST expiry.
 
 **Date:** 2026-09-12,0.4.1-alpha.8. **Module:** Purchase/Production/Shipping. **Workflow name:** complete visible progression and post-vessel documents. **Evidence/status:** VERSION_HISTORY, SW-0023/24, current domain/workflow tests; IMPLEMENTED. **Replaces:** WF-003 gate sequence.
 
@@ -124,7 +130,37 @@ Started 2026-09-12. Historical records are reconstructed from sources, not inven
 
 Published on explicit user request via the retained WF-008 deployment process: push main commit `8a96a27` → Coolify deployment `wawt555szxwx5ukuprnayjbe` → finished → live health, administrator sign-in/account metadata and desktop/mobile Create user form checks → sign out. The workflow is now available at https://purchase.dvjassociates.com/#/settings. Existing data volume/settings retained; no migration or test-account creation on the live database. Related DEC-012.
 
-## Record template — next WF-012
+## WF-012 — Multiple evidence files in one workflow submission
+
+**Date:** 2026-09-12. **Module:** shared evidence / supplier responses / Purchase / PLM / Shipping. **Workflow name:** select, upload and attach supporting files. **Evidence/state:** explicit user request; IMPLEMENTED.
+
+**Previous workflow:** (1) open a response/document form; (2) choose one file in most forms, up to 8 MiB; (3) upload it; (4) submit one business command with fileId; (5) repeat a workflow action to supply another file. PLM revisions/complaints already had multiple selection but only the old limit and no whole-selection prevalidation/retry cache. **Requested change:** 50 MB per file and multiple uploads. **Reason:** users need several responses/documents attached at the same time.
+
+**New workflow:** (1) open the existing form; (2) choose one or more files; (3) submit; (4) validate every selected file against the shared extension/50 MiB limit before writing; (5) upload each file with visible count progress and current workspace revision; (6) if a request fails, show error, keep selection, stop before the business command and reuse successful uploads on same-form retry; (7) after all succeed, send one command containing all fileIds; (8) validate every file's scope/order links and existing workflow conditions atomically; (9) preserve all attachments under one response/transaction and display individual downloads.
+
+**Steps added:** collection prevalidation, sequential progress, retry reuse, submission guard, per-file domain checks and download collections. **Steps removed:** one-file picker restriction and repeated business actions merely to attach additional evidence. **Steps modified:** file maximum 8→50 MiB; body cap expands only for the file endpoint; primary fileId remains alongside fileIds. **Status changes:** none to approval/transaction progression; optional evidence stays optional. An incomplete upload set does not advance the business workflow.
+
+**Roles/users affected:** existing authorized purchase editors and Product Managers; viewers remain unable to upload. **Dependencies affected:** picker, request transport, shared metadata validation, command records, audit/document lists and review IndexedDB. **Calculations affected:** file-size/base64 allowance only; no financial formula or approval rule. **Reports affected:** existing document/history views show the complete attachment set. **Data/database impact:** additive fileIds/ackFileIds on applicable JSON records, separate document rows/BLOB per file; no SQL migration. Individual upload commits/audits remain even if the final business command fails or the user abandons the form. **API impact:** file endpoint still accepts one base64 file; decoded limit50 MiB; evidence-bearing commands accept fileIds or legacy fileId. **UI impact:** shared Choose files, helper text, progress, inline failures and per-file download buttons. **Backward compatibility:** old files/scalar clients/issued history continue to work. **Risks:** memory overhead for large base64 requests; abandoned partial uploads require a future deliberate cleanup policy. Imports remain one validated source per commit.
+
+**Final implementation/verification:** 102 native tests including exact50 MiB success,50 MiB+1 rejection, scope rollback and grouped workflow evidence; isolated browser checks for prevalidation, retry/no duplicate, multi-submit guard, mobile and standalone review. **Related decision:** DEC-013. Extends WF-001/002 evidence handling; retains WF-011 user-creation behaviour.
+
+## WF-013 - Executive approval coverage through September 2026
+
+**Date:** 2026-09-12. **Module:** Purchase/payments/PLM. **Workflow name:** temporary approval handoffs. **State/evidence:** IMPLEMENTED; user requested executive approvals and explicitly included Product Manager approvals. **Reason:** no Purchase Manager currently available.
+
+**Previous workflow:** (1) executive creates/submits PO; (2) manager issues; (3) executive records/verifies PI; (4) manager approves; (5) executive submits artwork/product revisions; (6) Product Manager approves/rejects; (7) manager authorizes general payment milestones or corrects records; (8) assigned executive completes operations. Initial-payment/sample/price-list shortcuts remain independently established.
+
+**Requested change:** executives can make all approvals until September end. **New workflow:** (1) keep creation/submission/verification/evidence; (2) active scoped executive or existing approver opens the existing action; (3) server checks command allowlist, persisted actor and window; (4) validate existing readiness/status/target scope atomically; (5) save approval with real-actor audit and DEC-014 metadata for delegation; (6) continue normal commercial/production/shipping/payment steps; (7) at 1 October 2026 00:00 IST, reject new executive-only delegated approvals and restore ordinary eligibility. Completed approvals remain valid.
+
+**Steps added:** per-command temporal authorization, PLM target scope checks, policy audit metadata, deadline notice and open-page refresh. **Steps removed:** mandatory separate-manager handoff during the window; no readiness step removed. **Steps modified:** submitting or other in-scope executive may approve/return/reject; payment void remains a correction. New audit prose avoids falsely calling the actor a manager.
+**Status changes:** none; submitted/issued/verified/approved/rejected/void retain meaning. **Roles/users affected:** EXECUTIVE gains listed approvals from 12 September 00:00 IST through 30 September; manager/product/admin retain rights; viewers/inactive/out-of-scope actors remain denied. **Dependencies:** shared domain helper, trusted server clock, session identity, revision transaction, UI and review builder.
+**Calculations affected:** no finance/business-date formula change; permission window uses explicit IST inclusive start/exclusive end. **Reports affected:** audit gains policy metadata with actual executive actor. **Data/database impact:** additive event JSON only; no roles rewritten, schema migration or historical-event edits. **API impact:** same commands; client dates/roles never authoritative. **UI impact:** same actions plus deadline note; delegation controls disappear at expiry.
+**Backward compatibility:** existing accounts/snapshots/approvals remain; stale browser cannot bypass server expiry. **Risks:** self-approval removes independent review during the exception; clock accuracy and manager coverage after expiry required.
+
+**Final implementation/verification:** 11 delegated actions covered in domain tests; API checks expiry/forgery and persisted audit; 106 native tests pass. Complete Executive-only lifecycle: 37 browser checks. Server/review approval/expiry/mobile: 13 checks, zero runtime errors. Local source only; no live order created/approved. **Related decision:** DEC-014, B-15/EX-05.
+**Replaces:** approval handoffs only in WF-001/002/004 until expiry; their other steps continue. Ordinary handoffs resume automatically. Later extensions must append WF/DEC records.
+
+## Record template - next WF-014
 
 **Date:**
 **Workflow Change ID:**
