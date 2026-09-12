@@ -1,0 +1,54 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-fhvms}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
+      POSTGRES_DB: ${POSTGRES_DB:-fh_vms}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-fhvms}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+ 
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 8000
+      DATABASE_URL: postgresql://${POSTGRES_USER:-fhvms}:${POSTGRES_PASSWORD:-change-me}@db:5432/${POSTGRES_DB:-fh_vms}?schema=public
+      JWT_SECRET: ${JWT_SECRET:-REPLACE_BEFORE_USE}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:8080}
+      UPLOAD_DIR: uploads
+      UPLOAD_URL_PATH: /uploads
+      MAX_UPLOAD_MB: ${MAX_UPLOAD_MB:-8}
+      SEED_ADMIN_NAME: ${SEED_ADMIN_NAME:-Administrator}
+      SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:-admin@farminghub.in}
+      SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-REPLACE_BEFORE_USE}
+    volumes:
+      - uploads_data:/app/uploads
+    expose:
+      - '8000'
+ 
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: /api
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - '${FRONTEND_PORT:-8080}:80'
+ 
+volumes:
+  db_data:
+  uploads_data:

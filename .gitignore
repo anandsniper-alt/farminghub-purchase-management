@@ -1,0 +1,15 @@
+data/
+data-empty-pilot/
+__pycache__/
+*.pyc
+.env
+.env.*
+!.env.example
+!.env.user.example
+backups/
+node_modules/
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+.DS_Store
+test-output/

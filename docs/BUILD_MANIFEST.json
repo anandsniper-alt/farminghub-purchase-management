@@ -1,0 +1,1051 @@
+{
+  "version": "0.6.1-alpha.16",
+  "builtAt": "2026-09-12",
+  "automatedChecks": {
+    "native": 93,
+    "browser": 6,
+    "total": 99
+  },
+  "files": [
+    {
+      "path": ".env.example",
+      "bytes": 339
+    },
+    {
+      "path": ".env.user.example",
+      "bytes": 210
+    },
+    {
+      "path": ".gitignore",
+      "bytes": 132
+    },
+    {
+      "path": "CHANGELOG.md",
+      "bytes": 3666
+    },
+    {
+      "path": "Farming_Hub_LAE_Import_Review.html",
+      "bytes": 344965
+    },
+    {
+      "path": "Farming_Hub_PLM_LAE_Import_Review.html",
+      "bytes": 388540
+    },
+    {
+      "path": "Farming_Hub_PLM_Shipping_LAE_Import_Review.html",
+      "bytes": 765821
+    },
+    {
+      "path": "Farming_Hub_Purchase_Management_Clean_Review.html",
+      "bytes": 900201
+    },
+    {
+      "path": "README.md",
+      "bytes": 3983
+    },
+    {
+      "path": "THIRD_PARTY_NOTICES.md",
+      "bytes": 583
+    },
+    {
+      "path": "docs/ADMINISTRATION.md",
+      "bytes": 2379
+    },
+    {
+      "path": "docs/BROWSER_TEST_INSTRUCTIONS.md",
+      "bytes": 888
+    },
+    {
+      "path": "docs/BUILD_MANIFEST.json",
+      "bytes": 22251
+    },
+    {
+      "path": "docs/DECISIONS_FOR_REVIEW.md",
+      "bytes": 4432
+    },
+    {
+      "path": "docs/Farming_Hub_PM_Software_Edit_Register_v0.6.0-alpha.15.xlsx",
+      "bytes": 17229
+    },
+    {
+      "path": "docs/Farming_Hub_PM_Software_Edit_Register_v0.6.1-alpha.16.xlsx",
+      "bytes": 17659
+    },
+    {
+      "path": "docs/Farming_Hub_PM_v0.3.0-alpha.3.bundle",
+      "bytes": 4196129
+    },
+    {
+      "path": "docs/INTEGRATION_BOUNDARIES.md",
+      "bytes": 2471
+    },
+    {
+      "path": "docs/MASTER_IMPORT_NOTES.md",
+      "bytes": 1088
+    },
+    {
+      "path": "docs/REQUIREMENTS_COVERAGE.csv",
+      "bytes": 2659
+    },
+    {
+      "path": "docs/SOFTWARE_EDIT_LOG.csv",
+      "bytes": 14303
+    },
+    {
+      "path": "docs/Software_Build_Register_v0.1.0-alpha.1.xlsx",
+      "bytes": 17531
+    },
+    {
+      "path": "docs/Software_Build_Register_v0.2.0-alpha.2.xlsx",
+      "bytes": 8031
+    },
+    {
+      "path": "docs/Software_Build_Register_v0.3.0-alpha.3.xlsx",
+      "bytes": 9564
+    },
+    {
+      "path": "docs/Software_Build_Register_v0.3.1-alpha.4.xlsx",
+      "bytes": 9873
+    },
+    {
+      "path": "docs/Software_Edit_Register_v0.4.0-alpha.7.xlsx",
+      "bytes": 11419
+    },
+    {
+      "path": "docs/Software_Edit_Register_v0.4.1-alpha.8.xlsx",
+      "bytes": 12698
+    },
+    {
+      "path": "docs/Software_Edit_Register_v0.5.0-alpha.11.xlsx",
+      "bytes": 13608
+    },
+    {
+      "path": "docs/Software_Edit_Register_v0.5.1-alpha.12.xlsx",
+      "bytes": 14188
+    },
+    {
+      "path": "docs/Software_Edit_Register_v0.5.2-alpha.13.xlsx",
+      "bytes": 14647
+    },
+    {
+      "path": "docs/Software_Edit_Register_v0.5.3-alpha.14.xlsx",
+      "bytes": 15291
+    },
+    {
+      "path": "docs/TEST_REPORT.md",
+      "bytes": 1373
+    },
+    {
+      "path": "docs/THEME_REFERENCE.md",
+      "bytes": 2283
+    },
+    {
+      "path": "docs/VERSION_HISTORY.md",
+      "bytes": 6511
+    },
+    {
+      "path": "docs/automated-tests.tap",
+      "bytes": 18801
+    },
+    {
+      "path": "docs/brand/FARMING_HUB_LOGO_RGB.png",
+      "bytes": 103841
+    },
+    {
+      "path": "docs/brand/Farming_Hub_Brand_Guidelines.pdf",
+      "bytes": 8000763
+    },
+    {
+      "path": "docs/brand/README.md",
+      "bytes": 347
+    },
+    {
+      "path": "docs/browser-results.json",
+      "bytes": 3168
+    },
+    {
+      "path": "docs/build-register-data.json",
+      "bytes": 5220
+    },
+    {
+      "path": "docs/plm-browser-results.json",
+      "bytes": 931
+    },
+    {
+      "path": "docs/plm-template-browser-results.json",
+      "bytes": 546
+    },
+    {
+      "path": "docs/price-browser-results.json",
+      "bytes": 746
+    },
+    {
+      "path": "docs/reference/ITEM_MASTER_Final.xlsx",
+      "bytes": 48219
+    },
+    {
+      "path": "docs/reference/Power_Weeder_Technical_Spec_Sample.xlsx",
+      "bytes": 338559
+    },
+    {
+      "path": "docs/reference/Supplier_Code_Master_Final.xlsx",
+      "bytes": 11608
+    },
+    {
+      "path": "docs/reference/Supplier_Master_Normalized_v0.5.3-alpha.14.xlsx",
+      "bytes": 14160
+    },
+    {
+      "path": "docs/reference/Supplier_Master_Updated_v0.5.3-alpha.14.xlsx",
+      "bytes": 15040
+    },
+    {
+      "path": "docs/reference/WEEKLY_BUY_RATE_History.xlsx",
+      "bytes": 9855
+    },
+    {
+      "path": "docs/screenshots/clean_overview_v050.png",
+      "bytes": 181306
+    },
+    {
+      "path": "docs/screenshots/freight_rate_import_preview.png",
+      "bytes": 196601
+    },
+    {
+      "path": "docs/screenshots/freight_rates.png",
+      "bytes": 142382
+    },
+    {
+      "path": "docs/screenshots/history.png",
+      "bytes": 311552
+    },
+    {
+      "path": "docs/screenshots/import_preview.png",
+      "bytes": 262087
+    },
+    {
+      "path": "docs/screenshots/mobile.png",
+      "bytes": 118412
+    },
+    {
+      "path": "docs/screenshots/overview.png",
+      "bytes": 174757
+    },
+    {
+      "path": "docs/screenshots/pipeline.png",
+      "bytes": 158837
+    },
+    {
+      "path": "docs/screenshots/plm_audit.png",
+      "bytes": 185812
+    },
+    {
+      "path": "docs/screenshots/plm_clean_dashboard_v050.png",
+      "bytes": 140482
+    },
+    {
+      "path": "docs/screenshots/plm_dashboard.png",
+      "bytes": 128914
+    },
+    {
+      "path": "docs/screenshots/plm_power_weeder_template_v050.png",
+      "bytes": 672737
+    },
+    {
+      "path": "docs/screenshots/plm_product_pw12.png",
+      "bytes": 349383
+    },
+    {
+      "path": "docs/screenshots/plm_templates.png",
+      "bytes": 373433
+    },
+    {
+      "path": "docs/screenshots/shipment_compliance.png",
+      "bytes": 178204
+    },
+    {
+      "path": "docs/screenshots/shipment_detail.png",
+      "bytes": 137099
+    },
+    {
+      "path": "docs/screenshots/shipping_dashboard.png",
+      "bytes": 550332
+    },
+    {
+      "path": "docs/screenshots/theme-mobile.png",
+      "bytes": 200451
+    },
+    {
+      "path": "docs/screenshots/theme-overview.png",
+      "bytes": 338406
+    },
+    {
+      "path": "docs/screenshots/theme-plm-dashboard.png",
+      "bytes": 324556
+    },
+    {
+      "path": "docs/screenshots/theme-shipping-dashboard.png",
+      "bytes": 782320
+    },
+    {
+      "path": "docs/screenshots/tracking_import_preview.png",
+      "bytes": 565654
+    },
+    {
+      "path": "docs/shipping-browser-results.json",
+      "bytes": 998
+    },
+    {
+      "path": "docs/workflow-browser-results.json",
+      "bytes": 2414
+    },
+    {
+      "path": "package.json",
+      "bytes": 484
+    },
+    {
+      "path": "scripts/add-user.mjs",
+      "bytes": 1308
+    },
+    {
+      "path": "scripts/backup.mjs",
+      "bytes": 1110
+    },
+    {
+      "path": "scripts/build.mjs",
+      "bytes": 2098
+    },
+    {
+      "path": "server/index.mjs",
+      "bytes": 10856
+    },
+    {
+      "path": "server/store.mjs",
+      "bytes": 8020
+    },
+    {
+      "path": "shared/clean-seed.mjs",
+      "bytes": 46848
+    },
+    {
+      "path": "shared/domain.mjs",
+      "bytes": 103798
+    },
+    {
+      "path": "shared/final-master-data.mjs",
+      "bytes": 87571
+    },
+    {
+      "path": "shared/plm.mjs",
+      "bytes": 11145
+    },
+    {
+      "path": "shared/seed.mjs",
+      "bytes": 17496
+    },
+    {
+      "path": "shared/shipping.mjs",
+      "bytes": 9519
+    },
+    {
+      "path": "shared/source-items.mjs",
+      "bytes": 23103
+    },
+    {
+      "path": "templates/LAE_Item_Master_Upload_Template_v0.1.xlsx",
+      "bytes": 13237
+    },
+    {
+      "path": "templates/reference/VJ_Weekly_Freight_Rate_Sample_Week36.xlsx",
+      "bytes": 10946
+    },
+    {
+      "path": "templates/reference/VJ_Weekly_Tracking_Sample_08.09.2026.xlsx",
+      "bytes": 27474
+    },
+    {
+      "path": "test-output/base_first_po.png",
+      "bytes": 211956
+    },
+    {
+      "path": "test-output/complaint_rollup.png",
+      "bytes": 671391
+    },
+    {
+      "path": "test-output/freight_benchmark_trends.png",
+      "bytes": 209780
+    },
+    {
+      "path": "test-output/native-tests-v061.tap",
+      "bytes": 20872
+    },
+    {
+      "path": "test-output/native-tests.tap",
+      "bytes": 20413
+    },
+    {
+      "path": "test-output/plm-bypass-browser-results.json",
+      "bytes": 186
+    },
+    {
+      "path": "test-output/plm_bypass_failure.png",
+      "bytes": 269088
+    },
+    {
+      "path": "test-output/plm_bypass_warning.png",
+      "bytes": 301848
+    },
+    {
+      "path": "test-output/v060-browser-results.json",
+      "bytes": 670
+    },
+    {
+      "path": "test-output/v060-browser-run.txt",
+      "bytes": 413
+    },
+    {
+      "path": "tests/__pycache__/browser_flow.cpython-313.pyc",
+      "bytes": 33993
+    },
+    {
+      "path": "tests/__pycache__/plm_browser_flow.cpython-313.pyc",
+      "bytes": 14376
+    },
+    {
+      "path": "tests/__pycache__/price_browser_flow.cpython-313.pyc",
+      "bytes": 11050
+    },
+    {
+      "path": "tests/__pycache__/shipping_browser_flow.cpython-313.pyc",
+      "bytes": 10798
+    },
+    {
+      "path": "tests/__pycache__/workflow_browser_flow.cpython-313.pyc",
+      "bytes": 34847
+    },
+    {
+      "path": "tests/browser_flow.py",
+      "bytes": 15959
+    },
+    {
+      "path": "tests/browser_storage_shim.js",
+      "bytes": 914
+    },
+    {
+      "path": "tests/clean_browser_flow.py",
+      "bytes": 2939
+    },
+    {
+      "path": "tests/domain.test.mjs",
+      "bytes": 40201
+    },
+    {
+      "path": "tests/master_freight_v060.test.mjs",
+      "bytes": 3434
+    },
+    {
+      "path": "tests/plm_browser_flow.py",
+      "bytes": 7282
+    },
+    {
+      "path": "tests/plm_bypass.test.mjs",
+      "bytes": 3802
+    },
+    {
+      "path": "tests/plm_bypass_browser_flow.py",
+      "bytes": 3246
+    },
+    {
+      "path": "tests/plm_sample_revision.test.mjs",
+      "bytes": 2805
+    },
+    {
+      "path": "tests/plm_template_browser_flow.py",
+      "bytes": 1780
+    },
+    {
+      "path": "tests/price_browser_flow.py",
+      "bytes": 6032
+    },
+    {
+      "path": "tests/server.test.mjs",
+      "bytes": 8642
+    },
+    {
+      "path": "tests/shipping_browser_flow.py",
+      "bytes": 5814
+    },
+    {
+      "path": "tests/v060_browser_flow.py",
+      "bytes": 5216
+    },
+    {
+      "path": "tests/vendor_master.test.mjs",
+      "bytes": 2967
+    },
+    {
+      "path": "tests/vendor_master_browser_flow.py",
+      "bytes": 2678
+    },
+    {
+      "path": "tests/workflow_browser_flow.py",
+      "bytes": 15364
+    },
+    {
+      "path": "vms-reference/README.md",
+      "bytes": 4319
+    },
+    {
+      "path": "vms-reference/backend/.env.example",
+      "bytes": 892
+    },
+    {
+      "path": "vms-reference/backend/Dockerfile",
+      "bytes": 783
+    },
+    {
+      "path": "vms-reference/backend/package.json",
+      "bytes": 1032
+    },
+    {
+      "path": "vms-reference/backend/prisma/migrations/20260704114356_init/migration.sql",
+      "bytes": 6243
+    },
+    {
+      "path": "vms-reference/backend/prisma/migrations/20260704133510_expand_features_groups_stages_interactions/migration.sql",
+      "bytes": 5365
+    },
+    {
+      "path": "vms-reference/backend/prisma/migrations/20260706083706_rbac_add_roles_and_tables/migration.sql",
+      "bytes": 1773
+    },
+    {
+      "path": "vms-reference/backend/prisma/migrations/20260706083750_rbac_default_employee/migration.sql",
+      "bytes": 78
+    },
+    {
+      "path": "vms-reference/backend/prisma/migrations/20260707060127_add_product_line_and_geo_masters/migration.sql",
+      "bytes": 3516
+    },
+    {
+      "path": "vms-reference/backend/prisma/migrations/20260716035039_vendor_evaluation_and_followups/migration.sql",
+      "bytes": 1410
+    },
+    {
+      "path": "vms-reference/backend/prisma/migrations/20260718073117_column_preferences/migration.sql",
+      "bytes": 768
+    },
+    {
+      "path": "vms-reference/backend/prisma/migrations/migration_lock.toml",
+      "bytes": 127
+    },
+    {
+      "path": "vms-reference/backend/prisma/schema.prisma",
+      "bytes": 15671
+    },
+    {
+      "path": "vms-reference/backend/prisma/seed.js",
+      "bytes": 10140
+    },
+    {
+      "path": "vms-reference/backend/src/app.js",
+      "bytes": 1642
+    },
+    {
+      "path": "vms-reference/backend/src/config/env.js",
+      "bytes": 1150
+    },
+    {
+      "path": "vms-reference/backend/src/config/permissions.js",
+      "bytes": 2787
+    },
+    {
+      "path": "vms-reference/backend/src/controllers/authController.js",
+      "bytes": 4548
+    },
+    {
+      "path": "vms-reference/backend/src/controllers/categoryController.js",
+      "bytes": 1123
+    },
+    {
+      "path": "vms-reference/backend/src/controllers/columnController.js",
+      "bytes": 4722
+    },
+    {
+      "path": "vms-reference/backend/src/controllers/componentController.js",
+      "bytes": 1107
+    },
+    {
+      "path": "vms-reference/backend/src/controllers/expoController.js",
+      "bytes": 1318
+    },
+    {
+      "path": "vms-reference/backend/src/controllers/followUpController.js",
+      "bytes": 5187
+    },
+    {
+      "path": "vms-reference/backend/src/controllers/geoController.js",
+      "bytes": 11107
+    },
+    {
+      "path": "vms-reference/backend/src/controllers/importController.js",
+      "bytes": 12906
+    },
+    {
+      "path": "vms-reference/backend/src/controllers/interactionController.js",
+      "bytes": 3738
+    },
+    {
+      "path": "vms-reference/backend/src/controllers/lookupController.js",
+      "bytes": 5493
+    },
+    {
+      "path": "vms-reference/backend/src/controllers/photoController.js",
+      "bytes": 2136
+    },
+    {
+      "path": "vms-reference/backend/src/controllers/reportController.js",
+      "bytes": 7120
+    },
+    {
+      "path": "vms-reference/backend/src/controllers/roleController.js",
+      "bytes": 2443
+    },
+    {
+      "path": "vms-reference/backend/src/controllers/userController.js",
+      "bytes": 4777
+    },
+    {
+      "path": "vms-reference/backend/src/controllers/vendorController.js",
+      "bytes": 10475
+    },
+    {
+      "path": "vms-reference/backend/src/lib/prisma.js",
+      "bytes": 435
+    },
+    {
+      "path": "vms-reference/backend/src/middleware/auth.js",
+      "bytes": 1910
+    },
+    {
+      "path": "vms-reference/backend/src/middleware/errorHandler.js",
+      "bytes": 1295
+    },
+    {
+      "path": "vms-reference/backend/src/middleware/upload.js",
+      "bytes": 2973
+    },
+    {
+      "path": "vms-reference/backend/src/middleware/validate.js",
+      "bytes": 662
+    },
+    {
+      "path": "vms-reference/backend/src/routes/authRoutes.js",
+      "bytes": 1162
+    },
+    {
+      "path": "vms-reference/backend/src/routes/categoryRoutes.js",
+      "bytes": 784
+    },
+    {
+      "path": "vms-reference/backend/src/routes/columnRoutes.js",
+      "bytes": 864
+    },
+    {
+      "path": "vms-reference/backend/src/routes/componentRoutes.js",
+      "bytes": 802
+    },
+    {
+      "path": "vms-reference/backend/src/routes/expoRoutes.js",
+      "bytes": 796
+    },
+    {
+      "path": "vms-reference/backend/src/routes/followUpRoutes.js",
+      "bytes": 454
+    },
+    {
+      "path": "vms-reference/backend/src/routes/geoRoutes.js",
+      "bytes": 2149
+    },
+    {
+      "path": "vms-reference/backend/src/routes/importRoutes.js",
+      "bytes": 567
+    },
+    {
+      "path": "vms-reference/backend/src/routes/index.js",
+      "bytes": 1754
+    },
+    {
+      "path": "vms-reference/backend/src/routes/interactionRoutes.js",
+      "bytes": 1112
+    },
+    {
+      "path": "vms-reference/backend/src/routes/lookupRoutes.js",
+      "bytes": 3034
+    },
+    {
+      "path": "vms-reference/backend/src/routes/photoRoutes.js",
+      "bytes": 726
+    },
+    {
+      "path": "vms-reference/backend/src/routes/reportRoutes.js",
+      "bytes": 510
+    },
+    {
+      "path": "vms-reference/backend/src/routes/roleRoutes.js",
+      "bytes": 764
+    },
+    {
+      "path": "vms-reference/backend/src/routes/userRoutes.js",
+      "bytes": 1192
+    },
+    {
+      "path": "vms-reference/backend/src/routes/vendorRoutes.js",
+      "bytes": 921
+    },
+    {
+      "path": "vms-reference/backend/src/server.js",
+      "bytes": 1125
+    },
+    {
+      "path": "vms-reference/backend/src/services/currencyService.js",
+      "bytes": 3429
+    },
+    {
+      "path": "vms-reference/backend/src/services/evaluationService.js",
+      "bytes": 2864
+    },
+    {
+      "path": "vms-reference/backend/src/services/permissionService.js",
+      "bytes": 1914
+    },
+    {
+      "path": "vms-reference/backend/src/utils/ApiError.js",
+      "bytes": 739
+    },
+    {
+      "path": "vms-reference/backend/src/utils/asyncHandler.js",
+      "bytes": 185
+    },
+    {
+      "path": "vms-reference/backend/src/utils/token.js",
+      "bytes": 273
+    },
+    {
+      "path": "vms-reference/backend/src/validators/index.js",
+      "bytes": 10806
+    },
+    {
+      "path": "vms-reference/docker-compose.coolify.yml",
+      "bytes": 2079
+    },
+    {
+      "path": "vms-reference/docker-compose.yml",
+      "bytes": 1499
+    },
+    {
+      "path": "vms-reference/frontend/.env.example",
+      "bytes": 192
+    },
+    {
+      "path": "vms-reference/frontend/Dockerfile",
+      "bytes": 539
+    },
+    {
+      "path": "vms-reference/frontend/index.html",
+      "bytes": 1137
+    },
+    {
+      "path": "vms-reference/frontend/nginx.conf",
+      "bytes": 1841
+    },
+    {
+      "path": "vms-reference/frontend/package.json",
+      "bytes": 1065
+    },
+    {
+      "path": "vms-reference/frontend/postcss.config.js",
+      "bytes": 81
+    },
+    {
+      "path": "vms-reference/frontend/src/App.jsx",
+      "bytes": 2316
+    },
+    {
+      "path": "vms-reference/frontend/src/components/ChangePasswordModal.jsx",
+      "bytes": 2517
+    },
+    {
+      "path": "vms-reference/frontend/src/components/DataGrid.jsx",
+      "bytes": 2800
+    },
+    {
+      "path": "vms-reference/frontend/src/components/InteractionTimeline.jsx",
+      "bytes": 15195
+    },
+    {
+      "path": "vms-reference/frontend/src/components/Layout.jsx",
+      "bytes": 1407
+    },
+    {
+      "path": "vms-reference/frontend/src/components/ManageColumnsModal.jsx",
+      "bytes": 5664
+    },
+    {
+      "path": "vms-reference/frontend/src/components/PageHeader.jsx",
+      "bytes": 439
+    },
+    {
+      "path": "vms-reference/frontend/src/components/ProtectedRoute.jsx",
+      "bytes": 481
+    },
+    {
+      "path": "vms-reference/frontend/src/components/Sidebar.jsx",
+      "bytes": 4004
+    },
+    {
+      "path": "vms-reference/frontend/src/components/Topbar.jsx",
+      "bytes": 5494
+    },
+    {
+      "path": "vms-reference/frontend/src/components/ui/Badge.jsx",
+      "bytes": 1381
+    },
+    {
+      "path": "vms-reference/frontend/src/components/ui/ConfirmDialog.jsx",
+      "bytes": 825
+    },
+    {
+      "path": "vms-reference/frontend/src/components/ui/EmptyState.jsx",
+      "bytes": 619
+    },
+    {
+      "path": "vms-reference/frontend/src/components/ui/Modal.jsx",
+      "bytes": 1600
+    },
+    {
+      "path": "vms-reference/frontend/src/components/ui/MultiSelect.jsx",
+      "bytes": 3110
+    },
+    {
+      "path": "vms-reference/frontend/src/components/ui/Pagination.jsx",
+      "bytes": 1210
+    },
+    {
+      "path": "vms-reference/frontend/src/components/ui/Rating.jsx",
+      "bytes": 1870
+    },
+    {
+      "path": "vms-reference/frontend/src/components/ui/Spinner.jsx",
+      "bytes": 472
+    },
+    {
+      "path": "vms-reference/frontend/src/components/ui/TagPicker.jsx",
+      "bytes": 4691
+    },
+    {
+      "path": "vms-reference/frontend/src/context/AuthContext.jsx",
+      "bytes": 2567
+    },
+    {
+      "path": "vms-reference/frontend/src/hooks/useAdmin.js",
+      "bytes": 3414
+    },
+    {
+      "path": "vms-reference/frontend/src/hooks/useColumnConfig.js",
+      "bytes": 3785
+    },
+    {
+      "path": "vms-reference/frontend/src/hooks/useDebounce.js",
+      "bytes": 308
+    },
+    {
+      "path": "vms-reference/frontend/src/hooks/useFollowUps.js",
+      "bytes": 1390
+    },
+    {
+      "path": "vms-reference/frontend/src/hooks/useGeo.js",
+      "bytes": 3273
+    },
+    {
+      "path": "vms-reference/frontend/src/hooks/useImport.js",
+      "bytes": 1378
+    },
+    {
+      "path": "vms-reference/frontend/src/hooks/useInteractions.js",
+      "bytes": 1822
+    },
+    {
+      "path": "vms-reference/frontend/src/hooks/useLookups.js",
+      "bytes": 4538
+    },
+    {
+      "path": "vms-reference/frontend/src/hooks/useReports.js",
+      "bytes": 1174
+    },
+    {
+      "path": "vms-reference/frontend/src/hooks/useSyncState.js",
+      "bytes": 296
+    },
+    {
+      "path": "vms-reference/frontend/src/hooks/useTaxonomies.js",
+      "bytes": 2491
+    },
+    {
+      "path": "vms-reference/frontend/src/hooks/useVendors.js",
+      "bytes": 2312
+    },
+    {
+      "path": "vms-reference/frontend/src/index.css",
+      "bytes": 1625
+    },
+    {
+      "path": "vms-reference/frontend/src/lib/api.js",
+      "bytes": 1234
+    },
+    {
+      "path": "vms-reference/frontend/src/lib/columnRegistry.jsx",
+      "bytes": 11085
+    },
+    {
+      "path": "vms-reference/frontend/src/lib/concentration.js",
+      "bytes": 3979
+    },
+    {
+      "path": "vms-reference/frontend/src/lib/evaluation.js",
+      "bytes": 2571
+    },
+    {
+      "path": "vms-reference/frontend/src/lib/export.js",
+      "bytes": 2437
+    },
+    {
+      "path": "vms-reference/frontend/src/lib/format.js",
+      "bytes": 2465
+    },
+    {
+      "path": "vms-reference/frontend/src/lib/persist.js",
+      "bytes": 551
+    },
+    {
+      "path": "vms-reference/frontend/src/lib/queryClient.js",
+      "bytes": 523
+    },
+    {
+      "path": "vms-reference/frontend/src/main.jsx",
+      "bytes": 1424
+    },
+    {
+      "path": "vms-reference/frontend/src/offline/db.js",
+      "bytes": 2336
+    },
+    {
+      "path": "vms-reference/frontend/src/offline/sync.js",
+      "bytes": 4788
+    },
+    {
+      "path": "vms-reference/frontend/src/offline/vendorFilter.js",
+      "bytes": 1805
+    },
+    {
+      "path": "vms-reference/frontend/src/pages/Analytics.jsx",
+      "bytes": 8174
+    },
+    {
+      "path": "vms-reference/frontend/src/pages/Categories.jsx",
+      "bytes": 10460
+    },
+    {
+      "path": "vms-reference/frontend/src/pages/Components.jsx",
+      "bytes": 5099
+    },
+    {
+      "path": "vms-reference/frontend/src/pages/Concentration.jsx",
+      "bytes": 13400
+    },
+    {
+      "path": "vms-reference/frontend/src/pages/Dashboard.jsx",
+      "bytes": 7813
+    },
+    {
+      "path": "vms-reference/frontend/src/pages/Expos.jsx",
+      "bytes": 7092
+    },
+    {
+      "path": "vms-reference/frontend/src/pages/FollowUps.jsx",
+      "bytes": 9268
+    },
+    {
+      "path": "vms-reference/frontend/src/pages/GetApp.jsx",
+      "bytes": 3831
+    },
+    {
+      "path": "vms-reference/frontend/src/pages/Login.jsx",
+      "bytes": 7801
+    },
+    {
+      "path": "vms-reference/frontend/src/pages/NotFound.jsx",
+      "bytes": 610
+    },
+    {
+      "path": "vms-reference/frontend/src/pages/PendingSync.jsx",
+      "bytes": 5686
+    },
+    {
+      "path": "vms-reference/frontend/src/pages/Settings.jsx",
+      "bytes": 29865
+    },
+    {
+      "path": "vms-reference/frontend/src/pages/Users.jsx",
+      "bytes": 19844
+    },
+    {
+      "path": "vms-reference/frontend/src/pages/VendorDetail.jsx",
+      "bytes": 20864
+    },
+    {
+      "path": "vms-reference/frontend/src/pages/VendorForm.jsx",
+      "bytes": 23753
+    },
+    {
+      "path": "vms-reference/frontend/src/pages/VendorImport.jsx",
+      "bytes": 13082
+    },
+    {
+      "path": "vms-reference/frontend/src/pages/Vendors.jsx",
+      "bytes": 11240
+    },
+    {
+      "path": "vms-reference/frontend/tailwind.config.js",
+      "bytes": 1327
+    },
+    {
+      "path": "vms-reference/frontend/vite.config.js",
+      "bytes": 2923
+    },
+    {
+      "path": "web/JSZIP-LICENSE.txt",
+      "bytes": 33753
+    },
+    {
+      "path": "web/app.mjs",
+      "bytes": 214741
+    },
+    {
+      "path": "web/assets/farming-hub-logo.png",
+      "bytes": 103841
+    },
+    {
+      "path": "web/index.html",
+      "bytes": 635
+    },
+    {
+      "path": "web/jszip.min.js",
+      "bytes": 97630
+    },
+    {
+      "path": "web/styles.css",
+      "bytes": 35516
+    }
+  ]
+}

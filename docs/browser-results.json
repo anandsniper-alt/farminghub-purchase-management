@@ -1,0 +1,121 @@
+{
+  "mode": "Playwright Chromium rendering supplied HTML on about:blank. Runner blocks file/HTTP navigation. UI-only in-memory localStorage and IndexedDB shims are injected by the test harness; server persistence is covered separately by native HTTP/SQLite tests.",
+  "checks": [
+    {
+      "name": "Overview and isolated-demo notice render",
+      "result": "PASS"
+    },
+    {
+      "name": "orders view renders",
+      "result": "PASS"
+    },
+    {
+      "name": "tasks view renders",
+      "result": "PASS"
+    },
+    {
+      "name": "payments view renders",
+      "result": "PASS"
+    },
+    {
+      "name": "shipments view renders",
+      "result": "PASS"
+    },
+    {
+      "name": "documents view renders",
+      "result": "PASS"
+    },
+    {
+      "name": "vendors view renders",
+      "result": "PASS"
+    },
+    {
+      "name": "plm view renders",
+      "result": "PASS"
+    },
+    {
+      "name": "items view renders",
+      "result": "PASS"
+    },
+    {
+      "name": "settings view renders",
+      "result": "PASS"
+    },
+    {
+      "name": "versions view renders",
+      "result": "PASS"
+    },
+    {
+      "name": "Mobile layout fits 390px viewport",
+      "result": "PASS"
+    },
+    {
+      "name": "Create a real new PO draft through the UI",
+      "result": "PASS"
+    },
+    {
+      "name": "Submit and Purchase Manager issue through UI",
+      "result": "PASS"
+    },
+    {
+      "name": "Supplier PO acknowledgement is a visible stage with file evidence",
+      "result": "PASS"
+    },
+    {
+      "name": "PI receipt, verification and approval advance to technical confirmation",
+      "result": "PASS"
+    },
+    {
+      "name": "Technical specification confirmation is visible before artwork and payment",
+      "result": "PASS"
+    },
+    {
+      "name": "Artwork approval and supplier acknowledgement are completed before payment",
+      "result": "PASS"
+    },
+    {
+      "name": "Single payment milestone retains SWIFT evidence and starts production lead-time",
+      "result": "PASS"
+    },
+    {
+      "name": "Supplier realization remains a separate financial follow-up",
+      "result": "PASS"
+    },
+    {
+      "name": "Sample completion, sample approval, bulk production, bulk QC and completion gates",
+      "result": "PASS"
+    },
+    {
+      "name": "Shipment booking/release, China inland tracking and CI/PL documents have no pre-dispatch QC gate",
+      "result": "PASS"
+    },
+    {
+      "name": "Visible transaction history including authors and changes",
+      "result": "PASS"
+    },
+    {
+      "name": "Retained evidence body can be downloaded",
+      "result": "PASS"
+    },
+    {
+      "name": "Original XLSX parses, unmapped vendor rejection blocks bulk commit",
+      "result": "PASS"
+    },
+    {
+      "name": "CSV create preview commits original source and import history",
+      "result": "PASS"
+    },
+    {
+      "name": "Viewer sees records but no edit or approval controls",
+      "result": "PASS"
+    },
+    {
+      "name": "UI state restores across a document reload using the test storage shim",
+      "result": "PASS"
+    }
+  ],
+  "errors": [],
+  "runtime_errors": [],
+  "passed": 28,
+  "failed": 0
+}

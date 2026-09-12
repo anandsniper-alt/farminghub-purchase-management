@@ -1,0 +1,36 @@
+{
+  "checks": [
+    {
+      "name": "PLM product register and PW12 detail render",
+      "result": "PASS"
+    },
+    {
+      "name": "Minor technical revision is submitted then Product Manager approved",
+      "result": "PASS"
+    },
+    {
+      "name": "Brand-specific delta stays separate and requires Product Manager approval",
+      "result": "PASS"
+    },
+    {
+      "name": "Brand artwork has its own revision and approval separate from technical version",
+      "result": "PASS"
+    },
+    {
+      "name": "Significant change creates successor product code and visible lineage",
+      "result": "PASS"
+    },
+    {
+      "name": "Product Manager can extend a category-specific technical template",
+      "result": "PASS"
+    },
+    {
+      "name": "PLM edits and approvals appear in visible append-only audit history",
+      "result": "PASS"
+    }
+  ],
+  "errors": [],
+  "passed": 7,
+  "failed": 0,
+  "runtime_errors": []
+}

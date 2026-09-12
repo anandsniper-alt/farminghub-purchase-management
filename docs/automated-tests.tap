@@ -1,0 +1,516 @@
+TAP version 13
+# Subtest: source seed: 153 untouched raw items, six mapped brand SKUs, eight illustrative orders
+ok 1 - source seed: 153 untouched raw items, six mapped brand SKUs, eight illustrative orders
+  ---
+  duration_ms: 274.72144
+  type: 'test'
+  ...
+# Subtest: money and FX math use bounded integer minor units
+ok 2 - money and FX math use bounded integer minor units
+  ---
+  duration_ms: 0.333195
+  type: 'test'
+  ...
+# Subtest: pro-rata shipment allocations preserve the exact total down to the cent
+ok 3 - pro-rata shipment allocations preserve the exact total down to the cent
+  ---
+  duration_ms: 1.524854
+  type: 'test'
+  ...
+# Subtest: viewer cannot create or update and executive cannot approve
+ok 4 - viewer cannot create or update and executive cannot approve
+  ---
+  duration_ms: 264.220457
+  type: 'test'
+  ...
+# Subtest: division assignment and assigned owner enforce edits
+ok 5 - division assignment and assigned owner enforce edits
+  ---
+  duration_ms: 222.138909
+  type: 'test'
+  ...
+# Subtest: issue freezes exact technical specification and historical supplier / payment data
+ok 6 - issue freezes exact technical specification and historical supplier / payment data
+  ---
+  duration_ms: 225.902385
+  type: 'test'
+  ...
+# Subtest: one vendor per base and operational brand mapping cannot be bypassed
+ok 7 - one vendor per base and operational brand mapping cannot be bypassed
+  ---
+  duration_ms: 218.648309
+  type: 'test'
+  ...
+# Subtest: new pending technical revision raises issue gate; previous approved policy never permits pending spec
+ok 8 - new pending technical revision raises issue gate; previous approved policy never permits pending spec
+  ---
+  duration_ms: 221.60043
+  type: 'test'
+  ...
+# Subtest: missing planning TAT and unapproved spec prevent PO issue
+ok 9 - missing planning TAT and unapproved spec prevent PO issue
+  ---
+  duration_ms: 221.315748
+  type: 'test'
+  ...
+# Subtest: supplier blacklist prevents a new PO but existing open order remains readable
+ok 10 - supplier blacklist prevents a new PO but existing open order remains readable
+  ---
+  duration_ms: 220.585503
+  type: 'test'
+  ...
+# Subtest: supplier PI quantity / currency / value discrepancies block verification
+ok 11 - supplier PI quantity / currency / value discrepancies block verification
+  ---
+  duration_ms: 224.177063
+  type: 'test'
+  ...
+# Subtest: PI requires evidence, purchase verification and manager approval in that order
+ok 12 - PI requires evidence, purchase verification and manager approval in that order
+  ---
+  duration_ms: 222.337934
+  type: 'test'
+  ...
+# Subtest: replacing a PI removes prior payment authorizations
+ok 13 - replacing a PI removes prior payment authorizations
+  ---
+  duration_ms: 231.829371
+  type: 'test'
+  ...
+# Subtest: unauthorized milestone cannot receive a payment
+ok 14 - unauthorized milestone cannot receive a payment
+  ---
+  duration_ms: 226.539239
+  type: 'test'
+  ...
+# Subtest: one bank remittance allocates exactly across multiple original orders
+ok 15 - one bank remittance allocates exactly across multiple original orders
+  ---
+  duration_ms: 246.150425
+  type: 'test'
+  ...
+# Subtest: remittance allocations must exactly equal the bank amount
+ok 16 - remittance allocations must exactly equal the bank amount
+  ---
+  duration_ms: 229.88167
+  type: 'test'
+  ...
+# Subtest: RMB invoice and USD remittance retain supplier-realized shortfall on the original order
+ok 17 - RMB invoice and USD remittance retain supplier-realized shortfall on the original order
+  ---
+  duration_ms: 229.009525
+  type: 'test'
+  ...
+# Subtest: duplicate bank reference is blocked and void is visible, not a bank reversal
+ok 18 - duplicate bank reference is blocked and void is visible, not a bank reversal
+  ---
+  duration_ms: 254.351537
+  type: 'test'
+  ...
+# Subtest: PI cannot be recorded before supplier PO acknowledgement
+ok 19 - PI cannot be recorded before supplier PO acknowledgement
+  ---
+  duration_ms: 241.048032
+  type: 'test'
+  ...
+# Subtest: technical and artwork confirmation are mandatory before initial payment
+ok 20 - technical and artwork confirmation are mandatory before initial payment
+  ---
+  duration_ms: 250.587876
+  type: 'test'
+  ...
+# Subtest: single initial-payment stage stores SWIFT evidence and starts production lead-time clock
+ok 21 - single initial-payment stage stores SWIFT evidence and starts production lead-time clock
+  ---
+  duration_ms: 232.566644
+  type: 'test'
+  ...
+# Subtest: pre-production sample completion and approval are separate hard gates before bulk production
+ok 22 - pre-production sample completion and approval are separate hard gates before bulk production
+  ---
+  duration_ms: 245.642211
+  type: 'test'
+  ...
+# Subtest: full-credit production starts after commercial confirmations without inventing an advance
+ok 23 - full-credit production starts after commercial confirmations without inventing an advance
+  ---
+  duration_ms: 242.256295
+  type: 'test'
+  ...
+# Subtest: commitment revisions preserve the initial production baseline
+ok 24 - commitment revisions preserve the initial production baseline
+  ---
+  duration_ms: 240.629922
+  type: 'test'
+  ...
+# Subtest: artwork requires Product Manager approval and leaves technical/issued PO versions unchanged
+ok 25 - artwork requires Product Manager approval and leaves technical/issued PO versions unchanged
+  ---
+  duration_ms: 239.864426
+  type: 'test'
+  ...
+# Subtest: partial shipments cannot over-allocate PO quantities
+ok 26 - partial shipments cannot over-allocate PO quantities
+  ---
+  duration_ms: 244.297846
+  type: 'test'
+  ...
+# Subtest: no separate pre-dispatch QC gate remains in the current shipping workflow
+ok 27 - no separate pre-dispatch QC gate remains in the current shipping workflow
+  ---
+  duration_ms: 261.905878
+  type: 'test'
+  ...
+# Subtest: loaded-on-vessel is blocked by missing commercial invoice / packing list, not pre-dispatch QC
+ok 28 - loaded-on-vessel is blocked by missing commercial invoice / packing list, not pre-dispatch QC
+  ---
+  duration_ms: 278.653022
+  type: 'test'
+  ...
+# Subtest: before-shipment payment is checked only against the allocated shipment obligation
+ok 29 - before-shipment payment is checked only against the allocated shipment obligation
+  ---
+  duration_ms: 262.250278
+  type: 'test'
+  ...
+# Subtest: final BL date derives the shipment credit due date without changing its original trigger
+ok 30 - final BL date derives the shipment credit due date without changing its original trigger
+  ---
+  duration_ms: 296.081668
+  type: 'test'
+  ...
+# Subtest: port arrival closes physical workflow but not the unpaid financial balance
+ok 31 - port arrival closes physical workflow but not the unpaid financial balance
+  ---
+  duration_ms: 327.132537
+  type: 'test'
+  ...
+# Subtest: future actual departure / arrival dates cannot fake a completed milestone
+ok 32 - future actual departure / arrival dates cannot fake a completed milestone
+  ---
+  duration_ms: 254.709617
+  type: 'test'
+  ...
+# Subtest: new artwork revision requires renewed supplier artwork confirmation before vessel loading
+ok 33 - new artwork revision requires renewed supplier artwork confirmation before vessel loading
+  ---
+  duration_ms: 272.278963
+  type: 'test'
+  ...
+# Subtest: PO amendments preserve earlier issue, require renewed confirmation and re-verify PI
+ok 34 - PO amendments preserve earlier issue, require renewed confirmation and re-verify PI
+  ---
+  duration_ms: 241.959866
+  type: 'test'
+  ...
+# Subtest: short close cannot mask unresolved physical shipments and does not write off finance
+ok 35 - short close cannot mask unresolved physical shipments and does not write off finance
+  ---
+  duration_ms: 256.213144
+  type: 'test'
+  ...
+# Subtest: follow-up closure records outcome, contact, remarks and next weekly occurrence
+ok 36 - follow-up closure records outcome, contact, remarks and next weekly occurrence
+  ---
+  duration_ms: 242.282408
+  type: 'test'
+  ...
+# Subtest: correction notes link the original event; history cannot be deleted through commands
+ok 37 - correction notes link the original event; history cannot be deleted through commands
+  ---
+  duration_ms: 241.975247
+  type: 'test'
+  ...
+# Subtest: legacy headings normalize; missing / invalid vendor mapping is rejected
+ok 38 - legacy headings normalize; missing / invalid vendor mapping is rejected
+  ---
+  duration_ms: 242.243235
+  type: 'test'
+  ...
+# Subtest: duplicate import codes reject the batch and no partial rows commit
+ok 39 - duplicate import codes reject the batch and no partial rows commit
+  ---
+  duration_ms: 244.855701
+  type: 'test'
+  ...
+# Subtest: import commit retains original source, raw row and mapping version
+ok 40 - import commit retains original source, raw row and mapping version
+  ---
+  duration_ms: 228.13473
+  type: 'test'
+  ...
+# Subtest: PLM seed exposes category templates and full product metadata
+ok 41 - PLM seed exposes category templates and full product metadata
+  ---
+  duration_ms: 237.342423
+  type: 'test'
+  ...
+# Subtest: structured PLM revision enforces required template fields and Product Manager approval
+ok 42 - structured PLM revision enforces required template fields and Product Manager approval
+  ---
+  duration_ms: 244.07936
+  type: 'test'
+  ...
+# Subtest: Product Manager can reject a pending technical revision with remarks
+ok 43 - Product Manager can reject a pending technical revision with remarks
+  ---
+  duration_ms: 244.652465
+  type: 'test'
+  ...
+# Subtest: significant change creates a successor code and preserves lineage
+ok 44 - significant change creates a successor code and preserves lineage
+  ---
+  duration_ms: 244.802893
+  type: 'test'
+  ...
+# Subtest: brand-specific change needs Product Manager approval and blocks new PO issue while pending
+ok 45 - brand-specific change needs Product Manager approval and blocks new PO issue while pending
+  ---
+  duration_ms: 238.634014
+  type: 'test'
+  ...
+# Subtest: brand artwork revision does not change technical revision or base product code
+ok 46 - brand artwork revision does not change technical revision or base product code
+  ---
+  duration_ms: 237.709618
+  type: 'test'
+  ...
+# Subtest: PLM template edits are audited and do not rewrite already approved specifications
+ok 47 - PLM template edits are audited and do not rewrite already approved specifications
+  ---
+  duration_ms: 238.693007
+  type: 'test'
+  ...
+# Subtest: new PLM approval never rewrites a previously issued PO snapshot
+ok 48 - new PLM approval never rewrites a previously issued PO snapshot
+  ---
+  duration_ms: 239.34145
+  type: 'test'
+  ...
+# Subtest: mandatory pre-production sample rejection returns workflow to corrected sample completion
+ok 49 - mandatory pre-production sample rejection returns workflow to corrected sample completion
+  ---
+  duration_ms: 257.549687
+  type: 'test'
+  ...
+# Subtest: bulk production cannot complete until bulk QC is PASS
+ok 50 - bulk production cannot complete until bulk QC is PASS
+  ---
+  duration_ms: 256.498538
+  type: 'test'
+  ...
+# Subtest: container booking can occur during active production and forwarder Ref is unique
+ok 51 - container booking can occur during active production and forwarder Ref is unique
+  ---
+  duration_ms: 259.833246
+  type: 'test'
+  ...
+# Subtest: container release is a separate milestone and requires booked container reference
+ok 52 - container release is a separate milestone and requires booked container reference
+  ---
+  duration_ms: 251.993633
+  type: 'test'
+  ...
+# Subtest: weekly tracking import matches exact forwarder Ref and preserves earliest baseline dates
+ok 53 - weekly tracking import matches exact forwarder Ref and preserves earliest baseline dates
+  ---
+  duration_ms: 268.326419
+  type: 'test'
+  ...
+# Subtest: final BL and insurance are post-vessel gates in that order
+ok 54 - final BL and insurance are post-vessel gates in that order
+  ---
+  duration_ms: 294.081155
+  type: 'test'
+  ...
+# Subtest: India port arrival cannot close before final BL and insurance
+ok 55 - India port arrival cannot close before final BL and insurance
+  ---
+  duration_ms: 268.766492
+  type: 'test'
+  ...
+# Subtest: VJ Week 36 freight rows normalize into five distinct route benchmarks
+ok 56 - VJ Week 36 freight rows normalize into five distinct route benchmarks
+  ---
+  duration_ms: 224.707474
+  type: 'test'
+  ...
+# Subtest: booked freight more than USD 100 above latest weekly rate raises warning
+ok 57 - booked freight more than USD 100 above latest weekly rate raises warning
+  ---
+  duration_ms: 246.616473
+  type: 'test'
+  ...
+# Subtest: freight history identifies rising weekly rate trend without overwriting earlier week
+ok 58 - freight history identifies rising weekly rate trend without overwriting earlier week
+  ---
+  duration_ms: 236.584909
+  type: 'test'
+  ...
+# Subtest: supplier price list supports independent current RMB/CNY and USD prices for the same SKU
+ok 59 - supplier price list supports independent current RMB/CNY and USD prices for the same SKU
+  ---
+  duration_ms: 245.900572
+  type: 'test'
+  ...
+# Subtest: saving a revised supplier price supersedes only the prior same-currency price and retains history
+ok 60 - saving a revised supplier price supersedes only the prior same-currency price and retains history
+  ---
+  duration_ms: 226.625871
+  type: 'test'
+  ...
+# Subtest: PO line snapshots matching supplier price list and marks a manual override without blocking issue
+ok 61 - PO line snapshots matching supplier price list and marks a manual override without blocking issue
+  ---
+  duration_ms: 235.571545
+  type: 'test'
+  ...
+# Subtest: later supplier price-list revision never rewrites an issued PO price or source snapshot
+ok 62 - later supplier price-list revision never rewrites an issued PO price or source snapshot
+  ---
+  duration_ms: 233.449707
+  type: 'test'
+  ...
+# Subtest: TAT override reason is required only when supplier commitment differs from vendor standard
+ok 63 - TAT override reason is required only when supplier commitment differs from vendor standard
+  ---
+  duration_ms: 230.934124
+  type: 'test'
+  ...
+# Subtest: Power Weeder template maps the supplied technical-spec structure into controlled fields
+ok 64 - Power Weeder template maps the supplied technical-spec structure into controlled fields
+  ---
+  duration_ms: 1.209725
+  type: 'test'
+  ...
+# Subtest: PLM field metadata generates PP-sample, bulk-QC, PO and supplier-confirmation checklists
+ok 65 - PLM field metadata generates PP-sample, bulk-QC, PO and supplier-confirmation checklists
+  ---
+  duration_ms: 1.659744
+  type: 'test'
+  ...
+# Subtest: brand delta summary carries structured sticker, embossing and component-colour mapping
+ok 66 - brand delta summary carries structured sticker, embossing and component-colour mapping
+  ---
+  duration_ms: 0.271663
+  type: 'test'
+  ...
+# Subtest: demo seed remains compatible with expanded required Power Weeder template
+ok 67 - demo seed remains compatible with expanded required Power Weeder template
+  ---
+  duration_ms: 279.442387
+  type: 'test'
+  ...
+# (node:33644) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: unauthenticated state and evidence access return 401
+ok 68 - unauthenticated state and evidence access return 401
+  ---
+  duration_ms: 578.213042
+  type: 'test'
+  ...
+# Subtest: successful local authentication uses HttpOnly SameSite cookie; invalid login is generic
+ok 69 - successful local authentication uses HttpOnly SameSite cookie; invalid login is generic
+  ---
+  duration_ms: 576.150903
+  type: 'test'
+  ...
+# Subtest: role is taken from the authenticated server account, not from client payload
+ok 70 - role is taken from the authenticated server account, not from client payload
+  ---
+  duration_ms: 529.880837
+  type: 'test'
+  ...
+# Subtest: state records are scoped to allowed divisions, including evidence and vendors
+ok 71 - state records are scoped to allowed divisions, including evidence and vendors
+  ---
+  duration_ms: 504.945385
+  type: 'test'
+  ...
+# Subtest: CSRF and cross-origin writes are rejected
+ok 72 - CSRF and cross-origin writes are rejected
+  ---
+  duration_ms: 504.87727
+  type: 'test'
+  ...
+# Subtest: optimistic revision check prevents lost updates from stale browser state
+ok 73 - optimistic revision check prevents lost updates from stale browser state
+  ---
+  duration_ms: 536.177557
+  type: 'test'
+  ...
+# Subtest: SQLite audit events cannot be updated or deleted
+ok 74 - SQLite audit events cannot be updated or deleted
+  ---
+  duration_ms: 452.494433
+  type: 'test'
+  ...
+# Subtest: uploaded document bytes persist with order scope and safe download headers
+ok 75 - uploaded document bytes persist with order scope and safe download headers
+  ---
+  duration_ms: 580.796277
+  type: 'test'
+  ...
+# Subtest: executable/HTML evidence and path traversal are rejected
+ok 76 - executable/HTML evidence and path traversal are rejected
+  ---
+  duration_ms: 507.126413
+  type: 'test'
+  ...
+# Subtest: upload permission cannot be gained merely by owning a login
+ok 77 - upload permission cannot be gained merely by owning a login
+  ---
+  duration_ms: 507.655347
+  type: 'test'
+  ...
+# Subtest: logging out invalidates the server session
+ok 78 - logging out invalidates the server session
+  ---
+  duration_ms: 498.549443
+  type: 'test'
+  ...
+# Subtest: business data persists when the local store is reopened
+ok 79 - business data persists when the local store is reopened
+  ---
+  duration_ms: 255.143651
+  type: 'test'
+  ...
+# Subtest: local account utility commits profile and hashed credential together
+ok 80 - local account utility commits profile and hashed credential together
+  ---
+  duration_ms: 551.980832
+  type: 'test'
+  ...
+# Subtest: duplicate account creation rolls back the new profile and audit entries
+ok 81 - duplicate account creation rolls back the new profile and audit entries
+  ---
+  duration_ms: 504.493624
+  type: 'test'
+  ...
+# Subtest: clean seed loads final vendor code master without demo transactions
+ok 82 - clean seed loads final vendor code master without demo transactions
+  ---
+  duration_ms: 1.427168
+  type: 'test'
+  ...
+# Subtest: vendor code master uses serial plus fixed code because fixed code alone can repeat
+ok 83 - vendor code master uses serial plus fixed code because fixed code alone can repeat
+  ---
+  duration_ms: 1.341511
+  type: 'test'
+  ...
+# Subtest: item master preview validates vendor references from full or fixed code
+ok 84 - item master preview validates vendor references from full or fixed code
+  ---
+  duration_ms: 1.971416
+  type: 'test'
+  ...
+1..84
+# tests 84
+# suites 0
+# pass 84
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 15073.982192

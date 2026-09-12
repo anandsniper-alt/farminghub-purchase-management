@@ -1,0 +1,163 @@
+{
+  "version": "0.1.0-alpha.1",
+  "edits": [
+    [
+      "SW-0001",
+      "Overall purchase website",
+      "New",
+      "Responsive shell, overview, division context, navigation and task dashboard.",
+      "web/app.mjs; web/styles.css"
+    ],
+    [
+      "SW-0002",
+      "Order transaction controls",
+      "New",
+      "PO draft/approval, immutable issue snapshot, amendments and PI validation.",
+      "shared/domain.mjs; web/app.mjs"
+    ],
+    [
+      "SW-0003",
+      "Payment follow-up",
+      "New",
+      "Milestone authorization, shipment allocations, USD/CNY realization and original-order balances.",
+      "shared/domain.mjs; web/app.mjs"
+    ],
+    [
+      "SW-0004",
+      "Production, artwork & QC",
+      "New",
+      "Supplier commitments, separate artwork approval, alteration checks and dispatch hold.",
+      "shared/domain.mjs; web/app.mjs"
+    ],
+    [
+      "SW-0005",
+      "Partial shipments",
+      "New",
+      "Quantity allocation, baseline/current/actual dates, BL-triggered terms and port arrival.",
+      "shared/domain.mjs; web/app.mjs"
+    ],
+    [
+      "SW-0006",
+      "Master upload & evidence",
+      "New",
+      "Demo-source preservation, explicit base/brand mapping, XLSX/CSV preview and audited commit.",
+      "shared/source-items.mjs; shared/seed.mjs; web/app.mjs"
+    ],
+    [
+      "SW-0007",
+      "Local pilot service",
+      "New",
+      "Authenticated sessions, scoped commands, protected files and SQLite transaction storage.",
+      "server/index.mjs; server/store.mjs; scripts/"
+    ],
+    [
+      "SW-0008",
+      "Versioning & verification",
+      "New and regression fixes",
+      "Portable review packaging, source/register/test records; fixed dialog initialization, PI re-authorization and correction links.",
+      "scripts/build.mjs; tests/; docs/; shared/domain.mjs; web/app.mjs"
+    ]
+  ],
+  "coverage": [
+    [
+      "Overall navigation and dashboards",
+      "Working alpha",
+      "Responsive LAE Import pages, scoped future-division placeholders."
+    ],
+    [
+      "Vendor Management live integration",
+      "Not connected",
+      "Local supplier subset only; original VMS source retained and unchanged."
+    ],
+    [
+      "Division / role access",
+      "Working alpha",
+      "Local server enforces roles and assigned scopes; demo selector is not authentication."
+    ],
+    [
+      "Manual PO and fixed technical version",
+      "Working alpha",
+      "Interim package, exact issued snapshot, manager approval and revisions."
+    ],
+    [
+      "Full PLM / template configuration",
+      "Deferred",
+      "Dedicated PLM, full lineage/template screens and complaint integration not built."
+    ],
+    [
+      "PI, approvals and payment terms",
+      "Working alpha",
+      "Document upload, verification, manager approval and manually editable milestones."
+    ],
+    [
+      "Payment FX / original-order reconciliation",
+      "Working alpha with limits",
+      "Recorded remittance and supplier realization; no bank execution, ledger, refunds/write-off accounting."
+    ],
+    [
+      "Production, reminders and red flags",
+      "Working alpha",
+      "Required remarks, baseline/current dates, recurring tasks and attribution."
+    ],
+    [
+      "Artwork, pre-dispatch QC",
+      "Working alpha",
+      "Approval, supplier evidence, mandatory QC/alteration gates. Post-receipt integration later."
+    ],
+    [
+      "Partial shipment / final BL / port arrival",
+      "Working alpha",
+      "Quantities, time comparison, shipment credit dates, operational/financial separation."
+    ],
+    [
+      "Documents / visible edit trail",
+      "Working alpha",
+      "Protected server evidence, append-only events, linked correction notes and PO printing."
+    ],
+    [
+      "Estimated vs actual costs",
+      "Partial",
+      "Typed individual costs retained by currency; allocation/landed-cost engine and accounting posting not complete."
+    ],
+    [
+      "Item-master template import",
+      "Working alpha",
+      "XLSX/CSV preview, aliases, row errors, commit, original source and batch audit; binary XLS not supported."
+    ],
+    [
+      "Legacy PO / pipeline import",
+      "Deferred",
+      "No legacy-order importer yet. Do not use the item template to import orders."
+    ],
+    [
+      "Monthly planning / sales forecasts / CBM",
+      "Deferred",
+      "User moved this work to a later phase. No duplicate Sales/stock input imposed."
+    ],
+    [
+      "Vendor yearly / overall scoring",
+      "Deferred",
+      "No rating formula or automatic vendor status change in this alpha."
+    ],
+    [
+      "ERP, warehouse, finance APIs",
+      "Not connected",
+      "No stock, GRN, receipt, finance acknowledgement or financial posting."
+    ],
+    [
+      "LAE Domestic, Utility, Implements",
+      "Deferred",
+      "Only the scope identifiers exist; workflows are not complete."
+    ],
+    [
+      "WhatsApp, email sending, tracking APIs",
+      "Not connected",
+      "Manual interactions/documents/movement updates only."
+    ],
+    [
+      "Production deployment / security certification",
+      "Not performed",
+      "Private review/local pilot. UAT, deployment hardening and native-stack migration still required."
+    ]
+  ]
+}

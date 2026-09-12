@@ -1,0 +1,36 @@
+{
+  "checks": [
+    {
+      "name": "Shipping dashboard renders Ref tracking, baseline/current dates and freight warning",
+      "result": "PASS"
+    },
+    {
+      "name": "User Week-36 freight benchmarks appear as five route rates",
+      "result": "PASS"
+    },
+    {
+      "name": "Actual VJ Week-36 XLSX parses in browser import preview",
+      "result": "PASS"
+    },
+    {
+      "name": "Actual VJ weekly tracking XLSX parses and shows safe Ref-match preview",
+      "result": "PASS"
+    },
+    {
+      "name": "Order shipping card shows booking/release, CI/PL, optional BL-draft and post-vessel insurance controls",
+      "result": "PASS"
+    },
+    {
+      "name": "Loaded-on-vessel record requires and displays vessel/voyage plus compliance",
+      "result": "PASS"
+    },
+    {
+      "name": "Document dashboard exposes bulk QC, pre-vessel CI/PL and post-vessel BL/insurance gates",
+      "result": "PASS"
+    }
+  ],
+  "errors": [],
+  "passed": 7,
+  "failed": 0,
+  "runtime_errors": []
+}

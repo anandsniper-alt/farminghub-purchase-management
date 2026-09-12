@@ -1,0 +1,96 @@
+{
+  "checks": [
+    {
+      "name": "Draft starts at submitted-for-approval stage",
+      "result": "PASS"
+    },
+    {
+      "name": "Issued PO exposes supplier acknowledgement as next visible stage",
+      "result": "PASS"
+    },
+    {
+      "name": "Supplier acknowledgement advances to PI received",
+      "result": "PASS"
+    },
+    {
+      "name": "PI upload advances to PI approval stage",
+      "result": "PASS"
+    },
+    {
+      "name": "PI approval advances to technical specification confirmation",
+      "result": "PASS"
+    },
+    {
+      "name": "Technical confirmation advances to artwork confirmation",
+      "result": "PASS"
+    },
+    {
+      "name": "Artwork confirmation advances to payment",
+      "result": "PASS"
+    },
+    {
+      "name": "Payment starts visible production lead-time stage",
+      "result": "PASS"
+    },
+    {
+      "name": "Sample completion advances to separate approval stage",
+      "result": "PASS"
+    },
+    {
+      "name": "Sample approval advances to bulk production start",
+      "result": "PASS"
+    },
+    {
+      "name": "Bulk start advances to bulk QC stage",
+      "result": "PASS"
+    },
+    {
+      "name": "Bulk QC advances to production completion",
+      "result": "PASS"
+    },
+    {
+      "name": "Production completion advances to container booking",
+      "result": "PASS"
+    },
+    {
+      "name": "Container booked advances to container release",
+      "result": "PASS"
+    },
+    {
+      "name": "Container release advances to China inland tracking",
+      "result": "PASS"
+    },
+    {
+      "name": "Inland update advances to visible CI/PL document stage",
+      "result": "PASS"
+    },
+    {
+      "name": "Before-shipment payment resolves and vessel loading becomes next action",
+      "result": "PASS"
+    },
+    {
+      "name": "Vessel loading advances to final BL verification",
+      "result": "PASS"
+    },
+    {
+      "name": "Final BL advances to insurance",
+      "result": "PASS"
+    },
+    {
+      "name": "Insurance completion leaves order visibly in transit until India port arrival",
+      "result": "PASS"
+    },
+    {
+      "name": "India port arrival completes the operational workflow",
+      "result": "PASS"
+    },
+    {
+      "name": "Top timeline exposes every corrected mandatory stage with no pre-dispatch QC",
+      "result": "PASS"
+    }
+  ],
+  "errors": [],
+  "passed": 22,
+  "failed": 0,
+  "runtime_errors": []
+}

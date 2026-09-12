@@ -1,0 +1,28 @@
+{
+  "checks": [
+    {
+      "name": "Supplier price list shows separate current CNY and USD prices for the same SKU",
+      "result": "PASS"
+    },
+    {
+      "name": "Revising a supplier price creates a new current revision without deleting history",
+      "result": "PASS"
+    },
+    {
+      "name": "Price history visibly retains approved and superseded revisions",
+      "result": "PASS"
+    },
+    {
+      "name": "PO auto-fills latest matching supplier price and warns but allows a manual override",
+      "result": "PASS"
+    },
+    {
+      "name": "Later supplier price revision does not rewrite an existing PO price-list snapshot",
+      "result": "PASS"
+    }
+  ],
+  "errors": [],
+  "passed": 5,
+  "failed": 0,
+  "runtime_errors": []
+}

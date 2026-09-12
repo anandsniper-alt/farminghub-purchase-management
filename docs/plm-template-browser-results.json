@@ -1,0 +1,30 @@
+{
+  "passed": 6,
+  "failed": 0,
+  "results": [
+    {
+      "name": "Detailed Power Weeder template renders",
+      "passed": true
+    },
+    {
+      "name": "Sample-derived source is identified",
+      "passed": true
+    },
+    {
+      "name": "Engine fields render",
+      "passed": true
+    },
+    {
+      "name": "Transmission fields render",
+      "passed": true
+    },
+    {
+      "name": "Blade and packing fields render",
+      "passed": true
+    },
+    {
+      "name": "Downstream metadata badges render",
+      "passed": true
+    }
+  ]
+}
