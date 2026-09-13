@@ -420,3 +420,8 @@ DEC-042 / WF-037 implements a required dated USD-to-RMB quote for cross-currency
 
 
 **DEC-043 / WF-038 release scope:** user confirmed manual supplier-agreed rate at PO creation, with controlled revisions for later changes, and requested publication. No automatic lookup is included. Live verification will be appended after deployment.
+
+
+## Manual supplier FX publication verified — 2026-09-13
+
+Runtime **a087dc45a20378cc8b400c1ff6cbbb6ae1a8fd8f** is live at https://purchase.dvjassociates.com. Coolify deployment **rqo6ohuhqrbcdiq5tybzyfup** finished and application is running:healthy. This publishes DEC-042/043 and WF-037/038, superseding their local-only/candidate status. Manual supplier-agreed USD-to-RMB rate/date are entered during PO creation; later changes use controlled revisions. No automatic lookup was published. **23 live checks passed**, including committed app/style/domain matches, health, required manual rate/date, blank invoice price before conversion, no market-fetch control, both themes, source selection, editable prices/totals and mobile layout. Business hashes, users and approval controls match the fresh baseline: **30 orders, revision 961**; no business writes occurred. Persistent volume/runtime configuration retained. Broader audit changes remain separate/unpublished. Private evidence: test-output/po-fx-live-report.json, po-fx-live-desktop.png, po-fx-live-mobile.png, po-fx-deploy-status.json.
