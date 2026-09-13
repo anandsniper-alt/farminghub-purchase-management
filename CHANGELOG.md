@@ -293,3 +293,6 @@ Added historical PO and supplier-specific PI/invoice duplicate checks, condition
 - New PO numbers equal their permanent reference; manual numbering removed from PO entry and draft edits. Supplier PI numbers remain manual.
 - Preserve legacy saved numbers and issued snapshots, skip historical collisions, retain deletion reservations, and stop on missing/mismatched automatic identity.
 - Updated DEC-056/WF-050 and native/browser coverage. Not deployed.
+
+### Published module and reference release - 2026-09-13
+Runtime 519f9fe is live: Minimal personal settings, expanded VMS, cleaner module navigation, ERP reference register, workflow/retry safeguards and automatic PO numbers. Full backup/migration rehearsal, 196 native tests and 39 live checks passed. All genuine masters and zero-order soft-launch state retained; first new PO is FH-LAE-I-PO-1. See docs/RELEASE_2026-09-13_REFERENCE_MODULES.md for scope and remaining audit boundaries.
