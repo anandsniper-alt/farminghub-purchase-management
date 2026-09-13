@@ -26,7 +26,7 @@ const delegated=false;assert.ok(!process.argv.includes('--delegated'),'Temporary
 const executiveOnly=delegated||process.argv.includes('--executive');
 assert.ok(!(managerOnly&&executiveOnly),'Select either --manager-only or --executive.');
 const scenarios=executiveOnly?[{id:delegated?'WF-DELEGATED':'WF-EXEC',title:delegated?'Purchase Executive completes all operational and approval steps':'Assigned Purchase Executive workflow under current approval policy',currency:'USD',terms:'10-20-70-bl120',quantity:15,unitPrice:100,multiple:true,shipments:[15],operator:'exec'}]:[
- {id:'WF-A',title:'Standard USD purchase, one shipment, advance and BL balance',currency:'USD',terms:'30-70',quantity:10,unitPrice:100,multiple:false,shipments:[10]},
+ {id:'WF-A',title:'Standard USD purchase, one shipment, advance and BL balance',currency:'USD',priceListCurrency:'CNY',terms:'30-70',quantity:10,unitPrice:100,multiple:false,shipments:[10]},
  {id:'WF-B',title:'CNY purchase, multiple attachments, advance/shipment/BL payments',currency:'CNY',terms:'10-20-70-bl120',quantity:20,unitPrice:100,multiple:true,shipments:[20]},
  {id:'WF-C',title:'USD credit purchase, two partial shipments and separate settlement',currency:'USD',terms:'credit60',quantity:12,unitPrice:100,multiple:true,shipments:[5,7]}
 ];
@@ -83,7 +83,7 @@ async function recordManagerBoundary(){
 async function workflow(config){
  current={...config,checks:[],roles:new Set(),paymentSerial:0,status:'RUNNING'};report.workflows.push(current);console.log('START '+current.id+' '+current.title);
  await page.goto(origin+'/#/orders');await login(managerOnly?'manager':'exec');await action('Create purchase order');
- await select('vendorId','vendor-v30');await select('buyerId','u-exec');await select('priceListCurrency',config.currency);await select('currency',config.currency);await select('base-0','base-bs20');await fill('qty-0-GJ',config.quantity);await fill('baseprice-0',config.unitPrice);await select('terms',config.terms);await fill('planningTat','75');await fill('number',current.id+'-TEST');
+ await select('vendorId','vendor-v30');await select('buyerId','u-exec');await select('priceListCurrency',config.priceListCurrency||config.currency);await select('currency',config.currency);if(config.priceListCurrency&&config.priceListCurrency!==config.currency){await fill('priceListFxRate','7.2');await fill('priceListFxDate',new Date().toISOString().slice(0,10));}await select('base-0','base-bs20');await fill('qty-0-GJ',config.quantity);await fill('baseprice-0',config.unitPrice);await select('terms',config.terms);await fill('planningTat','75');await fill('number',current.id+'-TEST');
  if(await page.locator('[name=productionOverrideReason]').count())await fill('productionOverrideReason','Isolated test product commitment.');
  await fill('notes','ISOLATED BROWSER TEST. No real purchase or payment.');await submit();check('Draft created from Base Item and brand quantity',order().lines.length===1);
  await action('Submit for approval');check(managerOnly?'Purchase Manager can approve submitted PO':'Executive PO approval visibility follows the current policy',!!await page.getByRole('button',{name:'Approve & issue',exact:true}).count()===managerOnly);

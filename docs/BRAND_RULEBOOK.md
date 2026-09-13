@@ -221,3 +221,8 @@ Preserve existing step markers, green/lime colors, labels and horizontal timelin
 ## PO item worksheet — DEC-041 (2026-09-13)
 
 **MODULE-SPECIFIC:** reuse current fonts, colors, controls and icons. PO dialog max width 1320px, 245px supplier catalogue beside compact worksheet; at 1050px and below stack the catalogue above the internally scrolling grid. Visible quantity/rate headings, accessible cell labels and price warnings remain in both themes. Version/price references and commercial terms use existing native details/summary behavior. No global redesign.
+
+
+## PO exchange-rate prompt — DEC-042
+
+Keep the current worksheet, fonts, colors and controls. Show **Supplier price-list currency**, **PO / invoice currency**, required **USD to RMB**, and **Exchange rate date** above item rows. Use the brief hint **1 USD = this many RMB. Enter the current rate.** Display RMB for the CNY selector value. Catalogue prices remain in source currency; row rate/amounts use invoice currency. Retain visible conversion/override warnings and existing mobile form stacking. No automatic provider or live-rate badge is implied.

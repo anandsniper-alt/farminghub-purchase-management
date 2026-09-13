@@ -15,7 +15,7 @@ function buildDraft(state,{withApprovedSpec=false}={}){
   const price=currentApprovedPrice(state,vendor.id,base.id,vendor.defaultPriceListCurrency||'USD','2026-09-12');
   const route=state.routes[0];
   return {base,item,vendor,price,route,payload:{
-    number:'PLM-BYPASS-001',vendorId:vendor.id,buyerId:'u-exec',currency:vendor.defaultBillingCurrency||'USD',priceListCurrency:vendor.defaultPriceListCurrency||'USD',paymentMethod:vendor.defaultPaymentMethod||'TT',requestedPortDate:'2026-12-20',routeId:route.id,productionDays:base.productionDays,planningTat:90,paymentTerms:structuredClone(state.paymentTerms?.find?.(t=>t.id===vendor.defaultTerms)||undefined),costCenter:'Tamil Nadu',channel:'B2B',warehouse:'',productionOverrideReason:'',demandReference:'',followupFrequency:1,notes:'',lines:[{itemId:item.id,quantity:10,unitPrice:(price?.unitPriceMinor||1400)/100,specId:null,artworkNotes:''}]
+    priceListFxRate:'7.2',priceListFxDate:'2026-09-12',number:'PLM-BYPASS-001',vendorId:vendor.id,buyerId:'u-exec',currency:vendor.defaultBillingCurrency||'USD',priceListCurrency:vendor.defaultPriceListCurrency||'USD',paymentMethod:vendor.defaultPaymentMethod||'TT',requestedPortDate:'2026-12-20',routeId:route.id,productionDays:base.productionDays,planningTat:90,paymentTerms:structuredClone(state.paymentTerms?.find?.(t=>t.id===vendor.defaultTerms)||undefined),costCenter:'Tamil Nadu',channel:'B2B',warehouse:'',productionOverrideReason:'',demandReference:'',followupFrequency:1,notes:'',lines:[{itemId:item.id,quantity:10,unitPrice:(price?.unitPriceMinor||1400)/100,specId:null,artworkNotes:''}]
   }};
 }
 

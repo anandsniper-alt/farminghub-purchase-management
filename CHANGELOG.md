@@ -208,3 +208,11 @@ Released f5d5514 to the existing Coolify website. Bug fixes and Manager setup/im
 - Native Tab, numeric Enter and vertical navigation; live totals; expandable commercial and technical details.
 - Retain production calculations, authorization and data schema; keep broader audit trial separate.
 - Verified 135 native tests, 37 worksheet checks and three complete configured Manager workflows (55 checks).
+
+
+## 2026-09-13 — USD/RMB purchase price correction (local)
+
+- Require a dated USD-to-RMB quote when list and invoice currencies differ; divide RMB lists into USD unit prices.
+- Retain source currency/price, quote and converted reference; preserve manual overrides and issued snapshots.
+- Restore and recalculate matched draft prices; block missing/invalid FX through shared rules and existing API commands.
+- Preserve same-currency entry and separate bank remittance/reference rates. Not published.

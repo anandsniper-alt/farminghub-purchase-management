@@ -272,3 +272,8 @@ Use existing master save validation for new vendor/price imports. One source fil
 ## PO worksheet release — DEC-041 / WF-036
 
 **MODULE-SPECIFIC RULE:** create/edit PO drafts use the searchable supplier catalogue and compact item worksheet. Reuse current price lookup and shared validation. Catalogue Add and direct row selection use existing production-reference behavior. Preserve brand expansion, explicit planning TAT, price override warnings, specification selection and Save draft commands. Tab is native; numeric Enter advances cells, Up/Down moves between rows; search Enter only adds an item. Terms remain available in expandable details. No audit-trial FX, draft recovery, security policy or database migration is part of this UI release.
+
+
+## USD/RMB PO pricing — DEC-042 / WF-037
+
+**MODULE-SPECIFIC RULE:** supplier list prices retain their source currency. New USD/RMB conversions use one explicit quote, **1 USD = X RMB**, with positive rate (up to six decimals) and valid date. RMB-to-USD divides by this quote; USD-to-RMB multiplies by it. Use priceListInvoiceMinor for conversion and variance; round to invoice minor units once before quantity extension. Missing FX blocks cross-currency create/edit/submit/issue, including direct API calls. The worksheet leaves automatic invoice prices blank until a valid conversion is available. Same-currency prices need no rate. Preserve manual price overrides with warnings, historical direct-quote interpretation and immutable issued snapshots. Never substitute optional BOC remittance reference or mutate the supplier list. This supersedes the earlier direct-direction USD/RMB input convention, not unrelated audit policies.
