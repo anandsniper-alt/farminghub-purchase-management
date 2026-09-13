@@ -256,3 +256,7 @@ DEC-047: audited the restored candidate without changing runtime code or live da
 - Grouped existing purchase tools under LAE Import; LAE Domestic, Utility Division and Implements Division are clearly Pending development.
 - Reduced redundant header controls; preserved deep links, Minimal, per-login guides and mascot.
 - Verified 76 layout + 39 core VMS + 53 parity browser checks. Unpublished; pending VMS audit workflow repairs are outside this navigation change.
+
+
+### Local sidebar spacing fix - 2026-09-13
+Prevent expanded master navigation overlapping the bottom menu; retain section height and scroll the sidebar on short screens. Five viewport checks and 76 layout regression checks passed.

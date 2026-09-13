@@ -464,3 +464,7 @@ The aed1a0a candidate passed its 169 native and 92 browser regression checks aga
 
 ## Local cleaner module layout - 2026-09-13, DEC-048 / WF-042
 Implemented on feature/clean-module-layout, based on the audited twelve-module VMS candidate. Unpublished. Preview: http://127.0.0.1:8138/#/home . Default home now has Order Management and Vendor Management System. Order Management opens four divisions; LAE Import retains Overview, Order pipeline, Tasks & follow-ups, Payments, Shipping & freight, QC & documents, Vendor master, Item master, Supplier price lists and Product Lifecycle. Other divisions have Pending development pages. VMS retains all twelve sections in its own sidebar. Shared Users & settings, version history, personal guides and persistent mascot remain. Old routes work; no domain/API command, permission, financial or data-model changes. New public navigation asset is included in native server and review build. 76 layout checks plus 39 core VMS and 53 parity browser checks passed in isolated authenticated/review modes. See MODULE_LAYOUT_TEST_REPORT.md. Pending VMS audit business/workflow repairs remain pending; the VMS guide's obsolete navigation target/copy was updated for this layout only.
+
+
+### Local sidebar overlap fix - 2026-09-13
+Corrected expanded Master data & products overlapping All divisions / Modules on shorter screens. Sidebar children retain their height and the existing outer sidebar scrolls. No navigation or business behavior changed. Five viewport checks and all 76 server/review layout checks passed. Unpublished.

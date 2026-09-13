@@ -413,3 +413,7 @@ Full reproductions and proposed corrections are in VMS_WORKFLOW_AUDIT.md. No rul
 
 ## Cleaner navigation learnings - DEC-048
 Mixing all purchasing and twelve VMS links makes the sidebar difficult to scan. A module home and contextual sidebar reduce simultaneous choices without removing tools. web/navigation.mjs owns presentation grouping; existing hash routes, domain scopes and authorization remain separate and authoritative. The native server static allowlist and standalone build module list must both include new ESM files. Preserve old order/product deep links when regrouping navigation. Native details supports compact master navigation without a new component library. Breadcrumb text includes line breaks: browser assertions must normalize whitespace or match across it. Navigation verification compared isolated server state before/after and found no business mutations; operational VMS regressions ran separately. Historical audit findings are not resolved merely because navigation tests pass.
+
+
+### DEC-048 sidebar overflow correction
+A flex-column sidebar allowed its module navigation to shrink below its expanded contents because min-height:0 was applied. Links overflowed into the footer and intercepted clicks. Keep direct sidebar children non-shrinking and use the existing sidebar overflow-y:auto. Test expanded menus at short viewport heights, not only full-height desktop screenshots.

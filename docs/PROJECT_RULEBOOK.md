@@ -323,3 +323,6 @@ VMS_WORKFLOW_AUDIT.md records confirmed defects and proposed policy changes agai
 
 ## GLOBAL RULE - Module hierarchy (DEC-048 / WF-042)
 The default workspace has two main areas: Order Management and Vendor Management System. Order Management contains LAE Import (all existing purchase tools), LAE Domestic, Utility Division and Implements Division. The latter three are Pending development, with informational pages only. Show only the current area's tools in its sidebar. LAE Import keeps the six daily-work links and a collapsible Master data & products group; shared account settings and version history remain accessible. Preserve existing deep links, scopes and server authorization. Do not interpret a division card as permission to create data for that division. Supersedes the mixed Purchase/VMS sidebar portion of DEC-046; personal Minimal preferences from DEC-045 remain. This is a confirmed user-requested navigation change, not approval of pending VMS audit workflow proposals.
+
+
+**GLOBAL RULE - DEC-048 sidebar sizing correction:** Sidebar sections must retain their content height. When the menu exceeds the viewport, scroll the sidebar; do not compress a section so its links overlap the shared footer.

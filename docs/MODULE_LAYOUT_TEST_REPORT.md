@@ -24,3 +24,7 @@ Run node scripts/build.mjs, then scripts/test-module-layout-browser.mjs, scripts
 ## Limits
 
 This verifies the local candidate, not live deployment. Previously documented VMS working-model defects and unapproved workflow changes remain open. This navigation change does not claim to repair visit-history/queue policies. Review preview: http://127.0.0.1:8138/#/home .
+
+
+## Sidebar overlap follow-up - 2026-09-13
+Reproduced footer links intercepting the master-group toggle on short screens. Changed sidebar child flex shrinking only and rebuilt the review. Verified the expanded group at 1440x1000, 1366x768, 1024x600, 800x500 and 390x600: 22px gap between All divisions and the footer, no navigation-content overflow, and bottom link reachable by normal hit-testing after scrolling. Inspected the 800x500 screenshot. Reran all 76 layout checks in authenticated server and standalone review modes successfully. No live deployment.
