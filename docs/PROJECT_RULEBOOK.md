@@ -335,3 +335,6 @@ The default workspace has two main areas: Order Management and Vendor Management
 
 
 **GLOBAL data-history rule - DEC-051:** The one-time live reset preserves serial high-water mark 31 and genuine masters. Archived test data stays outside active screens; do not reseed it or reset counters during later deployment. This reset is not a reusable permission to purge production transactions. Recovery must protect business writes made after the reset.
+
+
+**MODULE-SPECIFIC EXCEPTION - DEC-052 (2026-09-13):** User explicitly restarted the empty post-cleanup live PO sequence at 1. This supersedes DEC-051's retained counter 31 for this one operation. Subsequent serial allocation remains monotonic; deletions leave gaps. Archived test serials are a separate historical dataset and must not be merged back without collision reconciliation.

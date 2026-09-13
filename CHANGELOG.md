@@ -272,3 +272,7 @@ Replaced top module buttons with a bottom Modules selector. Choose Order Managem
 
 ### Live data reset - 2026-09-13
 Cleared operational POs/payments/complaints and confirmed QA-only creations after a full backup and restored-copy drill. Genuine masters/accounts/approval settings preserved. Next PO serial remains 31. Original records/evidence/audit archived; no application code deployed. See docs/SOFT_LAUNCH_RESET_REPORT.md.
+
+
+### Live - Restart fresh-launch PO numbering at 1
+Applied the user's one-time counter reset to the empty live workspace. Backup and audit retained; all other data unchanged. DEC-052 / WF-046 supersede the earlier next-serial-31 reset result.

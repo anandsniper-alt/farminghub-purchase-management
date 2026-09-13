@@ -425,3 +425,7 @@ A native select preselected to the current module cannot emit change when that s
 
 ### DEC-051 reset learnings
 DELETE_ORDERS hides POs from active operations but the remittance register uses recordOrders and retains associated payments. A clean operational reset requires an explicit maintenance scope. Use full consistent SQLite backup (not bootstrap JSON alone), rehearse on a restored copy, guard exact revision/hash, retain protected audit/evidence and archive original state atomically. API scoped audit views can omit events for removed entities even while original SQLite audit rows remain intact; verify preservation at storage level. Never infer that changing a page count alone proves a complete reset.
+
+
+### DEC-052 numbering reset boundary
+After moving all test orders outside active workspace, the existing allocator accepts nextOrderSerial=1 and increments on the next real creation. Do not create a dummy PO merely to verify a cleaned live counter. Verify bootstrap and allocator normalization, require an empty workspace and exact-state guard, retain backup/audit, and document archive/live serial collisions for future recovery.

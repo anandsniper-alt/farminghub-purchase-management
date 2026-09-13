@@ -36,3 +36,7 @@ Next PO serial remains 31, following the user's never-reuse/never-renumber decis
 - Genuine master rows and configuration compare exactly with pre-reset values.
 
 This completes the requested data cleanup. It does not resolve the separate audit/backup automation findings or publish the local module-dropdown UI candidate.
+
+
+## User-requested serial restart - DEC-052, 2026-09-13
+Supersedes the earlier next-serial-31 result: live next PO serial is now **1**, at revision 969. Confirmed zero orders before the guarded transaction, retained an additional consistent backup and appended ORDER_SERIAL_RESTARTED. All other state collections unchanged; database integrity passed and authenticated live bootstrap confirmed the result. No test PO was created. Archived historical serials remain unchanged; future recovery must reconcile overlap with launch numbering. Subsequent deletions still leave serial gaps.

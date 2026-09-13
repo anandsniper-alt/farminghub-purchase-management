@@ -480,3 +480,7 @@ Replaced top module buttons and Modules footer link with one bottom dropdown. Or
 
 ### Live data reset completed - 2026-09-13, DEC-051 / WF-045
 Revision 968: zero orders, remittances and complaints. Retained 37 genuine vendors, 129 bases, 387 items, 106 genuine price records, 98 freight rates and all three accounts. Explicit QA-only master additions and transactional records archived following full-backup/recovery drill. Next serial 31; no renumbering. Evidence BLOBs and original audit retained. See SOFT_LAUNCH_RESET_REPORT.md. This is a live data operation, not publication of the local layout/dropdown candidate or closure of remaining audit findings.
+
+
+### Live next PO serial is 1 - DEC-052 / WF-046
+2026-09-13, revision 969: user-requested one-time serial restart applied after confirming zero orders. Live bootstrap verifies nextOrderSerial=1. All other collections, masters, accounts and archived historical records unchanged. Consistent backup and audit event retained. This supersedes the preceding next-serial-31 baseline.
