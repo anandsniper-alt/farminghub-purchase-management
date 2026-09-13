@@ -488,3 +488,7 @@ Revision 968: zero orders, remittances and complaints. Retained 37 genuine vendo
 
 ### DEC-053 / WF-047 - ERP/Tally reference foundation (local only)
 feature/erp-reference-foundation adds permanent references across 15 supported record types, backed-up initialization, immutable counter/namespace protection, scoped register, Admin manual ERP/Tally company mapping and read-only common JSON export. PO/item/base/vendor/payment/complaint surfaces expose compact references; issued records/calculations unchanged. Tally is the accounting base behind the intended ERP frontend. No live release, connector, push/pull, voucher posting or external-ID correction workflow. See ERP_REFERENCE_FOUNDATION.md and ERP_REFERENCE_TEST_REPORT.md. Earlier live reset/serial baseline remains unchanged.
+
+
+## Reference format update - DEC-054 / WF-048
+New LAE Import PO references use FH-LAE-I-PO-1, then FH-LAE-I-PO-2. All newly allocated software references use unpadded positive integers. Already-assigned references retain their exact text and ERP integration keys, including padded or generic PO forms. Counters remain monotonic per record type across formats and divisions; no renumbering or reuse. Local candidate only.

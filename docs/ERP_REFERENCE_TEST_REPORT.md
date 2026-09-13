@@ -13,3 +13,6 @@ Limits: no live rollout, no real Tally company or ERP endpoint tested, no synchr
 ## Final release checkpoint
 
 Full native suite: 177 passed, 0 failed. Module-layout browser suite: 80 passed, no runtime errors or business-state mutations. Reference browser suite: 22 passed. Review build generated successfully and git diff whitespace checks passed. Candidate remains local on feature/erp-reference-foundation.
+
+## DEC-054 format verification
+Nine focused native tests and 22 browser checks passed after adding LAE-I for new import POs and removing numeric padding. Legacy assigned references, counter continuity, other divisions, exported keys, server/review display and substring search verified. Review build regenerated; no deployment.

@@ -433,3 +433,7 @@ After moving all test orders outside active workspace, the existing allocator ac
 
 ### DEC-053 - Durable integration identity
 Display serials can overlap archived test data after an explicit launch restart; they cannot identify records across systems. A sidecar registry preserves original IDs and issued snapshots while reserving deleted numbers. Parent identity is necessary for nested IDs that can recur across orders. Store-boundary validation covers writes outside ordinary domain creation, including files. Scoped bootstrap must filter registry entries/links as well as business rows. Snapshot exports describe current records, not a durable outbound event stream; do not claim exactly-once sync from manual-link retry deduplication. Tally/company metadata alone does not prove accounting has been posted.
+
+
+## Reference format update - DEC-054 / WF-048
+New LAE Import PO references use FH-LAE-I-PO-1, then FH-LAE-I-PO-2. All newly allocated software references use unpadded positive integers. Already-assigned references retain their exact text and ERP integration keys, including padded or generic PO forms. Counters remain monotonic per record type across formats and divisions; no renumbering or reuse. Local candidate only.

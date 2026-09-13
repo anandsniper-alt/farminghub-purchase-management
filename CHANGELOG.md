@@ -280,3 +280,7 @@ Applied the user's one-time counter reset to the empty live workspace. Backup an
 
 ## Local candidate - Permanent references and ERP/Tally preparation (2026-09-13)
 Added typed permanent software references, backed-up registry initialization, scoped reference register, Admin company-specific ERP/Tally links and common read-only JSON export. Existing business codes, display serials, calculations and issued snapshots preserved. Tally is accounting base; no connector/posting or live deployment. DEC-053 / WF-047; verification in docs/ERP_REFERENCE_TEST_REPORT.md.
+
+
+### Local reference format refinement
+LAE Import POs now allocate FH-LAE-I-PO-1 style references. All new reference suffixes omit zero padding; existing assignments and mappings remain permanent. DEC-054 / WF-048.

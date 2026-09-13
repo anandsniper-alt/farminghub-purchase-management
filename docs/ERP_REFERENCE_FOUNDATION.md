@@ -8,23 +8,23 @@ Existing internal IDs, editable PO numbers, supplier PI/invoice numbers, item co
 
 | Record | Prefix | Example |
 |---|---|---|
-| Purchase order | PO | FH-PO-000001 |
-| Vendor | VEN | FH-VEN-000001 |
-| Base product | BAS | FH-BAS-000001 |
-| Item / ERP variant | ITM | FH-ITM-000001 |
-| Supplier price record | PRC | FH-PRC-000001 |
-| Payment | PAY | FH-PAY-000001 |
-| Complaint | CMP | FH-CMP-000001 |
-| Uploaded file | DOC | FH-DOC-000001 |
-| Order cost | CST | FH-CST-000001 |
-| Shipment | SHP | FH-SHP-000001 |
-| PO line | POL | FH-POL-000001 |
-| Payment allocation | PAL | FH-PAL-000001 |
-| Order task | TSK | FH-TSK-000001 |
-| Vendor interaction / visit | VIS | FH-VIS-000001 |
-| Vendor sample | SMP | FH-SMP-000001 |
+| LAE Import purchase order | LAE-I-PO | FH-LAE-I-PO-1 |
+| Vendor | VEN | FH-VEN-1 |
+| Base product | BAS | FH-BAS-1 |
+| Item / ERP variant | ITM | FH-ITM-1 |
+| Supplier price record | PRC | FH-PRC-1 |
+| Payment | PAY | FH-PAY-1 |
+| Complaint | CMP | FH-CMP-1 |
+| Uploaded file | DOC | FH-DOC-1 |
+| Order cost | CST | FH-CST-1 |
+| Shipment | SHP | FH-SHP-1 |
+| PO line | POL | FH-POL-1 |
+| Payment allocation | PAL | FH-PAL-1 |
+| Order task | TSK | FH-TSK-1 |
+| Vendor interaction / visit | VIS | FH-VIS-1 |
+| Vendor sample | SMP | FH-SMP-1 |
 
-Examples are illustrative. Each type has an independent monotonic counter, padded to at least six digits. Numbers are reserved permanently; deletion, sorting, code changes and the display-serial restart in DEC-052 cannot reuse them. Existing records receive references in stored collection order on first initialization, not inferred historical chronological order. Only records with their own string ID are covered; embedded PI snapshots, approval events, catalogue values and CRM document-link wrappers do not acquire fabricated IDs. Uploaded files have DOC references.
+Examples are illustrative. Each type has an independent monotonic counter, without leading zeros for new assignments. Numbers are reserved permanently; deletion, sorting, code changes and the display-serial restart in DEC-052 cannot reuse them. Existing records receive references in stored collection order on first initialization, not inferred historical chronological order. Only records with their own string ID are covered; embedded PI snapshots, approval events, catalogue values and CRM document-link wrappers do not acquire fabricated IDs. Uploaded files have DOC references.
 
 `shared/references.mjs` is authoritative. The sidecar `state.recordReferences` stores version, workspace UUID namespace, per-type next counters, immutable entries and external links. It does not modify business records or issued snapshots. Nested identities include their parent type and ID. The external integration key is `<workspaceNamespace>:<softwareReference>`; the internal `recordKey` is a JSON tuple `[type,parentType,parentId,id]`. Readable references alone are not globally unique across independent installations.
 
@@ -51,3 +51,6 @@ This JSON is Farming Hub's common format. It is not directly importable Tally XM
 ## Required before actual push/pull
 
 Agree the ERP API/transport, Tally version/company keys and responsibility for each record/field. Tally remains accounting authority; recording a Purchase payment does not itself create a Tally voucher. Map ledgers, stock items, units, currencies, tax treatment and voucher types explicitly. Define approval/issuance triggers, durable outbound events, idempotency, acknowledgements, retry/reconciliation, incoming validation/permissions, conflicts, deletions and reversal handling. Use scoped service authentication with protected server credentials. Test against an isolated company first. No sync service, scheduling, outbox, incoming import endpoint or accounting posting is implemented here.
+
+## Format refinement - DEC-054 / WF-048
+New LAE Import PO references use FH-LAE-I-PO-1, then FH-LAE-I-PO-2. All newly allocated software references use unpadded positive integers. Already-assigned references retain their exact text and ERP integration keys, including padded or generic PO forms. Counters remain monotonic per record type across formats and divisions; no renumbering or reuse.
