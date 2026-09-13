@@ -223,3 +223,12 @@ Released f5d5514 to the existing Coolify website. Bug fixes and Manager setup/im
 - Added Vendor Management (VMS) with shared Purchase login/vendor identity, multiple contacts, sourcing catalogues/expos, ratings, samples, interactions, follow-ups, private files, coverage and CSV views.
 - Kept primary contact/location edits synchronized with Vendor master; existing PO/financial/approval behavior and issued history retained.
 - Added server/domain and desktop/mobile server/review tests, source capability mapping and persistent memory. Local feature only; no live deployment or historical external VMS migration.
+
+
+## VMS live publication — 2026-09-13
+
+The user explicitly requested publication of the reviewed VMS integration. Runtime **6a2a366afb01aef313c1aeed366d8eff7b1edcdb** is live at https://purchase.dvjassociates.com/#/vms through Coolify deployment **cjiv0ehnqmoajlkidfy84gfb** (finished; running:healthy). This publishes DEC-044 / WF-039 and supersedes their local-only status. Existing domain, port, single application instance, environment and /app/data persistent volume retained; no historical VMS import, role rewrite or startup CRM seed. Broader audit-trial changes remain separate.
+
+**36 live checks passed**, covering committed app/VMS/domain/styles/guide assets, health, existing login, all VMS tabs, legacy supplier profile, creation/evaluation/sample/interaction/document forms opened and cancelled, multiple-file input, linked purchase history, Current/Minimal/mobile, mascot guidance, existing vendor master and PO pipeline. Zero browser runtime errors or business-write requests. All 32 saved state sections match the fresh predeployment fingerprint: **30 orders, revision 961**, including vendors, users, files, events, payments and approval controls. Isolated release validation already passed 156 native tests and 41 browser checks.
+
+Use **Libraries → Vendor Management (VMS)** with the existing Purchase login. Core CRM is live; source-only historical data and unported offline/voice/PWA/export/geography tools remain outside this release as documented in VMS_MODULE.md. Private verification files remain ignored under test-output.

@@ -41,3 +41,12 @@ node scripts/preview-vms.mjs
 The browser runner accepts FH_PLAYWRIGHT_MODULE, FH_CHROME_PATH and FH_TEST_OUTPUT_ROOT. The preview binds only to 127.0.0.1:8138, serves the standalone review and has no live API or database. It starts in the Purchase Manager review role; the role selector is simulation, not live authentication. Keep this origin separate from other trial builds so browser data stays isolated. Closing/restarting the preview does not deploy anything.
 
 See [VMS module and capability map](VMS_MODULE.md), DEC-044 and WF-039 for the integration boundaries.
+
+
+## VMS live publication — 2026-09-13
+
+The user explicitly requested publication of the reviewed VMS integration. Runtime **6a2a366afb01aef313c1aeed366d8eff7b1edcdb** is live at https://purchase.dvjassociates.com/#/vms through Coolify deployment **cjiv0ehnqmoajlkidfy84gfb** (finished; running:healthy). This publishes DEC-044 / WF-039 and supersedes their local-only status. Existing domain, port, single application instance, environment and /app/data persistent volume retained; no historical VMS import, role rewrite or startup CRM seed. Broader audit-trial changes remain separate.
+
+**36 live checks passed**, covering committed app/VMS/domain/styles/guide assets, health, existing login, all VMS tabs, legacy supplier profile, creation/evaluation/sample/interaction/document forms opened and cancelled, multiple-file input, linked purchase history, Current/Minimal/mobile, mascot guidance, existing vendor master and PO pipeline. Zero browser runtime errors or business-write requests. All 32 saved state sections match the fresh predeployment fingerprint: **30 orders, revision 961**, including vendors, users, files, events, payments and approval controls. Isolated release validation already passed 156 native tests and 41 browser checks.
+
+Use **Libraries → Vendor Management (VMS)** with the existing Purchase login. Core CRM is live; source-only historical data and unported offline/voice/PWA/export/geography tools remain outside this release as documented in VMS_MODULE.md. Private verification files remain ignored under test-output.

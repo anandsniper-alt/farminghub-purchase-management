@@ -291,3 +291,6 @@ Reuse native roles, scope checks, command revisions, protected files and append-
 Keep VMS_CRITERIA, vmsEvaluation, vmsFollowups and vmsConcentration as shared sources of truth. Product coverage and stage-filtered component coverage intentionally have different risk thresholds inherited from source; never conflate their counts or treat equal-share estimates as real spend. Classify this as module exception VMS-EX-01, observed source behavior preserved under DEC-044 (2026-09-13). Keep CRM samples separate from order production sample gates, and CRM follow-ups separate from PO tasks. See VMS_MODULE.md for formula, rounding, units, examples and missing-source features.
 
 **GLOBAL preservation rule:** no last-write-wins offline replay, new authentication store, live migration or source-stack deployment follows from integrating a UI module. Preserve existing conflicting-edit protection and issued history. The current implementation is a local feature build until explicitly published.
+
+
+**DEC-044 / WF-039 publication:** user-approved VMS integration is now live (2026-09-13); its earlier local-only release boundary is superseded. Preserve the established VMS identity, scope, permissions and calculation rules. Historical data migration and unported source features remain outside the release. See the current baseline for verified runtime and deployment.
