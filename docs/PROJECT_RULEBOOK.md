@@ -280,3 +280,14 @@ Use existing master save validation for new vendor/price imports. One source fil
 
 
 **MODULE-SPECIFIC RULE — DEC-043 / WF-038:** the USD-to-RMB rate is the supplier-agreed quote for that PO/PI. Enter it manually at PO creation and record its date. Later changes use a controlled PO revision. Do not automatically fetch/apply market rates or reprice existing records.
+
+
+## VMS integration — DEC-044 / WF-039
+
+**MODULE-SPECIFIC RULE:** VMS extends the existing LAE Import supplier record. Do not create a parallel vendor or account master. Company name/code/ID remain Purchase identity; the first CRM contact maps to existing contact/email/phone/WeChat and location fields. Both editing paths must synchronize these fields while retaining secondary contacts. Source instructions, seeds and legacy role aliases are reference only.
+
+Reuse native roles, scope checks, command revisions, protected files and append-only audit. Managers maintain CRM profiles/evaluation/samples/catalogues. Executives may record interactions/evidence and update their own or assigned follow-ups. Viewers remain read-only. No CRM grade, sourcing stage or sample approval grants purchase eligibility or order approval. No extra September delegation or permission-policy edit is introduced.
+
+Keep VMS_CRITERIA, vmsEvaluation, vmsFollowups and vmsConcentration as shared sources of truth. Product coverage and stage-filtered component coverage intentionally have different risk thresholds inherited from source; never conflate their counts or treat equal-share estimates as real spend. Classify this as module exception VMS-EX-01, observed source behavior preserved under DEC-044 (2026-09-13). Keep CRM samples separate from order production sample gates, and CRM follow-ups separate from PO tasks. See VMS_MODULE.md for formula, rounding, units, examples and missing-source features.
+
+**GLOBAL preservation rule:** no last-write-wins offline replay, new authentication store, live migration or source-stack deployment follows from integrating a UI module. Preserve existing conflicting-edit protection and issued history. The current implementation is a local feature build until explicitly published.

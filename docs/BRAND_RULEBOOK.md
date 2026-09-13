@@ -226,3 +226,8 @@ Preserve existing step markers, green/lime colors, labels and horizontal timelin
 ## PO exchange-rate prompt — DEC-042
 
 Keep the current worksheet, fonts, colors and controls. Show **Supplier price-list currency**, **PO / invoice currency**, required **USD to RMB**, and **Exchange rate date** above item rows. Use the brief hint **1 USD = this many RMB. Enter the current rate.** Display RMB for the CNY selector value. Catalogue prices remain in source currency; row rate/amounts use invoice currency. Retain visible conversion/override warnings and existing mobile form stacking. No automatic provider or live-rate badge is implied.
+
+
+## VMS module presentation — 2026-09-13
+
+DEC-044 reuses the native sidebar, green/lime palette, Current/Minimal themes, page guides, typography, KPI cards, table overflow, buttons and labelled shared dialogs. Libraries → Vendor Management (VMS) leads to Overview, Vendors, Follow-ups, Sourcing risk and Catalogues. Profile controls use existing manager/operational permissions. Add contacts as repeated native form rows; company and contact labels stay distinct. Rating breakdown remains available to readers. No source React UI kit, new font/logo/color tokens or alternative modal system. Scoped VMS spacing classes must not restyle other modules. Mascot guidance is authored and read-only; it does not submit or approve.

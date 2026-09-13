@@ -216,3 +216,10 @@ Released f5d5514 to the existing Coolify website. Bug fixes and Manager setup/im
 - Retain source currency/price, quote and converted reference; preserve manual overrides and issued snapshots.
 - Restore and recalculate matched draft prices; block missing/invalid FX through shared rules and existing API commands.
 - Preserve same-currency entry and separate bank remittance/reference rates. Not published.
+
+
+## Unreleased — native VMS module
+
+- Added Vendor Management (VMS) with shared Purchase login/vendor identity, multiple contacts, sourcing catalogues/expos, ratings, samples, interactions, follow-ups, private files, coverage and CSV views.
+- Kept primary contact/location edits synchronized with Vendor master; existing PO/financial/approval behavior and issued history retained.
+- Added server/domain and desktop/mobile server/review tests, source capability mapping and persistent memory. Local feature only; no live deployment or historical external VMS migration.

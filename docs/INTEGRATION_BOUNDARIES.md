@@ -18,3 +18,10 @@
 Confirm the native VMS repository and runtime first. Preserve real vendor/user identifiers. Define the vendor-code convention supplied by the user rather than infer it from names. Implement one authoritative write path for VMS-controlled fields, and division-aware read access. Link a stable VMS vendor identifier to each base SKU. Purchase communications remain order-owned; read prior VMS interactions without copying or recreating follow-up obligations. Keep transactional FX independent of the current-rate lookup.
 
 Map shared business commands to the chosen authenticated VMS adapter. Replace the local workspace JSON persistence with reviewed PostgreSQL/Prisma entities and migrations. Carry order revisions, artwork references, payment allocations, shipment quantities and audit entries without altering issued history. Validate migration with record counts, balances, file hashes and sample printed POs. No SQL migration or finalized production schema is included in this alpha.
+
+
+## Native VMS feature integration — DEC-044, 2026-09-13
+
+The user confirmed adapting VMS into Purchase with one login and shared vendor records. Core CRM is now implemented locally on the native architecture; this supersedes the earlier planned PostgreSQL replacement as the approach for this feature. The recovered React/Express/Prisma tree remains reference-only and unchanged. New CRM writes use the existing Purchase supplier ID, transactions and file storage. Source company/contact fields are explicitly mapped and primary contacts synchronized.
+
+This source integration does not migrate or synchronize a separate live VMS database, users or historic files, and does not establish competing live writers. No source-stack server, source seed or external account store was started. Only a separately approved publication/migration may change live integration ownership. ERP and PO/financial boundaries above remain. Capability differences and preserved formulas are listed in VMS_MODULE.md.
