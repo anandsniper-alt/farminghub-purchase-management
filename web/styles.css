@@ -205,3 +205,7 @@ table tbody tr:hover{background:#fcfdf6}.code-link{color:var(--fh-green)}
 .vms-contact{padding:16px 0;border-bottom:1px solid var(--line);margin-bottom:12px}.vms-check{display:block;margin:8px 0}.vms-check input{width:auto}.vms-wrap{white-space:pre-wrap;overflow-wrap:anywhere;max-width:480px}.vms-tabs{display:flex;flex-wrap:wrap;gap:8px}.vms-profile-facts{padding:20px}.vms-profile-facts b{display:block;margin-top:12px;margin-bottom:5px}.vms-profile-facts p{line-height:1.6}.vms-evaluation-details{padding:12px 20px}.vms-evaluation-details summary{cursor:pointer}
 
 .vms-table table{min-width:640px}
+
+/* VMS modules retain the Purchase shell and Minimal controls. */
+.vms-nav{display:grid;gap:2px;padding:0 12px 12px 26px}.vms-nav .button{justify-content:flex-start;font-size:12px;padding:7px 10px;text-align:left;white-space:normal}.vms-module-toolbar{justify-content:space-between}.vms-module-toolbar .field{max-width:300px}.vms-wrap{white-space:pre-wrap;overflow-wrap:anywhere;max-width:420px}.vms-table progress{accent-color:var(--green,#204321);max-width:100%;width:180px}.vms-table pre{max-width:250px}
+.vms-nav .button{color:#e0e6d8;background:transparent;border-color:transparent}.vms-nav .button:hover{background:rgba(237,242,192,.10);color:#fff}.vms-nav .button.primary{background:var(--fh-lime);color:var(--fh-green);border-color:var(--fh-lime)}

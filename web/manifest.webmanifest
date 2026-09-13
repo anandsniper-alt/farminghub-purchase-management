@@ -1,0 +1,11 @@
+{
+  "id": "/",
+  "name": "Farming Hub Purchase & Vendor Management",
+  "short_name": "Farming Hub",
+  "start_url": "/#/vms",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#204321",
+  "icons": [{"src": "/app-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any"}]
+}

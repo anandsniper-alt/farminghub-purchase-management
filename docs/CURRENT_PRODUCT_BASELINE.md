@@ -448,3 +448,10 @@ Use **Libraries → Vendor Management (VMS)** with the existing Purchase login. 
 DEC-045 / WF-040 is implemented on feature/personal-guides from the VMS production baseline. Minimal is the only theme; the top appearance/guide strip and its reserved space are removed. Users & settings begins with My preferences, where each signed-in user saves Show page guides for their own account. Default is off; saves/reload/new sessions restore that account's preference. Other users, roles, scopes, POs, financials, approval controls and issued history remain unchanged. Mascot help, animations/reduced motion and expanded order timeline remain.
 
 This is a **local, unpublished feature**. The preceding VMS publication remains the live baseline until this feature is explicitly released. The isolated preview at http://127.0.0.1:8138/#/settings shows the new controls. See PERSONAL_PREFERENCES_TEST_REPORT.md for current validation; older toolbar/theme test records are historical evidence.
+
+
+## VMS missing-module correction — local, 2026-09-13
+
+DEC-046 / WF-041 is implemented on feature/vms-module-parity, based on pending DEC-045 personal-guides code. All twelve original module entry points are restored: Dashboard, Vendor Follow-up, Vendors, Analytics, Expos & Fairs, Product Lines, Component Tags, Sourcing Risk, Pending Sync, Get the App, Users & Roles and Settings. Added grouped analytics/drill-down, dedicated catalogues, product classifications, location hierarchy, dated currency references, shared user controls, browser installation metadata and an account-owned automatic sync queue with explicit conflict review.
+
+Preview http://127.0.0.1:8138/#/vms. **Unpublished; production remains runtime 6a2a366.** No live data was changed. Validation: 169 native tests and 92 browser checks; see VMS_PARITY_REPORT.md for current evidence and remaining source differences. Offline cold-start business editing, new-vendor/file offline capture, native APK, voice/column tools, legacy spreadsheet/PDF/XLSX/geography imports and historical migration remain unported; restored module navigation is not a claim of complete legacy feature parity.

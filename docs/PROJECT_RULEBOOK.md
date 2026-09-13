@@ -303,3 +303,14 @@ Keep VMS_CRITERIA, vmsEvaluation, vmsFollowups and vmsConcentration as shared so
 **GLOBAL RULE:** Users & settings → My preferences → Show page guides is available to every active login, including Viewer and users without purchasing divisions. Default off preserves the established Minimal view. Saving applies only to the authenticated profile through SAVE_PERSONAL_PREFERENCES, with one boolean showPageGuides field; do not accept a target user ID, role, scope, arbitrary setting or theme. Persist under users[].preferences, using the existing optimistic transaction and append-only personal-preference event. These are display settings, not administrative permissions.
 
 The saved preference follows the account on subsequent bootstrap/reload and applies after a successful save. Other logins keep their settings. Clear the previous user's displayed preference at logout/login screen; standalone review uses the selected review profile. Only optional descriptions/guidance change. Required fields, warnings, errors, available actions, the mascot and expanded-by-default order timeline remain. This supersedes DEC-026's Current comparison and top toolbar, and the toolbar portions of later UI records. No business calculation or approval policy changes.
+
+
+## VMS module restoration — DEC-046 / WF-041
+
+**MODULE-SPECIFIC RULE:** expose the twelve original VMS module names through durable native routes and a readable, scrollable submenu/mobile selector. Reuse Purchase users, roles, approvals, supplier identity and master imports. Supporting classifications/groups/locations use existing Manager catalogue validation and soft deactivation. Keep product classification distinct from multi-select Product Lines; do not create a second commercial vendor master.
+
+**MODULE-SPECIFIC RULE — user-confirmed offline policy:** automatically sync non-conflicting queued vendor profile edits and text interactions while the same account is signed in. Retain conflicts for explicit comparison/resolution. Compare changed editable fields, preserve unrelated updates, and rerun current server identity/scope/role/domain/revision checks. Use account-owned request IDs and durable receipts to prevent duplicate interactions/audit on lost acknowledgements. Offline uploads, new suppliers, approvals and payments remain unavailable; the app shell caches only the public reconnect page. Never replay old last-write-wins code. This extends DEC-044; it does not supersede optimistic transactions or Admin-only controls.
+
+**MODULE-SPECIFIC RULE:** VMS currency entries are optional dated manual reference metadata, positive and at most six decimals, unique by currency; INR reference equals 1. They do not calculate PO, payment, invoice or sample amounts. Preserve DEC-043 supplier-specific FX.
+
+See VMS_PARITY_REPORT.md for queue limits, safe discard/rebase, module map, formulas and known remaining source differences. Local build only.

@@ -383,3 +383,15 @@ The removed theme chooser used browser-wide localStorage and the guide toggle wa
 App render supplies only the effective guide boolean to the presentation module via body data and a notification event; mountTheme handles either module startup order. Login/logout clears presentation state so shared-browser accounts do not inherit the last user's view. Server account preferences survive a fresh browser; standalone preferences stay in that review profile. Old fh-appearance-style is ignored. Retain timeline expansion independently of guide preference, and do not restart mutations or submit forms when guide visibility changes.
 
 Removing the toolbar requires removing its mobile height overrides as well as its markup. Keep --preview-strip at zero for existing position references. Browser checks cover 390/320px header spacing, button hit testing, animations, mascot, account switching, reload and new context. Test init scripts must seed browser review data only when absent; unconditional reload seeding masks real persistence failures.
+
+
+## VMS restoration learnings — DEC-046 / WF-041
+
+- The initial five-tab integration omitted source modules; embedding some catalogues was not equivalent to reproducing the twelve-module product. Maintain an explicit source-to-native capability map, including missing subfeatures.
+- The source distinguishes product category groups/multi-select product lines from a single product-line classification. Store these separately, with clear native labels, rather than silently merging them.
+- vmsConfig must merge defaults into existing metadata when new collections are added; returning an old state.vms object directly loses new defaults.
+- A hash-only link on a cached offline fallback does not request the online app again. The reconnect control uses a real navigation form. Cache only the public fallback, never bootstrap/session/business files.
+- Per-field baseline comparison allows unrelated CRM edits to merge without accepting conflicting overwrites. The resulting profile must still pass domain validation (especially linked location fields). Idempotency receipts cover lost acknowledgements; a replacement queued edit must be stored before removing its predecessor.
+- The source settings, authentication and offline implementation cannot be copied as a second stack. Native role/scope/optimistic transactions remain authoritative; source role aliases and last-write-wins replay are not imported.
+- Native ghost buttons on the green sidebar were initially unreadable. Reuse sidebar foreground/active palette and inspect screenshots; clickable DOM elements alone do not establish usable navigation.
+- Analytics reports relationships and coverage, not spend. Manual VMS currency references remain separate from approved PO/PI FX. See VMS_PARITY_REPORT.md for formulas, limits and remaining source gaps.

@@ -236,3 +236,8 @@ DEC-044 reuses the native sidebar, green/lime palette, Current/Minimal themes, p
 ## Minimal-only presentation — DEC-045 (2026-09-13)
 
 Minimal is now the required standard. Remove the Current selector and entire fixed appearance strip; the existing sidebar and application header start at the top without the former 46/78/110px reserved space. Retain green/lime tokens, typography, card/table/dialog conventions and reduced-motion behavior. Settings uses a shared My preferences panel with the native Show page guides checkbox and Save preferences button. No theme selector remains in Settings or elsewhere. Mascot placement/guidance and the order timeline remain available when guides are off. Personal page-guide choices are account-specific; this supersedes earlier Current/Minimal comparison UI requirements.
+
+
+## VMS navigation — DEC-046 (2026-09-13)
+
+Reuse the native Purchase shell and Minimal-only theme. Within VMS, expose twelve named submenu buttons and the equivalent labelled mobile module selector. Inactive submenu text uses the existing sidebar #e0e6d8; active entries use --fh-lime with --fh-green text. Keep sidebar scrolling, native focus treatment, labelled dialogs, internal table overflow and existing mascot clearance. Analytics uses native tables/KPIs and restrained progress bars; no new chart library, palette or typography. The install icon wraps the existing approved logo with whitespace; no new logo. Personal guides stay in Settings.

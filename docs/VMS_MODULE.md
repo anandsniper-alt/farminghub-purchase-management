@@ -78,3 +78,8 @@ The user explicitly requested publication of the reviewed VMS integration. Runti
 **36 live checks passed**, covering committed app/VMS/domain/styles/guide assets, health, existing login, all VMS tabs, legacy supplier profile, creation/evaluation/sample/interaction/document forms opened and cancelled, multiple-file input, linked purchase history, Current/Minimal/mobile, mascot guidance, existing vendor master and PO pipeline. Zero browser runtime errors or business-write requests. All 32 saved state sections match the fresh predeployment fingerprint: **30 orders, revision 961**, including vendors, users, files, events, payments and approval controls. Isolated release validation already passed 156 native tests and 41 browser checks.
 
 Use **Libraries → Vendor Management (VMS)** with the existing Purchase login. Core CRM is live; source-only historical data and unported offline/voice/PWA/export/geography tools remain outside this release as documented in VMS_MODULE.md. Private verification files remain ignored under test-output.
+
+
+## Current module restoration — 2026-09-13
+
+The core DEC-044 integration was published at runtime 6a2a366. The earlier five-tab description above is historical. The pending DEC-046 / WF-041 build now exposes all twelve original module entry points with working Analytics, dedicated catalogues, product groups/classifications, location/currency settings and conflict-aware automatic sync. See [VMS_PARITY_REPORT.md](VMS_PARITY_REPORT.md) for current use steps, precise boundaries, remaining legacy differences and validation. This new restoration and DEC-045 Minimal/personal-guides changes are **not live**.

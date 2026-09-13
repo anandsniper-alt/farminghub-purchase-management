@@ -239,3 +239,8 @@ Use **Libraries → Vendor Management (VMS)** with the existing Purchase login. 
 - Removed Current theme and the top appearance/page-guide toolbar, including reserved header space.
 - Added Users & settings → My preferences → Show page guides, saved only for the signed-in account and restored across sessions/browsers.
 - Kept mascot, expanded order timeline, animations/reduced motion, warning/error visibility and business permissions unchanged. This feature is local and has not been published.
+
+
+## Unreleased — VMS missing-module restoration (2026-09-13)
+
+DEC-046 / WF-041 restores twelve named VMS screens, durable module routes, grouped analytics/drill-down, dedicated expos/products/components, supporting location/classification/currency settings and shared Users & Roles. Adds an account-owned profile/text-interaction outbox with automatic non-conflicting sync, explicit conflict review, duplicate-safe retries and browser installation/reconnect screens. Minimal and personal guides preserved. 169 native tests and 92 browser checks passed; no live data changed or deployment performed. Complete feature boundaries: docs/VMS_PARITY_REPORT.md.
