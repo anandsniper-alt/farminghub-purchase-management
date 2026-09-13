@@ -49,7 +49,7 @@ with sync_playwright() as p:
     pg.get_by_role('button',name='Technical specification confirmation',exact=True).first.click(); upload('technical-confirmation.txt'); pg.locator('[name=remarks]').fill('Supplier confirmed current technical package.'); pg.get_by_role('button',name='Save',exact=True).click(); close()
     check('Technical confirmation advances to artwork confirmation',lambda: (stage()=='Artwork confirmation') or (_ for _ in ()).throw(AssertionError(stage())))
     # Artwork submit + PM approval + supplier acknowledgement.
-    pg.get_by_role('button',name='Submit artwork',exact=True).first.click(); upload('artwork.txt'); pg.locator('[name=remarks]').fill('Current brand decal and packaging artwork.'); pg.get_by_role('button',name='Submit to Product Manager',exact=True).click(); close()
+    pg.get_by_role('button',name='Submit artwork',exact=True).first.click(); upload('artwork.txt'); pg.locator('[name=remarks]').fill('Current brand decal and packaging artwork.'); pg.get_by_role('button',name='Submit for approval',exact=True).click(); close()
     pg.locator('#demo-role').select_option('u-product'); pg.get_by_role('button',name='Approve artwork',exact=True).first.click(); pg.locator('#demo-role').select_option('u-manager')
     pg.get_by_role('button',name='Supplier artwork confirmation',exact=True).first.click(); upload('artwork-supplier-ack.txt'); pg.locator('[name=remarks]').fill('Supplier confirmed approved artwork.'); pg.get_by_role('button',name='Save',exact=True).click(); close()
     check('Artwork confirmation advances to payment',lambda: (stage()=='Payment complete') or (_ for _ in ()).throw(AssertionError(stage())))

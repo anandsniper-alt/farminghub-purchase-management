@@ -1,5 +1,7 @@
 # Farming Hub brand rulebook
 
+Persistent mascot clearance, DEC-029 QA follow-up: retain the approved fixed dock and imagery. Main content reserves 112px plus device safe-area bottom space so pagination can scroll above it. Print suppresses that reservation with the already hidden dock. No visual-token or branding change.
+
 ## Current approved presentation - DEC-026 / WF-020 (2026-09-12)
 
 The user's publication request approves production adoption of the reviewed Minimal theme, animations and persistent Farming Hub mascot guide. This supersedes earlier local-only/adoption-pending notes below for this presentation. Runtime files live in web/; the prototype remains historical test material. Default Minimal, retain Current choice and Show/Hide page guides in the fixed appearance toolbar. Keep colors/fonts/logo and reduced-motion support. Help is authored, never an AI chat, and Take me there only focuses the existing control. Live identity/data/approval logic remain authoritative; do not deploy the sample seed or test-only replay controls.
@@ -189,3 +191,13 @@ Payment-rate wording (DEC-027): reuse native labelled numeric fields and existin
 
 
 DEC-028: modal backdrop z-index 270, above appearance toolbar 250 and below mascot dock 300. Notifications use bottom 94px to reserve mascot space. Existing form colors, type, spacing and dimensions remain.
+
+
+## QA repairs — DEC-029
+
+Reuse existing status card, small/primary Add ERP item button, item-edit dialog and shared warning note. No new palette, typography, mascot behavior, spacing system or animation. Informational warnings required to complete a workflow stay visible in Minimal. Existing shipment guidance and owner/status copy must describe actual state accurately.
+
+
+## Manager independence setup — DEC-030
+
+Reuse the existing approval dialog for the Independent Manager preset and the shared table/badges for Your workflow access. Vendor/item/price import and source/history buttons stay in existing module headers. Previews use native file inputs, shared tables, inline validation, source download and explicit commit footer. Freight recovery uses the shared form and returns to booking. Vendor history uses expandable before/after details. No fonts, colors, mascot, animation, page guides or spacing tokens changed; Minimal remains the default.

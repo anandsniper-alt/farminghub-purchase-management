@@ -294,7 +294,7 @@ Local sample help flow now works in forms: tap the persistent mascot > read the 
 **Date:** 2026-09-12. **Module/workflow:** global forms, guide and notifications. **Decision/evidence:** DEC-028, confirmed fix/publish request. **Previous:** opening a tall form on mobile could put its heading behind appearance controls; notifications could meet the mascot dock. **Requested change/reason:** usable rebuilt forms before publication.
 **New workflow:** open the same form with heading/close button above background appearance controls; keep the mascot available; continue saving/cancelling and receiving existing notifications. **Steps added/removed:** none. **Steps modified:** overlay order/notification spacing only. **Status, roles, dependencies:** existing roles/statuses; CSS layers and native guide remain. **Calculations/reports/data/database/API:** unchanged. **UI:** modal z-index 270, dock 300, toast bottom 94px. **Backward compatibility:** appearance toolbar remains on pages but is behind the active modal. **Risks:** layering/focus checked on native server and standalone with persistent guide. **Final implementation:** support.css and rebuilt review; mobile hit-test and guide regression recorded. **Related decisions:** DEC-027 released alongside DEC-028. No historical workflow record removed.
 
-## Record template - next WF-023
+## Record template - next WF-024
 
 **Date:**
 **Workflow Change ID:**
@@ -323,3 +323,38 @@ Local sample help flow now works in forms: tap the persistent mascot > read the 
 **Replaces / Replaced by:**
 
 When a later change supersedes only part of a workflow, say which steps are replaced and which continue. Leave unavailable historical details explicitly unknown.
+
+
+## WF-023 — Expose existing setup and correct next-step guidance
+
+**Date:** 2026-09-12. **Module/workflow:** LAE purchase progression, product/ERP setup, freight import. **Evidence:** user-requested pre-soft-launch QA and DEC-029; live Ashok reproductions plus isolated parser regression. **Previous workflow:** (1) create/approve PLM product, (2) no ERP creation control available, (3) new product cannot produce PO lines. Shipping previously (1) plan part quantity, (2) complete required shipment documents through secondary Shipping controls while header keeps proposing another shipment. Missing logistics offered only an empty required picker. Freight preview extracted the first positive-looking numeric substring.
+
+**Requested change/reason:** fix blockages and misleading guidance while preserving approved rules. **New workflow:** (1) create PLM base, (2) use Add ERP item on product/library, (3) select explicit base/brand and save pending brand requirements, (4) approve using configured authority, (5) create PO using established quantities/specification selection. For shipping, existing shipment's required step is the primary action; optional further shipment remains available in Shipping. An empty logistics list directs authorized staff to Vendor master. Rate import still follows preview then explicit commit, now rejecting malformed/negative input instead of changing its meaning.
+
+**Steps added:** access to existing ERP setup and explanatory recovery. **Steps removed:** none. **Modified:** primary guidance priority and numeric input validation. **Status changes:** none in domain; factual display corrected. **Roles affected:** existing authorized item creators/managers; no new grants. **Dependencies:** explicit brand/base mappings, approved brand delta, active LOGISTICS master, existing shipping evidence gates. **Calculations:** fee threshold/benchmark/financial formulas unchanged; parsed numeric amount now faithfully represents valid input. **Reports:** task attribution and freight preview accuracy improve. **Data/database impact:** new/edited SKU derives two existing metadata fields; no migration/backfill or historical record rewrite. **API impact:** existing commands and payloads; no new endpoint. **UI:** shared buttons/forms/notes, no redesign. **Backward compatibility:** owner fallback retained; legacy items/rates remain untouched; invalid future freight input rejected. **Risks:** local/review and live verification must remain distinguishable; a real forwarding agent is still required before operational launch. **Implementation/verification:** local fixes with targeted native/browser regressions; publication status in QA_RELEASE_READINESS.md. **Related decision:** DEC-029. No earlier history removed.
+
+
+**WF-023 follow-up:** after entering brand quantities, Save validates every requested positive brand mapping before creating/editing a draft. Missing mapping retains the form and explains setup; zero-quantity brands remain optional. No server financial formula or approved-PLM policy changed.
+
+
+**WF-023 audit follow-up:** Update commitment continues to accept a new promise and remarks; its selected reason now appears in the same append-only event. No new workflow step, mandatory legacy field, recalculation or history rewrite. Issued technical-package guidance states the snapshot’s missing-PLM fact.
+
+
+**WF-023 continuation — guide obstruction:** no business step changed. Previously the fixed guide intercepted bottom pagination clicks in Minimal. Main content now has enough bottom scroll space for normal mouse/keyboard pagination while the guide remains visible. No added approval, state, API or database impact. Related DEC-029 / BUG-009; local browser verification covers both runtime modes/themes and desktop/mobile. Live release remains pending.
+
+
+**WF-023 continuation — import preview recovery:** Previously a bad replacement could leave an older file ready to commit, and duplicate Ref/route rows were not rejected. New flow: choose file → clear prior preview → parse → show row errors → correct duplicate keys/required fields → explicitly commit. Closing or replacing invalidates pending reads; report date/week survives redraw. No business record changes during preview. Server rejects duplicate and empty normalized batches. Existing correction history and baseline tracking dates remain; no roles/statuses/calculations/reports change except validation-export explanations. Risk/trade-off: identical duplicate rows now need removal. Related DEC-029 / BUG-010–012; verified locally in both runtime modes.
+
+
+**WF-023 continuation — bank-rate review:** register now displays the recorded rate precision through the existing formatter. Input/save/receipt sequence, permission, schema, conversion formula and original-order balance do not change. Related DEC-029 / BUG-013. TD-06 date-range observations are proposals only, with no implemented workflow change.
+
+
+## WF-024 — Manager-owned purchase flow and setup recovery
+
+**Date:** 2026-09-13. **Module/workflow:** LAE Import purchase from supplier/product setup to settlement. **Requested change/reason:** every Purchase Manager must operate independently; resolve the identified setup/approval blockages before soft launch. **Previous:** (1) Manager prepares product/PO, (2) missing technical Reject or product approval grants require another approver, (3) new product/upload and benchmark gaps require external setup, (4) continue normal purchase/production/shipping/payment gates.
+
+**New:** (1) Admin reviews/saves Independent Manager preset once; (2) Manager verifies all 13 stages in Your workflow access; (3) maintains suppliers, imports/mappings, technical/brand/artwork approvals and prices; (4) creates/issues PO and completes confirmations, payments, sample/bulk QC; (5) records a supplied quote if benchmark missing and resumes booking; (6) completes shipment/BL/insurance/arrival and actual-receipt settlement.
+
+**Steps added:** explicit preset, read-only access summary, vendor/price preview/commit, item mapping action, vendor audit visibility, quote-evidence recovery. **Steps removed:** recurring Product Manager handoff when the Manager grant is enabled. No business evidence/QC step removed. **Modified:** approval copy and setup entry points. **Status changes:** none; existing pending/approved/rejected and shipment/finance statuses retained. **Roles/users affected:** every active MANAGER in LAE Import, including Ashok/Suresh only if their actual accounts have that role/scope. Admin-only controls/deletion and other existing grants remain.
+
+**Dependencies affected:** source master/quote files, approvalControls, supplier/base/ERP mapping, existing save commands. **Calculations affected:** none; imported prices reuse money precision and supplied freight uses existing O/F plus agent charge. **Reports affected:** source batch/history and access views; original QA ledger remains historical live evidence. **Data/database:** optional priceImports and appended vendor/import/audit records; one atomic revision per batch, no historical rewrite/schema migration. **API:** COMMIT_MASTER_IMPORT added under authenticated command endpoint; all other commands retained. **UI:** shared forms, buttons, tables, previews and source downloads, mobile layout preserved. **Backward compatibility:** restorable standard approvals remain; no startup grant overwrite; existing issued records untouched. **Risks:** self-approval relaxation is intentional, live deployment/policy save required, genuine quote/evidence still required. **Final implementation/verification:** local tests and current evidence in QA_EXECUTION_REPORT.md. **Related decision:** DEC-030; extends WF-017/023 rather than erasing their histories.

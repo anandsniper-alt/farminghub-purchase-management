@@ -146,3 +146,36 @@ Published 2026-09-12: application commit 64e6764 deployed successfully to https:
 - Booked-rate variance and freight trend now use final benchmark = O/F + agent charge.
 - Added exact route masters for Ningbo, Qingdao, Shenzhen, and Chongqing via Ningbo/Nansha/Qinzhou/Shekou to Chennai.
 - Native tests: 91/91 passed. Dedicated v0.6 browser flow: 5/5 passed.
+
+
+## Unreleased — pre-soft-launch QA repairs (2026-09-12)
+
+- Correct misleading current-stage and Unassigned follow-up displays.
+- Prioritize required active-shipment steps and explain missing logistics setup.
+- Restore reachable ERP item creation, store explicit base/brand mapping and preserve pending approvals; align PLM readiness copy with the missing-specification warning rule.
+- Reject negative/malformed freight cells and correctly parse grouped USD amounts without changing fee/variance formulas or historical records.
+- Add targeted native/review regressions and a 338-scenario QA catalogue; live Ashok test data remains active. Release and execution limits are documented separately.
+
+
+QA follow-up: prevent silently omitted quantities for missing ERP brand mappings; show issued missing-PLM data as an amber historical warning; retain selected commitment cause in audit. Live validation includes ten completed retained POs and three synthetic complaints. No bad freight import was committed.
+
+
+QA closeout evidence: twelve retained live test POs (ten complete, two open for user continuation); combined remittance allocation, duplicate-reference rejection and original-order excess/correction verified as Ashok. See QA_EXECUTION_REPORT.md for scope and release blockers. This entry does not record a deployment.
+
+
+Continued soft-launch QA: preserve the fixed mascot while reserving page-bottom space so it cannot block pagination (BUG-009). Eight focused server/review browser checks pass in Current/Minimal at desktop/mobile. Logged separate Admin/configured-approver and missing-feature dependencies in QA_ACCESS_BLOCKERS.md. No deployment performed.
+
+
+Soft-launch QA import fixes (local): display tracking rejection reasons; reject duplicate keys and empty normalized batches; clear stale previews on replacement failure while retaining date/week. Five targeted native and 26 server/review browser checks passed. Live deployment/retest pending.
+
+
+Soft-launch QA: preserve full recorded Indian-bank rate precision in the remittance register (BUG-013);33 focused server/review payment checks pass. Import lifecycle regression expanded to38 checks including delayed/stale reads; native suite131 passed. No live publication performed.
+
+
+## Local changes — Independent Purchase Manager workflow (2026-09-13)
+
+- Add a reviewable Admin preset covering all 13 Manager approval stages and a read-only role access table; retain later per-stage changes and existing non-Manager grants.
+- Expose item upload and mapping; add atomic vendor/price imports using existing save rules, templates, validation reports and protected source history.
+- Show vendor change actors and before/after values; reject ambiguous supplier shorthand and foreign-division item imports.
+- Add quote-evidence freight benchmark entry from booking and return to booking; preserve agent charge and all readiness checks.
+- Verify native/review setup and complete Manager-only workflows. Includes the earlier local QA fixes; live deployment and Admin policy activation pending.

@@ -26,3 +26,6 @@
 
 /* Forms sit above appearance controls; notifications leave room for the guide dock. */
 .toast{bottom:94px}
+/* Keep final page controls scrollable above the persistent mascot. */
+body:has(.support-dock) .content{padding-bottom:calc(112px + env(safe-area-inset-bottom,0px))}
+@media print{body:has(.support-dock) .content{padding-bottom:0}}

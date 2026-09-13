@@ -6,18 +6,20 @@ import {pathToFileURL} from 'node:url';
 import {Store} from '../server/store.mjs';
 import {makeServer} from '../server/index.mjs';
 import {createCleanSeed} from '../shared/clean-seed.mjs';
-import {execute,APPROVAL_STAGES,orderStatus,financials,shipmentTotals} from '../shared/domain.mjs';
+import {execute,managerWorkflowStages,orderStatus,financials,shipmentTotals} from '../shared/domain.mjs';
 
 const managerRelaxed=process.argv.includes('--manager-relaxed');
 const managerOnly=managerRelaxed||process.argv.includes('--manager-only');
+const secondManager=process.argv.includes('--second-manager'),managerId=secondManager?'u-second-manager':'u-manager';
 const out=resolve(process.env.FH_TEST_OUTPUT_ROOT||'test-output',managerRelaxed?'manager-relaxed-workflows':managerOnly?'manager-only-workflows':'three-workflows',new Date().toISOString().replace(/[:.]/g,'-'));mkdirSync(out,{recursive:true});
 let seed=createCleanSeed();
+if(secondManager){assert.ok(managerRelaxed,'Second account requires configured Manager workflow');seed.users.push({...seed.users.find(u=>u.id==='u-manager'),id:managerId,name:'Second isolated Manager'});}
 // Explicit test precondition: Admin has configured Manager approval coverage; workflow accounts remain Manager-only.
-if(managerRelaxed){const stages=Object.fromEntries(APPROVAL_STAGES.map(s=>[s.command,[...new Set([...s.roles,'MANAGER'])]]));seed=execute(seed,{type:'SAVE_APPROVAL_CONTROLS',payload:{stages,remarks:'Isolated configured Manager workflow test',confirm:true}},seed.users.find(u=>u.role==='ADMIN')).state;}
+if(managerRelaxed){const stages=managerWorkflowStages(seed);seed=execute(seed,{type:'SAVE_APPROVAL_CONTROLS',payload:{stages,remarks:'Isolated configured Manager workflow test',confirm:true}},seed.users.find(u=>u.role==='ADMIN')).state;}
 // Test fixture masters only; workflow writes use UI. Manager-only adds an explicit denied API probe.
 if(!seed.vendors.some(v=>v.kind==='LOGISTICS'&&v.status==='ACTIVE'))seed.vendors.push({id:'test-forwarder',code:'TEST-LOGISTICS',name:'Isolated Test Forwarder',kind:'LOGISTICS',status:'ACTIVE',scopes:['LAE_IMPORT'],country:'China'});
 const store=new Store(join(out,'test.sqlite'),seed),password='Isolated-workflow-test-1234';
-for(const u of seed.users.filter(u=>!managerOnly||u.id==='u-manager'))store.addAccount(u.id,u.id+'@example.test',password);
+for(const u of seed.users.filter(u=>!managerOnly||u.id===managerId))store.addAccount(u.id,u.id+'@example.test',password);
 const report={started:new Date().toISOString(),environment:'Isolated local native server; clean seed and synthetic users',workflows:[],errors:[],networkFailures:[],out};
 const server=makeServer(store);let browser,context,page,current;
 const delegated=false;assert.ok(!process.argv.includes('--delegated'),'Temporary executive delegation was removed; use --executive for manager/product handoffs.');
@@ -34,7 +36,7 @@ async function fill(name,value){await page.locator('#dialog-form [name="'+name+'
 async function select(name,value){await page.locator('#dialog-form [name="'+name+'"]').selectOption(value);}
 async function submit(){await page.locator('#dialog-form button[type=submit]').click();await page.getByRole('dialog').waitFor({state:'hidden',timeout:20000});}
 async function files(label){const count=current.multiple?2:1;await page.locator('#dialog-form input[type=file]').setInputFiles(Array.from({length:count},(_,i)=>({name:current.id+'-'+label+'-'+(i+1)+'.txt',mimeType:'text/plain',buffer:Buffer.from('ISOLATED TEST EVIDENCE ONLY: '+current.id+' '+label+' '+(i+1))})));}
-async function login(role){if(managerOnly)assert.equal(role,'manager','Manager-only run cannot switch accounts');if(await page.getByRole('button',{name:'Sign out',exact:true}).count())await action('Sign out');await page.getByLabel(/^Email/).fill('u-'+role+'@example.test');await page.getByLabel(/^Password/).fill(password);await action('Sign in');await page.locator('.sidebar').waitFor();current.roles.add(role);current.activeRole=role;}
+async function login(role){if(managerOnly)assert.equal(role,'manager','Manager-only run cannot switch accounts');if(await page.getByRole('button',{name:'Sign out',exact:true}).count())await action('Sign out');await page.getByLabel(/^Email/).fill((role==='manager'?managerId:'u-'+role)+'@example.test');await page.getByLabel(/^Password/).fill(password);await action('Sign in');await page.locator('.sidebar').waitFor();current.roles.add(role);current.activeRole=role;}
 async function screenshot(label){await page.screenshot({path:join(out,current.id+'-'+label+'.png'),fullPage:true});}
 async function overview(){await page.locator('.tab[data-action=tab][data-value=overview]').click();}
 async function response(button,label){await action(button);await files(label);await fill('remarks','Isolated test: '+label);await submit();}
@@ -70,7 +72,7 @@ async function recordManagerBoundary(){
  check('Denied approval leaves the complete workspace unchanged',JSON.stringify(store.read())===JSON.stringify(before));
  check('Production has not started without approved artwork',!order().productionWindowStartedAt&&!order().artwork.current);
  const state=store.read(),events=state.events.filter(e=>e.entityId===o.id);
- check('Every order workflow audit event belongs to Purchase Manager',events.length>0&&events.every(e=>e.actorId==='u-manager'));
+ check('Every order workflow audit event belongs to Purchase Manager',events.length>0&&events.every(e=>e.actorId===managerId));
  check('Only Purchase Manager account used',current.roles.size===1&&current.roles.has('manager'));
  current.blocker={command:'APPROVE_ARTWORK',httpStatus:denial.status,message:denial.body.error,requiredRole:'PRODUCT_MANAGER or ADMIN',unreached:['Supplier artwork acknowledgement','Production lead-time start','Sample/bulk production/QC','Shipment booking through port arrival','Final financial settlement']};
  current.summary={orderNumber:o.number,status:orderStatus(o),piStatus:o.pi.status,pendingArtwork:!!o.artwork.pending,productionStarted:!!o.productionWindowStartedAt};
@@ -127,7 +129,7 @@ async function workflow(config){
  const payments=store.read().payments.filter(p=>p.allocations.some(a=>a.orderId===order().id));
  for(const p of payments)for(const a of p.allocations){await page.locator('[data-action=receipt][data-payment="'+p.id+'"][data-allocation="'+a.id+'"]').click();await fill('realizedAmount',(a.expectedMinor/100).toFixed(2));await fill('supplierRate','1');await files('realization-'+p.reference);await fill('remarks','Isolated supplier receipt acknowledgement.');await submit();}
  const final=order(),state=store.read(),finance=financials(state,final);check('All quantities arrived at India port',orderStatus(final)==='PORT_ARRIVED'&&shipmentTotals(final).arrived===config.quantity);check('Supplier realizations settle original-order balance',finance.balance===0&&finance.pending===0);
- check('Every recorded evidence file has a retained body',final.documents.every(d=>store.fileBytes(d.fileId)?.length>0));if(delegated){check('Only Purchase Executive performed the complete workflow',current.roles.size===1&&current.roles.has('exec'));for(const type of ['APPROVE_ORDER','APPROVE_PI','APPROVE_ARTWORK','AUTHORIZE_PAYMENT'])check('Executive delegation audited for '+type,state.events.some(e=>e.entityId===final.id&&e.actorId==='u-exec'&&e.approvalPolicy?.command===type));}else if(managerRelaxed){check('Only Purchase Manager performed all workflow actions',current.roles.size===1&&current.roles.has('manager'));check('All order audit events identify Purchase Manager',state.events.filter(e=>e.entityId===final.id).every(e=>e.actorId==='u-manager'));}else check('All three operational roles participated',['exec','manager','product'].every(r=>current.roles.has(r)));
+ check('Every recorded evidence file has a retained body',final.documents.every(d=>store.fileBytes(d.fileId)?.length>0));if(delegated){check('Only Purchase Executive performed the complete workflow',current.roles.size===1&&current.roles.has('exec'));for(const type of ['APPROVE_ORDER','APPROVE_PI','APPROVE_ARTWORK','AUTHORIZE_PAYMENT'])check('Executive delegation audited for '+type,state.events.some(e=>e.entityId===final.id&&e.actorId==='u-exec'&&e.approvalPolicy?.command===type));}else if(managerRelaxed){check('Only Purchase Manager performed all workflow actions',current.roles.size===1&&current.roles.has('manager'));check('All order audit events identify Purchase Manager',state.events.filter(e=>e.entityId===final.id).every(e=>e.actorId===managerId));}else check('All three operational roles participated',['exec','manager','product'].every(r=>current.roles.has(r)));
  if(current.operator==='exec'){
   const actions=['SUPPLIER_CONFIRMED','PI_RECORDED','PI_VERIFIED','TECHNICAL_SPEC_CONFIRMED','ARTWORK_SUBMITTED','ARTWORK_SUPPLIER_CONFIRMED','INITIAL_PAYMENT_COMPLETED','PREPRODUCTION_SAMPLE_COMPLETED','PRODUCTION_STARTED','BULK_QC_RECORDED','PAYMENT_REPORTED','LOADED_ON_VESSEL','BL_RECORDED','SHIPMENT_INSURED','PORT_ARRIVAL','SUPPLIER_RECEIPT'];
   for(const action of actions)check('Audit confirms Executive performed '+action,state.events.some(e=>e.entityId===final.id&&e.action===action&&e.actorId==='u-exec'));

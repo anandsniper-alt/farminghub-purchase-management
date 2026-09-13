@@ -1,5 +1,15 @@
 # Complete purchase workflow browser tests
 
+## Current local Manager build — DEC-030, 13 September 2026
+
+135 native checks and six complete workflows across two isolated Manager accounts pass; all arrived and settled. Setup, approval-control and import lifecycle checks pass in server/review. The build includes the earlier 13 QA fixes plus the independent Manager and setup recovery changes. Live deployment and Admin policy activation remain pending; all live QA creations are untouched. See [QA_EXECUTION_REPORT.md](QA_EXECUTION_REPORT.md) and [MANAGER_WORKFLOW.md](MANAGER_WORKFLOW.md). Historical evidence follows.
+
+
+## Continued Ashok live QA — 13 September2026 IST
+
+Current report: [QA_EXECUTION_REPORT.md](QA_EXECUTION_REPORT.md), [QA_ACCESS_BLOCKERS.md](QA_ACCESS_BLOCKERS.md), [QA_RELEASE_READINESS.md](QA_RELEASE_READINESS.md).340 scenarios accounted: 235 PASS / 21 FAIL / 84 BLOCKED; blocked cases are not passed. Eleven complete workflows and four open QA POs remain active. Thirteen fixes are local only, verified with 131 native tests plus focused server/review checks. No QA-continuation deployment occurred; earlier publication paragraphs below describe prior releases.
+
+
 Published 2026-09-12: payment-reference application commit **8c2e303df7765430fb247ee57c56cd9f0ad3c331** is live at https://purchase.dvjassociates.com. Coolify deployment **4n8iiclyxsmdrk1n8ctn4zct** finished; health HTTP 200. Nineteen signed-in live checks passed, including Indian-bank label, optional BOC column/field, mobile modal heading and persistent guide. All three changed runtime assets match the committed build. Business-record, user and approval-control hashes/revision match the pre-release baseline; no live payment or receipt was created. Evidence: ignored test-output/payment-rates-live-report.json and payment-rates-live-mobile.png. DEC-027/028 and WF-021/022 are now published; this supersedes their earlier local-only release notes.
 
 
@@ -273,3 +283,11 @@ Local artifacts (ignored by Git):
 - Earlier runner attempt: `test-output/three-workflows/2026-09-12T13-44-15-294Z/`. It stopped on an ambiguous automation selector matching both the finance tab and a finance shortcut. The runner selector was narrowed and the complete three-scenario run then passed. No application-code fix was required.
 
 This is browser verification of the current local source, including unpublished multiple-upload changes. It is not a claim that the same changes have been deployed to the live domain, or that all unrelated modules have been audited. Product code, permissions, calculations and workflows were preserved during this test task.
+
+
+## Latest Ashok live pre-soft-launch QA — 12–13 September2026 IST
+
+See [QA_EXECUTION_REPORT.md](QA_EXECUTION_REPORT.md), [QA_DEFECT_LOG.md](QA_DEFECT_LOG.md), [QA_TEST_MATRIX.md](QA_TEST_MATRIX.md) and [QA_RELEASE_READINESS.md](QA_RELEASE_READINESS.md). This is separate from historical fixture/release runs above. Ten live POs were completed as Ashok/MANAGER and retained, plus three labelled synthetic complaints, QAAS01 PLM product/specification and V98-QALF test logistics provider. Find the orders in Order pipeline with All stages and search QA-ASHOK-0912; serials15–24. QA02 did not create a PO because its new base had no ERP mappings. All fixes are local and verified separately; soft-launch sign-off remains blocked pending publication/live retest and operational recovery/setup checks.
+
+
+Final browser handoff: **12 retained QA POs**, serials15–26. Ten are Port arrived and settled. QA-ASHOK-0912-12 and QA-ASHOK-0912-13 remain at Production lead time with USD30 received and USD70 outstanding each, ready for sample completion. One USD60 remittance split30/30, duplicate-reference rejection and excess-receipt correction were verified through Ashok's browser. Search QA-ASHOK-0912 with All stages / All suppliers. No test records were deleted; fixes remain local, not deployed.

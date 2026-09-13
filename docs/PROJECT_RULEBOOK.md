@@ -1,5 +1,7 @@
 # Project rulebook
 
+**GLOBAL RULE — persistent guide clearance (DEC-029 QA follow-up):** page-bottom actions must remain reachable by ordinary pointer and keyboard input while the mascot stays visible. Reserve scrollable content space for the dock and device safe area. Do not solve overlap by hiding the guide or bypassing click hit-testing. Verify both Current/Minimal and desktop/mobile.
+
 ## Current approved presentation - DEC-026 / WF-020 (2026-09-12)
 
 The user's publication request approves production adoption of the reviewed Minimal theme, animations and persistent Farming Hub mascot guide. This supersedes earlier local-only/adoption-pending notes below for this presentation. Runtime files live in web/; the prototype remains historical test material. Default Minimal, retain Current choice and Show/Hide page guides in the fixed appearance toolbar. Keep colors/fonts/logo and reduced-motion support. Help is authored, never an AI chat, and Take me there only focuses the existing control. Live identity/data/approval logic remain authoritative; do not deploy the sample seed or test-only replay controls.
@@ -220,3 +222,33 @@ Every meaningful decision gets a DEC record; workflow evolution gets a WF record
 
 
 **GLOBAL RULE - modal layering (DEC-028):** business dialogs appear above the appearance toolbar; the persistent mascot remains accessible. Keep notification space above the dock. Do not cover form headings, close controls or footer actions with presentation chrome.
+
+
+## Soft-launch consistency repairs — DEC-029 / WF-023
+
+**GLOBAL RULE:** label current state from authoritative status, not a past-tense incomplete milestone. Resolve follow-up responsibility from ownerId; legacy owner is a compatibility fallback, not a reassignment. **MODULE-SPECIFIC:** keep active shipment requirements visible in the primary action before optional additional planning. Explain missing active LOGISTICS setup without weakening booking gates.
+
+**MODULE-SPECIFIC: ERP setup.** Reuse item-edit/SAVE_ITEM, explicit base and brand selection. Persist baseItemCode/brandPrefix from selected master records, never caller-provided approval flags. Newly saved brand requirements remain PENDING and use configured approval. Add ERP item is available to existing canCreate users; this does not grant master/admin or approval access.
+
+**MODULE-SPECIFIC: freight imports.** Parse a complete positive USD amount; accept plain numbers, optional USD/dollar notation and correctly grouped thousands. Reject negative, zero, non-finite, ranges and malformed text. Preview and commit share normalization. Preserve fee60 below3000 and120 at/above3000; warning remains strictly greater than100. Do not rewrite old imported snapshots during validation repairs.
+
+**QA boundary:** live Ashok tests retain every newly created QA record. Never count local fixtures, source review, historical reports or blocked scenarios as current live passes.
+
+
+**DEC-029 / MODULE-SPECIFIC PO entry:** before saving a base-first draft, validate every positive brand quantity has an active ERP mapping. Reject with the base/brand and Item master recovery instruction; never silently omit the requested quantity. Keep preview calculation separate from save validation so incomplete typing does not discard form state.
+
+
+**DEC-029 / MODULE-SPECIFIC production audit:** retain the reason selected in Update commitment with the date and remarks. Validate supplied causes against REASONS; preserve legacy omission and original baseline. **MODULE-SPECIFIC issued PO display:** absent technical data is a historical warning, not a green approval or instruction to change the issued snapshot.
+
+
+MODULE-SPECIFIC RULE — Tracking and freight imports: require one normalized Ref (tracking) or route/container (rates) per file. Show validation errors before commit and enforce the same rejection in the domain command. Later correction batches remain append-only. GLOBAL RULE — Replacement-file previews must clear stale rows, remain uncommittable on parse failure/empty usable input, ignore obsolete reads, and preserve other entered form values.
+
+
+MODULE-SPECIFIC RULE — Remittance register: display Indian-bank and optional BOC rates with their recorded precision, using the shared rate-text presentation helper. Monetary rounding and actual supplier realization remain governed by the existing financial utilities.
+
+
+## Independent Manager workflow — DEC-030 / WF-024
+
+**MODULE-SPECIFIC RULE: LAE Import.** The user confirmed every Purchase Manager may complete all 13 purchase/product/artwork/payment/sample approval stages, including rejection and correction. Activate through the Admin-saved Independent Manager preset, which adds MANAGER to every effective stage while retaining other grants. Do not hard-code a bypass or overwrite future saved controls. Self-approval is a deliberate trade-off; no automatic expiry. Production activation is a separate verified action, currently pending. Admin-only user/role/division/policy and delete/restore controls remain separate. Read [MANAGER_WORKFLOW.md](MANAGER_WORKFLOW.md).
+
+Use existing master save validation for new vendor/price imports. One source file, max 500 rows, explicit preview/commit, no partial batch, immutable source/audit retention, one workspace revision. Full vendor codes and explicit Base Item Codes are required; duplicate normalized keys reject the batch. Price zero/date/currency behavior remains the existing save contract. Item imports retain max 2,000 rows and explicit mapping; ambiguous supplier shorthand and foreign-division identity updates reject. A supplied freight quote may create an evidence-backed snapshot through the existing importer; never invent a rate or change the agent-charge formula. Managers can read their effective stage grants; visibility is not an authorization check.

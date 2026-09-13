@@ -1,5 +1,7 @@
 # Project learnings
 
+Continued Ashok QA found that visible, enabled pagination can still be unclickable when a fixed mascot intercepts pointer events. Keyboard navigation recovered all 130 base and 387 ERP rows, but is not proof of mouse accessibility. Test ordinary clicks in both themes and reserve page-bottom scroll space. Technical Approve and Reject are separate configurable grants: seeing Approve does not imply rejection access. Keep permission blockers distinct from missing feature entry points.
+
 ## Production presentation integration - DEC-026
 
 Wrap the reviewed theme and guide in mount functions to preserve separate scope when the standalone builder strips ESM imports. Keep one GUIDE_POSES manifest for runtime URLs and embedded standalone assets. Native serving must explicitly allow every module/CSS/PNG; test the experience entry point as well as app.mjs. Appearance storage failures should not break the app. Preserve authenticated APIs and startup, and never carry prototype FH_PREVIEW_SEED/storage initialization into web/ runtime. The review builder embeds assets; the server loads same-origin PNGs.
@@ -297,3 +299,40 @@ Use separate fields for bank-rate facts and reference rates. Clearing a currency
 
 
 Modal visual QA (DEC-028): a bounding-box visibility check alone misses a higher-z-index toolbar obscuring a form heading. Hit-test the title center with elementFromPoint at mobile widths; verify the native guide remains above the business dialog and Escape preserves the underlying form.
+
+
+## Soft-launch QA learnings — DEC-029
+
+Rendering a next incomplete milestone as current status can claim an approval before it happened. Test draft, pending and rejected states independently of domain enforcement. Check producer/consumer field names: tasks store ownerId; a fallback-looking Unassigned can hide correctly assigned work.
+
+A command existing in code does not prove a reachable browser workflow. New PLM product -> ERP item -> brand approval -> PO must be exercised, including metadata consumed by base-first quantities. Derive brandPrefix from explicit brand selection, rather than client-supplied metadata. Missing approved technical revision remains the DEC-008 warning path, independent of required brand setup.
+
+Test partial shipment guidance with an already departed shipment and unallocated quantities. Completing the old shipment can be the urgent next step even when another can be planned. Keep both actions accessible. A required empty master dropdown needs a clear authorized recovery path; synthetic QA master data must never be described as real operational readiness.
+
+Do not parse a financial cell by searching for the first unsigned numeric substring: -1 becomes1 and 3,001.25 becomes3. Validate the entire USD cell and grouping before numeric conversion. Fee boundary and variance formulas remain centralized in shared/shipping.mjs. Expected examples:2999+60=3059;3000+120=3120;3001.25+120=3121.25. No historical backfill in a parser fix.
+
+QA evidence is layered: live visible UI reproductions, local native/review fix regression, and unexecuted risk scenarios are distinct. Preserve first failed runs, fixture corrections, and later pass evidence. A completed synthetic workflow does not certify backup recovery, concurrency, scale or another role.
+
+
+DEC-029 follow-up: a tolerant preview expansion can be unsafe at submission. expandedDraftLines intentionally skips missing mappings for previews; the save path must first validate all requested positive brand quantities. Reproducing partial GJ-only setup exposed a silently omitted KD request; native/review guard tests verify no draft is written and the entered values remain available.
+
+
+QA09 showed why an offered field must be followed through payload and audit serialization: commitment reason reached the command but was omitted from the recorded event. Verify expanded old/new UI values, not just the success toast. An issued missing-PLM package also needs different explanatory copy from an editable draft; never imply a new approved specification can silently replace its historical absence.
+
+
+QA acceptance criteria must come from the existing contract. The ledger intentionally reports original-order excess rather than silently netting it elsewhere or suppressing an already-realized receipt. A generic expectation to reject all overpayment would be a new policy, not a QA bug fix. Preserve CAL-06 and test the visible excess/correction path.
+
+
+Import QA learning (13 September IST): a rejected badge without its error is not recoverable guidance. Display the error in both preview and exported validation. Validate duplicates across the entire normalized batch; row-only validation misses conflicting updates. Clear prior preview before an asynchronous replacement read, invalidate stale completions after close/replacement, and retain unrelated form values. Local regression covers valid→invalid→valid, duplicate keys, empty files and missing Ref in both server/review.
+
+
+Bank-rate QA: verify visible precision as well as stored values. An input supporting six decimals must remain reconcilable in the payment register; four-decimal display masked the final digits even though storage was correct. Reuse existing rate formatting; do not change receipt formulas to fix presentation.
+
+
+## Independent Manager implementation — DEC-030
+
+Approval and rejection are independent matrix entries: reuse APPROVAL_STAGES and managerWorkflowStages instead of maintaining another allowlist. A preset must preserve other effective grants and change only a review form until Admin saves; otherwise later restrictions become ineffective. Test two actual isolated Manager accounts and every stage, plus restoration and inactive/out-of-scope denials. A role-independent caption is needed wherever configured grants replace historical Product Manager handoffs.
+
+Recovered import code is incomplete until users can upload, review, commit, inspect history and map new records. New vendor/price previews reuse SAVE_VENDOR/SAVE_PRICE_LIST validation on a copy; commit reruns it and appends one atomic batch revision. Raw rows never confer approval. Validate duplicate normalized keys and full supplier identity, clear stale previews, and scope new history collections. Source files must remain reachable. Preserve existing zero-price and future-effective-date behavior until separately decided.
+
+A missing benchmark is a data prerequisite, not necessarily an Admin restriction. Let the operator record the actual forwarder quote with evidence through the established rate snapshot command, then return to booking. Do not replace the missing quote with a synthetic operational value. Distinguish tested local capability, one-time live policy activation, and live workflow evidence.

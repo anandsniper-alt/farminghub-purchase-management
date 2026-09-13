@@ -37,7 +37,7 @@ with sync_playwright() as p:
         pg.locator('[name=version]').fill('1.2')
         pg.locator('[name=changeSummary]').fill('Increase critical member thickness and confirm E20 configuration.')
         pg.locator('[name=reason]').fill('Product improvement and India fuel compatibility control.')
-        pg.get_by_role('button',name='Submit to Product Manager',exact=True).click()
+        pg.get_by_role('button',name='Submit for approval',exact=True).click()
         pg.wait_for_function("document.querySelector('#modal-root').children.length === 0")
         assert '1.2' in pg.locator('main').inner_text() and 'PENDING' in pg.locator('main').inner_text()
         pg.locator('#demo-role').select_option('u-product')

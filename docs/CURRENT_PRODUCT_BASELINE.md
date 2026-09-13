@@ -350,3 +350,35 @@ Indian-bank fields now use direct currency-pair labels. USD remittances and supp
 
 
 DEC-028 release preparation: corrected shared modal/appearance-toolbar layering and notification position, and rebuilt the DEC-027 payment-reference update for publication. Persistent storage, native authentication, approval controls and actual receipt calculations remain unchanged. Publication evidence follows verification.
+
+
+## Active soft-launch QA — DEC-029 / WF-023
+
+Live testing uses Ashok/MANAGER only and retains clearly labelled QA orders, evidence, QAAS01 product and V98-QALF synthetic logistics provider. The QA reports are current evidence; earlier browser reports remain historical. These records are simulations, not real purchases, banking, shipping or insurance.
+
+Local changes: factual stage and task owner display; required existing-shipment primary action; missing-logistics setup help; reachable existing ERP setup with authoritative base/brand mapping; missing-PLM copy correction; strict freight input parsing. No current claim of deployment, migration, historical-rate correction or complete release readiness. See QA_DEFECT_LOG.md and QA_RELEASE_READINESS.md. A verified real forwarding agent and remaining risk testing are operational prerequisites. Existing TD-04 currency-policy and TD-05 future-price-policy questions remain unresolved; no policy was invented during QA.
+
+
+Final QA pass continued into 2026-09-13 IST. Ten retained live QA POs span nine suppliers and all seven configured payment terms; three synthetic BS20 complaints demonstrate per-brand/base roll-up. QAAS01 and its approved specification remain retained but live ERP setup is blocked until publication. Eight local fixes,128 native tests and31 targeted native/review checks are recorded in the QA reports; no publication or unconditional soft-launch approval is claimed.
+
+
+Final browser handoff: **12 retained QA POs**, serials15–26. Ten are Port arrived and settled. QA-ASHOK-0912-12 and QA-ASHOK-0912-13 remain at Production lead time with USD30 received and USD70 outstanding each, ready for sample completion. One USD60 remittance split30/30, duplicate-reference rejection and excess-receipt correction were verified through Ashok's browser. Search QA-ASHOK-0912 with All stages / All suppliers. No test records were deleted; fixes remain local, not deployed.
+
+
+Continued live QA (13 September IST): QAAS01 QA-1.1 remains pending because Ashok lacks its Reject action; QAAS02 independently verifies technical supersession, current QA-1.1 with QA-1.0 retained. Added synthetic logistics references V98-QAS2 and V97-QALF for full-reference identity tests. QA-ASHOK-0913-14 continues negative validation/return/PI/shipping checks; its exact50MiB plus second attachment saved. None of these are real business instructions. BUG-009 mascot clearance is fixed locally; see QA_ACCESS_BLOCKERS.md for precise dependencies.
+
+
+Import QA continuation: BUG-010–012 fixed locally: visible tracking rejection errors, unique Ref/route-container per batch, empty-batch rejection and safe replacement-preview lifecycle. Later correction history remains. These changes are not yet live; server/review regression reports are separate from the retained live failure evidence.
+
+
+Bank-rate display BUG-013 is fixed locally and verified in server/review. Planning-date permissiveness TD-06 is an observed policy gap, not an approved range change. The local code does not alter date acceptance or backfill historical rates.
+
+
+Current QA handoff:15 active QA POs,11 Port arrived/SETTLED and4 open (QA12 bulk/QC plus planned20GP, QA13 lead time, QA15 date-boundary draft restored15Dec, QA16 lead time with90-day commitment). Four synthetic BS20 complaints, two synthetic PLM bases, three synthetic logistics providers and4 weekly snapshots on a separate QA-only route remain for review. No cleanup/deployment. The full340-case ledger is 235 PASS / 21 FAIL / 84 BLOCKED; prerequisites are enumerated, not disguised as passes.
+
+
+## Current local Manager-independence build — 2026-09-13
+
+DEC-030 / WF-024 add an Admin-reviewable Independent Manager workflow preset, read-only stage access, item upload/mapping entry points, vendor/price batch imports with source history, vendor audit visibility and evidence-backed freight benchmark recovery. They include all 13 prior QA fixes. Every Manager is the confirmed target; no name-specific hard-coded permission or automatic September rule. The persisted live matrix has not been changed in this session, and this build has not been deployed. Admin user/role/policy/delete/restore controls remain restricted. See [MANAGER_WORKFLOW.md](MANAGER_WORKFLOW.md) for the complete activation and operating sequence.
+
+Native/standalone setup and complete Manager-only workflows are validated separately from live QA; current counts are in QA_EXECUTION_REPORT.md. Existing live orders and all QA creations are untouched. Outstanding finance/date-policy decisions and isolated infrastructure acceptance are not silently marked resolved.
