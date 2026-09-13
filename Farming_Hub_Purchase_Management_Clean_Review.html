@@ -214,15 +214,17 @@ table tbody tr:hover{background:#fcfdf6}.code-link{color:var(--fh-green)}
 :root{--preview-strip:0px}
 /* Two-module workspace: one contextual navigation surface at a time. */
 .module-sidebar .brand-home{border:0;background:none;width:100%;cursor:pointer}
-.module-sidebar .module-switcher{border-bottom:1px solid #ffffff24;padding-bottom:14px;margin-bottom:8px}
-.module-sidebar .module-switcher .nav-link{line-height:1.45;min-height:46px}
+.module-sidebar .module-switcher{padding:14px 8px 0}
+.module-sidebar .module-switcher label{display:block;font-size:11px;color:#e0e6d8;margin-bottom:8px}
+.module-sidebar .module-switcher select{width:100%;min-width:0;min-height:42px;padding:8px;border:1px solid #ffffff40;border-radius:8px;background:var(--fh-green);color:#e0e6d8;font:inherit;font-size:12px}
+.module-sidebar .module-switcher select:focus-visible{outline:3px solid var(--fh-lime);outline-offset:2px}
 .module-sidebar>*{flex-shrink:0}
 .module-sidebar .nav-section-title{font-size:11px;font-weight:650;color:#e0e6d8;padding:16px 13px 8px}
 .module-sidebar .nav-catalogues{margin:12px 0 8px;border-top:1px solid #ffffff24;padding-top:8px}
 .module-sidebar .nav-catalogues summary{cursor:pointer;color:#e0e6d8;font-size:12px;padding:12px 13px}
 .module-sidebar .vms-nav{padding:0;gap:1px}
 .module-sidebar .vms-nav .button{padding:9px 13px;font-weight:500;font-size:12px;border-radius:8px}
-.module-sidebar .sidebar-bottom{border-top:1px solid #ffffff24;margin-top:20px;padding-top:12px}
+.module-sidebar .sidebar-bottom{border-top:1px solid #ffffff24;margin-top:auto;padding-top:12px}
 .module-search-hidden{display:none!important}
 .module-shell[data-view=overview] .scope-row{display:none}
 .module-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px;max-width:1100px;margin-top:30px}
@@ -5963,7 +5965,7 @@ function createNavigation(host){
  function sidebar(){const {ui}=ctx(),section=area();let inside='';
   if(section==='orders')inside=ui.view==='order-management'?'<div class="nav-label">Divisions</div>'+divisions.map(([id,label,to])=>nav(to||'order-management/'+id,label,to?'box':'clock',ui.orderId===id)).join(''):'<div class="nav-section-title">LAE Import</div>'+work.map(([to,label,ic])=>nav(to,label,ic,activeView()===to)).join('')+'<details class="nav-catalogues" '+(masters.some(([id])=>id===activeView())?'open':'')+'><summary>Master data & products</summary>'+masters.map(([to,label,ic])=>nav(to,label,ic,activeView()===to)).join('')+'</details>';
   if(section==='vms')inside='<div class="nav-section-title">Vendor workspace</div>'+host.vmsNavigation();
-  return '<aside class="sidebar module-sidebar '+(ui.mobile?'open':'')+'"><button type="button" class="brand brand-logo-block brand-home" data-action="nav" data-to="home" aria-label="Farming Hub home"><div class="brand-logo-shell"><img class="brand-logo" src="'+host.logo+'" alt="Farming Hub"></div></button><nav class="module-switcher" aria-label="Main modules">'+nav('order-management','Order Management','orders',section==='orders')+nav('vms','Vendor Management System','users',section==='vms')+'</nav><nav class="module-navigation" aria-label="'+(section==='vms'?'VMS sections':section==='orders'?'Order Management sections':'Workspace')+'">'+inside+'</nav><div class="sidebar-bottom">'+nav('home','Modules','grid',ui.view==='home')+nav('settings','Users & settings','settings',ui.view==='settings')+nav('versions','Version & edit log','history',ui.view==='versions')+'</div></aside>';
+  return '<aside class="sidebar module-sidebar '+(ui.mobile?'open':'')+'"><button type="button" class="brand brand-logo-block brand-home" data-action="nav" data-to="home" aria-label="Farming Hub home"><div class="brand-logo-shell"><img class="brand-logo" src="'+host.logo+'" alt="Farming Hub"></div></button><nav class="module-navigation" aria-label="'+(section==='vms'?'VMS sections':section==='orders'?'Order Management sections':'Workspace')+'">'+inside+'</nav><div class="sidebar-bottom">'+nav('settings','Users & settings','settings',ui.view==='settings')+nav('versions','Version & edit log','history',ui.view==='versions')+'<div class="module-switcher"><label for="module-select">Modules</label><select id="module-select"><option value="" selected disabled>Select module…</option><option value="order-management">Order Management</option><option value="vms">Vendor Management System</option></select></div></div></aside>';
  }
  const card=(title,description,to,ic,pending=false)=>'<a class="module-card '+(pending?'pending':'')+'" href="#/'+to+'"><span class="module-card-icon">'+icon(ic,24)+'</span><span class="module-card-copy"><h2>'+esc(title)+'</h2><p>'+esc(description)+'</p><span class="module-card-state">'+(pending?'Pending development':'Open module '+icon('arrow',14))+'</span></span></a>';
  function home(){return head('Farming Hub','Your workspace','Choose a module to get started.')+'<div class="module-cards">'+card('Order Management','Orders, payments, shipping and product records.','order-management','orders')+card('Vendor Management System','Vendors, visit history, follow-ups and sourcing.','vms','users')+'</div>';}
@@ -6586,7 +6588,7 @@ async function onClick(event){if(submitting||event.target.closest('[data-order-s
  else if(a==='restore-approval-defaults'){for(const stage of APPROVAL_STAGES)for(const input of document.querySelectorAll('[name=approval-'+stage.command+']'))input.checked=stage.roles.includes(input.value);const confirmation=document.querySelector('#dialog-form [name=confirm]');if(confirmation)confirmation.checked=false;}
  else if(['approval-controls','change-role','create-user','new-order','edit-draft','pi','supplier','technical-confirm','artwork-confirm','initial-payment','amendment','preprod-sample','approve-preprod-sample','start-production','bulk-qc','complete-production','commitment','artwork','task','task-complete','note','shipment','container-book','container-release','tracking-milestone','shipment-update','dispatch','arrival','bl-draft','insurance','bl','document','short-close','cancel-shipment','return-po','void-payment','cost','payment','receipt','base','spec','plm-base','plm-revision','plm-successor','reject-spec','brand-delta','brand-artwork','template-field','price-edit','price-history','item-edit','vendor-edit','vendor-request','vendor-view','complaint','category','route','policy','tracking-import','rate-import','rate-entry','vendor-import','price-import','price-import-history','import'].includes(a))showDialog(a,d);
  }catch(e){showError(e.message);}}
-async function onChange(event){const el=event.target,d=el.dataset;try{if(vmsModule.change(el))return;
+async function onChange(event){const el=event.target,d=el.dataset;try{if(el.id==='module-select'){if(['order-management','vms'].includes(el.value))navigate(el.value);return;}if(vmsModule.change(el))return;
  if(d.orderSelect){if(user.role!=='ADMIN')return;const ids=d.orderSelect==='page'?filteredOrders().slice((ui.page-1)*12,ui.page*12).map(o=>o.id):[d.orderSelect];const selected=new Set(ui.selectedOrders);for(const id of ids)if(el.checked)selected.add(id);else selected.delete(id);ui.selectedOrders=[...selected];render();return;}
  if(el.id==='order-supplier'||el.id==='order-sort'){if(el.id==='order-supplier')ui.orderSupplier=el.value;else if(orderSortOptions.some(([key])=>key===el.value))ui.orderSort=el.value;ui.page=1;ui.selectedOrders=[];render();document.getElementById(el.id)?.focus();return;}
  if(el.id==='order-visibility'){ui.orderList=el.value;ui.orderSupplier='';ui.selectedOrders=[];ui.search='';ui.status='';ui.page=1;render();return;}

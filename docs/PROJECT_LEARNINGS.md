@@ -417,3 +417,7 @@ Mixing all purchasing and twelve VMS links makes the sidebar difficult to scan. 
 
 ### DEC-048 sidebar overflow correction
 A flex-column sidebar allowed its module navigation to shrink below its expanded contents because min-height:0 was applied. Links overflowed into the footer and intercepted clicks. Keep direct sidebar children non-shrinking and use the existing sidebar overflow-y:auto. Test expanded menus at short viewport heights, not only full-height desktop screenshots.
+
+
+### DEC-050 - Module selector behavior
+A native select preselected to the current module cannot emit change when that same option is chosen again. Use a neutral prompt for this navigation action, allowing Order Management to reopen the division hub from LAE Import. Reuse navigate for mobile dismissal and route state reset.

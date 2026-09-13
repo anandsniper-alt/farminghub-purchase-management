@@ -329,3 +329,6 @@ The default workspace has two main areas: Order Management and Vendor Management
 
 
 **MODULE-SPECIFIC RULE - DEC-049:** Use the top Order Management button to switch divisions. Do not add a duplicate All divisions shortcut below the LAE Import sidebar tools.
+
+
+**GLOBAL RULE - DEC-050:** Use the bottom Modules dropdown for Order Management and Vendor Management System. Keep its neutral Select module prompt so the current module can be selected again to return to its hub. This supersedes DEC-049 top-button placement, while retaining the no-duplicate-All-divisions rule. Logo returns to module home.

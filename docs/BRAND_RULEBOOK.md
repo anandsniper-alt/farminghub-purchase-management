@@ -250,3 +250,7 @@ The current twelve-module Minimal shell and 390px visit dialog were checked. Pra
 
 ## GLOBAL presentation - Cleaner module workspace (DEC-048)
 Reuse the existing Minimal palette, logo, fonts, buttons, focus styles, mascot and reduced-motion behavior. Module home uses two restrained cards; Order Management uses a two-column division grid, becoming one column on mobile. Pending cards use muted existing colors and explicit Pending development text. Keep contextual sidebars, breadcrumb links and shared settings; hide redundant purchasing search/bell outside LAE Import and hide the duplicate desktop VMS selector. Retain the labelled VMS selector on mobile. Mobile navigation closes on selection, outside tap or Escape. No new branding or theme option.
+
+
+### DEC-050 - Bottom module selector
+Place a labelled native Modules select below shared settings/version links. Use existing green, muted light text, border, radius and lime focus treatment. Footer sits at bottom when space permits; entire sidebar scrolls on short screens without shrinking menu sections. No top module buttons or duplicate Modules footer link.

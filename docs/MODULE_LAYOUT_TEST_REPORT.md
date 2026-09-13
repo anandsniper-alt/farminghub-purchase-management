@@ -28,3 +28,6 @@ This verifies the local candidate, not live deployment. Previously documented VM
 
 ## Sidebar overlap follow-up - 2026-09-13
 Reproduced footer links intercepting the master-group toggle on short screens. Changed sidebar child flex shrinking only and rebuilt the review. Verified the expanded group at 1440x1000, 1366x768, 1024x600, 800x500 and 390x600: 22px gap between All divisions and the footer, no navigation-content overflow, and bottom link reachable by normal hit-testing after scrolling. Inspected the 800x500 screenshot. Reran all 76 layout checks in authenticated server and standalone review modes successfully. No live deployment.
+
+## Bottom module dropdown - DEC-050
+80 layout checks passed in native server and standalone review modes, including bottom selection on 390px/320px mobile, same-module return to divisions, and menu dismissal. Desktop screenshot inspected. Build completed; no browser runtime errors or stored business changes. Broader VMS tests were adapted to the selector but were not rerun for this navigation-only change. Local only.

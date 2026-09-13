@@ -472,3 +472,7 @@ Corrected expanded Master data & products overlapping All divisions / Modules on
 
 ### DEC-049 - Sidebar shortcut cleanup
 Removed the redundant All divisions sidebar button. Use Order Management to return to division selection. Local preview updated; unpublished.
+
+
+### DEC-050 / WF-044 - Bottom module dropdown
+Replaced top module buttons and Modules footer link with one bottom dropdown. Order Management opens division selection, VMS opens its dashboard, and logo opens home. Existing contextual tools and routes remain. Local preview only.

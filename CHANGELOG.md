@@ -264,3 +264,7 @@ Prevent expanded master navigation overlapping the bottom menu; retain section h
 
 ### Local - Remove duplicate division shortcut
 Removed All divisions from the LAE Import sidebar; Order Management already opens division selection (DEC-049 / WF-043).
+
+
+### Local - Bottom module dropdown
+Replaced top module buttons with a bottom Modules selector. Choose Order Management to switch divisions, or Vendor Management System for vendor tools. Logo returns home.
