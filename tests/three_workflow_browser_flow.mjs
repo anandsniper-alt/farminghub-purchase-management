@@ -113,7 +113,7 @@ async function workflow(config){
   await clickShip('container-book');await page.locator('[name=forwarderId]').selectOption({index:1});await fill('forwarderRef',current.id+'-REF-'+seq);await fill('freightUsd','3800');await page.locator('[name=rateRouteKey]').selectOption({index:1});await fill('remarks','Isolated container booking.');await submit();
   await clickShip('container-release');await fill('container',current.id.replace('-','')+'C'+seq+'1234567');await fill('remarks','Isolated empty-container release.');await submit();
   await clickShip('tracking-milestone');await select('milestone','INLAND_ORIGIN');await select('status','COMPLETED');await fill('actualDate',new Date().toISOString().slice(0,10));await fill('location','Test inland origin');await fill('remarks','Isolated inland departure.');await submit();
-  for(const type of ['COMMERCIAL_INVOICE','PACKING_LIST']){await clickShip('document');await select('type',type);await select('shipmentId',sh.id);await files(type.toLowerCase()+'-'+seq);await submit();}
+  for(const type of ['COMMERCIAL_INVOICE','PACKING_LIST']){await clickShip('document');await select('type',type);await select('shipmentId',sh.id);if(type==='COMMERCIAL_INVOICE'){await page.locator('[name=invoiceNumber]').fill(current.id+'-CI-'+seq);await page.locator('[name=invoiceDate]').fill('2026-09-11');}await files(type.toLowerCase()+'-'+seq);await submit();}
   // Shipment-triggered obligations must be reported before vessel loading.
   await settleOutstanding();await page.locator('[data-action=tab][data-value=shipments]').click();
   await clickShip('dispatch');await fill('vessel','ISOLATED TEST VESSEL');await fill('voyage',current.id+'-'+seq);await fill('remarks','Isolated vessel loading.');await submit();

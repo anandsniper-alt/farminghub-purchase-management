@@ -21,10 +21,12 @@ Existing internal IDs, editable PO numbers, supplier PI/invoice numbers, item co
 | PO line | POL | FH-POL-1 |
 | Payment allocation | PAL | FH-PAL-1 |
 | Order task | TSK | FH-TSK-1 |
+| Supplier PI (current/history) | PI | FH-PI-1 |
+| Order evidence attachment | ATT | FH-ATT-1 |
 | Vendor interaction / visit | VIS | FH-VIS-1 |
 | Vendor sample | SMP | FH-SMP-1 |
 
-Examples are illustrative. Each type has an independent monotonic counter, without leading zeros for new assignments. Numbers are reserved permanently; deletion, sorting, code changes and the display-serial restart in DEC-052 cannot reuse them. Existing records receive references in stored collection order on first initialization, not inferred historical chronological order. Only records with their own string ID are covered; embedded PI snapshots, approval events, catalogue values and CRM document-link wrappers do not acquire fabricated IDs. Uploaded files have DOC references.
+Examples are illustrative. Each type has an independent monotonic counter, without leading zeros for new assignments. Numbers are reserved permanently; deletion, sorting, code changes and the display-serial restart in DEC-052 cannot reuse them. Existing records receive references in stored collection order on first initialization, not inferred historical chronological order. Supported records must have valid string IDs; malformed IDs fail visibly. Current/historical PIs and order evidence wrappers have parent-scoped identities. Approval events, catalogue values and CRM document-link wrappers do not acquire fabricated IDs. Uploaded files have DOC references.
 
 `shared/references.mjs` is authoritative. The sidecar `state.recordReferences` stores version, workspace UUID namespace, per-type next counters, immutable entries and external links. It does not modify business records or issued snapshots. Nested identities include their parent type and ID. The external integration key is `<workspaceNamespace>:<softwareReference>`; the internal `recordKey` is a JSON tuple `[type,parentType,parentId,id]`. Readable references alone are not globally unique across independent installations.
 
@@ -54,3 +56,6 @@ Agree the ERP API/transport, Tally version/company keys and responsibility for e
 
 ## Format refinement - DEC-054 / WF-048
 New LAE Import PO references use FH-LAE-I-PO-1, then FH-LAE-I-PO-2. All newly allocated software references use unpadded positive integers. Already-assigned references retain their exact text and ERP integration keys, including padded or generic PO forms. Counters remain monotonic per record type across formats and divisions; no renumbering or reuse.
+
+## Safeguard update - DEC-055 / WF-049
+See ERP_ORDER_SAFEGUARDS_REPORT.md for history-aware business-number checks, 17-type coverage, strict registry validation, safe retries and measured capacity limitations. This remains a local foundation with no Tally posting.

@@ -492,3 +492,8 @@ feature/erp-reference-foundation adds permanent references across 15 supported r
 
 ## Reference format update - DEC-054 / WF-048
 New LAE Import PO references use FH-LAE-I-PO-1, then FH-LAE-I-PO-2. All newly allocated software references use unpadded positive integers. Already-assigned references retain their exact text and ERP integration keys, including padded or generic PO forms. Counters remain monotonic per record type across formats and divisions; no renumbering or reuse. Local candidate only.
+
+
+## DEC-055 / WF-049 - ERP safeguards candidate
+Local branch feature/erp-order-safeguards extends the reference foundation with 17 supported types, strict registry validation, historical PO/supplier document duplicate guards, mandatory commercial invoice number/date, command/upload receipts, printed/searchable PO references and an always-visible state/role-aware 12-group order guide. No approval-policy expansion, financial-formula change, live writes or deployment. See ERP_ORDER_SAFEGUARDS_REPORT.md.
+**Scale gate remains open:** provisional 10,000 one-line POs totaling ?300 crore generated 46.75 MB bootstrap data and a 2.45-second simple write. Twenty same-revision requests took 18.95 seconds (one commit, 19 safe conflicts). Entity-storage/paginated APIs, realistic load/UAT, production recovery and ERP/Tally contract work remain required. The guide is English pending language input; it has not been validated with representative staff.

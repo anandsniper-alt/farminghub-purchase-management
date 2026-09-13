@@ -347,3 +347,9 @@ Use shared/references.mjs for software references. Preserve workspace namespace,
 
 ## Reference format update - DEC-054 / WF-048
 New LAE Import PO references use FH-LAE-I-PO-1, then FH-LAE-I-PO-2. All newly allocated software references use unpadded positive integers. Already-assigned references retain their exact text and ERP integration keys, including padded or generic PO forms. Counters remain monotonic per record type across formats and divisions; no renumbering or reuse. Local candidate only.
+
+
+## DEC-055 / WF-049 - Reference and guided-order safeguards
+**GLOBAL RULE:** reject malformed reference registry/record IDs and numeric alias collisions before persistence; retain all prior reference assignments and counters. Current/historical PIs and evidence wrappers use parent-scoped PI/ATT identities. Use one shared helper; never invent a second counter. Treat a saved request receipt as evidence of the original transaction, not permission to execute changed content. Preserve receipts and evidence in full backups.
+**MODULE-SPECIFIC RULE:** manual PO references are globally unique across retained PO history. PI and commercial invoice references are separately unique within each supplier; identical invoice numbers can identify multiple files for the same order/shipment, but cannot identify another order/shipment of that supplier. New commercial invoices require number/date; keep old documents/history. Bank references normalize whitespace/case and remain reserved after voiding. Initial INR payments use INR-to-INR rate 1.
+**GLOBAL UX RULE:** next-step guidance must reflect current state and role and give concrete checks. It must not auto-submit, approve, infer evidence or declare an arrived shipment financially settled. Minimal keeps critical guidance visible. See ERP_ORDER_SAFEGUARDS_REPORT.md for open scale/recovery/UAT gates; no ?300-crore readiness claim based solely on amount arithmetic.

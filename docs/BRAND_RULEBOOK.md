@@ -258,3 +258,7 @@ Place a labelled native Modules select below shared settings/version links. Use 
 
 ### DEC-053 - Software reference presentation
 Keep permanent references as compact muted monospace captions alongside established business labels; preserve business codes as the primary text. Reuse Minimal tables, native selects, pagination, buttons and inline panels in the Settings reference register. PO detail reference remains visible with page guides disabled. Tables scroll internally at narrow widths. No new palette, font, logo or theme.
+
+
+## DEC-055 - Practical order guidance
+Use the existing Minimal panel, fonts, colors and buttons for an always-visible Next step card with a short numbered checklist and Guide this step control. Keep primary action terminology consistent. The mascot reads the actual checks and returns focus; it performs no business action. Explain PI, BL, QC, rate direction and actual receipts in ordinary words. Do not hide critical blockers with optional page guides. Mobile content wraps within its panel; the existing full timeline remains accessible.

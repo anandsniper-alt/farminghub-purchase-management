@@ -437,3 +437,8 @@ Display serials can overlap archived test data after an explicit launch restart;
 
 ## Reference format update - DEC-054 / WF-048
 New LAE Import PO references use FH-LAE-I-PO-1, then FH-LAE-I-PO-2. All newly allocated software references use unpadded positive integers. Already-assigned references retain their exact text and ERP integration keys, including padded or generic PO forms. Counters remain monotonic per record type across formats and divisions; no renumbering or reuse. Local candidate only.
+
+
+## DEC-055 - Identity and operational learnings
+Per-type numeric reservations must treat padded and unpadded aliases as the same sequence number. Arrays used as registry maps lose named properties under JSON serialization: validate the map shape explicitly. Read-only exports should index external links once. Records with invalid/missing IDs must fail visibly, not silently disappear from reference coverage.
+History-aware document checks and server receipts already existed in the separate audit trial; port bounded safeguards and test them with this branch instead of recreating incompatible rules or merging unrelated policy changes. UI actions can be misleading even when the server rejects them: derive next-step advice from state/permissions, and separate operational arrival from settlement. Amount capacity and transaction throughput are different: a 10,000 one-line PO probe produced a 46.75 MB bootstrap and 2.45-second write despite exact ?300-crore arithmetic. Benchmark realistic shapes before architecture claims.

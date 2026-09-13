@@ -117,3 +117,5 @@ body[data-preview-theme=minimal] .scope-card.active{flex:0 1 260px;padding:12px 
 .reference-settings .panel-body{color:var(--muted)}
 #external-link-form .form-grid{margin:18px 0} #external-link-panel{scroll-margin-top:85px}
 .software-reference{font-size:10px;overflow-wrap:anywhere}
+
+.order-step-guide ol{margin:0;padding-left:22px;display:grid;gap:8px}.order-step-guide h2{font-size:18px}.order-step-blocker{margin-top:14px;color:var(--fh-green);font-weight:600}.order-step-guide .panel-head{gap:12px;flex-wrap:wrap}
