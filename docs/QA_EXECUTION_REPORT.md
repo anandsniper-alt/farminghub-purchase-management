@@ -1,3 +1,9 @@
+## Minimal timeline published - 2026-09-13
+
+**DEC-032 / WF-026 publication, 2026-09-13:** Runtime a5a9b24 is live at https://purchase.dvjassociates.com; deployment 3ontnhztuhusfj6ei7ltqodd finished successfully. The order timeline opens expanded in Minimal, survives guide toggles/reload and fits the checked 390/320px layouts. Eleven served assets match the release commit and health returns 200. All 29 POs / 15 QA orders, checked business collections and approval controls are unchanged at revision 904. This supersedes the earlier local-only publication status for the timeline update.
+
+19 live browser checks passed with zero browser errors and business-write requests. Existing domain and /app/data persistent volume preserved. No seed, migration or policy change. Evidence (ignored): test-output/timeline-live-release/after-report.json, assets.json and live-timeline-mobile.png; test-output/timeline-deploy-status.json. These checks are separate from the 60 prior local browser checks.
+
 ## Mascot live release verified - 2026-09-13
 
 **DEC-031 / WF-025 publication, 2026-09-13:** Runtime f686901 is now live at https://purchase.dvjassociates.com. Coolify deployment plcoe5ueeg0axgxtpqwoj7r2 finished successfully; the application is running:healthy. Both bottom corners, horizontal-only dragging, click suppression, saved-side reload and guide opening were verified in the live browser. This supersedes the preceding local-only publication status for the mascot change. Business data and approval controls remain unchanged.

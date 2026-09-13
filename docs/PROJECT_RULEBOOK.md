@@ -265,3 +265,5 @@ Use existing master save validation for new vendor/price imports. One source fil
 ## Order timeline visibility - DEC-032 / WF-026
 
 **MODULE-SPECIFIC UI RULE:** the order Overview workflow timeline opens expanded in Minimal and Current. Show/Hide page guides must not hide it. Users may collapse it manually; reopening the page restores the expanded default. Keep existing stage calculations, ordering and Activity history unchanged.
+
+**DEC-032 / WF-026 publication, 2026-09-13:** Runtime a5a9b24 is live at https://purchase.dvjassociates.com; deployment 3ontnhztuhusfj6ei7ltqodd finished successfully. The order timeline opens expanded in Minimal, survives guide toggles/reload and fits the checked 390/320px layouts. Eleven served assets match the release commit and health returns 200. All 29 POs / 15 QA orders, checked business collections and approval controls are unchanged at revision 904. This supersedes the earlier local-only publication status for the timeline update.
