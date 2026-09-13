@@ -6,7 +6,7 @@ import {APP_VERSION} from '../shared/domain.mjs';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..'),read=p=>readFileSync(join(root,p),'utf8');
 if(JSON.parse(read('package.json')).version!==APP_VERSION)throw new Error('package.json and shared APP_VERSION must match before issuing a build.');
 const strip=s=>s.replace(/^import\s+[^\n]*;\s*$/gm,'').replace(/^export\s+/gm,'');
-const js=['shared/vms.mjs','shared/plm.mjs','shared/shipping.mjs','shared/domain.mjs','shared/final-master-data.mjs','shared/clean-seed.mjs','web/vms-outbox.mjs','web/vms-pages.mjs','web/vms.mjs','web/app.mjs','web/theme.mjs','web/support.mjs','web/guide-poses.mjs','web/experience.mjs'].map(p=>'\n// '+p+'\n'+strip(read(p))).join('\n');
+const js=['shared/vms.mjs','shared/plm.mjs','shared/shipping.mjs','shared/domain.mjs','shared/final-master-data.mjs','shared/clean-seed.mjs','web/navigation.mjs','web/vms-outbox.mjs','web/vms-pages.mjs','web/vms.mjs','web/app.mjs','web/theme.mjs','web/support.mjs','web/guide-poses.mjs','web/experience.mjs'].map(p=>'\n// '+p+'\n'+strip(read(p))).join('\n');
 const safe=s=>s.replace(/<\/script/gi,'<\\/script');
 const template=readFileSync(join(root,'templates/LAE_Item_Master_Upload_Template_v0.1.xlsx')).toString('base64');
 const logo=readFileSync(join(root,'web/assets/farming-hub-logo.png')).toString('base64');

@@ -1,5 +1,36 @@
 /* Approved minimal presentation. Approved brand assets and colour/font tokens are inherited. */
 :root{--preview-strip:0px}
+/* Two-module workspace: one contextual navigation surface at a time. */
+.module-sidebar .brand-home{border:0;background:none;width:100%;cursor:pointer}
+.module-sidebar .module-switcher{border-bottom:1px solid #ffffff24;padding-bottom:14px;margin-bottom:8px}
+.module-sidebar .module-switcher .nav-link{line-height:1.45;min-height:46px}
+.module-sidebar .module-navigation{min-height:0}
+.module-sidebar .nav-section-title{font-size:11px;font-weight:650;color:#e0e6d8;padding:16px 13px 8px}
+.module-sidebar .nav-catalogues{margin:12px 0 8px;border-top:1px solid #ffffff24;padding-top:8px}
+.module-sidebar .nav-catalogues summary{cursor:pointer;color:#e0e6d8;font-size:12px;padding:12px 13px}
+.module-sidebar .vms-nav{padding:0;gap:1px}
+.module-sidebar .vms-nav .button{padding:9px 13px;font-weight:500;font-size:12px;border-radius:8px}
+.module-sidebar .sidebar-bottom{border-top:1px solid #ffffff24;margin-top:20px;padding-top:12px}
+.module-search-hidden{display:none!important}
+.module-shell[data-view=overview] .scope-row{display:none}
+.module-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px;max-width:1100px;margin-top:30px}
+.module-card{display:flex;gap:22px;align-items:flex-start;background:var(--white);color:var(--fh-green);border:1px solid var(--line);border-radius:16px;padding:30px;min-height:200px;transition:border-color 160ms ease,transform 160ms ease}
+.module-card:hover{border-color:var(--fh-green);transform:translateY(-2px)}
+.module-card:focus-visible{outline:3px solid var(--fh-lime);outline-offset:4px}
+.module-card-icon{display:inline-flex;align-items:center;justify-content:center;background:var(--fh-light,#edf2c0);color:var(--fh-green);width:52px;height:52px;border-radius:12px;flex-shrink:0}
+.module-card h2{font-size:21px;line-height:1.3;margin:2px 0 12px}
+.module-card p{color:var(--text);font-size:13px;line-height:1.7;max-width:300px}
+.module-card-state{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:650;margin-top:24px}
+.module-card.pending{min-height:168px;background:transparent}.module-card.pending .module-card-icon{background:var(--line)}.module-card.pending .module-card-state{color:var(--muted);margin-top:16px}
+.division-pending{max-width:700px;text-align:center;padding:48px 24px}.division-pending h2{font-size:22px;margin:20px 0 12px}.division-pending p{margin-bottom:24px;color:var(--muted)}
+.module-shell .breadcrumb{min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.module-shell .breadcrumb a{color:var(--muted)}
+.module-shell .topbar>.flex{min-width:0}.module-shell .top-tools{flex-shrink:0}
+.module-shell .vms-module-toolbar{padding:0 0 16px;justify-content:flex-end}.module-shell .vms-module-toolbar .field{display:none}
+.nav-scrim{position:fixed;inset:0;z-index:29;border:0;background:#102b206d}
+@media(max-width:1100px){.module-shell .search-top{display:none}.module-card{padding:24px;gap:16px}}
+@media(max-width:740px){.module-cards{grid-template-columns:1fr;gap:16px;margin-top:20px}.module-card{min-height:160px;padding:22px}.module-card h2{font-size:20px}.module-card.pending{min-height:130px}.module-shell .vms-module-toolbar{justify-content:space-between;align-items:end}.module-shell .vms-module-toolbar .field{display:block;min-width:0}.module-shell .vms-module-toolbar select{max-width:210px}.module-shell .vms-module-toolbar .button{flex-shrink:0}.module-sidebar .sidebar-bottom{padding-bottom:80px}}
+@media(max-width:420px){.module-card{gap:14px}.module-card-icon{width:42px;height:42px}.module-card h2{font-size:18px}.module-shell .vms-module-toolbar select{max-width:160px}}
+@media(prefers-reduced-motion:reduce){.module-card{transition:none}.module-card:hover{transform:none}}
 body{padding-top:var(--preview-strip)}
 .sidebar{top:var(--preview-strip)}.topbar{top:var(--preview-strip)}
 .preview-workflow{margin:0 0 20px}.preview-workflow>summary{cursor:pointer;font-size:12px;font-weight:650;color:var(--fh-green);padding:12px 0}.preview-workflow[open]>summary{margin-bottom:0}
@@ -76,3 +107,6 @@ body[data-preview-theme=minimal] .scope-card.active{flex:0 1 260px;padding:12px 
 
 @media print{body{padding-top:0}.preview-workflow>summary{display:none}}
 #personal-preferences .checkbox{font-size:13px}#personal-preferences .small{margin-top:10px;line-height:1.6}
+
+@media(max-width:720px){.module-sidebar.open{box-shadow:none}}
+@media(min-width:721px){.nav-scrim{display:none}}

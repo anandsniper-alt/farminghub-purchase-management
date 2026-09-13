@@ -409,3 +409,7 @@ Removing the toolbar requires removing its mobile height overrides as well as it
 - The 50 MiB upload boundary itself passed after fresh bootstrap; distinguish size failures from stale-session errors. Rejected visit validation still left orphan evidence.
 
 Full reproductions and proposed corrections are in VMS_WORKFLOW_AUDIT.md. No rule or workflow fix was implemented during this audit.
+
+
+## Cleaner navigation learnings - DEC-048
+Mixing all purchasing and twelve VMS links makes the sidebar difficult to scan. A module home and contextual sidebar reduce simultaneous choices without removing tools. web/navigation.mjs owns presentation grouping; existing hash routes, domain scopes and authorization remain separate and authoritative. The native server static allowlist and standalone build module list must both include new ESM files. Preserve old order/product deep links when regrouping navigation. Native details supports compact master navigation without a new component library. Breadcrumb text includes line breaks: browser assertions must normalize whitespace or match across it. Navigation verification compared isolated server state before/after and found no business mutations; operational VMS regressions ran separately. Historical audit findings are not resolved merely because navigation tests pass.

@@ -249,3 +249,10 @@ DEC-046 / WF-041 restores twelve named VMS screens, durable module routes, group
 ## VMS working-model audit — 2026-09-13
 
 DEC-047: audited the restored candidate without changing runtime code or live data. Reran 169 native/92 browser checks and added 23 practical visit scenarios. Recorded 15 consolidated findings (five high-priority), a proposed minimal visit/follow-up flow and acceptance tests in docs/VMS_WORKFLOW_AUDIT.md. Audit runner and case ledger committed; fixes remain pending.
+
+
+## Local - Cleaner module layout (2026-09-13)
+- Added Order Management and Vendor Management System entry cards and contextual sidebars.
+- Grouped existing purchase tools under LAE Import; LAE Domestic, Utility Division and Implements Division are clearly Pending development.
+- Reduced redundant header controls; preserved deep links, Minimal, per-login guides and mascot.
+- Verified 76 layout + 39 core VMS + 53 parity browser checks. Unpublished; pending VMS audit workflow repairs are outside this navigation change.

@@ -319,3 +319,7 @@ See VMS_PARITY_REPORT.md for queue limits, safe discard/rebase, module map, form
 ## Audit checkpoint — DEC-047
 
 VMS_WORKFLOW_AUDIT.md records confirmed defects and proposed policy changes against DEC-044/046. In particular, all-open follow-ups, optional follow-up creation and inactive-catalogue assignment restrictions are recommendations requiring a confirmed product decision. The audit does not silently supersede existing rules or authorize migration of historical records. Current visit/follow-up rollout has five high-priority findings; use their acceptance cases before claiming readiness.
+
+
+## GLOBAL RULE - Module hierarchy (DEC-048 / WF-042)
+The default workspace has two main areas: Order Management and Vendor Management System. Order Management contains LAE Import (all existing purchase tools), LAE Domestic, Utility Division and Implements Division. The latter three are Pending development, with informational pages only. Show only the current area's tools in its sidebar. LAE Import keeps the six daily-work links and a collapsible Master data & products group; shared account settings and version history remain accessible. Preserve existing deep links, scopes and server authorization. Do not interpret a division card as permission to create data for that division. Supersedes the mixed Purchase/VMS sidebar portion of DEC-046; personal Minimal preferences from DEC-045 remain. This is a confirmed user-requested navigation change, not approval of pending VMS audit workflow proposals.
