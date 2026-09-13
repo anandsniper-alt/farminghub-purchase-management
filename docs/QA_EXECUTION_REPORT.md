@@ -117,3 +117,9 @@ Live snapshots/screenshots are in ignored test-output/ashok-live-qa; case summar
 
 
 Download closure: original QA12 evidence remained accessible after actual-receipt corrections. A fresh browser download matched the original225-byte test file by SHA-256. Evidence: round2-download-integrity; r2download12-005/006. This uses local inspection of the browser-downloaded file, not a live API/database query.
+
+## Mascot corner movement - local verification, 2026-09-13
+
+DEC-031 / WF-025 implements the user-confirmed horizontal-only mascot movement with left/right bottom snapping and browser-local persistence. Native/review x Current/Minimal x 1440/390px coverage: 48 checks passed for normal pagination, horizontal drag without vertical displacement/accidental guide opening, reload and dialog persistence, keyboard positioning/activation, touch swipe and settled tap, and 320px resize bounds. Chrome may suppress taps briefly after the target moves; the touch runner waits for that settling interval rather than forcing clicks.
+
+The existing presentation suite also passed 44 checks, including guide steps, unsaved forms, reduced motion, mobile sizing, zero runtime errors, zero business-write requests and unchanged test workspace data. Standalone review build regenerated; diff whitespace check passed. All tests used isolated fixtures, no live records were created or changed. This mascot update has not been published. Ignored evidence: test-output/mascot-pagination/2026-09-13T01-35-22-126Z/report.json and test-output/presentation-release/2026-09-13T01-35-00-904Z/report.json.

@@ -184,3 +184,9 @@ Soft-launch QA: preserve full recorded Indian-bank rate precision in the remitta
 ## Published — 2026-09-13
 
 Released f5d5514 to the existing Coolify website. Bug fixes and Manager setup/import/recovery controls are live. Activated every Manager approval stage through the audited Admin form; verified Ashok/Suresh active scoped Manager profiles. Eleven runtime assets, healthy service, preserved 29 orders / 15 QA orders and one policy audit event verified. No data cleanup or profile changes.
+
+## Local update - mascot corner movement (2026-09-13)
+
+- Guide me can be dragged left/right and snaps to a bottom corner; the browser remembers the choice.
+- Focus the launcher and use Left/Right arrows for keyboard positioning. Vertical movement is disabled; existing guidance and branding remain.
+- Rebuilt the standalone review and extended mascot/pagination browser regression coverage. Publication is not included in this local update.

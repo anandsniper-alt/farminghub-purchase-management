@@ -304,3 +304,9 @@ See [QA_EXECUTION_REPORT.md](QA_EXECUTION_REPORT.md), [QA_DEFECT_LOG.md](QA_DEFE
 
 
 Final browser handoff: **12 retained QA POs**, serials15–26. Ten are Port arrived and settled. QA-ASHOK-0912-12 and QA-ASHOK-0912-13 remain at Production lead time with USD30 received and USD70 outstanding each, ready for sample completion. One USD60 remittance split30/30, duplicate-reference rejection and excess-receipt correction were verified through Ashok's browser. Search QA-ASHOK-0912 with All stages / All suppliers. No test records were deleted; fixes remain local, not deployed.
+
+## Mascot corner movement - local verification, 2026-09-13
+
+DEC-031 / WF-025 implements the user-confirmed horizontal-only mascot movement with left/right bottom snapping and browser-local persistence. Native/review x Current/Minimal x 1440/390px coverage: 48 checks passed for normal pagination, horizontal drag without vertical displacement/accidental guide opening, reload and dialog persistence, keyboard positioning/activation, touch swipe and settled tap, and 320px resize bounds. Chrome may suppress taps briefly after the target moves; the touch runner waits for that settling interval rather than forcing clicks.
+
+The existing presentation suite also passed 44 checks, including guide steps, unsaved forms, reduced motion, mobile sizing, zero runtime errors, zero business-write requests and unchanged test workspace data. Standalone review build regenerated; diff whitespace check passed. All tests used isolated fixtures, no live records were created or changed. This mascot update has not been published. Ignored evidence: test-output/mascot-pagination/2026-09-13T01-35-22-126Z/report.json and test-output/presentation-release/2026-09-13T01-35-00-904Z/report.json.

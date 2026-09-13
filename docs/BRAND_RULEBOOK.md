@@ -204,3 +204,7 @@ Reuse the existing approval dialog for the Independent Manager preset and the sh
 
 
 **DEC-030 published verification, 2026-09-13:** The approved Minimal/Current theme, mascot and page-guide assets remain unchanged; the published Manager/setup controls use the documented shared styles. Eleven runtime assets match release f5d5514.
+
+## Mascot corner placement - DEC-031
+
+Retain the existing logo, elephant, Guide me pill, colors and dimensions. Allow bottom-left or bottom-right docking in Current and Minimal, with existing mobile spacing. During dragging, translate horizontally within the viewport and use the grabbing cursor. Do not add vertical placement, a new toolbar or decorative animation. Keep Show page guides separate.

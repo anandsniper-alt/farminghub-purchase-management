@@ -339,3 +339,7 @@ A missing benchmark is a data prerequisite, not necessarily an Admin restriction
 
 
 **DEC-030 release verification:** Compare served files with Git blob bytes rather than Windows working-tree bytes, since checkout line-ending normalization can differ. Verify deployment-preserved business hashes before applying a separately authorized policy change; then require exactly one policy audit event and unchanged business collections. The live Admin browser confirmed Ashok/Suresh already had the required roles, avoiding unnecessary profile edits.
+
+## Movable mascot - DEC-031
+
+The existing bottom scroll clearance does not resolve every possible overlap. A two-corner preference lets users uncover controls without a free-position layout system. Keep the side on the same dock when it moves into the native guide dialog. Use pointer capture, an 8px movement threshold and compatibility-click suppression; separate drag displacement from activation. Store only left/right, not viewport coordinates or workspace records. Chrome touch testing needs a settled target after snapping: rapid taps immediately after a moving target can be suppressed by the browser. Do not bypass normal guide/button activation to conceal that browser behavior.

@@ -5,6 +5,42 @@ const title=tour.querySelector('#support-title'),copy=tour.querySelector('#suppo
 const step=(selector,title,text)=>({selector,title,text});
 const mascot=tour.querySelector('.support-mascot'),poses=window.FH_GUIDE_POSES;
 const dock=document.querySelector('.support-dock'),take=tour.querySelector('[data-support=take]');
+// This browser's corner preference is presentation only, never workspace data.
+const dockKey='fh-guide-dock-side';let drag=null,suppressClick=false;
+function setDockSide(side,persist=false){
+ dock.dataset.side=side==='left'?'left':'right';dock.style.transform='';dock.classList.remove('support-dragging');
+ if(persist)try{localStorage.setItem(dockKey,dock.dataset.side);}catch{}
+}
+try{setDockSide(localStorage.getItem(dockKey));}catch{setDockSide('right');}
+launcher.title='Drag left or right to move. Tap for guidance. Keyboard: Left or Right arrow.';
+launcher.setAttribute('aria-description','Drag left or right to choose a bottom corner. When focused, use Left or Right arrow to move; Enter or Space opens guidance.');
+launcher.querySelectorAll('img').forEach(img=>img.draggable=false);
+launcher.addEventListener('pointerdown',event=>{
+ if(!event.isPrimary||event.button!==0)return;
+ suppressClick=false;drag={id:event.pointerId,x:event.clientX,y:event.clientY,left:dock.getBoundingClientRect().left,moved:false};
+ launcher.setPointerCapture(event.pointerId);
+});
+launcher.addEventListener('pointermove',event=>{
+ if(!drag||drag.id!==event.pointerId)return;
+ const dx=event.clientX-drag.x;if(!drag.moved&&Math.hypot(dx,event.clientY-drag.y)<8)return;
+ drag.moved=true;suppressClick=true;dock.classList.add('support-dragging');
+ const left=Math.max(10,Math.min(innerWidth-dock.offsetWidth-10,drag.left+dx));
+ dock.style.transform=`translateX(${left-drag.left}px)`;
+});
+function endDrag(event,cancel=false){
+ if(!drag||drag.id!==event.pointerId)return;
+ const moved=drag.moved,r=dock.getBoundingClientRect();drag=null;
+ if(moved)setDockSide(!cancel?(r.left+r.width/2<innerWidth/2?'left':'right'):dock.dataset.side,!cancel);
+ if(cancel&&launcher.hasPointerCapture(event.pointerId))launcher.releasePointerCapture(event.pointerId);
+}
+launcher.addEventListener('pointerup',event=>endDrag(event));
+launcher.addEventListener('pointercancel',event=>endDrag(event,true));
+launcher.addEventListener('lostpointercapture',event=>endDrag(event,true));
+launcher.addEventListener('keydown',event=>{
+ if(!['ArrowLeft','ArrowRight'].includes(event.key)||event.altKey||event.ctrlKey||event.metaKey)return;
+ event.preventDefault();event.stopPropagation();setDockSide(event.key==='ArrowLeft'?'left':'right',true);
+});
+addEventListener('resize',()=>{if(drag)endDrag({pointerId:drag.id},true);});
 // Decode the embedded poses once so repeat guide steps reuse the browser cache.
 for(const pose of Object.values(poses)){const img=new Image();img.src=pose.src;img.decode().catch(()=>{});}
 const common=[step('.page-head','Start with this page','The heading tells you where you are. I will point out the controls available in your current view.'),step('main .toolbar','Narrow your view','Use the available filters to find the records you need. Filtering changes what you see, not the saved records.'),step('main .tabs','Explore the sections','These tabs group related information. Close this guide to switch sections, then choose Guide me for help in that view.'),step('main .table-wrap','Review the records','Read the column headings and scroll sideways on a narrow screen to see all columns. Open a record using its available link or action.')];
@@ -60,12 +96,16 @@ function show(){
 }
 function close(){if(tour.open)tour.close();}
 function availability(){launcher.hidden=false;if(tour.open&&(!target?.isConnected||!visible(target)))close();}
-launcher.addEventListener('click',()=>{
+launcher.addEventListener('click',event=>{
+ if(suppressClick&&event.detail!==0){suppressClick=false;event.preventDefault();return;}
+ activateGuide();
+});
+function activateGuide(){
  if(tour.open){close();return;}
  const modal=document.querySelector('#modal-root .modal');steps=modal?formSteps(modal):pageSteps();
  if(!steps.length){const login=resolve('.login-card,.boot');if(login)steps=[direct(login,'Start here','Use your assigned sign-in details to open the workspace. Ask your administrator for access if needed. Never share your password in a help request.')];}
  if(!steps.length)return;returnFocus=launcher;index=0;tour.showModal();placeDock();show();
-});
+}
 tour.addEventListener('click',event=>{const action=event.target.closest('[data-support]')?.dataset.support;if(action==='close')close();else if(action==='take'){focusAfterClose=target;close();}else if(action==='next'){if(index===steps.length-1)close();else{index++;show();}}else if(action==='back'&&index>0){index--;show();}});
 // Keep the application's global Escape handler from closing an unrelated app modal.
 tour.addEventListener('keydown',event=>{

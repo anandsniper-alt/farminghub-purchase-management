@@ -255,3 +255,7 @@ Use existing master save validation for new vendor/price imports. One source fil
 
 
 **DEC-030 live activation, 2026-09-13:** Independent Manager workflow is now the saved production matrix at approval-control revision 2. Every active scoped Manager has all 13 approval stages. This is persisted configuration, not a hard-coded bypass: later Admin saves remain effective. Other grants, evidence/readiness, ownership/division rules and Admin-only controls remain.
+
+## Bottom-corner mascot movement - DEC-031 / WF-025
+
+**GLOBAL UI RULE:** the persistent Guide me launcher may move horizontally only. On release, snap to the nearer bottom-left or bottom-right corner; never persist a free-floating or vertical position. Default right, remember the side in browser-local presentation storage, and tolerate unavailable/invalid storage. Left/Right arrows while focused provide equivalent keyboard control. Dragging must not activate guidance. Keep ordinary click/tap and Enter/Space guidance, top-layer availability and existing bottom content clearance.

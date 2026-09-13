@@ -394,3 +394,13 @@ Use "not recorded" for unavailable historical rationale. A recommendation remain
 
 
 **DEC-030 publication and activation — 2026-09-13:** User requested publish after fixes. Released f5d5514 through existing Coolify deployment fghgsunna2djj2wpin1ytwao. Live Admin saved the reviewed all-stage Manager preset, control revision 2, preserving other grants and appending one policy event. Ashok/Suresh active Manager profiles and LAE Import scope verified. No role/scope or business-record changes. See QA_EXECUTION_REPORT.md for current live evidence; prior local-only status is superseded for this release.
+
+## DEC-031 - Guide launcher snaps between bottom corners
+
+**Date:** 2026-09-13. **Area/scope:** GLOBAL UI, persistent mascot. **Status:** confirmed by user and implemented locally.
+
+**Existing behavior:** the guide is fixed bottom-right and can obstruct controls despite bottom scroll clearance. **Proposed behavior:** move the mascot out of the way. **Final user choice:** only left or right movement; stick to the left corner when moved left. **Final implementation:** horizontal drag snaps to the nearer bottom corner, remembered per browser, with Left/Right keyboard alternatives. Vertical movement is excluded.
+
+**Alternatives considered:** arbitrary free positioning (contradicts final constraint and increases resize complexity); hide the mascot (conflicts with persistent guidance); only increase padding (does not cover all overlays). **Advantages:** exposes underlying controls while preserving familiar placement. **Disadvantages:** only two resting positions; Chrome may briefly suppress immediate taps after a moving target. **Risks:** accidental guide activation, off-screen positioning, lost preference, modal layering. Mitigations are drag threshold/click suppression, responsive edge anchoring, guarded storage and keeping the same dock in the guide top layer.
+
+**Dependencies/files:** web/support.mjs, web/support.css, generated standalone review HTML and tests/mascot_pagination_browser_flow.mjs. **Workflow/other-module impact:** presentation only; normal guidance, pagination, permissions and business commands remain unchanged. **Data/API/calculations:** no database, server endpoint or financial change. Browser-local side preference only. **Reason:** implements the explicit restricted movement requirement without redesigning the product. **Documentation updated:** all six memory documents, QA report and changelog. **Related:** WF-025; extends DEC-024 and the DEC-029 clearance fix.

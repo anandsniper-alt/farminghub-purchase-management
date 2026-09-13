@@ -387,3 +387,7 @@ Native/standalone setup and complete Manager-only workflows are validated separa
 ## Live Manager workflow release — 2026-09-13
 
 Runtime f5d5514 is deployed and healthy at https://purchase.dvjassociates.com; all 13 Manager approval grants are activated at control revision 2. Ashok and Suresh are active scoped Managers. All 29 POs / 15 QA orders and linked business collections were preserved; the policy change added one audit event. Domain and persistent volume unchanged. Current evidence is in QA_EXECUTION_REPORT.md. This supersedes earlier local-only/activation-pending notes for DEC-029/030; remaining QA/policy limits remain.
+
+## Local mascot corner update - 2026-09-13
+
+DEC-031 / WF-025: Guide me supports horizontal dragging and snaps to the nearer bottom corner. Focused Left/Right arrows choose a corner. The browser remembers the selected side through reloads and guide-dialog reparenting. Cancelled drags return to the saved side; resizing retains responsive corner anchoring. The standalone review build includes this update. This addendum is local implementation evidence, not a new live publication claim.
