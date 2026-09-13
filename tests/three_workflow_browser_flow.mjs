@@ -40,7 +40,7 @@ async function login(role){if(managerOnly)assert.equal(role,'manager','Manager-o
 async function screenshot(label){await page.screenshot({path:join(out,current.id+'-'+label+'.png'),fullPage:true});}
 async function overview(){await page.locator('.tab[data-action=tab][data-value=overview]').click();}
 async function response(button,label){await action(button);await files(label);await fill('remarks','Isolated test: '+label);await submit();}
-function order(){return store.read().orders.find(o=>o.number===current.id+'-TEST');}
+function order(){return store.read().orders.find(o=>o.id===current.orderId);}
 async function settleOutstanding(){
  await page.locator('.tab[data-action=tab][data-value=finance]').click();
  // Select only allocated milestones; settle BL balances after final BL is recorded.
@@ -83,9 +83,9 @@ async function recordManagerBoundary(){
 async function workflow(config){
  current={...config,checks:[],roles:new Set(),paymentSerial:0,status:'RUNNING'};report.workflows.push(current);console.log('START '+current.id+' '+current.title);
  await page.goto(origin+'/#/orders');await login(managerOnly?'manager':'exec');await action('Create purchase order');
- await select('vendorId','vendor-v30');await select('buyerId','u-exec');await select('priceListCurrency',config.priceListCurrency||config.currency);await select('currency',config.currency);if(config.priceListCurrency&&config.priceListCurrency!==config.currency){await fill('priceListFxRate','7.2');await fill('priceListFxDate',new Date().toISOString().slice(0,10));}await select('base-0','base-bs20');await fill('qty-0-GJ',config.quantity);await fill('baseprice-0',config.unitPrice);await select('terms',config.terms);await fill('planningTat','75');await fill('number',current.id+'-TEST');
+ await select('vendorId','vendor-v30');await select('buyerId','u-exec');await select('priceListCurrency',config.priceListCurrency||config.currency);await select('currency',config.currency);if(config.priceListCurrency&&config.priceListCurrency!==config.currency){await fill('priceListFxRate','7.2');await fill('priceListFxDate',new Date().toISOString().slice(0,10));}await select('base-0','base-bs20');await fill('qty-0-GJ',config.quantity);await fill('baseprice-0',config.unitPrice);await select('terms',config.terms);await fill('planningTat','75');check('PO number is automatic and read-only',await page.locator('[name=poNumberDisplay]').getAttribute('readonly')!==null&&await page.locator('[name=number]').count()===0);
  if(await page.locator('[name=productionOverrideReason]').count())await fill('productionOverrideReason','Isolated test product commitment.');
- await fill('notes','ISOLATED BROWSER TEST. No real purchase or payment.');await submit();check('Draft created from Base Item and brand quantity',order().lines.length===1);
+ await fill('notes','ISOLATED BROWSER TEST. No real purchase or payment.');await submit();current.orderId=page.url().split('/order/')[1];check('PO number matches permanent reference',order().number===store.read().recordReferences.entries[JSON.stringify(['orders','','',current.orderId])].reference);check('Draft created from Base Item and brand quantity',order().lines.length===1);
  await action('Submit for approval');check(managerOnly?'Purchase Manager can approve submitted PO':'Executive PO approval visibility follows the current policy',!!await page.getByRole('button',{name:'Approve & issue',exact:true}).count()===managerOnly);
  if(!delegated)await login('manager');await action('Approve & issue');check('Authorized actor issued immutable PO revision',order().revisions.length===1);check('Missing approved PLM remains an explicit warning',await page.getByText('PLM specification not available',{exact:false}).count()>0);
  if(current.operator==='exec')await login('exec');

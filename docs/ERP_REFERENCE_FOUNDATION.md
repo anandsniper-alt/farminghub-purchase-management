@@ -4,7 +4,7 @@ Date: 2026-09-13. Decision DEC-053; workflow WF-047. Status: implemented and tes
 
 ## Identity contract
 
-Existing internal IDs, editable PO numbers, supplier PI/invoice numbers, item codes and display serials retain their existing meanings and validation. A separate permanent software reference identifies each supported record. Never match integrations by a display serial or editable document number alone.
+New PO numbers equal their permanent software reference (DEC-056), for example FH-LAE-I-PO-1. Internal IDs, saved legacy PO numbers, supplier PI/invoice numbers, item codes and display serials retain their meanings. Supplier PI/invoice numbers remain manual. Never match integrations by a display serial or supplier document number alone; use the namespace and permanent reference.
 
 | Record | Prefix | Example |
 |---|---|---|

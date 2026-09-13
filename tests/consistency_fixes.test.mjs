@@ -26,7 +26,7 @@ test('a shared supplier cannot expose prices or complaints belonging to another 
 
 test('tracking import checks every matched order before committing the batch',()=>{
  const s=createSeed('2026-09-12'),actor=s.users.find(u=>u.role==='EXECUTIVE'),template=s.orders.find(o=>o.shipments.length),ship=template.shipments[0];
- s.orders=['owned','other','outside'].map((id,i)=>({...structuredClone(template),id,serialNumber:i+1,buyerId:i===1?'another-executive':actor.id,scope:i===2?'UTILITY_DOMESTIC':'LAE_IMPORT',shipments:[{...structuredClone(ship),id:'ship-'+id,forwarderRef:'REF-'+id}]}));
+ s.orders=['owned','other','outside'].map((id,i)=>({...structuredClone(template),id,numberSource:undefined,number:'LEGACY-'+id,serialNumber:i+1,buyerId:i===1?'another-executive':actor.id,scope:i===2?'UTILITY_DOMESTIC':'LAE_IMPORT',shipments:[{...structuredClone(ship),id:'ship-'+id,forwarderRef:'REF-'+id}]}));
  s.files.push({id:'tracking-proof',name:'tracking.csv',scope:'LAE_IMPORT',orderIds:[]});
  const rows=ids=>ids.map(id=>({Ref:'REF-'+id,Status:'SHIPPER LOADED CARGO',ETD:'15.09.2026',ETA:'28.09.2026'}));
  const run=(ids,u=actor)=>execute(s,{type:'COMMIT_TRACKING_IMPORT',payload:{rows:rows(ids),filename:'tracking.csv',sourceFileId:'tracking-proof'}},u);

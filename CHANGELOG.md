@@ -288,3 +288,8 @@ LAE Import POs now allocate FH-LAE-I-PO-1 style references. All new reference su
 
 ## Local ERP/order safeguards - 2026-09-13
 Added historical PO and supplier-specific PI/invoice duplicate checks, conditional invoice number/date fields, stricter reference validation, PI/evidence identities, durable command/upload retry receipts, searchable/printed PO references and practical next-step guidance. Initial INR-to-INR payment rate now consistently requires 1. Existing permissions, issued snapshots and financial formulas preserved. No live deployment. Capacity probing exposed an open whole-workspace storage bottleneck; see docs/ERP_ORDER_SAFEGUARDS_REPORT.md (DEC-055 / WF-049).
+
+### Automatic PO numbers - local candidate, 2026-09-13
+- New PO numbers equal their permanent reference; manual numbering removed from PO entry and draft edits. Supplier PI numbers remain manual.
+- Preserve legacy saved numbers and issued snapshots, skip historical collisions, retain deletion reservations, and stop on missing/mismatched automatic identity.
+- Updated DEC-056/WF-050 and native/browser coverage. Not deployed.

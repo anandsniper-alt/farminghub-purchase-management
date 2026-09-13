@@ -21,7 +21,7 @@ test('bulk delete/restore enforces admin, bounded selection, reason and atomic v
  for(const role of ['MANAGER','EXECUTIVE','PRODUCT_MANAGER','VIEWER'])for(const type of ['DELETE_ORDERS','RESTORE_ORDERS'])assert.throws(()=>f.run(type,{orderIds:[a],remarks:'Attempt'},f.role(role)),e=>e.code==='FORBIDDEN');
  for(const payload of [{orderIds:[],remarks:'x'},{orderIds:[a,a],remarks:'x'},{orderIds:[a,'missing'],remarks:'x'},{orderIds:[a],remarks:''},{orderIds:Array(201).fill(a),remarks:'x'}])assert.throws(()=>f.run('DELETE_ORDERS',payload,admin));
  assert.deepEqual(f.state,before);f.run('DELETE_ORDERS',{orderIds:[a],remarks:'Test'},admin);const deleted=structuredClone(f.state);assert.throws(()=>f.run('DELETE_ORDERS',{orderIds:[b,a],remarks:'Mixed'},admin));assert.throws(()=>f.run('RESTORE_ORDERS',{orderIds:[a,b],remarks:'Mixed'},admin));assert.deepEqual(f.state,deleted);
- const ref=f.get(a).number;assert.throws(()=>f.draft({number:ref}),/already (exists|reserved)/i);
+ const ref=f.get(a).number,c=f.draft({number:ref});assert.notEqual(f.get(c).number,ref);assert.match(f.get(c).number,/^FH-LAE-I-PO-[1-9][0-9]*$/);
 });
 
 test('approval roles remain authoritative with no date-based executive delegation',()=>{
