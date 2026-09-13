@@ -260,3 +260,7 @@ DEC-047: audited the restored candidate without changing runtime code or live da
 
 ### Local sidebar spacing fix - 2026-09-13
 Prevent expanded master navigation overlapping the bottom menu; retain section height and scroll the sidebar on short screens. Five viewport checks and 76 layout regression checks passed.
+
+
+### Local - Remove duplicate division shortcut
+Removed All divisions from the LAE Import sidebar; Order Management already opens division selection (DEC-049 / WF-043).

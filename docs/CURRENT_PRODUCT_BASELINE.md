@@ -468,3 +468,7 @@ Implemented on feature/clean-module-layout, based on the audited twelve-module V
 
 ### Local sidebar overlap fix - 2026-09-13
 Corrected expanded Master data & products overlapping All divisions / Modules on shorter screens. Sidebar children retain their height and the existing outer sidebar scrolls. No navigation or business behavior changed. Five viewport checks and all 76 server/review layout checks passed. Unpublished.
+
+
+### DEC-049 - Sidebar shortcut cleanup
+Removed the redundant All divisions sidebar button. Use Order Management to return to division selection. Local preview updated; unpublished.

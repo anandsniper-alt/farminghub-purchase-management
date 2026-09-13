@@ -326,3 +326,6 @@ The default workspace has two main areas: Order Management and Vendor Management
 
 
 **GLOBAL RULE - DEC-048 sidebar sizing correction:** Sidebar sections must retain their content height. When the menu exceeds the viewport, scroll the sidebar; do not compress a section so its links overlap the shared footer.
+
+
+**MODULE-SPECIFIC RULE - DEC-049:** Use the top Order Management button to switch divisions. Do not add a duplicate All divisions shortcut below the LAE Import sidebar tools.
