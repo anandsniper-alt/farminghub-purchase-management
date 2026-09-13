@@ -374,3 +374,12 @@ Legacy role aliases and offline replay cannot be copied blindly: the original VI
 The source has two different concentration definitions: product coverage depends on total/active vendors, while component coverage filters stages by countsInSourcing. Preserve each with explicit labels. Weighted evaluation renormalizes partial ratings and rounds before percentage/grade; show the rated count to avoid interpreting a single score as a full assessment. Full formula contracts and parity boundaries: VMS_MODULE.md.
 
 Standalone builds flatten imports: new shared VMS helpers must precede domain, and the VMS UI factory must precede app.mjs. Native serving needs explicit allowlist entries for both VMS modules. Keep implementation inside a factory to avoid collisions in the flattened review script. Verify native and review modes, not just syntax.
+
+
+## Personal presentation preferences — DEC-045
+
+The removed theme chooser used browser-wide localStorage and the guide toggle was transient. Neither satisfies per-login persistence. Reuse the authenticated user profile, SAVE_PERSONAL_PREFERENCES and existing /api/commands revision check; use an allowlisted boolean payload and derive the target from the server actor. An active Viewer may change personal display without acquiring purchase/master permissions. Do not attach this action to SAVE_SETTINGS, which is administrator-owned global policy.
+
+App render supplies only the effective guide boolean to the presentation module via body data and a notification event; mountTheme handles either module startup order. Login/logout clears presentation state so shared-browser accounts do not inherit the last user's view. Server account preferences survive a fresh browser; standalone preferences stay in that review profile. Old fh-appearance-style is ignored. Retain timeline expansion independently of guide preference, and do not restart mutations or submit forms when guide visibility changes.
+
+Removing the toolbar requires removing its mobile height overrides as well as its markup. Keep --preview-strip at zero for existing position references. Browser checks cover 390/320px header spacing, button hit testing, animations, mascot, account switching, reload and new context. Test init scripts must seed browser review data only when absent; unconditional reload seeding masks real persistence failures.

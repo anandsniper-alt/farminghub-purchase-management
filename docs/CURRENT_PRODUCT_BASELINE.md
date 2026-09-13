@@ -441,3 +441,10 @@ The user explicitly requested publication of the reviewed VMS integration. Runti
 **36 live checks passed**, covering committed app/VMS/domain/styles/guide assets, health, existing login, all VMS tabs, legacy supplier profile, creation/evaluation/sample/interaction/document forms opened and cancelled, multiple-file input, linked purchase history, Current/Minimal/mobile, mascot guidance, existing vendor master and PO pipeline. Zero browser runtime errors or business-write requests. All 32 saved state sections match the fresh predeployment fingerprint: **30 orders, revision 961**, including vendors, users, files, events, payments and approval controls. Isolated release validation already passed 156 native tests and 41 browser checks.
 
 Use **Libraries → Vendor Management (VMS)** with the existing Purchase login. Core CRM is live; source-only historical data and unported offline/voice/PWA/export/geography tools remain outside this release as documented in VMS_MODULE.md. Private verification files remain ignored under test-output.
+
+
+## Minimal standard and per-login page guides — 2026-09-13
+
+DEC-045 / WF-040 is implemented on feature/personal-guides from the VMS production baseline. Minimal is the only theme; the top appearance/guide strip and its reserved space are removed. Users & settings begins with My preferences, where each signed-in user saves Show page guides for their own account. Default is off; saves/reload/new sessions restore that account's preference. Other users, roles, scopes, POs, financials, approval controls and issued history remain unchanged. Mascot help, animations/reduced motion and expanded order timeline remain.
+
+This is a **local, unpublished feature**. The preceding VMS publication remains the live baseline until this feature is explicitly released. The isolated preview at http://127.0.0.1:8138/#/settings shows the new controls. See PERSONAL_PREFERENCES_TEST_REPORT.md for current validation; older toolbar/theme test records are historical evidence.

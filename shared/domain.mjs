@@ -10,6 +10,7 @@ export const APP_VERSION='0.6.1-alpha.16';
 export const SCHEMA_VERSION=7;
 export const MAX_UPLOAD_BYTES=50*1024*1024;
 export const UPLOAD_EXTENSIONS=['pdf','png','jpg','jpeg','webp','txt','docx','xlsx','csv','eml'];
+export const personalPreferences=user=>({showPageGuides:user?.preferences?.showPageGuides===true});
 export const USER_ROLES=['ADMIN','MANAGER','EXECUTIVE','PRODUCT_MANAGER','VIEWER'];
 export const SCOPES=['LAE_IMPORT','LAE_DOMESTIC','UTILITY_DOMESTIC','IMPLEMENTS_DOMESTIC'];
 export const SCOPE_LABELS={LAE_IMPORT:'LAE · Import',LAE_DOMESTIC:'LAE · Domestic',UTILITY_DOMESTIC:'Utility · Domestic',IMPLEMENTS_DOMESTIC:'Implements · Domestic'};
@@ -333,7 +334,9 @@ function dRefreshProductionWindow(state,o,ctx,log){if(o.productionWindowStartedA
 export function execute(input,command,user,{now=new Date().toISOString(),id=()=>crypto.randomUUID()}={}){
  ensure(user?.id&&user.active!==false,'An active login is required.','FORBIDDEN');const state=clone(input);ensureOrderSerials(state);const ctx={now,id,user,command:command.type},p=command.payload||{};let result={};const type=command.type;
  const order=(edit=true)=>dFindOrder(state,p.orderId,user,edit);const log=(o,action,summary,old=null,updated=null)=>dEvent(state,ctx,'order',o.id,action,summary,old,updated);
- if(type.startsWith('VMS_')){result=applyVmsCommand(state,type,p,ctx,{ensure,scopeAllowed,canApprove,canCreate,toMinor,event:(...args)=>dEvent(state,ctx,...args)});
+ if(type==='SAVE_PERSONAL_PREFERENCES'){
+  ensure(p&&typeof p==='object'&&!Array.isArray(p)&&Object.keys(p).length===1&&typeof p.showPageGuides==='boolean','Supply only a boolean page-guide preference.');const profile=state.users.find(u=>u.id===user.id);ensure(profile&&profile.active!==false,'Your active user profile is required.','FORBIDDEN');const previous=personalPreferences(profile);profile.preferences={...(profile.preferences||{}),showPageGuides:p.showPageGuides};dEvent(state,ctx,'user',profile.id,'PERSONAL_PREFERENCES_UPDATED','Personal page-guide preference saved for this login.',previous,personalPreferences(profile));result={preferences:personalPreferences(profile)};
+ }else if(type.startsWith('VMS_')){result=applyVmsCommand(state,type,p,ctx,{ensure,scopeAllowed,canApprove,canCreate,toMinor,event:(...args)=>dEvent(state,ctx,...args)});
  }else if(type==='DELETE_ORDERS'||type==='RESTORE_ORDERS'){
   ensure(user.role==='ADMIN','Administrator access required.','FORBIDDEN');ensure(Array.isArray(p.orderIds)&&p.orderIds.length>0&&p.orderIds.length<=200,'Select 1 to 200 purchase orders.');const ids=[...new Set(p.orderIds)];ensure(ids.length===p.orderIds.length,'Duplicate order selection.');ensure(text(p.remarks),'A reason is required.');const deleting=type==='DELETE_ORDERS';const orders=ids.map(oid=>{const o=state.orders.find(o=>o.id===oid);ensure(o,'Selected order not found.','NOT_FOUND');ensure(deleting?!o.deletedAt:!!o.deletedAt,deleting?'A selected PO is already deleted.':'A selected PO is not deleted.');return o;});for(const o of orders){const old={deletedAt:o.deletedAt||null,deletedBy:o.deletedBy||null,deletionReason:o.deletionReason||null};if(deleting){o.deletedAt=now;o.deletedBy=user.name;o.deletedById=user.id;o.deletionReason=text(p.remarks);}else{delete o.deletedAt;delete o.deletedBy;delete o.deletedById;delete o.deletionReason;}log(o,deleting?'ORDER_DELETED':'ORDER_RESTORED',deleting?'PO removed from active operations; all linked records and original numbers retained.':'PO restored with its original serial, number and workflow state.',old,{serialNumber:o.serialNumber,number:o.number,deletedAt:o.deletedAt||null,remarks:text(p.remarks)});}result={count:orders.length};
  }else if(type==='CREATE_ORDER'){

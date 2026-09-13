@@ -232,3 +232,10 @@ The user explicitly requested publication of the reviewed VMS integration. Runti
 **36 live checks passed**, covering committed app/VMS/domain/styles/guide assets, health, existing login, all VMS tabs, legacy supplier profile, creation/evaluation/sample/interaction/document forms opened and cancelled, multiple-file input, linked purchase history, Current/Minimal/mobile, mascot guidance, existing vendor master and PO pipeline. Zero browser runtime errors or business-write requests. All 32 saved state sections match the fresh predeployment fingerprint: **30 orders, revision 961**, including vendors, users, files, events, payments and approval controls. Isolated release validation already passed 156 native tests and 41 browser checks.
 
 Use **Libraries → Vendor Management (VMS)** with the existing Purchase login. Core CRM is live; source-only historical data and unported offline/voice/PWA/export/geography tools remain outside this release as documented in VMS_MODULE.md. Private verification files remain ignored under test-output.
+
+
+## Unreleased — standard Minimal theme and personal page guides
+
+- Removed Current theme and the top appearance/page-guide toolbar, including reserved header space.
+- Added Users & settings → My preferences → Show page guides, saved only for the signed-in account and restored across sessions/browsers.
+- Kept mascot, expanded order timeline, animations/reduced motion, warning/error visibility and business permissions unchanged. This feature is local and has not been published.

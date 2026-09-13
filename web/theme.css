@@ -1,13 +1,8 @@
 /* Approved minimal presentation. Approved brand assets and colour/font tokens are inherited. */
-:root{--preview-strip:46px}
+:root{--preview-strip:0px}
 body{padding-top:var(--preview-strip)}
-.theme-lab{position:fixed;inset:0 0 auto;z-index:250;height:var(--preview-strip);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 20px;background:var(--fh-green);color:#fff;border-bottom:1px solid #ffffff30;font-size:11px}
-.theme-lab-title{font-weight:700;display:flex;gap:12px;align-items:center}.theme-lab-title span{font-weight:400;opacity:.8}
-.theme-lab-controls{display:flex;align-items:center;gap:9px}.theme-lab .segmented{background:#fff}.theme-lab .segmented button{padding:6px 12px;font-size:11px;min-height:28px}.theme-lab .segmented button[aria-pressed=true]{background:var(--fh-lime);color:var(--fh-green)}
-.theme-lab :is(.theme-guide,.theme-replay){color:#fff;background:transparent;border:1px solid #ffffff60;border-radius:8px;padding:6px 10px;font-size:11px;min-height:28px}.theme-lab button:focus-visible{outline:3px solid var(--fh-lime);outline-offset:2px}
 .sidebar{top:var(--preview-strip)}.topbar{top:var(--preview-strip)}
 .preview-workflow{margin:0 0 20px}.preview-workflow>summary{cursor:pointer;font-size:12px;font-weight:650;color:var(--fh-green);padding:12px 0}.preview-workflow[open]>summary{margin-bottom:0}
-body[data-preview-theme=current] .preview-workflow>summary{display:none}
 body[data-preview-theme=minimal]{background:var(--bg);--fh-shadow:none;--fh-shadow-sm:none}
 body[data-preview-theme=minimal] .sidebar:before,body[data-preview-theme=minimal] .sidebar:after,body[data-preview-theme=minimal] .page-head:after{display:none}
 body[data-preview-theme=minimal] .sidebar-note,body[data-preview-theme=minimal] .footer-note,body[data-preview-theme=minimal] .brand-sub{display:none}
@@ -63,23 +58,21 @@ body[data-preview-theme=minimal] .button:active{transform:translateY(1px)}
 body[data-preview-theme=minimal] tr.row-click{transition:background-color 120ms ease}
 @media(max-width:720px){
  body[data-preview-theme=minimal] .grid-main{grid-template-columns:minmax(0,1fr)}
- :root{--preview-strip:78px}.theme-lab{padding:8px 14px;flex-direction:column;align-items:stretch;gap:5px}.theme-lab-title{justify-content:space-between;font-size:10px}.theme-lab-controls{justify-content:space-between}.theme-lab .segmented button{padding:4px 8px}.theme-lab-controls{gap:5px}.theme-lab :is(.theme-guide,.theme-replay){padding:6px}.theme-lab :is(.theme-guide,.theme-replay){font-size:10px}
  body[data-preview-theme=minimal] .content{padding:20px 16px}body[data-preview-theme=minimal] .topbar{padding:0 16px;height:62px}body[data-preview-theme=minimal] .page-head{align-items:flex-start;gap:14px}body[data-preview-theme=minimal] h1{font-size:24px}body[data-preview-theme=minimal] .head-actions{justify-content:flex-start}body[data-preview-theme=minimal] .toolbar{padding:12px}body[data-preview-theme=minimal] .kpi{padding:16px}body[data-preview-theme=minimal] .kpi-value{font-size:25px}body[data-preview-theme=minimal] .modal-body{padding:18px 16px}
 }
 @media(prefers-reduced-motion:reduce){body[data-preview-theme=minimal] *,body[data-preview-theme=minimal] *:before,body[data-preview-theme=minimal] *:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}body[data-preview-theme=minimal] .button:active{transform:none}}
-@media print{.theme-lab{display:none!important}body{padding-top:0}.preview-workflow>summary{display:none}}
 .preview-guidance,.preview-actions{margin:0 0 16px}
 .preview-guidance>summary,.preview-actions>summary{cursor:pointer;color:var(--fh-green);font-size:12px;font-weight:600;padding:12px 0}
-body[data-preview-theme=current] :is(.preview-guidance,.preview-actions)>summary{display:none}
 body[data-preview-theme=minimal] .preview-actions .panel-head{display:none}
 @media print{.preview-guidance>summary,.preview-actions>summary{display:none}}
-/* Unimplemented division placeholders remain available in Current comparison. */
+/* Keep unimplemented division placeholders out of the standard Minimal view. */
 body[data-preview-theme=minimal] .scope-row{display:flex;margin-bottom:18px}
 body[data-preview-theme=minimal] .scope-card:not(.active){display:none}
 body[data-preview-theme=minimal] .scope-card.active{flex:0 1 260px;padding:12px 16px;box-shadow:none}
 
-.theme-lab button:disabled{opacity:.5;cursor:default}
-@media(max-width:360px){:root{--preview-strip:110px}.theme-lab-controls{flex-wrap:wrap;justify-content:flex-start}}
 
 /* Keep sign-out and navigation reachable on narrow phones. */
 @media(max-width:420px){.topbar .breadcrumb{display:none}.topbar>.flex{flex-shrink:0}.topbar .top-tools,.topbar .account{min-width:0}.topbar .account>div{min-width:0;max-width:120px;overflow:hidden}.topbar .account .small.strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
+
+@media print{body{padding-top:0}.preview-workflow>summary{display:none}}
+#personal-preferences .checkbox{font-size:13px}#personal-preferences .small{margin-top:10px;line-height:1.6}

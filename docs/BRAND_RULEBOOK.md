@@ -231,3 +231,8 @@ Keep the current worksheet, fonts, colors and controls. Show **Supplier price-li
 ## VMS module presentation — 2026-09-13
 
 DEC-044 reuses the native sidebar, green/lime palette, Current/Minimal themes, page guides, typography, KPI cards, table overflow, buttons and labelled shared dialogs. Libraries → Vendor Management (VMS) leads to Overview, Vendors, Follow-ups, Sourcing risk and Catalogues. Profile controls use existing manager/operational permissions. Add contacts as repeated native form rows; company and contact labels stay distinct. Rating breakdown remains available to readers. No source React UI kit, new font/logo/color tokens or alternative modal system. Scoped VMS spacing classes must not restyle other modules. Mascot guidance is authored and read-only; it does not submit or approve.
+
+
+## Minimal-only presentation — DEC-045 (2026-09-13)
+
+Minimal is now the required standard. Remove the Current selector and entire fixed appearance strip; the existing sidebar and application header start at the top without the former 46/78/110px reserved space. Retain green/lime tokens, typography, card/table/dialog conventions and reduced-motion behavior. Settings uses a shared My preferences panel with the native Show page guides checkbox and Save preferences button. No theme selector remains in Settings or elsewhere. Mascot placement/guidance and the order timeline remain available when guides are off. Personal page-guide choices are account-specific; this supersedes earlier Current/Minimal comparison UI requirements.

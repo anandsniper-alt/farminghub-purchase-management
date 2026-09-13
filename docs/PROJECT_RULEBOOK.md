@@ -294,3 +294,12 @@ Keep VMS_CRITERIA, vmsEvaluation, vmsFollowups and vmsConcentration as shared so
 
 
 **DEC-044 / WF-039 publication:** user-approved VMS integration is now live (2026-09-13); its earlier local-only release boundary is superseded. Preserve the established VMS identity, scope, permissions and calculation rules. Historical data migration and unported source features remain outside the release. See the current baseline for verified runtime and deployment.
+
+
+## Standard Minimal theme and personal guides — DEC-045 / WF-040
+
+**GLOBAL RULE:** Minimal is the sole application theme. Remove Current/Minimal switches and the top appearance/page-guidance toolbar. Ignore the old browser-wide fh-appearance-style key; do not adopt it as an account preference. Retain existing branding, animations, reduced-motion support and the permanent mascot.
+
+**GLOBAL RULE:** Users & settings → My preferences → Show page guides is available to every active login, including Viewer and users without purchasing divisions. Default off preserves the established Minimal view. Saving applies only to the authenticated profile through SAVE_PERSONAL_PREFERENCES, with one boolean showPageGuides field; do not accept a target user ID, role, scope, arbitrary setting or theme. Persist under users[].preferences, using the existing optimistic transaction and append-only personal-preference event. These are display settings, not administrative permissions.
+
+The saved preference follows the account on subsequent bootstrap/reload and applies after a successful save. Other logins keep their settings. Clear the previous user's displayed preference at logout/login screen; standalone review uses the selected review profile. Only optional descriptions/guidance change. Required fields, warnings, errors, available actions, the mascot and expanded-by-default order timeline remain. This supersedes DEC-026's Current comparison and top toolbar, and the toolbar portions of later UI records. No business calculation or approval policy changes.
