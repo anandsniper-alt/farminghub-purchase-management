@@ -200,3 +200,11 @@ Released f5d5514 to the existing Coolify website. Bug fixes and Manager setup/im
 - Standalone review rebuilt. Not yet published.
 
 **DEC-032 / WF-026 publication, 2026-09-13:** Runtime a5a9b24 is live at https://purchase.dvjassociates.com; deployment 3ontnhztuhusfj6ei7ltqodd finished successfully. The order timeline opens expanded in Minimal, survives guide toggles/reload and fits the checked 390/320px layouts. Eleven served assets match the release commit and health returns 200. All 29 POs / 15 QA orders, checked business collections and approval controls are unchanged at revision 904. This supersedes the earlier local-only publication status for the timeline update.
+
+
+## 2026-09-13 — Supplier PO worksheet release
+
+- Search supplier items and add them to compact quantity/rate/amount rows in PO create/edit.
+- Native Tab, numeric Enter and vertical navigation; live totals; expandable commercial and technical details.
+- Retain production calculations, authorization and data schema; keep broader audit trial separate.
+- Verified 135 native tests, 37 worksheet checks and three complete configured Manager workflows (55 checks).

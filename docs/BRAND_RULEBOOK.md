@@ -216,3 +216,8 @@ Retain the existing logo, elephant, Guide me pill, colors and dimensions. Allow 
 Preserve existing step markers, green/lime colors, labels and horizontal timeline scrolling. Minimal now shows the expanded timeline by default. On narrow Minimal screens, the main grid uses minmax(0,1fr) so order panels fit the viewport and wide content scrolls inside its container.
 
 **DEC-032 / WF-026 publication, 2026-09-13:** Runtime a5a9b24 is live at https://purchase.dvjassociates.com; deployment 3ontnhztuhusfj6ei7ltqodd finished successfully. The order timeline opens expanded in Minimal, survives guide toggles/reload and fits the checked 390/320px layouts. Eleven served assets match the release commit and health returns 200. All 29 POs / 15 QA orders, checked business collections and approval controls are unchanged at revision 904. This supersedes the earlier local-only publication status for the timeline update.
+
+
+## PO item worksheet — DEC-041 (2026-09-13)
+
+**MODULE-SPECIFIC:** reuse current fonts, colors, controls and icons. PO dialog max width 1320px, 245px supplier catalogue beside compact worksheet; at 1050px and below stack the catalogue above the internally scrolling grid. Visible quantity/rate headings, accessible cell labels and price warnings remain in both themes. Version/price references and commercial terms use existing native details/summary behavior. No global redesign.

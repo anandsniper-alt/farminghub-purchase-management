@@ -399,3 +399,8 @@ DEC-031 / WF-025: Guide me supports horizontal dragging and snaps to the nearer 
 DEC-032 / WF-026: order Overview opens its existing timeline in Minimal, including after reload and page-guide toggles. Manual collapse remains available. Fixed the observed 6px order-panel overflow at 320px by allowing the mobile Minimal grid track to shrink. Rebuilt standalone review; no live publication in this update.
 
 **DEC-032 / WF-026 publication, 2026-09-13:** Runtime a5a9b24 is live at https://purchase.dvjassociates.com; deployment 3ontnhztuhusfj6ei7ltqodd finished successfully. The order timeline opens expanded in Minimal, survives guide toggles/reload and fits the checked 390/320px layouts. Eleven served assets match the release commit and health returns 200. All 29 POs / 15 QA orders, checked business collections and approval controls are unchanged at revision 904. This supersedes the earlier local-only publication status for the timeline update.
+
+
+## Supplier item worksheet release candidate — 2026-09-13
+
+DEC-041 / WF-036 backports the reviewed supplier catalogue and compact PO worksheet onto main. Open Order pipeline > Create purchase order, select supplier, then search/add items and enter quantities/rates in rows. Existing drafts use the same screen. Technical/price references and commercial terms are expandable. Current/Minimal and mobile supported. Server/domain/Dockerfile unchanged; audit trial remains separate. Validation: 135 native tests, 37 server/review worksheet checks, three complete configured Purchase Manager workflows (55 checks). Deployment confirmation is recorded separately after live verification.

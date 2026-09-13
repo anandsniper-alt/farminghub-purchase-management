@@ -267,3 +267,8 @@ Use existing master save validation for new vendor/price imports. One source fil
 **MODULE-SPECIFIC UI RULE:** the order Overview workflow timeline opens expanded in Minimal and Current. Show/Hide page guides must not hide it. Users may collapse it manually; reopening the page restores the expanded default. Keep existing stage calculations, ordering and Activity history unchanged.
 
 **DEC-032 / WF-026 publication, 2026-09-13:** Runtime a5a9b24 is live at https://purchase.dvjassociates.com; deployment 3ontnhztuhusfj6ei7ltqodd finished successfully. The order timeline opens expanded in Minimal, survives guide toggles/reload and fits the checked 390/320px layouts. Eleven served assets match the release commit and health returns 200. All 29 POs / 15 QA orders, checked business collections and approval controls are unchanged at revision 904. This supersedes the earlier local-only publication status for the timeline update.
+
+
+## PO worksheet release — DEC-041 / WF-036
+
+**MODULE-SPECIFIC RULE:** create/edit PO drafts use the searchable supplier catalogue and compact item worksheet. Reuse current price lookup and shared validation. Catalogue Add and direct row selection use existing production-reference behavior. Preserve brand expansion, explicit planning TAT, price override warnings, specification selection and Save draft commands. Tab is native; numeric Enter advances cells, Up/Down moves between rows; search Enter only adds an item. Terms remain available in expandable details. No audit-trial FX, draft recovery, security policy or database migration is part of this UI release.
