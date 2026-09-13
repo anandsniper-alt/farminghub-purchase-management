@@ -1,5 +1,18 @@
 # Complete purchase workflow browser tests
 
+## Published and activated — 13 September 2026
+
+The user requested publication after the bug fixes. Runtime commit **f5d55146cd7428cc72d6f6ef6bcc52ead48b63df** is deployed at https://purchase.dvjassociates.com. Coolify deployment **fghgsunna2djj2wpin1ytwao** finished successfully; application status is running:healthy and /api/health returns HTTP 200. Eleven served assets match the release commit byte for byte.
+
+The independent Manager preset was saved through the live Admin browser, with the confirmed reason and self-approval acknowledgement. All 13 stages include MANAGER and survive reload. Ashok and Suresh were both verified as active MANAGER accounts assigned to LAE Import; their existing roles/scopes were not changed. Approval-control revision is **2**. Other configured role grants remain intact, and Admin retains later per-stage editing.
+
+The deployment preserved the business state exactly: 29 orders, including all 15 retained QA POs. The policy save appended exactly one APPROVAL_CONTROLS_UPDATED event; orders, payments, files, users, vendors, items, bases and costs stayed unchanged. The existing /app/data persistent volume and domain configuration are unchanged. No new test purchase, deletion, payment or shipment action was performed.
+
+Live verification: 10 release-browser checks, 27 activation checks, 11 asset comparisons and health checks passed. Evidence remains in ignored test-output/manager-release and sanitized Coolify deployment reports. Earlier local verification remains 135 native checks, 33 setup checks, 29 approval-control checks, 38 import-lifecycle checks and six complete flows across two isolated Manager accounts.
+
+This establishes deployment, published entry points, retained data and effective Manager approval policy. It does not replace the original live 340-scenario QA ledger or claim a new end-to-end login run as Ashok/Suresh. Real supplier/quote/evidence prerequisites and the previously documented infrastructure and finance/date-policy acceptance items remain. Earlier “local only / activation pending” paragraphs below describe pre-release history.
+
+
 ## Current local Manager build — DEC-030, 13 September 2026
 
 135 native checks and six complete workflows across two isolated Manager accounts pass; all arrived and settled. Setup, approval-control and import lifecycle checks pass in server/review. The build includes the earlier 13 QA fixes plus the independent Manager and setup recovery changes. Live deployment and Admin policy activation remain pending; all live QA creations are untouched. See [QA_EXECUTION_REPORT.md](QA_EXECUTION_REPORT.md) and [MANAGER_WORKFLOW.md](MANAGER_WORKFLOW.md). Historical evidence follows.

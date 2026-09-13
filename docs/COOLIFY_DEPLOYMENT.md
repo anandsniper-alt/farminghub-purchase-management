@@ -25,3 +25,8 @@ Use Coolify's Deploy action after pushing updates. This deployment uses the appl
 
 
 Presentation release (DEC-026): Docker continues to copy web/, server/, shared/ and templates/ only. The approved presentation modules/styles/guide assets are in web/. Do not deploy prototypes/minimal-theme/preview.html, transfer its browser storage, or run its synthetic seed against the live database. Persistent volume/environment/instance settings remain unchanged.
+
+
+## Verified Manager release — 2026-09-13
+
+Runtime commit f5d55146cd7428cc72d6f6ef6bcc52ead48b63df; deployment fghgsunna2djj2wpin1ytwao on the existing application. This instance uses POST /api/v1/deploy with the resource UUID; the older GET method returned 405 without queuing a deployment. Auto-deploy is disabled, so pushing documentation alone does not replace the runtime. Domain, port 8000, Dockerfile and /app/data persistent storage remained unchanged. See QA_EXECUTION_REPORT.md for verification. Tokens remain outside Git and reports.

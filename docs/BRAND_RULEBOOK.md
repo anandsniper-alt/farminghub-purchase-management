@@ -201,3 +201,6 @@ Reuse existing status card, small/primary Add ERP item button, item-edit dialog 
 ## Manager independence setup — DEC-030
 
 Reuse the existing approval dialog for the Independent Manager preset and the shared table/badges for Your workflow access. Vendor/item/price import and source/history buttons stay in existing module headers. Previews use native file inputs, shared tables, inline validation, source download and explicit commit footer. Freight recovery uses the shared form and returns to booking. Vendor history uses expandable before/after details. No fonts, colors, mascot, animation, page guides or spacing tokens changed; Minimal remains the default.
+
+
+**DEC-030 published verification, 2026-09-13:** The approved Minimal/Current theme, mascot and page-guide assets remain unchanged; the published Manager/setup controls use the documented shared styles. Eleven runtime assets match release f5d5514.

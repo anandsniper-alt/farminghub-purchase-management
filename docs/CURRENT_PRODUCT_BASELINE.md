@@ -382,3 +382,8 @@ Current QA handoff:15 active QA POs,11 Port arrived/SETTLED and4 open (QA12 bulk
 DEC-030 / WF-024 add an Admin-reviewable Independent Manager workflow preset, read-only stage access, item upload/mapping entry points, vendor/price batch imports with source history, vendor audit visibility and evidence-backed freight benchmark recovery. They include all 13 prior QA fixes. Every Manager is the confirmed target; no name-specific hard-coded permission or automatic September rule. The persisted live matrix has not been changed in this session, and this build has not been deployed. Admin user/role/policy/delete/restore controls remain restricted. See [MANAGER_WORKFLOW.md](MANAGER_WORKFLOW.md) for the complete activation and operating sequence.
 
 Native/standalone setup and complete Manager-only workflows are validated separately from live QA; current counts are in QA_EXECUTION_REPORT.md. Existing live orders and all QA creations are untouched. Outstanding finance/date-policy decisions and isolated infrastructure acceptance are not silently marked resolved.
+
+
+## Live Manager workflow release — 2026-09-13
+
+Runtime f5d5514 is deployed and healthy at https://purchase.dvjassociates.com; all 13 Manager approval grants are activated at control revision 2. Ashok and Suresh are active scoped Managers. All 29 POs / 15 QA orders and linked business collections were preserved; the policy change added one audit event. Domain and persistent volume unchanged. Current evidence is in QA_EXECUTION_REPORT.md. This supersedes earlier local-only/activation-pending notes for DEC-029/030; remaining QA/policy limits remain.

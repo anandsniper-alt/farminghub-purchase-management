@@ -179,3 +179,8 @@ Soft-launch QA: preserve full recorded Indian-bank rate precision in the remitta
 - Show vendor change actors and before/after values; reject ambiguous supplier shorthand and foreign-division item imports.
 - Add quote-evidence freight benchmark entry from booking and return to booking; preserve agent charge and all readiness checks.
 - Verify native/review setup and complete Manager-only workflows. Includes the earlier local QA fixes; live deployment and Admin policy activation pending.
+
+
+## Published — 2026-09-13
+
+Released f5d5514 to the existing Coolify website. Bug fixes and Manager setup/import/recovery controls are live. Activated every Manager approval stage through the audited Admin form; verified Ashok/Suresh active scoped Manager profiles. Eleven runtime assets, healthy service, preserved 29 orders / 15 QA orders and one policy audit event verified. No data cleanup or profile changes.
