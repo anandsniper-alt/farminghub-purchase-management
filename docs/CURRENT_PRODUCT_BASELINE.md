@@ -484,3 +484,7 @@ Revision 968: zero orders, remittances and complaints. Retained 37 genuine vendo
 
 ### Live next PO serial is 1 - DEC-052 / WF-046
 2026-09-13, revision 969: user-requested one-time serial restart applied after confirming zero orders. Live bootstrap verifies nextOrderSerial=1. All other collections, masters, accounts and archived historical records unchanged. Consistent backup and audit event retained. This supersedes the preceding next-serial-31 baseline.
+
+
+### DEC-053 / WF-047 - ERP/Tally reference foundation (local only)
+feature/erp-reference-foundation adds permanent references across 15 supported record types, backed-up initialization, immutable counter/namespace protection, scoped register, Admin manual ERP/Tally company mapping and read-only common JSON export. PO/item/base/vendor/payment/complaint surfaces expose compact references; issued records/calculations unchanged. Tally is the accounting base behind the intended ERP frontend. No live release, connector, push/pull, voucher posting or external-ID correction workflow. See ERP_REFERENCE_FOUNDATION.md and ERP_REFERENCE_TEST_REPORT.md. Earlier live reset/serial baseline remains unchanged.

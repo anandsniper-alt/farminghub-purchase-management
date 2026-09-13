@@ -338,3 +338,8 @@ The default workspace has two main areas: Order Management and Vendor Management
 
 
 **MODULE-SPECIFIC EXCEPTION - DEC-052 (2026-09-13):** User explicitly restarted the empty post-cleanup live PO sequence at 1. This supersedes DEC-051's retained counter 31 for this one operation. Subsequent serial allocation remains monotonic; deletions leave gaps. Archived test serials are a separate historical dataset and must not be merged back without collision reconciliation.
+
+
+## GLOBAL RULE - Permanent record identity (DEC-053 / WF-047)
+Use shared/references.mjs for software references. Preserve workspace namespace, assigned entries, high-water counters and existing external links. Never derive identity from display serial, supplier document number or editable item code; never reset reference counters with nextOrderSerial. Keep identity metadata outside immutable business snapshots. Allocate only inside existing successful transactions and filter reference projections to authorized records. Use the existing common register, not separate counters per screen.
+**MODULE-SPECIFIC RULE - ERP/Tally:** Tally is accounting base; ERP is its frontend. External mapping is company-scoped, Admin-only and currently manual. JSON export is a read-only Farming Hub format, not a Tally import or synchronization acknowledgement. Actual postings/pull updates need a separately verified connector and explicit ownership rules. See ERP_REFERENCE_FOUNDATION.md.

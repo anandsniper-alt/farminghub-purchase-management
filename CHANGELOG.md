@@ -276,3 +276,7 @@ Cleared operational POs/payments/complaints and confirmed QA-only creations afte
 
 ### Live - Restart fresh-launch PO numbering at 1
 Applied the user's one-time counter reset to the empty live workspace. Backup and audit retained; all other data unchanged. DEC-052 / WF-046 supersede the earlier next-serial-31 reset result.
+
+
+## Local candidate - Permanent references and ERP/Tally preparation (2026-09-13)
+Added typed permanent software references, backed-up registry initialization, scoped reference register, Admin company-specific ERP/Tally links and common read-only JSON export. Existing business codes, display serials, calculations and issued snapshots preserved. Tally is accounting base; no connector/posting or live deployment. DEC-053 / WF-047; verification in docs/ERP_REFERENCE_TEST_REPORT.md.

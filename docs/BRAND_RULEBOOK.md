@@ -254,3 +254,7 @@ Reuse the existing Minimal palette, logo, fonts, buttons, focus styles, mascot a
 
 ### DEC-050 - Bottom module selector
 Place a labelled native Modules select below shared settings/version links. Use existing green, muted light text, border, radius and lime focus treatment. Footer sits at bottom when space permits; entire sidebar scrolls on short screens without shrinking menu sections. No top module buttons or duplicate Modules footer link.
+
+
+### DEC-053 - Software reference presentation
+Keep permanent references as compact muted monospace captions alongside established business labels; preserve business codes as the primary text. Reuse Minimal tables, native selects, pagination, buttons and inline panels in the Settings reference register. PO detail reference remains visible with page guides disabled. Tables scroll internally at narrow widths. No new palette, font, logo or theme.

@@ -429,3 +429,7 @@ DELETE_ORDERS hides POs from active operations but the remittance register uses 
 
 ### DEC-052 numbering reset boundary
 After moving all test orders outside active workspace, the existing allocator accepts nextOrderSerial=1 and increments on the next real creation. Do not create a dummy PO merely to verify a cleaned live counter. Verify bootstrap and allocator normalization, require an empty workspace and exact-state guard, retain backup/audit, and document archive/live serial collisions for future recovery.
+
+
+### DEC-053 - Durable integration identity
+Display serials can overlap archived test data after an explicit launch restart; they cannot identify records across systems. A sidecar registry preserves original IDs and issued snapshots while reserving deleted numbers. Parent identity is necessary for nested IDs that can recur across orders. Store-boundary validation covers writes outside ordinary domain creation, including files. Scoped bootstrap must filter registry entries/links as well as business rows. Snapshot exports describe current records, not a durable outbound event stream; do not claim exactly-once sync from manual-link retry deduplication. Tally/company metadata alone does not prove accounting has been posted.
