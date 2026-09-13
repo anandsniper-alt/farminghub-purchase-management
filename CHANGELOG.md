@@ -268,3 +268,7 @@ Removed All divisions from the LAE Import sidebar; Order Management already open
 
 ### Local - Bottom module dropdown
 Replaced top module buttons with a bottom Modules selector. Choose Order Management to switch divisions, or Vendor Management System for vendor tools. Logo returns home.
+
+
+### Live data reset - 2026-09-13
+Cleared operational POs/payments/complaints and confirmed QA-only creations after a full backup and restored-copy drill. Genuine masters/accounts/approval settings preserved. Next PO serial remains 31. Original records/evidence/audit archived; no application code deployed. See docs/SOFT_LAUNCH_RESET_REPORT.md.

@@ -476,3 +476,7 @@ Removed the redundant All divisions sidebar button. Use Order Management to retu
 
 ### DEC-050 / WF-044 - Bottom module dropdown
 Replaced top module buttons and Modules footer link with one bottom dropdown. Order Management opens division selection, VMS opens its dashboard, and logo opens home. Existing contextual tools and routes remain. Local preview only.
+
+
+### Live data reset completed - 2026-09-13, DEC-051 / WF-045
+Revision 968: zero orders, remittances and complaints. Retained 37 genuine vendors, 129 bases, 387 items, 106 genuine price records, 98 freight rates and all three accounts. Explicit QA-only master additions and transactional records archived following full-backup/recovery drill. Next serial 31; no renumbering. Evidence BLOBs and original audit retained. See SOFT_LAUNCH_RESET_REPORT.md. This is a live data operation, not publication of the local layout/dropdown candidate or closure of remaining audit findings.

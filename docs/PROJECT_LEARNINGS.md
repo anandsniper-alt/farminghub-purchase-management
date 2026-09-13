@@ -421,3 +421,7 @@ A flex-column sidebar allowed its module navigation to shrink below its expanded
 
 ### DEC-050 - Module selector behavior
 A native select preselected to the current module cannot emit change when that same option is chosen again. Use a neutral prompt for this navigation action, allowing Order Management to reopen the division hub from LAE Import. Reuse navigate for mobile dismissal and route state reset.
+
+
+### DEC-051 reset learnings
+DELETE_ORDERS hides POs from active operations but the remittance register uses recordOrders and retains associated payments. A clean operational reset requires an explicit maintenance scope. Use full consistent SQLite backup (not bootstrap JSON alone), rehearse on a restored copy, guard exact revision/hash, retain protected audit/evidence and archive original state atomically. API scoped audit views can omit events for removed entities even while original SQLite audit rows remain intact; verify preservation at storage level. Never infer that changing a page count alone proves a complete reset.

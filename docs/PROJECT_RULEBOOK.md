@@ -332,3 +332,6 @@ The default workspace has two main areas: Order Management and Vendor Management
 
 
 **GLOBAL RULE - DEC-050:** Use the bottom Modules dropdown for Order Management and Vendor Management System. Keep its neutral Select module prompt so the current module can be selected again to return to its hub. This supersedes DEC-049 top-button placement, while retaining the no-duplicate-All-divisions rule. Logo returns to module home.
+
+
+**GLOBAL data-history rule - DEC-051:** The one-time live reset preserves serial high-water mark 31 and genuine masters. Archived test data stays outside active screens; do not reseed it or reset counters during later deployment. This reset is not a reusable permission to purge production transactions. Recovery must protect business writes made after the reset.
