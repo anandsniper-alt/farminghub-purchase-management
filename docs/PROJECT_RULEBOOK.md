@@ -277,3 +277,6 @@ Use existing master save validation for new vendor/price imports. One source fil
 ## USD/RMB PO pricing — DEC-042 / WF-037
 
 **MODULE-SPECIFIC RULE:** supplier list prices retain their source currency. New USD/RMB conversions use one explicit quote, **1 USD = X RMB**, with positive rate (up to six decimals) and valid date. RMB-to-USD divides by this quote; USD-to-RMB multiplies by it. Use priceListInvoiceMinor for conversion and variance; round to invoice minor units once before quantity extension. Missing FX blocks cross-currency create/edit/submit/issue, including direct API calls. The worksheet leaves automatic invoice prices blank until a valid conversion is available. Same-currency prices need no rate. Preserve manual price overrides with warnings, historical direct-quote interpretation and immutable issued snapshots. Never substitute optional BOC remittance reference or mutate the supplier list. This supersedes the earlier direct-direction USD/RMB input convention, not unrelated audit policies.
+
+
+**MODULE-SPECIFIC RULE — DEC-043 / WF-038:** the USD-to-RMB rate is the supplier-agreed quote for that PO/PI. Enter it manually at PO creation and record its date. Later changes use a controlled PO revision. Do not automatically fetch/apply market rates or reprice existing records.

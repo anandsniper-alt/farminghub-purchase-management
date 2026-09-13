@@ -417,3 +417,6 @@ DEC-042 / WF-037 implements a required dated USD-to-RMB quote for cross-currency
 
 
 **DEC-042 verification:** 143 native tests and 33 currency browser checks passed on this branch, covering server/review, source RMB, USD conversion, missing rate, saved edit/recalculation, manual override, Current/Minimal, mobile and printed quote direction. The independent production-based candidate also passed 37 worksheet checks and three complete configured Manager workflows (55 checks), including RMB-list/USD-invoice entry. Private review rebuilt. Local preview http://127.0.0.1:8016/ is healthy with updated UI/domain; no live data or deployment changed.
+
+
+**DEC-043 / WF-038 release scope:** user confirmed manual supplier-agreed rate at PO creation, with controlled revisions for later changes, and requested publication. No automatic lookup is included. Live verification will be appended after deployment.
