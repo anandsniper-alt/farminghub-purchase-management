@@ -395,3 +395,17 @@ Removing the toolbar requires removing its mobile height overrides as well as it
 - The source settings, authentication and offline implementation cannot be copied as a second stack. Native role/scope/optimistic transactions remain authoritative; source role aliases and last-write-wins replay are not imported.
 - Native ghost buttons on the green sidebar were initially unreadable. Reuse sidebar foreground/active palette and inspect screenshots; clickable DOM elements alone do not establish usable navigation.
 - Analytics reports relationships and coverage, not spend. Manual VMS currency references remain separate from approved PO/PI FX. See VMS_PARITY_REPORT.md for formulas, limits and remaining source gaps.
+
+
+## VMS practical audit learnings — DEC-047
+
+- Regression passes establish conformity to coded rules, not fitness for field work. A latest-interaction-per-vendor rule can preserve history while hiding unfinished actions.
+- Append-only visit events need independent offline request IDs; the profile's single-pending-edit restriction should not be assumed appropriate for multiple visits.
+- Successful text-only retry tests do not cover the separate evidence path. A server-committed attached visit can still display Failed to fetch and then a stale-revision error.
+- Date-only occurrence and UTC current-day checks conflict with legitimate Indian early-morning entry. Define the timezone before changing a shared date helper.
+- Synchronizing location names without reconciling linked IDs can reverse a master change on a notes-only CRM save.
+- Stored audit/completion data is not usable history unless readers can see the relevant details. Sort occurrence chronology separately from recording chronology.
+- Idle rerenders can reset unsaved non-modal settings even when no sync item exists.
+- The 50 MiB upload boundary itself passed after fresh bootstrap; distinguish size failures from stale-session errors. Rejected visit validation still left orphan evidence.
+
+Full reproductions and proposed corrections are in VMS_WORKFLOW_AUDIT.md. No rule or workflow fix was implemented during this audit.

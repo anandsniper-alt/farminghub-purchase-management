@@ -69,3 +69,8 @@ These twelve working entry points are **not a claim of complete old-stack featur
 - Review build regenerated. Diff whitespace check clean. Preview: `http://127.0.0.1:8138/#/vms`.
 
 Private evidence: `test-output/vms-parity-1789301530454/report.json` (53 checks), `test-output/vms-1789301450088/report.json` (39 checks), native logs and screenshots. These paths refer to this isolated feature worktree. This change has not been pushed or deployed.
+
+
+## Subsequent working-model audit — 2026-09-13
+
+The module regression checks were rerun successfully, but practical visit tests found material operating gaps. See [VMS_WORKFLOW_AUDIT.md](VMS_WORKFLOW_AUDIT.md): 15 consolidated findings, including five high-priority items. This qualifies readiness beyond the earlier screen-restoration test results; no audit fix or deployment has occurred.

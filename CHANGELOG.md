@@ -244,3 +244,8 @@ Use **Libraries → Vendor Management (VMS)** with the existing Purchase login. 
 ## Unreleased — VMS missing-module restoration (2026-09-13)
 
 DEC-046 / WF-041 restores twelve named VMS screens, durable module routes, grouped analytics/drill-down, dedicated expos/products/components, supporting location/classification/currency settings and shared Users & Roles. Adds an account-owned profile/text-interaction outbox with automatic non-conflicting sync, explicit conflict review, duplicate-safe retries and browser installation/reconnect screens. Minimal and personal guides preserved. 169 native tests and 92 browser checks passed; no live data changed or deployment performed. Complete feature boundaries: docs/VMS_PARITY_REPORT.md.
+
+
+## VMS working-model audit — 2026-09-13
+
+DEC-047: audited the restored candidate without changing runtime code or live data. Reran 169 native/92 browser checks and added 23 practical visit scenarios. Recorded 15 consolidated findings (five high-priority), a proposed minimal visit/follow-up flow and acceptance tests in docs/VMS_WORKFLOW_AUDIT.md. Audit runner and case ledger committed; fixes remain pending.

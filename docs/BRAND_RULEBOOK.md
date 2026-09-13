@@ -241,3 +241,8 @@ Minimal is now the required standard. Remove the Current selector and entire fix
 ## VMS navigation — DEC-046 (2026-09-13)
 
 Reuse the native Purchase shell and Minimal-only theme. Within VMS, expose twelve named submenu buttons and the equivalent labelled mobile module selector. Inactive submenu text uses the existing sidebar #e0e6d8; active entries use --fh-lime with --fh-green text. Keep sidebar scrolling, native focus treatment, labelled dialogs, internal table overflow and existing mascot clearance. Analytics uses native tables/KPIs and restrained progress bars; no new chart library, palette or typography. The install icon wraps the existing approved logo with whitespace; no new logo. Personal guides stay in Settings.
+
+
+## VMS audit observations — DEC-047
+
+The current twelve-module Minimal shell and 390px visit dialog were checked. Practical issues are discoverability of Record visit and obsolete mascot targets/copy from the earlier five-tab layout (VMS-AUD-006/015). Proposed repairs should reuse the established buttons, labelled dialogs, chronology styling and palette. This audit introduced no visual redesign or new brand rule.

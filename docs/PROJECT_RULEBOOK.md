@@ -314,3 +314,8 @@ The saved preference follows the account on subsequent bootstrap/reload and appl
 **MODULE-SPECIFIC RULE:** VMS currency entries are optional dated manual reference metadata, positive and at most six decimals, unique by currency; INR reference equals 1. They do not calculate PO, payment, invoice or sample amounts. Preserve DEC-043 supplier-specific FX.
 
 See VMS_PARITY_REPORT.md for queue limits, safe discard/rebase, module map, formulas and known remaining source differences. Local build only.
+
+
+## Audit checkpoint — DEC-047
+
+VMS_WORKFLOW_AUDIT.md records confirmed defects and proposed policy changes against DEC-044/046. In particular, all-open follow-ups, optional follow-up creation and inactive-catalogue assignment restrictions are recommendations requiring a confirmed product decision. The audit does not silently supersede existing rules or authorize migration of historical records. Current visit/follow-up rollout has five high-priority findings; use their acceptance cases before claiming readiness.
