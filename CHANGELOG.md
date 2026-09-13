@@ -192,3 +192,9 @@ Released f5d5514 to the existing Coolify website. Bug fixes and Manager setup/im
 - Rebuilt the standalone review and extended mascot/pagination browser regression coverage. Publication is not included in this local update.
 
 **DEC-031 / WF-025 publication, 2026-09-13:** Runtime f686901 is now live at https://purchase.dvjassociates.com. Coolify deployment plcoe5ueeg0axgxtpqwoj7r2 finished successfully; the application is running:healthy. Both bottom corners, horizontal-only dragging, click suppression, saved-side reload and guide opening were verified in the live browser. This supersedes the preceding local-only publication status for the mascot change. Business data and approval controls remain unchanged.
+
+## Local update - visible order timeline (2026-09-13)
+
+- Minimal opens the order timeline by default, including after reload or Show/Hide page guides.
+- Corrected narrow Minimal order-panel overflow; stage logic and branding unchanged.
+- Standalone review rebuilt. Not yet published.

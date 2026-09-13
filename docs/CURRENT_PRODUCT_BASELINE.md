@@ -393,3 +393,7 @@ Runtime f5d5514 is deployed and healthy at https://purchase.dvjassociates.com; a
 DEC-031 / WF-025: Guide me supports horizontal dragging and snaps to the nearer bottom corner. Focused Left/Right arrows choose a corner. The browser remembers the selected side through reloads and guide-dialog reparenting. Cancelled drags return to the saved side; resizing retains responsive corner anchoring. The standalone review build includes this update. This addendum is local implementation evidence, not a new live publication claim.
 
 **DEC-031 / WF-025 publication, 2026-09-13:** Runtime f686901 is now live at https://purchase.dvjassociates.com. Coolify deployment plcoe5ueeg0axgxtpqwoj7r2 finished successfully; the application is running:healthy. Both bottom corners, horizontal-only dragging, click suppression, saved-side reload and guide opening were verified in the live browser. This supersedes the preceding local-only publication status for the mascot change. Business data and approval controls remain unchanged.
+
+## Local timeline visibility update - 2026-09-13
+
+DEC-032 / WF-026: order Overview opens its existing timeline in Minimal, including after reload and page-guide toggles. Manual collapse remains available. Fixed the observed 6px order-panel overflow at 320px by allowing the mobile Minimal grid track to shrink. Rebuilt standalone review; no live publication in this update.

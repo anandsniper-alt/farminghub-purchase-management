@@ -210,3 +210,7 @@ Reuse the existing approval dialog for the Independent Manager preset and the sh
 Retain the existing logo, elephant, Guide me pill, colors and dimensions. Allow bottom-left or bottom-right docking in Current and Minimal, with existing mobile spacing. During dragging, translate horizontally within the viewport and use the grabbing cursor. Do not add vertical placement, a new toolbar or decorative animation. Keep Show page guides separate.
 
 **DEC-031 / WF-025 publication, 2026-09-13:** Runtime f686901 is now live at https://purchase.dvjassociates.com. Coolify deployment plcoe5ueeg0axgxtpqwoj7r2 finished successfully; the application is running:healthy. Both bottom corners, horizontal-only dragging, click suppression, saved-side reload and guide opening were verified in the live browser. This supersedes the preceding local-only publication status for the mascot change. Business data and approval controls remain unchanged.
+
+## Visible order timeline - DEC-032
+
+Preserve existing step markers, green/lime colors, labels and horizontal timeline scrolling. Minimal now shows the expanded timeline by default. On narrow Minimal screens, the main grid uses minmax(0,1fr) so order panels fit the viewport and wide content scrolls inside its container.

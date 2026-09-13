@@ -261,3 +261,7 @@ Use existing master save validation for new vendor/price imports. One source fil
 **GLOBAL UI RULE:** the persistent Guide me launcher may move horizontally only. On release, snap to the nearer bottom-left or bottom-right corner; never persist a free-floating or vertical position. Default right, remember the side in browser-local presentation storage, and tolerate unavailable/invalid storage. Left/Right arrows while focused provide equivalent keyboard control. Dragging must not activate guidance. Keep ordinary click/tap and Enter/Space guidance, top-layer availability and existing bottom content clearance.
 
 **DEC-031 / WF-025 publication, 2026-09-13:** Runtime f686901 is now live at https://purchase.dvjassociates.com. Coolify deployment plcoe5ueeg0axgxtpqwoj7r2 finished successfully; the application is running:healthy. Both bottom corners, horizontal-only dragging, click suppression, saved-side reload and guide opening were verified in the live browser. This supersedes the preceding local-only publication status for the mascot change. Business data and approval controls remain unchanged.
+
+## Order timeline visibility - DEC-032 / WF-026
+
+**MODULE-SPECIFIC UI RULE:** the order Overview workflow timeline opens expanded in Minimal and Current. Show/Hide page guides must not hide it. Users may collapse it manually; reopening the page restores the expanded default. Keep existing stage calculations, ordering and Activity history unchanged.
