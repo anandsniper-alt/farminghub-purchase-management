@@ -60,3 +60,7 @@ Runtime 519f9fee2d87ed7f8646ac46a502f1128df432b4 is live at https://purchase.dvj
 
 ### Arrival costing publication — 2026-09-17
 DEC-057 / WF-051 is published in runtime cd87b60 through deployment hdaqomsos7zk6dagzziiwiom (finished, running:healthy). Candidate-only status is superseded. 205 native tests, 29 server/review costing checks, three full Manager workflows (68 checks) and 45 live checks passed; backup/restored-copy rehearsal and live preservation verified. Existing business data retained; LC counter initialization alone moved revision 1007 to 1008. No live test orders or business-write requests. See ARRIVAL_COSTING_RELEASE_REPORT.md for evidence and scope.
+
+
+### Process exemptions published — 2026-09-17
+DEC-058/059 and WF-052/053 are live in runtime ec0863ffa49450cc8a36f63e03fb9611c849a107 through Coolify deployment phgvkrkb9eliy749fqpjvhes (finished, running:healthy). This supersedes local-only publication status; only the confirmed pre-QC catalogue was deployed. Manager/Admin early exceptions retain pending work and history. Sample QC and every later stage remain mandatory. Backup/restored-copy rehearsal passed; 58 live checks passed with zero runtime errors or business-write requests. Existing records are preserved; EXM counter initialization alone moved revision 1008 to 1009. See PROCESS_EXEMPTIONS_RELEASE_REPORT.md.

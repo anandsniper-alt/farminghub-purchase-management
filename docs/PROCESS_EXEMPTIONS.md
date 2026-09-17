@@ -46,3 +46,7 @@ Final test results are recorded in the completion note below. Synthetic server/r
 - Three normal Purchase Manager workflows: PASS, 68 checks, including shipment completion and payment settlement. Synthetic isolated records only.
 - Standalone review build completed; local preview verified with pending follow-up and no sample QC bypass button. Whitespace validation passed.
 - Release status: local feature/process-exemptions candidate only; not pushed or deployed. Live orders were not changed by these tests.
+
+
+### Process exemptions published — 2026-09-17
+DEC-058/059 and WF-052/053 are live in runtime ec0863ffa49450cc8a36f63e03fb9611c849a107 through Coolify deployment phgvkrkb9eliy749fqpjvhes (finished, running:healthy). This supersedes local-only publication status; only the confirmed pre-QC catalogue was deployed. Manager/Admin early exceptions retain pending work and history. Sample QC and every later stage remain mandatory. Backup/restored-copy rehearsal passed; 58 live checks passed with zero runtime errors or business-write requests. Existing records are preserved; EXM counter initialization alone moved revision 1008 to 1009. See PROCESS_EXEMPTIONS_RELEASE_REPORT.md.
