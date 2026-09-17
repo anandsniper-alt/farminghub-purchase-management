@@ -301,3 +301,11 @@ Runtime 519f9fe is live: Minimal personal settings, expanded VMS, cleaner module
 - Added invoice-wise Bill of Entry evidence and actual INR cost workings after port arrival, with before-GST cost per USD and product costs.
 - Added provisional/final states, controlled corrections/history, shared BOE allocation bounds, configurable Manager approvals and permanent LC references.
 - Preserved existing PO, payment and master data; see docs/ARRIVAL_COSTING.md and release report for limits and verification.
+
+## 2026-09-17 — Process-exemption trial (not live)
+- Added Manager/Admin action-limited exemptions, visible pending work, later actual completion, revocation and history.
+- Added all-stage process explanations and clickable timeline; payment-only exceptions do not authorize production or dispatch.
+- Operational stage extent awaiting clarification; financial/identity/evidence safeguards retained. See docs/PROCESS_EXEMPTIONS.md.
+
+### Confirmed restriction — DEC-059
+Exemptions stop before pre-production/sample QC. Removed all sample, bulk QC, production and shipment bypass options from the trial. Later gates remain mandatory; all 25 stages can still be opened for viewing. This resolves the earlier scope question. Local build only.

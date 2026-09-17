@@ -510,3 +510,9 @@ Final costing is an order tab available for arrived shipments, following the exi
 
 ### Arrival costing publication — 2026-09-17
 DEC-057 / WF-051 is published in runtime cd87b60 through deployment hdaqomsos7zk6dagzziiwiom (finished, running:healthy). Candidate-only status is superseded. 205 native tests, 29 server/review costing checks, three full Manager workflows (68 checks) and 45 live checks passed; backup/restored-copy rehearsal and live preservation verified. Existing business data retained; LC counter initialization alone moved revision 1007 to 1008. No live test orders or business-write requests. See ARRIVAL_COSTING_RELEASE_REPORT.md for evidence and scope.
+
+## Local process-exemption candidate — DEC-058 / WF-052
+feature/process-exemptions adds an all-stage Processes & exemptions view, clickable 25-stage timeline, Manager/Admin per-order action-limited grants, due/responsible tracking, persistent pending indicators, revocation and retained history. Actual deferred sample/QC can be completed after permitted later milestones; actual fulfilment closes the exception. Permanent EXM references and usage audit added. Financial/identity controls remain mandatory. This is a tested local trial with synthetic preview only; the stage extent still needs clarification from the incomplete original request. The live arrival-costing release remains unchanged.
+
+### Confirmed pre-QC exemption scope — DEC-059, 2026-09-17
+The local candidate now limits exemptions to early supplier acknowledgement, specification and artwork dependencies. Sample QC and everything after it cannot be bypassed. Actual QC approval requires those early confirmations; a QC decision closes exemption access permanently. Wider trial options and late sample/QC completion extensions were removed before release. All-stage viewing and early pending-work updates remain. This supersedes the preceding unresolved trial scope. Live site remains unchanged.

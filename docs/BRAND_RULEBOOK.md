@@ -268,3 +268,9 @@ Reuse the standard read-only form input for PO number. Before creation show Assi
 
 ## Final arrival costing — DEC-057, 2026-09-17
 Reuse Minimal panels, order tabs, wide shared dialog, numbered form sections, labelled money inputs, existing upload controls, scrollable product tables, compact summary values and current badges/buttons. Cost workings/evidence expand through native details. No new colours, fonts, logo or animation pattern. Keep key provisional/final messages and confirmations visible even with page guides hidden; four summary columns wrap to two on narrow screens.
+
+## Process controls trial — 2026-09-17
+Reuse Minimal panels, tables, amber pending badges, shared explanation/reason dialogs and existing action buttons. All timeline stages become keyboard-focusable buttons. Show Pending — exemption approved distinctly from actual Complete; keep the persistent deferred-work banner visible with guides hidden. Display the original stage explanation for read-only users as well. No new brand palette, font, mascot behaviour or theme.
+
+### DEC-059 boundary presentation
+Keep every timeline/process row clickable for viewing; hide exemption creation at/after the QC boundary and on mandatory stages. Explain the cutoff in plain language. Retain actual rejected/QC-issue wording, original pending status, historical exemption references and normal mandatory action buttons.
