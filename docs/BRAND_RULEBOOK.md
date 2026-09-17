@@ -265,3 +265,6 @@ Use the existing Minimal panel, fonts, colors and buttons for an always-visible 
 
 ### DEC-056 - PO number display
 Reuse the standard read-only form input for PO number. Before creation show Assigned when saved, with one brief automatic-number example. After saving show the fixed number. Keep supplier PI entry in its established form. No new colors, layout system or theme.
+
+## Final arrival costing — DEC-057, 2026-09-17
+Reuse Minimal panels, order tabs, wide shared dialog, numbered form sections, labelled money inputs, existing upload controls, scrollable product tables, compact summary values and current badges/buttons. Cost workings/evidence expand through native details. No new colours, fonts, logo or animation pattern. Keep key provisional/final messages and confirmations visible even with page guides hidden; four summary columns wrap to two on narrow screens.

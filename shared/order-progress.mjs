@@ -1,3 +1,4 @@
+import {arrivalCostingStatus} from './arrival-costing.mjs';
 import {canEdit,canPerformApproval,approvalRoles,issueReadiness,initialPaymentStatus,shipmentTotals,paymentSchedule,financials} from './domain.mjs';
 import {shippingDocReadiness} from './shipping.mjs';
 
@@ -47,5 +48,6 @@ export function orderProgress(state,o,user){
   return advice(11,'Confirm arrival at the Indian port',['Confirm actual arrival for shipment '+ship.number+'.','Use the actual date and explain any delay. Other shipments may still be outstanding.'],'arrival','India port arrival',data);
  }
  const f=financials(state,o);if(f.pending||f.balance!==0)return advice(12,'Review receipts and the remaining balance',['Port arrival does not settle the payment balance.','Record the amount the supplier actually received.','Resolve shortages or excess on this original order with supporting evidence.'],'tab','Review payments',{value:'finance'},true);
- return {...advice(12,'Order and payment checks complete',['All allocated quantities have arrived and recorded supplier receipts balance to the order.','Keep the issued PO, invoices, bank evidence and shipment documents for review.']),complete:quantities.arrived>=quantities.required&&quantities.required>0};
+ const costing=arrivalCostingStatus(o);if(!costing.complete)return advice(13,'Complete final arrival costing',['Upload the inward Bill of Entry and match each commercial invoice to the arrived shipment.','Enter supplier payment, actual duties and net expenses. GST stays separate.','Review each product cost; keep missing actuals provisional and finalize after confirmation.'],'tab','Open final costing',{value:'costing'},true);
+ return {...advice(13,'Order, payment and costing checks complete',['All allocated quantities have arrived and recorded supplier receipts balance to the order.','Keep the issued PO, invoices, bank evidence and shipment documents for review.']),complete:quantities.arrived>=quantities.required&&quantities.required>0};
 }

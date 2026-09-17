@@ -296,3 +296,8 @@ Added historical PO and supplier-specific PI/invoice duplicate checks, condition
 
 ### Published module and reference release - 2026-09-13
 Runtime 519f9fe is live: Minimal personal settings, expanded VMS, cleaner module navigation, ERP reference register, workflow/retry safeguards and automatic PO numbers. Full backup/migration rehearsal, 196 native tests and 39 live checks passed. All genuine masters and zero-order soft-launch state retained; first new PO is FH-LAE-I-PO-1. See docs/RELEASE_2026-09-13_REFERENCE_MODULES.md for scope and remaining audit boundaries.
+
+## 2026-09-17 — Final arrival costing
+- Added invoice-wise Bill of Entry evidence and actual INR cost workings after port arrival, with before-GST cost per USD and product costs.
+- Added provisional/final states, controlled corrections/history, shared BOE allocation bounds, configurable Manager approvals and permanent LC references.
+- Preserved existing PO, payment and master data; see docs/ARRIVAL_COSTING.md and release report for limits and verification.

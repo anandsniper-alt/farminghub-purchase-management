@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {mkdirSync,writeFileSync} from 'node:fs';
 import {resolve,join} from 'node:path';
 import {pathToFileURL} from 'node:url';
+import {ARRIVAL_COST_FIELDS,arrivalCostingStatus} from '../shared/arrival-costing.mjs';
 import {Store} from '../server/store.mjs';
 import {makeServer} from '../server/index.mjs';
 import {createCleanSeed} from '../shared/clean-seed.mjs';
@@ -128,6 +129,22 @@ async function workflow(config){
  await page.locator('.tab[data-action=tab][data-value=finance]').click();
  const payments=store.read().payments.filter(p=>p.allocations.some(a=>a.orderId===order().id));
  for(const p of payments)for(const a of p.allocations){await page.locator('[data-action=receipt][data-payment="'+p.id+'"][data-allocation="'+a.id+'"]').click();await fill('realizedAmount',(a.expectedMinor/100).toFixed(2));await fill('supplierRate','1');await files('realization-'+p.reference);await fill('remarks','Isolated supplier receipt acknowledgement.');await submit();}
+ if(managerRelaxed){
+  await page.locator('.tab[data-action=tab][data-value=costing]').click();
+  for(const [i,sh] of order().shipments.entries()){
+   await page.locator('[data-action=arrival-cost-edit][data-shipment="'+sh.id+'"]').click();
+   await fill('boeNumber',current.id+'-BOE-'+(i+1));await fill('boeDate',new Date().toISOString().slice(0,10));
+   if(config.currency!=='USD'){await fill('currencyPerUsd','7.2');await fill('fxDate','2026-09-11');await fill('fxSource','Synthetic supplier conversion agreement');}
+   for(const k of ['bcd','sws','gst'])await fill('boe-'+k,k==='gst'?'500':'100');
+   for(const [k] of ARRIVAL_COST_FIELDS)await fill('cost-'+k,k==='supplierPayment'?'10000':'100');
+   await fill('gst','500');await fill('allocationNote','Synthetic invoice-specific actual expenses, no repeated shared charges.');
+   const proof=label=>({name:label+'.txt',mimeType:'text/plain',buffer:Buffer.from('ISOLATED COST EVIDENCE')});
+   await page.locator('[name=boeFiles]').setInputFiles(proof('boe'));await page.locator('[name=supportFiles]').setInputFiles(proof('actual-payment-expenses'));await submit();
+   const costing=order().arrivalCostings.at(-1);await page.locator('[data-action=arrival-cost-finalize][data-costing="'+costing.id+'"]').click();await page.locator('[name=confirmActuals]').check();await submit();
+   check('Shipment '+(i+1)+' invoice actual cost finalized with retained BOE',order().arrivalCostings.at(-1).status==='FINAL');
+  }
+  check('Every invoice and shipment quantity has final costing',arrivalCostingStatus(order()).complete);
+ }
  const final=order(),state=store.read(),finance=financials(state,final);check('All quantities arrived at India port',orderStatus(final)==='PORT_ARRIVED'&&shipmentTotals(final).arrived===config.quantity);check('Supplier realizations settle original-order balance',finance.balance===0&&finance.pending===0);
  check('Every recorded evidence file has a retained body',final.documents.every(d=>store.fileBytes(d.fileId)?.length>0));if(delegated){check('Only Purchase Executive performed the complete workflow',current.roles.size===1&&current.roles.has('exec'));for(const type of ['APPROVE_ORDER','APPROVE_PI','APPROVE_ARTWORK','AUTHORIZE_PAYMENT'])check('Executive delegation audited for '+type,state.events.some(e=>e.entityId===final.id&&e.actorId==='u-exec'&&e.approvalPolicy?.command===type));}else if(managerRelaxed){check('Only Purchase Manager performed all workflow actions',current.roles.size===1&&current.roles.has('manager'));check('All order audit events identify Purchase Manager',state.events.filter(e=>e.entityId===final.id).every(e=>e.actorId===managerId));}else check('All three operational roles participated',['exec','manager','product'].every(r=>current.roles.has(r)));
  if(current.operator==='exec'){
