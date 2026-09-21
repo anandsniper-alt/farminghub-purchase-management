@@ -336,3 +336,9 @@ DEC-060 / WF-054 is live at https://purchase.dvjassociates.com in runtime **6578
 225 native tests, 16 two-user/server/review browser checks and three complete Manager workflows (68 checks) passed. Fresh consistent SQLite backup **399114240 bytes** passed integrity and candidate startup on an isolated server-side restored copy. All saved state and protected account/evidence/audit/archive/retry tables matched exactly. The initial network download timed out; no partial download was used as recovery evidence.
 
 **66 live checks passed**, including committed assets, two independent live sessions, authenticated revision endpoint, existing module/workflow navigation and mobile layout. Zero browser runtime errors or business-write requests. Post-deployment SQLite verification preserved all 20 original orders, existing master records, attachments, accounts, archive rows, audit history and retry receipts. Live work progressed from revision 1326 to 1335: 1 new order and 2 new files were reconciled to 10 user audit events. The live order count was 21; no rollback or migration was performed. Unchanged masters: 37 vendors, 388 items and 106 price lists. Existing domain, port 8000, single instance and persistent /app/data retained. No migration or reference reset. Private reports/backups remain outside Git in ignored operator storage and the application data volume.
+
+## Expired-session form recovery — 2026-09-21
+- Keep open form fields and selected attachments when the login or request token expires.
+- Require the same account to sign in inline, then review and press Save again; never submit automatically.
+- Preserve the original conflict context and all existing permissions, validation, calculations and audit controls.
+- DEC-062 / WF-056; 225 native tests and 23 concurrent/session browser checks passed. Live publication verification follows.

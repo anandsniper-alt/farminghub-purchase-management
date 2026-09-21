@@ -281,3 +281,6 @@ Reuse the existing inline warning note, modal error, small button and checkbox s
 
 ## Pipeline Supplier PI display — DEC-061
 Use one compact **Supplier PI no.** table column in the existing order pipeline. Render the number in the existing monospace emphasis, the PI date as a muted subline, and **Awaiting PI** when missing. Board cards use one plain Supplier PI line. Keep the existing internally scrollable mobile table; add no new colour, badge, panel or typography pattern.
+
+## Expired-session recovery — DEC-062
+Use the existing inline warning note, labelled email/password fields and small primary button inside the open dialog. State plainly that entries and selected files remain. After successful same-user sign-in, replace the sign-in controls with a short success note and clear the stale error banner. Keep the existing dialog and mobile layout; do not navigate away, open another theme or submit automatically.

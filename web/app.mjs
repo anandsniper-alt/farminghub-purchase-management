@@ -1,4 +1,4 @@
-import {createSaveRecovery} from './concurrency.mjs';
+import {createSaveRecovery,createSessionRecovery} from './concurrency.mjs';
 import {createProcessUI,processStageStates} from './process-exemptions.mjs';
 import {activeProcessExemptions,processGateAllowed} from '../shared/process-exemptions.mjs';
 import {createArrivalCostingUI} from './arrival-costing.mjs';
@@ -52,8 +52,9 @@ function orderFilterControls(){const ids=new Set(pipelineOrders().map(o=>o.vendo
 async function api(path,options={}){const r=await fetch('/api'+path,{credentials:'same-origin',...options,headers:{'Content-Type':'application/json',...(csrf?{'X-CSRF-Token':csrf}:{}),...options.headers}});const data=await r.json();if(!r.ok){const error=new Error(data.error||'Request failed');error.status=r.status;throw error;}return data;}
 function writeView(){return ui.modal&&ui.editView?ui.editView:{expectedRevision:state.revision,editContext};}
 const saveRecovery=createSaveRecovery({context:()=>({state,user}),fetchLatest:()=>api('/bootstrap'),esc,adopt:r=>{state=r.state;editContext=r.editContext||null;user=r.user;csrf=r.csrf;ui.editView={expectedRevision:state.revision,editContext};}});
-function showRequestError(e){showError(e.message);saveRecovery.show(e);}
-async function refreshIdleView(){if(sandbox||!user||!state||ui.modal||busy||submitting||pageDirty||document.hidden||document.querySelector('#save-conflict'))return;const actor=user.id,revision=state.revision;try{const r=await api('/revision');if(r.revision===revision)return;const fresh=await api('/bootstrap');if(ui.modal||busy||submitting||pageDirty||user.id!==actor||state.revision!==revision||fresh.user.id!==actor)return;state=fresh.state;editContext=fresh.editContext||null;user=fresh.user;csrf=fresh.csrf;const scroll=window.scrollY;render();window.scrollTo(0,scroll);}catch{/* Background refresh must not disturb open work or submit anything. */}}
+const sessionRecovery=createSessionRecovery({context:()=>({user}),esc,reauthenticate:async(email,password)=>{await api('/login',{method:'POST',body:JSON.stringify({email,password})});return api('/bootstrap');},applySession:fresh=>{csrf=fresh.csrf;user=fresh.user;}});
+function showRequestError(e){if(sessionRecovery.show(e)){showError('Your sign-in expired. Your entries and selected files are still here.');return;}showError(e.message);saveRecovery.show(e);}
+async function refreshIdleView(){if(sandbox||!user||!state||ui.modal||busy||submitting||pageDirty||document.hidden||document.querySelector('#save-conflict'))return;const actor=user.id,revision=state.revision;try{const r=await api('/revision');if(r.revision===revision)return;const fresh=await api('/bootstrap');if(ui.modal||busy||submitting||pageDirty||user.id!==actor||state.revision!==revision||fresh.user.id!==actor)return;state=fresh.state;editContext=fresh.editContext||null;user=fresh.user;csrf=fresh.csrf;const scroll=window.scrollY;render();window.scrollTo(0,scroll);}catch(e){sessionRecovery.show(e);/* Background refresh must not disturb open work or submit anything. */}}
 function persist(s){try{localStorage.setItem(STORE,JSON.stringify(s));}catch{throw new Error('Browser storage is full or unavailable. Export a backup; the change was not saved.');}}
 function toast(s,error=false){clearTimeout(timer);$('#toast-root').innerHTML=`<div class="toast ${error?'error':''}" role="status">${icon(error?'alert':'check',16)}<span>${esc(s)}</span></div>`;timer=setTimeout(()=>$('#toast-root').innerHTML='',6500);}
 async function command(type,payload,{close=true,message='Saved with visible history.'}={}){
@@ -210,7 +211,7 @@ function complaintsForBase(baseId){return (state.complaints||[]).filter(c=>c.bas
 function complaintCounts(baseId){const rows=complaintsForBase(baseId),byBrand={GJ:0,KD:0,TT:0},severity={MINOR:0,MODERATE:0,MAJOR:0,CRITICAL:0};for(const c of rows){const i=state.items.find(x=>x.id===c.itemId),p=i?.brandPrefix||String(c.erpItemCode||'').split('-')[0];if(byBrand[p]!==undefined)byBrand[p]++;if(severity[c.severity]!==undefined)severity[c.severity]++;}return {total:rows.length,byBrand,severity,rows};}
 
 function showDialog(type,data={}) {
- saveRecovery.clear();ui.editView={expectedRevision:state.revision,editContext};
+ saveRecovery.clear();sessionRecovery.clear();ui.editView={expectedRevision:state.revision,editContext};
  ui.importReadToken=null;
  if(['change-role','approval-controls'].includes(type)&&user.role!=='ADMIN'){showError('Administrator access required.');return;}
  if(type==='create-user'&&(sandbox||user.role!=='ADMIN')){showError('An administrator must sign in to create users.');return;}
@@ -234,7 +235,7 @@ function showDialog(type,data={}) {
  if(type==='rate-import') {ui.rateRows=null;ui.rateFile=null;}
  renderModal();
 }
-function closeModal(){saveRecovery.clear();ui.editView=null;ui.importReadToken=null;ui.modal=null;$('#modal-root').innerHTML='';}
+function closeModal(){saveRecovery.clear();sessionRecovery.clear();ui.editView=null;ui.importReadToken=null;ui.modal=null;$('#modal-root').innerHTML='';}
 function modalContent(){if(ui.modal?.startsWith('process-'))return processUI.modal(ui.modal,ui.data);if(ui.modal?.startsWith('arrival-cost-'))return arrivalCostingUI.modal(ui.modal,ui.data);if(ui.modal?.startsWith('vms-'))return vmsModule.modal(ui.modal,ui.data);const t=ui.modal,d=ui.data,o=getOrder(d.id),s=o?.shipments.find(s=>s.id===d.shipment);let title='',sub=o?.number||'',body='',submit='Save',wide=false;
  if(t==='delete-orders'||t==='restore-orders'){const deleting=t==='delete-orders',orders=(d.orderIds||[]).map(getOrder).filter(Boolean);return {title:deleting?'Delete selected orders':'Restore selected orders',sub:orders.length+' purchase order(s)',submit:deleting?'Delete orders':'Restore orders',danger:deleting,body:`${note(deleting?'Selected POs leave the active pipeline. All original numbers, financial balances, shipments, documents and history remain. This does not cancel a supplier order or reverse a payment.':'Restore the original orders, serials and workflow states.','warn')}<div class="gap"></div><ul>${orders.map(o=>`<li>S.No. ${o.serialNumber}: ${esc(o.number||'Unnumbered draft')} / ${esc(STATUS_LABELS[orderStatus(o)])} / balance ${formatMoney(financials(state,o).balance,o.currency)}</li>`).join('')}</ul>${field('remarks',deleting?'Reason for deletion':'Reason for restoration','','textarea',{required:true,full:true})}${checkbox('confirm','I confirm these '+orders.length+' selected orders.')}`};}
  if(t==='approval-controls')return approvalControlsModal();
@@ -421,7 +422,7 @@ async function onSubmit(event){event.preventDefault();if(await referencePages.su
  else if(t==='import'){type='COMMIT_IMPORT';payload={rows:ui.importRows,filename:ui.importFile.name,sourceFileId:await upload(ui.importFile,[])};}
  if(type)await command(type,payload);
  }catch(e){showRequestError(e);}finally{submitting=false;if(submit)submit.disabled=false;}}
-async function onClick(event){if(submitting||event.target.closest('[data-order-select]'))return;const el=event.target.closest('[data-action]');if(!el||el.disabled)return;const d=el.dataset,a=d.action;try{if(await saveRecovery.action(a))return;if(processUI.action(a,d))return;if(a==='order-step-help'){document.querySelector('.support-launcher')?.click();return;}if(arrivalCostingUI.action(a,d))return;if(await referencePages.action(a,d))return;if(a==='save-preferences'){el.disabled=true;try{await command('SAVE_PERSONAL_PREFERENCES',{showPageGuides:$('#personal-preferences [name=showPageGuides]').checked},{close:false,message:'Page-guide preference saved for your login.'});$('#personal-preferences [data-action=save-preferences]')?.focus();}finally{el.disabled=false;}return;}if(a.startsWith('vms-')){await vmsModule.action(a,d);return;}
+async function onClick(event){if(submitting||event.target.closest('[data-order-select]'))return;const el=event.target.closest('[data-action]');if(!el||el.disabled)return;const d=el.dataset,a=d.action;try{if(await sessionRecovery.action(a))return;if(await saveRecovery.action(a))return;if(processUI.action(a,d))return;if(a==='order-step-help'){document.querySelector('.support-launcher')?.click();return;}if(arrivalCostingUI.action(a,d))return;if(await referencePages.action(a,d))return;if(a==='save-preferences'){el.disabled=true;try{await command('SAVE_PERSONAL_PREFERENCES',{showPageGuides:$('#personal-preferences [name=showPageGuides]').checked},{close:false,message:'Page-guide preference saved for your login.'});$('#personal-preferences [data-action=save-preferences]')?.focus();}finally{el.disabled=false;}return;}if(a.startsWith('vms-')){await vmsModule.action(a,d);return;}
  if(a==='nav')navigate(d.to);
  else if(a==='refresh-users'){if(!sandbox&&user.role==='ADMIN'){await loadUserAccounts();}}
  else if(a==='open-order'){ui.tab='overview';ui.revision=null;navigate('order/'+d.id);}

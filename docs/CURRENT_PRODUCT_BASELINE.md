@@ -530,6 +530,9 @@ The local DEC-061 / WF-055 candidate shows the current saved Supplier PI number 
 
 **Publication:** Runtime `364866ca6b9878b8dffa75b14f2a67d4fcbefb10` is live through deployment `zx4csoitx8proml4nxodw0cg` (finished; running:healthy). Eighteen live read-only checks passed. Fresh backup/restored-copy rehearsal and post-release preservation passed; one concurrent user price-list addition was retained and audited. See SUPPLIER_PI_PIPELINE_RELEASE_REPORT.md. This supersedes the local-only status above.
 
+## Expired-session recovery candidate — 2026-09-21
+DEC-062 / WF-056 keeps an open form and browser-selected files when an eight-hour session or CSRF token expires. The same account can sign in inline, review unchanged entries and press Save again; another valid account is rejected and successful reauthentication never submits automatically. The original edit context remains pinned, so a concurrent change still follows DEC-060 conflict review. No business data, role, workflow, calculation, API shape, session lifetime or database schema changes. Validated with 225 native tests, a 23-check two-user/session browser workflow, standalone review startup and mobile visual inspection. Publication evidence is recorded separately after live verification. This resolves the expired-session portion of TD-11; unsaved browser-tab closure remains outside this change.
+
 
 ## Concurrent access published — 2026-09-21
 DEC-060 / WF-054 is live at https://purchase.dvjassociates.com in runtime **6578f18501f135c70000c54390da253db291ddca**, Coolify deployment **veyiohrvuqauviaswztf9eyk** (finished; running:healthy). This supersedes the preceding candidate/publication-pending status. Independent order/vendor/personal-setting saves and retained-entry conflict review are published; same-record/shared-dependency conflicts still require explicit review. Refresh open browsers once to load the new client.

@@ -372,3 +372,6 @@ GLOBAL RULE: preserve each user's session and typed entries. Permit unrelated or
 
 ## Pipeline supplier invoice identity — DEC-061 / WF-055 (2026-09-21)
 **MODULE-SPECIFIC RULE:** In the LAE Import Order pipeline, label the supplier's pre-shipment proforma invoice reference as **Supplier PI no.** Show the current saved `order.pi.number`; show **Awaiting PI** when none is recorded. Include the same current PI number/date in pipeline search, board cards and CSV export. Do not label shipment commercial-invoice numbers as the supplier PI or combine multiple shipment invoice references into this field.
+
+## Expired-session recovery — DEC-062 / WF-056 (2026-09-21)
+**GLOBAL RULE:** When an authenticated write fails because its session or request token expired, keep the open form, typed values and selected files in place. Offer inline reauthentication and require the same account that opened the form. Refresh only the session identity/token; retain the form's original edit context so intervening record changes still produce the normal conflict review. Never automatically retry or submit the business action after sign-in. The user must review and press **Save** again. Other authentication, authorization, validation, idempotency and audit controls remain authoritative.
