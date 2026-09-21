@@ -528,6 +528,8 @@ DEC-060 / WF-054 adds dependency-aware saves, explicit conflict review with reta
 ## Supplier PI in Order pipeline — 2026-09-21
 The local DEC-061 / WF-055 candidate shows the current saved Supplier PI number and PI date in the Order pipeline table, **Awaiting PI** when absent, and the same reference on board cards. Pipeline search now matches the PI number; CSV export adds Supplier PI number/date. It reads existing order data only and changes no workflow, status, identity, calculation, API or database shape. Server and standalone review modes passed 58 focused browser checks, including search/export/board/mobile and no business writes. Not yet published.
 
+**Publication:** Runtime `364866ca6b9878b8dffa75b14f2a67d4fcbefb10` is live through deployment `zx4csoitx8proml4nxodw0cg` (finished; running:healthy). Eighteen live read-only checks passed. Fresh backup/restored-copy rehearsal and post-release preservation passed; one concurrent user price-list addition was retained and audited. See SUPPLIER_PI_PIPELINE_RELEASE_REPORT.md. This supersedes the local-only status above.
+
 
 ## Concurrent access published — 2026-09-21
 DEC-060 / WF-054 is live at https://purchase.dvjassociates.com in runtime **6578f18501f135c70000c54390da253db291ddca**, Coolify deployment **veyiohrvuqauviaswztf9eyk** (finished; running:healthy). This supersedes the preceding candidate/publication-pending status. Independent order/vendor/personal-setting saves and retained-entry conflict review are published; same-record/shared-dependency conflicts still require explicit review. Refresh open browsers once to load the new client.

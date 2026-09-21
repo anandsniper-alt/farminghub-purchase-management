@@ -6,6 +6,8 @@
 - Search orders by Supplier PI number and include the PI number/date in pipeline CSV exports.
 - Show the same Supplier PI reference on board cards. DEC-061 / WF-055. Local candidate; 58 focused server/review browser checks passed.
 
+Published 2026-09-21: runtime `364866ca6b9878b8dffa75b14f2a67d4fcbefb10`, deployment `zx4csoitx8proml4nxodw0cg` finished and the application is healthy. Eighteen live read-only checks passed; backup/restored-copy and data-preservation checks passed with one concurrent audited user price-list addition retained. See SUPPLIER_PI_PIPELINE_RELEASE_REPORT.md.
+
 Published 2026-09-12: payment-reference application commit **8c2e303df7765430fb247ee57c56cd9f0ad3c331** is live at https://purchase.dvjassociates.com. Coolify deployment **4n8iiclyxsmdrk1n8ctn4zct** finished; health HTTP 200. Nineteen signed-in live checks passed, including Indian-bank label, optional BOC column/field, mobile modal heading and persistent guide. All three changed runtime assets match the committed build. Business-record, user and approval-control hashes/revision match the pre-release baseline; no live payment or receipt was created. Evidence: ignored test-output/payment-rates-live-report.json and payment-rates-live-mobile.png. DEC-027/028 and WF-021/022 are now published; this supersedes their earlier local-only release notes.
 
 ## Payment reference release prepared - 2026-09-12
