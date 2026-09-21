@@ -351,3 +351,6 @@ Runtime `6efbf29813a59ba372fd5755d014692a41713209` is live through Coolify deplo
 - Permit Manager/Admin code or brand correction only with a reason; block duplicate code/mapping and used-item Base Item/supplier reassignment.
 - Keep permanent software references and issued PO, complaint and audit snapshots unchanged; current/new work uses the corrected master.
 - DEC-063 / WF-057; focused native tests and 39 server/standalone browser checks passed. Not yet published.
+
+### Published
+Runtime `d11918f147a236e85c5f010e5373d923ecc0c03d` is live through Coolify deployment `biiv5slzzxdju89x2dugfdov` (finished; running:healthy). A fresh backup/restored-copy rehearsal, 16 read-only live checks and final preservation passed at unchanged revision 1372. The observed `PW8RG` Item Master record and issued PO-23 snapshot were not modified by verification. See `docs/ITEM_MASTER_CORRECTION_RELEASE_REPORT.md`.

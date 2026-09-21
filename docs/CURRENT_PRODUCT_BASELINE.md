@@ -538,6 +538,8 @@ DEC-062 / WF-056 keeps an open form and browser-selected files when an eight-hou
 ## Controlled Item Master correction candidate — 2026-09-21
 DEC-063 / WF-057 adds **Edit item master** to the PLM brand-variant row and allows a Purchase Manager or Admin to correct the ERP Item Code and configured brand code with a mandatory reason. The permanent item/software reference stays fixed. Used items cannot move to another Base Item Code or supplier, and existing issued PO lines, complaints and audit snapshots are not rewritten. Duplicate ERP codes and duplicate brand mappings remain blocked. The live `PW8RG` observation is the motivating case only; this candidate does not modify that live record. Focused domain tests and 39 server/standalone browser checks passed.
 
+**Publication:** Runtime `d11918f147a236e85c5f010e5373d923ecc0c03d` is live through deployment `biiv5slzzxdju89x2dugfdov` (finished; running:healthy). Sixteen read-only live checks and final preservation passed at unchanged revision 1372. The `PW8RG` master and issued PO-23 snapshot were not modified during verification. See `ITEM_MASTER_CORRECTION_RELEASE_REPORT.md`; this supersedes the unpublished candidate status.
+
 
 ## Concurrent access published — 2026-09-21
 DEC-060 / WF-054 is live at https://purchase.dvjassociates.com in runtime **6578f18501f135c70000c54390da253db291ddca**, Coolify deployment **veyiohrvuqauviaswztf9eyk** (finished; running:healthy). This supersedes the preceding candidate/publication-pending status. Independent order/vendor/personal-setting saves and retained-entry conflict review are published; same-record/shared-dependency conflicts still require explicit review. Refresh open browsers once to load the new client.
