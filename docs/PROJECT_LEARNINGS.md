@@ -454,3 +454,7 @@ A payment exception must not automatically permit bulk production or dispatch. S
 
 ### 2026-09-17 — QC cutoff must survive corrections (DEC-059)
 Checking only current sample status can reopen exceptions when a rejected sample is resubmitted as Completed. Persist the first QC decision cutoff and also recognize legacy QC/later actual-event markers. Enforce the action whitelist and cutoff server-side, including stale approved records. Early payment permission cannot stand in for actual confirmations at QC approval. Seed-based tests must explicitly remove their historical cutoff only when constructing a synthetic pre-QC fixture; production APIs never clear it.
+
+
+## Concurrent sessions are not concurrent editing — DEC-060
+Multiple logins already worked; the whole-workspace optimistic revision rejected unrelated saves. Preserve the transaction guard and compare authenticated per-record/dependency versions before applying commands to the latest state. Encrypt the context so scoped clients cannot inspect other divisions' record IDs. A successful evidence upload must not refresh the form's saved view, or it can hide an overlapping edit. Pair response state and context atomically; keep retries idempotent. Idle refresh must stop for open forms, dirty settings and review panels. Context expiration/restart requires a fresh reviewed view, not a blind retry. SQLite remains one instance with serialized transactions and whole-state persistence.

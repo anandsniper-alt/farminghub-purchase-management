@@ -313,3 +313,10 @@ Exemptions stop before pre-production/sample QC. Removed all sample, bulk QC, pr
 
 ### Process exemptions published — 2026-09-17
 DEC-058/059 and WF-052/053 are live in runtime ec0863ffa49450cc8a36f63e03fb9611c849a107 through Coolify deployment phgvkrkb9eliy749fqpjvhes (finished, running:healthy). This supersedes local-only publication status; only the confirmed pre-QC catalogue was deployed. Manager/Admin early exceptions retain pending work and history. Sample QC and every later stage remain mandatory. Backup/restored-copy rehearsal passed; 58 live checks passed with zero runtime errors or business-write requests. Existing records are preserved; EXM counter initialization alone moved revision 1008 to 1009. See PROCESS_EXEMPTIONS_RELEASE_REPORT.md.
+
+
+## Concurrent work release candidate — 2026-09-21
+- Permit independent order/supplier/personal-setting saves from simultaneous views while preserving current authorization and transaction checks.
+- Retain typed entries and selected files when an overlapping save needs review; explicit confirmation and Save required, with no automatic resubmission.
+- Refresh idle views without replacing open forms. Preserve unique PO references, retry receipts and audit history.
+- DEC-060 / WF-054; 225 native tests, 16 concurrent browser checks and 68 full-workflow checks passed. Deployment verification follows.

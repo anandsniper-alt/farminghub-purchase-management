@@ -510,3 +510,13 @@ DEC-057 / WF-051 is published in runtime cd87b60 through deployment hdaqomsos7zk
 
 ### Process exemptions published — 2026-09-17
 DEC-058/059 and WF-052/053 are live in runtime ec0863ffa49450cc8a36f63e03fb9611c849a107 through Coolify deployment phgvkrkb9eliy749fqpjvhes (finished, running:healthy). This supersedes local-only publication status; only the confirmed pre-QC catalogue was deployed. Manager/Admin early exceptions retain pending work and history. Sample QC and every later stage remain mandatory. Backup/restored-copy rehearsal passed; 58 live checks passed with zero runtime errors or business-write requests. Existing records are preserved; EXM counter initialization alone moved revision 1008 to 1009. See PROCESS_EXEMPTIONS_RELEASE_REPORT.md.
+
+
+## WF-054 — Concurrent saves and explicit conflict recovery
+**Date:** 2026-09-21. **Module:** shared save flow, with command-specific order/vendor rules. **Related decision:** DEC-060.
+**Previous workflow:** open saved view → another user saves anywhere → original user's save rejects at whole-workspace revision → user must reload/re-enter.
+**Requested change/reason:** publish a fix for users blocking one another during ordinary concurrent work.
+**New workflow:** open form with pinned context → save against latest transaction when dependencies match → otherwise retain entries/files → Review latest changes → inspect affected records → explicitly confirm keeping entries → Continue editing → press Save. Any intervening overlapping change conflicts again.
+**Steps added:** dependency check and explicit review/confirmation. **Steps removed:** mandatory full reload for unrelated saves. **Steps modified:** upload adopts current page state without advancing original form context; safe idle refresh.
+**Status changes:** no business-stage changes. **Roles affected:** all signed-in roles within existing permissions. **Dependencies:** current order/supplier/payment/cost/global configuration and actor access. **Calculations/reports:** unchanged. **Data/database impact:** none to schema or saved records at startup; encrypted versions are transient. **API impact:** bootstrap/write editContext and authenticated GET /api/revision; old clients retain strict revision checking. **UI impact:** inline retained-entry review controls, idle refresh.
+**Compatibility concerns/risks:** contexts expire on restart/eight hours; shared-master edits remain conservative; same-order differences require review. **Final implementation:** verified in native tests, two Manager browser contexts, standalone review and three full workflows; publication verification recorded separately.

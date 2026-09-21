@@ -274,3 +274,7 @@ Reuse Minimal panels, tables, amber pending badges, shared explanation/reason di
 
 ### DEC-059 boundary presentation
 Keep every timeline/process row clickable for viewing; hide exemption creation at/after the QC boundary and on mandatory stages. Explain the cutoff in plain language. Retain actual rejected/QC-issue wording, original pending status, historical exemption references and normal mandatory action buttons.
+
+
+## Save-conflict presentation — DEC-060
+Reuse the existing inline warning note, modal error, small button and checkbox styles. Show Review latest changes beside retained entries; require explicit confirmation before Continue editing with my entries. Use the same Minimal layout on mobile. Do not replace the open form or move this recovery into a new theme.

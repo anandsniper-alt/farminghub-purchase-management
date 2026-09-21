@@ -552,3 +552,14 @@ DEC-057 / WF-051 is published in runtime cd87b60 through deployment hdaqomsos7zk
 
 ### Process exemptions published — 2026-09-17
 DEC-058/059 and WF-052/053 are live in runtime ec0863ffa49450cc8a36f63e03fb9611c849a107 through Coolify deployment phgvkrkb9eliy749fqpjvhes (finished, running:healthy). This supersedes local-only publication status; only the confirmed pre-QC catalogue was deployed. Manager/Admin early exceptions retain pending work and history. Sample QC and every later stage remain mandatory. Backup/restored-copy rehearsal passed; 58 live checks passed with zero runtime errors or business-write requests. Existing records are preserved; EXM counter initialization alone moved revision 1008 to 1009. See PROCESS_EXEMPTIONS_RELEASE_REPORT.md.
+
+
+## DEC-060 — Safe concurrent work and retained-entry recovery
+**Date:** 2026-09-21. **Scope:** GLOBAL transaction/recovery pattern; command-specific dependency catalogue. **Status:** user requested publication of the multi-user correction; implemented and tested, deployment verification pending.
+**Existing behaviour:** sessions coexist, but a workspace-wide revision rejects unrelated saves and normal forms have no guided recovery.
+**Proposed behaviour:** authenticated dependency versions allow independent commands against the latest transaction; overlapping edits retain entries and require review. Idle views refresh when safe.
+**Alternatives:** retain global conflicts; blindly retry all writes; implement a complete entity-storage migration; use bounded dependency guards with explicit recovery.
+**Final decision and reason:** bounded guards preserve current architecture and prevent stale overwrites without blocking every unrelated order save. Unknown commands fail closed; no silent automatic merge.
+**Advantages:** independent work, retained evidence and drafts, preserved references/audit/receipts. **Disadvantages:** shared catalogue/configuration changes remain broad conflicts; same-order edits still need review. **Risks:** incomplete dependencies or silently advanced tokens; mitigated by explicit command catalogue, supplier/payment/cost/global dependencies and pinned modal context. Tokens expire after eight hours or restart.
+**Dependencies:** SQLite immediate transactions, current authorization/domain validation, encrypted server-issued versions, existing idempotency receipts. **Workflow/other-module impact:** order and supplier saves, uploads, personal settings, normal conflict recovery; administrative writes conservative. No financial formula, approval policy, role or schema change.
+**Affected files:** server/concurrency.mjs, store.mjs, index.mjs; web/concurrency.mjs, app.mjs; build script/review HTML; concurrent native/browser tests. **Documentation:** rules, brand, baseline, learnings, WF-054, concurrency guide/release report and changelog updated.

@@ -520,3 +520,7 @@ The local candidate now limits exemptions to early supplier acknowledgement, spe
 
 ### Process exemptions published — 2026-09-17
 DEC-058/059 and WF-052/053 are live in runtime ec0863ffa49450cc8a36f63e03fb9611c849a107 through Coolify deployment phgvkrkb9eliy749fqpjvhes (finished, running:healthy). This supersedes local-only publication status; only the confirmed pre-QC catalogue was deployed. Manager/Admin early exceptions retain pending work and history. Sample QC and every later stage remain mandatory. Backup/restored-copy rehearsal passed; 58 live checks passed with zero runtime errors or business-write requests. Existing records are preserved; EXM counter initialization alone moved revision 1008 to 1009. See PROCESS_EXEMPTIONS_RELEASE_REPORT.md.
+
+
+## Concurrent work candidate — 2026-09-21
+DEC-060 / WF-054 adds dependency-aware saves, explicit conflict review with retained form/files, and idle refresh every 15 seconds/on focus. Independent orders/suppliers/personal settings can save from concurrent views. Same-record and shared catalogue/configuration changes still require review. No automatic field merge, schema migration, permission change or production-capacity certification. Validated: 225 native tests, 16 concurrent browser checks, three complete Manager workflows (68 checks). Publication evidence will be appended to CONCURRENT_ACCESS_RELEASE_REPORT.md.

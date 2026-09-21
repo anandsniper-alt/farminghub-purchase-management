@@ -365,3 +365,7 @@ New LAE Import POs use their software reference as their PO number, e.g. FH-LAE-
 
 ## Confirmed boundary — DEC-059 / WF-053
 **MODULE-SPECIFIC RULE:** exemptions are allowed only before pre-production/sample QC, approved by Manager/Admin. Only the early supplier acknowledgement, specification and artwork catalogue in PROCESS_EXEMPTIONS.md is supported. QC approval requires actual early confirmations. The first QC decision permanently closes new and existing bypass authority; corrected sample submission or later PO revision cannot reopen it. Sample QC and all subsequent gates are mandatory. This supersedes the wider DEC-058 trial catalogue and resolves its scope clarification. Keep all stages clickable for explanation/status.
+
+
+## Concurrent work — DEC-060 / WF-054 (2026-09-21)
+GLOBAL RULE: preserve each user's session and typed entries. Permit unrelated order, supplier and personal-preference commands only when server-authenticated versions prove their required dependencies unchanged. Execute against current state inside the existing transaction. Same-record/dependency conflicts require explicit review; never silently overwrite or automatically resubmit. Keep normal authorization, monetary validation, references, audit and retry receipts authoritative. Unknown/global commands remain conservative. A modal pins its opening version; uploads must not advance that version. See CONCURRENT_ACCESS.md for boundaries.
