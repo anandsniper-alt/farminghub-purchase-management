@@ -342,3 +342,6 @@ DEC-060 / WF-054 is live at https://purchase.dvjassociates.com in runtime **6578
 - Require the same account to sign in inline, then review and press Save again; never submit automatically.
 - Preserve the original conflict context and all existing permissions, validation, calculations and audit controls.
 - DEC-062 / WF-056; 225 native tests and 23 concurrent/session browser checks passed. Live publication verification follows.
+
+### Published
+Runtime `6efbf29813a59ba372fd5755d014692a41713209` is live through Coolify deployment `matuydmgjm7fvtjyv71mv3va` (finished; running:healthy). A fresh backup and restored-copy rehearsal passed. Fifteen read-only live checks and final preservation passed with revision 1355 unchanged and no business-write requests. See `docs/SESSION_RECOVERY_RELEASE_REPORT.md`.
