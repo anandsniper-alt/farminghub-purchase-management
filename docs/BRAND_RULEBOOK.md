@@ -278,3 +278,6 @@ Keep every timeline/process row clickable for viewing; hide exemption creation a
 
 ## Save-conflict presentation — DEC-060
 Reuse the existing inline warning note, modal error, small button and checkbox styles. Show Review latest changes beside retained entries; require explicit confirmation before Continue editing with my entries. Use the same Minimal layout on mobile. Do not replace the open form or move this recovery into a new theme.
+
+## Pipeline Supplier PI display — DEC-061
+Use one compact **Supplier PI no.** table column in the existing order pipeline. Render the number in the existing monospace emphasis, the PI date as a muted subline, and **Awaiting PI** when missing. Board cards use one plain Supplier PI line. Keep the existing internally scrollable mobile table; add no new colour, badge, panel or typography pattern.

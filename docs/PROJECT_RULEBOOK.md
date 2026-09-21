@@ -369,3 +369,6 @@ New LAE Import POs use their software reference as their PO number, e.g. FH-LAE-
 
 ## Concurrent work — DEC-060 / WF-054 (2026-09-21)
 GLOBAL RULE: preserve each user's session and typed entries. Permit unrelated order, supplier and personal-preference commands only when server-authenticated versions prove their required dependencies unchanged. Execute against current state inside the existing transaction. Same-record/dependency conflicts require explicit review; never silently overwrite or automatically resubmit. Keep normal authorization, monetary validation, references, audit and retry receipts authoritative. Unknown/global commands remain conservative. A modal pins its opening version; uploads must not advance that version. See CONCURRENT_ACCESS.md for boundaries.
+
+## Pipeline supplier invoice identity — DEC-061 / WF-055 (2026-09-21)
+**MODULE-SPECIFIC RULE:** In the LAE Import Order pipeline, label the supplier's pre-shipment proforma invoice reference as **Supplier PI no.** Show the current saved `order.pi.number`; show **Awaiting PI** when none is recorded. Include the same current PI number/date in pipeline search, board cards and CSV export. Do not label shipment commercial-invoice numbers as the supplier PI or combine multiple shipment invoice references into this field.

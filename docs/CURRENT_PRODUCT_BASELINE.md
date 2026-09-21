@@ -525,6 +525,9 @@ DEC-058/059 and WF-052/053 are live in runtime ec0863ffa49450cc8a36f63e03fb9611c
 ## Concurrent work candidate — 2026-09-21
 DEC-060 / WF-054 adds dependency-aware saves, explicit conflict review with retained form/files, and idle refresh every 15 seconds/on focus. Independent orders/suppliers/personal settings can save from concurrent views. Same-record and shared catalogue/configuration changes still require review. No automatic field merge, schema migration, permission change or production-capacity certification. Validated: 225 native tests, 16 concurrent browser checks, three complete Manager workflows (68 checks). Publication evidence will be appended to CONCURRENT_ACCESS_RELEASE_REPORT.md.
 
+## Supplier PI in Order pipeline — 2026-09-21
+The local DEC-061 / WF-055 candidate shows the current saved Supplier PI number and PI date in the Order pipeline table, **Awaiting PI** when absent, and the same reference on board cards. Pipeline search now matches the PI number; CSV export adds Supplier PI number/date. It reads existing order data only and changes no workflow, status, identity, calculation, API or database shape. Server and standalone review modes passed 58 focused browser checks, including search/export/board/mobile and no business writes. Not yet published.
+
 
 ## Concurrent access published — 2026-09-21
 DEC-060 / WF-054 is live at https://purchase.dvjassociates.com in runtime **6578f18501f135c70000c54390da253db291ddca**, Coolify deployment **veyiohrvuqauviaswztf9eyk** (finished; running:healthy). This supersedes the preceding candidate/publication-pending status. Independent order/vendor/personal-setting saves and retained-entry conflict review are published; same-record/shared-dependency conflicts still require explicit review. Refresh open browsers once to load the new client.
