@@ -345,3 +345,9 @@ DEC-060 / WF-054 is live at https://purchase.dvjassociates.com in runtime **6578
 
 ### Published
 Runtime `6efbf29813a59ba372fd5755d014692a41713209` is live through Coolify deployment `matuydmgjm7fvtjyv71mv3va` (finished; running:healthy). A fresh backup and restored-copy rehearsal passed. Fifteen read-only live checks and final preservation passed with revision 1355 unchanged and no business-write requests. See `docs/SESSION_RECOVERY_RELEASE_REPORT.md`.
+
+## Controlled Item Master identity correction — 2026-09-21
+- Add **Edit item master** to PLM brand variants and expose editable ERP Item Code and configured Brand / brand code fields.
+- Permit Manager/Admin code or brand correction only with a reason; block duplicate code/mapping and used-item Base Item/supplier reassignment.
+- Keep permanent software references and issued PO, complaint and audit snapshots unchanged; current/new work uses the corrected master.
+- DEC-063 / WF-057; focused native tests and 39 server/standalone browser checks passed. Not yet published.

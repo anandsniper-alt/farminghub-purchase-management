@@ -284,3 +284,6 @@ Use one compact **Supplier PI no.** table column in the existing order pipeline.
 
 ## Expired-session recovery — DEC-062
 Use the existing inline warning note, labelled email/password fields and small primary button inside the open dialog. State plainly that entries and selected files remain. After successful same-user sign-in, replace the sign-in controls with a short success note and clear the stale error banner. Keep the existing dialog and mobile layout; do not navigate away, open another theme or submit automatically.
+
+## Item Master correction — DEC-063
+On a PLM product's brand-variant row, use the established small ghost **Edit item master** action. The shared dialog labels the fields **ERP Item Code** and **Brand / brand code**, displays prefix plus brand name, and gives one visible warning that historical issued records remain unchanged. Use the standard full-width reason field; do not add a new colour, modal style or separate correction screen.

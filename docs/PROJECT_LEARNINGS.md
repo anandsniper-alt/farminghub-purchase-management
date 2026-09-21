@@ -464,3 +464,6 @@ Multiple logins already worked; the whole-workspace optimistic revision rejected
 
 ## 2026-09-21 — Preserve browser work across session expiry (DEC-062)
 Replacing the SPA state after reauthentication destroys the user's unsaved form and browser `File` objects. Recover in the existing DOM: authenticate, confirm the returned account ID matches the account that opened the form, and replace only the active CSRF token/user session. Keep the original edit context so concurrent changes remain detectable. A valid different account must not inherit the form. Successful sign-in must clear the stale request error and require a separate deliberate Save; never replay the failed command automatically.
+
+## 2026-09-21 — Correct the master, preserve the transaction (DEC-063)
+An ERP item code is current master data, while an issued PO line is an immutable transactional snapshot. Correcting a legacy master code must keep the same internal ID/software reference and must not rewrite historical PO lines or complaint labels. Brand code comes from the selected controlled brand prefix, not free text. Restrict identity changes to Manager/Admin, require a reason, reject duplicate base/brand mappings, and forbid moving a used item across Base Item Code or supplier boundaries. Surface the correction action on the PLM product where staff notice the bad identity.
