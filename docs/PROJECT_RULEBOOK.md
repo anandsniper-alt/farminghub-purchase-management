@@ -437,3 +437,7 @@ MODULE-SPECIFIC RULE: optional GSTIN/PAN, uppercase and structurally validated; 
 
 ### Domestic supplier address — DEC-076
 MODULE-SPECIFIC RULE: store full address in existing vendor.address, max 1500 characters, multiline text, optional for legacy compatibility. Manager/Admin edits require reason and before/after audit. Preserve GSTIN/PAN and other master data. Escape display; retain line breaks in PO/PDF. Print saved PO vendor address, never current master lookup; issued snapshots immutable.
+
+
+### Domestic billing/shipping — DEC-077
+MODULE-SPECIFIC: require explicit Bill to and Ship to on new/re-saved drafts and before issue. Same as Bill to copies billing text server-side. Do not infer historical billing. Existing issued documents use immutable snapshots. Supplier PIN/phone are optional master values; validate entered PIN/phone, preserve omitted values on address-only updates, snapshot on PO save and print from saved document. No automatic tax interpretation.

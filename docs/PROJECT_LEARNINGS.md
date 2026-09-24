@@ -526,3 +526,7 @@ Keep supplier tax identifiers separate from GST commercial terms and financial c
 
 ### Supplier address reuse — DEC-076
 Domestic PO snapshots already carry vendor.address. Reuse that field and display it rather than adding redundant address storage or migrating historical orders. Test supplier creation/edit, reload, role restrictions, and unchanged printed snapshot after master edits.
+
+
+### Buyer and supplier address separation — DEC-077
+Billing destination cannot be inferred from delivery. Keep explicit billingAddress, reuse deliveryAddress for Ship to, and enforce Same-as-billing server-side. Supplier phone and PIN must be snapshotted alongside supplier identity. Old clients updating address without new fields must not erase existing contacts.

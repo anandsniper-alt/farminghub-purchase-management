@@ -34,8 +34,10 @@ export function applyDomesticOrderCommand(state,type,p,ctx,h){
   });
   const totalMinor=domesticBomTotals(lines).totalMinor;
   const deliveryDate=text(p.deliveryDate,'Required delivery date',10);ensure(/^\d{4}-\d{2}-\d{2}$/.test(deliveryDate)&&Number.isFinite(Date.parse(deliveryDate))&&new Date(deliveryDate).toISOString().slice(0,10)===deliveryDate,'Enter a valid delivery date.');
+  const billingAddress=text(p.billingAddress,'Bill to details'),shipToSameAsBillTo=p.shipToSameAsBillTo===true;
+  const deliveryAddress=shipToSameAsBillTo?billingAddress:text(p.deliveryAddress,'Ship to details');
   const reasonText=reason(),before=order?structuredClone(order):null;
-  const data={vendorId:vendor.id,vendor:{id:vendor.id,code:vendor.code,name:vendor.name,address:vendor.address||'',contact:vendor.contact||'',gstin:vendor.gstin||'',pan:vendor.pan||''},bom:{id:bom.id,code:bom.code,name:bom.name,reference:softwareReference(state,'domesticBoms',bom.id),revision:bom.revision,partCount:bom.lines.length},assemblyQuantity:count,lines,totalMinor,currency:'INR',deliveryDate,deliveryAddress:text(p.deliveryAddress,'Delivery address'),paymentTerms:text(p.paymentTerms,'Payment terms'),taxTerms:text(p.taxTerms,'GST / tax terms'),freightTerms:text(p.freightTerms,'Freight terms'),notes:typeof p.notes==='string'?p.notes.slice(0,3000):'',updatedAt:now,updatedBy:user.name};
+  const data={vendorId:vendor.id,vendor:{id:vendor.id,code:vendor.code,name:vendor.name,address:vendor.address||'',contact:vendor.contact||'',phone:vendor.phone||'',pinCode:vendor.pinCode||'',gstin:vendor.gstin||'',pan:vendor.pan||''},bom:{id:bom.id,code:bom.code,name:bom.name,reference:softwareReference(state,'domesticBoms',bom.id),revision:bom.revision,partCount:bom.lines.length},assemblyQuantity:count,lines,totalMinor,currency:'INR',deliveryDate,billingAddress,shipToSameAsBillTo,deliveryAddress,paymentTerms:text(p.paymentTerms,'Payment terms'),taxTerms:text(p.taxTerms,'GST / tax terms'),freightTerms:text(p.freightTerms,'Freight terms'),notes:typeof p.notes==='string'?p.notes.slice(0,3000):'',updatedAt:now,updatedBy:user.name};
   const o=order||{id:id(),scope:DOMESTIC_SCOPE,status:'DRAFT',number:'',numberSource:'SOFTWARE_REFERENCE',revision:0,createdAt:now,createdBy:user.name,history:[]};
   o.history.push({at:now,actor:user.name,reason:reasonText,action:order?'DRAFT_UPDATED':'DRAFT_CREATED',previous:before?{...before,history:undefined,issuedSnapshot:undefined}:null});Object.assign(o,data);o.revision++;
   if(!order){state.domesticOrders.push(o);ensureRecordReferences(state);o.number=softwareReference(state,'domesticOrders',o.id);}
@@ -49,6 +51,7 @@ export function applyDomesticOrderCommand(state,type,p,ctx,h){
   ensure(visibleVendor(order.vendorId),'The supplier is no longer active for LAE Domestic.');
   const bom=(state.domesticBoms||[]).find(b=>b.id===order.bom.id);ensure(bom?.revision===order.bom.revision&&bom.compositionConfirmed===true,'The BOM changed. Cancel this draft and create a new one from the current revision.','CONFLICT');
   for(const l of order.lines)ensure((state.domesticItems||[]).some(i=>i.id===l.itemId&&i.active&&i.uom===l.uom),'An ordered item changed or became inactive. Review the draft.');
+  ensure(typeof order.billingAddress==='string'&&order.billingAddress.trim()&&typeof order.deliveryAddress==='string'&&order.deliveryAddress.trim(),'Edit this draft and complete Bill to and Ship to details before issuing.');
   ensure(order.deliveryDate>=now.slice(0,10),'Update the required delivery date before issuing.');
   ensure(order.totalMinor===domesticBomTotals(order.lines).totalMinor,'Purchase order total is invalid.');
   order.status='ISSUED';order.issuedAt=now;order.issuedBy=user.name;order.revision++;

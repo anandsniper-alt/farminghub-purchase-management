@@ -328,3 +328,7 @@ Reuse Minimal pages, tabs, standard form fields, status badges and photo viewer.
 
 ### Supplier addresses — DEC-076
 Reuse standard multiline textarea, reason input, save/cancel dialog and small Edit address button. Show escaped multiline address in Supplier master and PO supplier block using domestic-po-text. No new visual tokens.
+
+
+### Bill to / Ship to — DEC-077
+Reuse standard multiline fields and checkbox. Show Bill to/Ship to as distinct labelled blocks on PO/PDF, preserving line breaks. Supplier block displays address, labelled PIN and mobile/phone when recorded. No new design tokens.

@@ -71,10 +71,16 @@ export function applyDomesticCommand(state,type,p,ctx,h){
   ensure(address.length<=1500&&!/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/.test(address),'Supplier address must be at most 1,500 characters without control characters.');
   return address;
  };
+ const supplierContact=(previous={})=>{
+  const pin=p.pinCode===undefined?(previous.pinCode||''):p.pinCode,phone=p.phone===undefined?(previous.phone||''):p.phone;
+  ensure(typeof pin==='string'&&(!pin.trim()||/^[1-9][0-9]{5}$/.test(pin.trim())),'Enter a six-digit supplier PIN code or leave it blank.');
+  ensure(typeof phone==='string'&&phone.length<=80&&(!phone.trim()||(/^[+0-9() .-]+$/.test(phone.trim())&&phone.replace(/\D/g,'').length>=7&&phone.replace(/\D/g,'').length<=15)),'Enter a valid supplier mobile / phone number or leave it blank.');
+  return {pinCode:pin.trim(),phone:phone.trim()};
+ };
  if(type==='DOMESTIC_UPDATE_VENDOR_ADDRESS'){
   ensure(['ADMIN','MANAGER'].includes(user.role),'Purchase Manager access is required for vendor master changes.','FORBIDDEN');
   const v=state.vendors.find(v=>v.id===p.vendorId&&v.kind==='SUPPLIER'&&v.scopes?.includes(DOMESTIC_SCOPE));ensure(v,'Domestic supplier not found.','NOT_FOUND');
-  const address=supplierAddress(),why=reason(),before=structuredClone(v);Object.assign(v,{address},stamp);
+  const address=supplierAddress(),contactDetails=supplierContact(v),why=reason(),before=structuredClone(v);Object.assign(v,{address},contactDetails,stamp);
   event('vendor',v.id,'DOMESTIC_VENDOR_ADDRESS_UPDATED',why,before,structuredClone(v));return {id:v.id};
  }
  const taxDetails=()=>{
@@ -94,7 +100,7 @@ export function applyDomesticCommand(state,type,p,ctx,h){
  if(type==='DOMESTIC_SAVE_VENDOR'){
   ensure(['ADMIN','MANAGER'].includes(user.role),'Purchase Manager access is required for vendor master changes.','FORBIDDEN');
   const code=clean(p.code,'Supplier code',80).toUpperCase();ensure(!state.vendors.some(v=>v.code.toUpperCase()===code||v.fullReference?.toUpperCase()===code),'Supplier code already exists. Use the existing supplier.');
-  const v={...taxDetails(),address:supplierAddress(),id:id(),code,fullReference:code,name:clean(p.name,'Supplier name',200),kind:'SUPPLIER',status:'ACTIVE',scopes:[DOMESTIC_SCOPE],country:clean(p.country,'Country',100),contact:typeof p.contact==='string'?p.contact.slice(0,200):'',email:'',phone:typeof p.phone==='string'?p.phone.slice(0,80):'',currency:'INR',defaultBillingCurrency:'INR',defaultPriceListCurrency:'INR',paymentTermsText:typeof p.paymentTermsText==='string'?p.paymentTermsText.slice(0,1000):'',source:'Domestic vendor master',createdAt:now,...stamp};
+  const v={...taxDetails(),address:supplierAddress(),...supplierContact(),id:id(),code,fullReference:code,name:clean(p.name,'Supplier name',200),kind:'SUPPLIER',status:'ACTIVE',scopes:[DOMESTIC_SCOPE],country:clean(p.country,'Country',100),contact:typeof p.contact==='string'?p.contact.slice(0,200):'',email:'',currency:'INR',defaultBillingCurrency:'INR',defaultPriceListCurrency:'INR',paymentTermsText:typeof p.paymentTermsText==='string'?p.paymentTermsText.slice(0,1000):'',source:'Domestic vendor master',createdAt:now,...stamp};
   state.vendors.push(v);event('vendor',v.id,'DOMESTIC_VENDOR_CREATED','Domestic supplier created in the shared vendor master.',null,v);return {id:v.id};
  }
  if(type==='DOMESTIC_IMPORT_PRICES'){
