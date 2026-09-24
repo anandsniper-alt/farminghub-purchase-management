@@ -492,3 +492,9 @@ The source workbook's pictures make a click-to-add catalogue easier to identify 
 
 ## 2026-09-24 — Recovery copies before releases (DEC-067)
 A consistent server snapshot protects against application changes but not loss of the server. The user's release gate adds a downloaded, verified ZIP with matching source and manifest. Apply five-copy retention only after successful validation, so a failed backup cannot destroy the last good recovery point. Local pre-release archives are distinct from a scheduled cloud-backup service.
+
+
+## Domestic follow-up learnings — 2026-09-24, DEC-069/070
+An Added-only row makes users expect removal there: expose an explicit Remove and reuse the selected-table removal implementation. A catalogue position is not a selected-row index; locate by stable item/assembly ID after earlier removals. Re-render only selected rows, preserving search/list scroll and other form fields; focus returns to the same item after inline removal.
+Manual and spreadsheet price entry should feed the same preview/domain save path. Preserve blank versus explicit zero and separate a supplier unit quote from BOM/master cost adoption. Create evidence with inline-string cells rather than formulas. JSZip can add implicit folder entries with current timestamps even when the changed sheet's date is fixed: use createFolders:false plus a fixed sheet date for stable identical-entry fingerprints. Browser regression crosses ZIP timestamp granularity and confirms duplicate blocking.
+Minimal-theme selectors can override generic button height and table padding. Verify actual 390/320px computed layout: maintain the Remove touch target and full source-photo sizing in stacked price rows. Current saved BOM usage is descriptive context, not an inferred supplier price for an entire assembly.

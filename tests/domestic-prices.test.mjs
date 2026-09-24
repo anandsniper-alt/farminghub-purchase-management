@@ -42,3 +42,17 @@ test('Domestic-only Manager can add a supplier, Executive can upload, Import-onl
 test('editing a shared vendor preserves its original Domestic division',()=>{
  let s=setup(),v=s.vendors.at(-1);s=run(s,'SAVE_VENDOR',{...v,productionDays:30,defaultTerms:'30-70',name:'Corrected supplier name'});assert.deepEqual(s.vendors.at(-1).scopes,['LAE_DOMESTIC']);
 });
+
+test('manual quotations retain evidence and use the same validation, roles and immutable BOM rules',()=>{
+ let s=setup();const before=structuredClone(s),p={...payload(s),entryMethod:'MANUAL'};
+ assert.throws(()=>run(s,'DOMESTIC_IMPORT_PRICES',{...p,entryMethod:'OVERRIDE'}),/entry-method|entry method/);
+ assert.throws(()=>run(s,'DOMESTIC_IMPORT_PRICES',{...p,rows:[row(s,'10.001')]}),/rejected/);
+ assert.throws(()=>run(s,'DOMESTIC_IMPORT_PRICES',{...p,fileId:'missing'}),/Attach/);
+ assert.throws(()=>run(s,'DOMESTIC_IMPORT_PRICES',p,{...user(s),role:'VIEWER'}),/access/);
+ assert.deepEqual(s,before);
+ s=run(s,'DOMESTIC_IMPORT_PRICES',p,{...user(s),role:'EXECUTIVE'});const q=s.domesticPriceLists.at(-1);
+ assert.equal(q.entryMethod,'MANUAL');assert.equal(q.fileId,p.fileId);assert.equal(q.sourceHash,p.sourceHash);assert.equal(q.reason,p.reason);
+ assert.deepEqual(s.domesticBoms,before.domesticBoms);assert.deepEqual(s.domesticItems,before.domesticItems);
+ assert.equal(s.events.at(-1).newValue.entryMethod,'MANUAL');assert.throws(()=>run(s,'DOMESTIC_IMPORT_PRICES',p),/already been/);
+ s=run(s,'DOMESTIC_IMPORT_PRICES',{...payload(s),quoteReference:'Q2',sourceHash:'b'.repeat(64)});assert.equal(s.domesticPriceLists.at(-1).entryMethod,'UPLOAD');assert.equal(s.domesticPriceLists[0].entryMethod,'MANUAL');
+});

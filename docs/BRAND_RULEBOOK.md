@@ -303,3 +303,8 @@ Reuse Minimal theme tabs, standard buttons and wide dialogs. Keep Download templ
 
 ## Domestic BOM picture selector — DEC-068
 Reuse Minimal colors/fonts, native search/segment fields, button focus treatment and existing wide dialog. The compact scrollable list places a contained source thumbnail beside the item name/code, with Add/Added at the right. Missing photographs say Picture pending; assemblies without their own photo are labelled Assembly rather than borrowing another item's identity. Keep the selected BOM's original six columns below, with an Edit quantities & prices shortcut. On narrow screens filters stack and the BOM table scrolls internally; Save/Cancel and mascot clearance remain available. No global theme or animation change.
+
+
+## Domestic selector removal and manual price worksheet — DEC-069/070
+Retain Minimal theme and existing tokens/dialogs. Add an explicit small ghost Remove beside the selected catalogue row's Added marker, with an accessible item-specific name and a 44px touch target; keep Add and Remove as sibling buttons. On mobile, place Added beneath the item description and keep Remove reachable.
+On Price lists, group Download template, Upload price list and primary Enter prices. Manual entry shows contained source photos, item name/code and Used in BOM beside an INR/UOM input. Use the existing photo enlargement without losing the form. On narrow screens stack each price row so the image, identity and rate fit without horizontal entry scrolling. Use Quotation history for both entry sources; retain existing review/validation styling and blank-versus-zero wording. No global theme redesign.

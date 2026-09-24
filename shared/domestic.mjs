@@ -40,14 +40,15 @@ export function applyDomesticCommand(state,type,p,ctx,h){
  if(type==='DOMESTIC_IMPORT_PRICES'){
   const v=state.vendors.find(v=>v.id===p.vendorId);ensure(v&&v.kind==='SUPPLIER'&&v.status==='ACTIVE'&&v.scopes?.some(s=>user.role==='ADMIN'||user.scopes?.includes(s)),'Select an active supplier within your assigned divisions.');
   ensure(typeof p.quoteDate==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(p.quoteDate)&&Number.isFinite(Date.parse(p.quoteDate))&&new Date(p.quoteDate).toISOString().slice(0,10)===p.quoteDate&&p.quoteDate<=now.slice(0,10),'Enter a valid quote date, not in the future.');
-  const quoteReference=clean(p.quoteReference,'Supplier quote reference',180),changeReason=reason();
+  const quoteReference=clean(p.quoteReference,'Supplier quote reference',180),changeReason=reason(),entryMethod=p.entryMethod??'UPLOAD';
+  ensure(['UPLOAD','MANUAL'].includes(entryMethod),'Select a supported price-entry method.');
   ensure(/^[a-f0-9]{64}$/.test(p.sourceHash),'Invalid upload fingerprint.');
   ensure(Array.isArray(p.rows)&&p.rows.length>0&&p.rows.length<=500&&p.rows.every(r=>r&&typeof r==='object'&&!Array.isArray(r)&&Object.values(r).every(v=>['string','number'].includes(typeof v)&&String(v).length<=2000)),'Upload between 1 and 500 valid item rows.');
   const preview=previewDomesticPrices(state,p.rows);ensure(!preview.some(r=>r.errors.length),'Correct the rejected price rows before saving.');const lines=preview.filter(r=>r.result==='SAVE').map(({itemId,code,description,uom,rateMinor})=>({itemId,code,description,uom,rateMinor}));ensure(lines.length,'Enter at least one price; blank rates are skipped.');
   state.domesticPriceLists??=[];
   ensure(!state.domesticPriceLists.some(q=>q.vendorId===v.id&&q.quoteDate===p.quoteDate&&q.quoteReference.toUpperCase()===quoteReference.toUpperCase()&&q.sourceHash===p.sourceHash),'This supplier quotation has already been uploaded.');
   const file=state.files.find(f=>f.id===p.fileId);ensure(file&&file.scope===DOMESTIC_SCOPE&&/\.(xlsx|csv)$/i.test(file.name),'Attach the uploaded price-list file.');
-  const q={id:id(),scope:DOMESTIC_SCOPE,vendorId:v.id,vendorCode:v.code,vendorName:v.name,quoteDate:p.quoteDate,quoteReference,currency:'INR',lines,fileId:file.id,sourceHash:p.sourceHash,reason:changeReason,createdAt:now,createdBy:user.name};state.domesticPriceLists.push(q);event('domestic',q.id,'DOMESTIC_PRICES_IMPORTED','Supplier prices saved; existing BOM costs remain unchanged.',null,q);return {id:q.id,count:lines.length};
+  const q={id:id(),scope:DOMESTIC_SCOPE,vendorId:v.id,vendorCode:v.code,vendorName:v.name,quoteDate:p.quoteDate,quoteReference,currency:'INR',lines,fileId:file.id,sourceHash:p.sourceHash,entryMethod,reason:changeReason,createdAt:now,createdBy:user.name};state.domesticPriceLists.push(q);event('domestic',q.id,'DOMESTIC_PRICES_IMPORTED','Supplier prices saved; existing BOM costs remain unchanged.',null,q);return {id:q.id,count:lines.length};
  }
  const image=(asset,fileId)=>{if(fileId){const f=state.files.find(f=>f.id===fileId);ensure(f&&f.scope===DOMESTIC_SCOPE&&['image/png','image/jpeg','image/webp'].includes(f.mime),'Select an uploaded Domestic item picture.');return {imageAsset:null,imageFileId:f.id};}ensure(!asset||domesticImageAsset(asset),'Invalid item picture.');return {imageAsset:asset||null,imageFileId:null};};
  const itemLine=i=>({itemId:i.id,code:i.code,description:i.description,segment:i.segment,uom:i.uom,imageAsset:i.imageAsset,imageFileId:i.imageFileId,quantityMilli:null,rateMinor:i.rateMinor});

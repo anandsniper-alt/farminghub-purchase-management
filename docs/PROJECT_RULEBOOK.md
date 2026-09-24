@@ -405,3 +405,10 @@ Every live release requires a fresh consistent production snapshot downloaded an
 
 ## MODULE-SPECIFIC RULE — Domestic BOM item selection (DEC-068 / WF-062)
 Use a searchable clickable list with source item pictures, names, codes and segments to add BOM components. Added items remain visibly marked and cannot be duplicated. Major BOMs may select reusable assemblies; assembly BOMs may select purchased active parts only. Enter quantities and prices after selection in the existing six-column table. Preserve unknown values, UOM validation, explicit supplier-quote selection/manual rates, shared assembly rollups and reasoned revisions. Adding/removing rows must retain unsaved inputs, filters and cleared quote associations. Price edits here never overwrite Item Master or quotation history.
+
+
+## MODULE-SPECIFIC RULE — Same-row removal and manual Domestic prices (DEC-069/070)
+Selected picture-list rows must expose Remove beside Added; repeated picture/name clicks do not remove or duplicate selections. Resolve catalogue removal by stable item/assembly identity and preserve other unsaved fields. Removing a BOM line never deletes its Item Master or assembly record. Persist only through the existing reasoned BOM revision.
+
+Domestic supplier quotations may be typed through Enter prices or uploaded using the existing template. Both paths use the same supplier/date/reference/reason, shared validation, two-decimal INR-before-GST rules, immutable evidence, duplicate guard and permissions. Manual entry generates values-only XLSX evidence; keep its timestamps deterministic so retry fingerprints do not vary with time. Mark quotations MANUAL/UPLOAD; old records/calls mean UPLOAD. Blank remains unquoted, zero must be explicit, and no BOM/master repricing occurs automatically.
+User-confirmed identification is photo + item name + permanent item code + Used in BOM. BOM usage refers to current saved links/components and is informational, never a pricing key or a replacement for item identity. Do not invent an assembly association. Retain Download template and Upload price list.

@@ -20,3 +20,10 @@ In Edit BOM, click the item picture/name in the searchable list to add it, then 
 
 
 The DEC-068 pictured BOM selector is now published and verified (2026-09-24). Follow the click-to-add instructions above; see DOMESTIC_BOM_PICKER_REPORT.md for release evidence.
+
+
+## Manual prices — local candidate, DEC-070
+Select **Enter prices** on Price lists. Choose supplier, quote date and reference, and enter the reason/conditions. Each row shows the item photo, name, item code and **Used in BOM**. Search by item or BOM code, or filter by segment; previously typed prices remain. Type INR for one stated UOM before GST. Leave unquoted items blank; use 0 only when explicitly quoted free.
+Choose **Review prices**, use **Back to edit prices** if needed, then **Save supplier prices**. A values-only quotation workbook is generated and retained automatically; you need not prepare or upload a file. Quotation history distinguishes manual entry from file upload. Existing BOM costs and Item Master prices remain unchanged until explicitly revised. Download template/Upload price list continue to work.
+**BOM code versus item code:** a purchased item has its own permanent item code; CS1/CS2 or a model label describes where it is used in currently saved BOMs. Enter a price for the individual purchased item. Not assigned means no saved usage was found, not that the item cannot be priced.
+In the BOM picker, **Remove** beside Added removes that selection from the draft. Review and save a revision with a reason to persist it, or Cancel to retain the saved BOM.

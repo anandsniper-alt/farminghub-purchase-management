@@ -1,5 +1,10 @@
 # Changelog — v0.6.1-alpha.16
 
+## Unreleased — Domestic inline removal and manual prices (2026-09-24)
+- Remove selected BOM items directly from their pictured list rows, preserving other draft entries. DEC-069 / WF-063.
+- Enter supplier prices manually with photos, names, item codes and Used in BOM; review/edit/save with immutable quotation evidence. Keep template upload/download and existing BOM costs. DEC-070 / WF-064.
+- Verified locally: 17 native tests, 94 picker and 49 manual-price browser checks. Not deployed.
+
 ## Unreleased — Domestic BOM picture list (2026-09-24)
 - Click source pictures/item names to add BOM components; search by code/name/segment and see Added markers.
 - Edit quantities and prices after adding, preserving unsaved entries and cleared supplier-quote selections across row changes.
