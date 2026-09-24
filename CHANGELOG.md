@@ -398,3 +398,9 @@ DEC-064–066 / WF-058–060 are live at https://purchase.dvjassociates.com in r
 
 
 **Publication verified, 2026-09-24:** runtime **8f24c088b8fa25c7d098ccc39aed69d8f9f7b255**, Coolify deployment **nhhrvupva9q8qyiyq7zeusxn** (finished; running:healthy). Manual supplier prices with photos/item codes/Used in BOM and same-row BOM Remove are live. **242 native tests, 143 local server/review browser checks and 56 read-only live checks passed.** A fresh **464,874,649-byte recovery ZIP** was downloaded and verified, including the complete database/evidence and matching previous running source. Extracted-database integrity and isolated candidate startup preserved all data. Retention: 2 verified managed ZIPs, 0 older ZIPs removed. Live workspace remains at revision **1513**; accounts, evidence bodies, audit records, archives and retry receipts match the pre-release snapshot. No live business-write requests were made. This supersedes local-only status for DEC-069/070 and WF-063/064. Private evidence: test-output/manual-entry-release/; recovery archives remain outside Git in backups/releases/.
+
+
+## 2026-09-24 — Domestic price comparison candidate
+- Added Compare prices with supplier columns and one supplier's old/new quotation comparison, photo/item/BOM identification, search, rate changes and lowest comparable prices.
+- Preserved quote history, partial-list rules, zero/missing distinctions, units, saved BOM costs and existing access. No business mutations from comparison.
+- Five new native cases and 48 local browser checks passed; full native release regression: 247 passed. Publication evidence follows after backup and live verification.

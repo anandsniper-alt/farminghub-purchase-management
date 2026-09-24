@@ -30,3 +30,10 @@ In the BOM picker, **Remove** beside Added removes that selection from the draft
 
 
 **Published 2026-09-24:** DEC-069/070 are live. Use Enter prices for manual quotations, or the existing template/upload options. Remove beside Added is available in the BOM picker. See MANUAL_PRICE_ENTRY_REPORT.md for release verification.
+
+
+## Compare supplier prices — DEC-071
+1. Open LAE Domestic → Price lists → **Compare prices**.
+2. Choose **Across suppliers**, tick the suppliers and search by item name/code. Each column shows its latest quoted item rate with date/reference; Lowest marks comparable unit rates before GST/freight.
+3. Choose **Same supplier · old vs new**, select the supplier, then Old quotation and New quotation. Review the INR and percentage change. If only one quotation exists, enter or upload another dated quotation first.
+4. Blank quotations show Not quoted; a saved zero is explicitly shown as Zero rate. Different units and old-zero percentages are flagged rather than guessed. Close when finished; comparison does not change saved prices or BOM costs.

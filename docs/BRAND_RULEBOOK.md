@@ -308,3 +308,7 @@ Reuse Minimal colors/fonts, native search/segment fields, button focus treatment
 ## Domestic selector removal and manual price worksheet — DEC-069/070
 Retain Minimal theme and existing tokens/dialogs. Add an explicit small ghost Remove beside the selected catalogue row's Added marker, with an accessible item-specific name and a 44px touch target; keep Add and Remove as sibling buttons. On mobile, place Added beneath the item description and keep Remove reachable.
 On Price lists, group Download template, Upload price list and primary Enter prices. Manual entry shows contained source photos, item name/code and Used in BOM beside an INR/UOM input. Use the existing photo enlargement without losing the form. On narrow screens stack each price row so the image, identity and rate fit without horizontal entry scrolling. Use Quotation history for both entry sources; retain existing review/validation styling and blank-versus-zero wording. No global theme redesign.
+
+
+## Domestic price comparison — DEC-071
+Reuse the Minimal wide modal, standard selects/checkboxes/search, existing photo enlargement and item/Used in BOM identity. Comparison tables keep readable columns and scroll horizontally inside their container on narrow screens. Show quotation dates/references and units next to rates; use existing green/red/amber/gray status badges with text, never colour alone. Do not introduce a new pricing-screen theme.
