@@ -27,3 +27,6 @@ Select **Enter prices** on Price lists. Choose supplier, quote date and referenc
 Choose **Review prices**, use **Back to edit prices** if needed, then **Save supplier prices**. A values-only quotation workbook is generated and retained automatically; you need not prepare or upload a file. Quotation history distinguishes manual entry from file upload. Existing BOM costs and Item Master prices remain unchanged until explicitly revised. Download template/Upload price list continue to work.
 **BOM code versus item code:** a purchased item has its own permanent item code; CS1/CS2 or a model label describes where it is used in currently saved BOMs. Enter a price for the individual purchased item. Not assigned means no saved usage was found, not that the item cannot be priced.
 In the BOM picker, **Remove** beside Added removes that selection from the draft. Review and save a revision with a reason to persist it, or Cancel to retain the saved BOM.
+
+
+**Published 2026-09-24:** DEC-069/070 are live. Use Enter prices for manual quotations, or the existing template/upload options. Remove beside Added is available in the BOM picker. See MANUAL_PRICE_ENTRY_REPORT.md for release verification.
