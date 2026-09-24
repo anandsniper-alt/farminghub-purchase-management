@@ -1,3 +1,4 @@
+import {applyDomesticOrderCommand} from './domestic-orders.mjs';
 import {applyDomesticCommand} from './domestic.mjs';
 import {applyProcessExemption,processGateAllowed,processGateDone,activeProcessExemptions,pendingProcessExemptions,refreshProcessExemptions} from './process-exemptions.mjs';
 import {applyArrivalCosting} from './arrival-costing.mjs';
@@ -346,6 +347,7 @@ export function execute(input,command,user,{now=new Date().toISOString(),id=()=>
  if(['APPROVE_PROCESS_EXEMPTION','REVOKE_PROCESS_EXEMPTION'].includes(type)){const o=order(false);result=applyProcessExemption(state,o,type,p,ctx,(...args)=>log(o,...args));if(type==='APPROVE_PROCESS_EXEMPTION')dRefreshProductionWindow(state,o,ctx,log);
  }else if(type==='SAVE_PERSONAL_PREFERENCES'){
   ensure(p&&typeof p==='object'&&!Array.isArray(p)&&Object.keys(p).length===1&&typeof p.showPageGuides==='boolean','Supply only a boolean page-guide preference.');const profile=state.users.find(u=>u.id===user.id);ensure(profile&&profile.active!==false,'Your active user profile is required.','FORBIDDEN');const previous=personalPreferences(profile);profile.preferences={...(profile.preferences||{}),showPageGuides:p.showPageGuides};dEvent(state,ctx,'user',profile.id,'PERSONAL_PREFERENCES_UPDATED','Personal page-guide preference saved for this login.',previous,personalPreferences(profile));result={preferences:personalPreferences(profile)};
+ }else if(type.startsWith('DOMESTIC_PO_')){result=applyDomesticOrderCommand(state,type,p,ctx,{ensure,toMinor,event:(...args)=>dEvent(state,ctx,...args)});
  }else if(type.startsWith('DOMESTIC_')){result=applyDomesticCommand(state,type,p,ctx,{ensure,toMinor,event:(...args)=>dEvent(state,ctx,...args)});
  }else if(type.startsWith('VMS_')){result=applyVmsCommand(state,type,p,ctx,{ensure,scopeAllowed,canApprove,canCreate,toMinor,event:(...args)=>dEvent(state,ctx,...args)});
  }else if(['SAVE_ARRIVAL_COSTING','FINALIZE_ARRIVAL_COSTING','REOPEN_ARRIVAL_COSTING'].includes(type)){const o=order(type==='SAVE_ARRIVAL_COSTING');result=applyArrivalCosting(state,type,p,ctx,o,{event:(...args)=>log(o,...args),attach:(fid,kind,sid)=>dAttach(o,dEvidence(state,fid,o.id),kind,ctx,sid)});

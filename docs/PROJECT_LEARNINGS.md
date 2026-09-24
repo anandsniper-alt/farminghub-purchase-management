@@ -510,3 +510,11 @@ The reusable domestic-full-flow-browser runner joins supplier/item creation, man
 
 ## Frame save validation coverage — 2026-09-24
 Happy-path frame saves did not cover the reported apparent non-save: a required revision reason can block native submit while the application error panel is empty. Reproduce missing/whitespace reason and invalid numeric fields, check durable messages and retained entries, then correct and verify the persisted revision. Pending prices and quantities already save correctly as Draft. New tests cover creation, all four existing frames, Manager/Executive and server/review modes. Do not claim the user's exact failure was captured when its input/error details are unavailable.
+
+
+## Assembly scenario costing — 2026-09-24 (DEC-073)
+A cheaper unit quote is not necessarily a cheaper assembly: multiply each supplier rate by the same saved quantity, round each part to paise and sum. Unknown supplier parts must not borrow manually entered BOM costs, or a partial quote can appear falsely complete. Comparison completeness is separate from saved COSTED status: an explicitly confirmed assembly with known quantities can compare supplier quotes while its manual rates are pending. Search filters only the visible breakdown. Preserve actual per-part quote dates when a later partial quote carries older prices; use saved assembly revision/UOM, not current master assumptions or an older model snapshot. Keep this pure calculation in shared/domestic.mjs to reuse domesticBomTotals without introducing a circular dependency from domestic-prices.mjs.
+
+
+## Domestic PO identity and preservation — 2026-09-24
+Use a separate domesticOrders collection and reference type so Import stages/payments are not accidentally applied to Domestic orders. Allocate the new reference counter lazily at the first real Domestic PO: merely releasing the code need not rewrite existing workspaces or append a reference-initialization event. Persist derived BOM line snapshots and freeze issued content, rather than reading current Item Master at print time. Test Executive draft → Manager issue → pictured PDF → cancellation in server and review modes. Avoid helper names such as document inside UI factories; they shadow the browser document object.

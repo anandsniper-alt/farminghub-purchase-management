@@ -316,3 +316,11 @@ Reuse the Minimal wide modal, standard selects/checkboxes/search, existing photo
 
 ## Domestic BOM save guidance — DEC-072
 Reuse the existing modal footer and muted/red theme tokens for durable save guidance. Show the relevant item code for numeric errors, focus the field and retain inputs. Guidance and Save must fit 320px/390px screens. No new theme or business-status terminology.
+
+
+## Domestic assembly comparison — DEC-073
+Extend the existing Compare prices dialog with Assembly totals; reuse Minimal form/select controls, supplier checkboxes, status badges, photos and internally scrolling tables. Add Compare assembly cost beside existing assembly actions. Place total/coverage/difference/status above the photo-and-quantity breakdown. Keep an explicit reference-supplier selector and saved revision. Green Lowest complete total never applies to incomplete quotations; use existing amber guidance. Preserve the six-column BOM editing layout and existing price-entry/history modes.
+
+
+## Domestic PO screens and pictured documents — DEC-074
+Reuse Minimal pages, tabs, standard form fields, status badges and photo viewer. Add Purchase orders to Domestic navigation and Create purchase order on assembly detail. Draft entry shows source BOM code/revision, selected parts, photos, derived quantities, rates and commercial terms. Detail and Print / Save PDF repeat the BOM identity and each part photo/code/description. Clearly mark Draft and Cancelled documents; label amounts Parts subtotal before GST / freight. Print must load identification photos before invoking the browser print dialog.

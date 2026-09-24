@@ -40,3 +40,14 @@ In the BOM picker, **Remove** beside Added removes that selection from the draft
 
 
 **Published 2026-09-24:** DEC-071 comparison is live. Choose Compare prices on LAE Domestic → Price lists. Both manual quotations and uploaded price lists feed the comparison. See DOMESTIC_PRICE_COMPARISON_REPORT.md for release verification.
+
+
+## Compare the total cost of an assembly
+1. Save the assembly parts and quantities in Assembly BOMs. Confirm the complete composition only when it is complete.
+2. Save the suppliers' quotations for those parts through Enter prices or Upload price list.
+3. Open the assembly and choose Compare assembly cost, or Price lists → Compare prices → Assembly totals.
+4. Select the assembly, suppliers and Compare against reference supplier.
+5. Review the total for one assembly and the INR/percentage difference. Expand your review with the pictured parts table underneath; each row shows quantity, unit rate, part cost and actual quote date/reference.
+6. Complete missing quantities/quotes before relying on a total. Incomplete quotes show only a priced-parts subtotal and cannot be marked lowest. Search filters the breakdown only.
+
+This view uses the current saved assembly revision and latest saved quote per part, before GST/freight. It changes no BOM prices and does not place a purchase order. To adopt a rate, use the existing reasoned BOM edit flow. See DOMESTIC_ASSEMBLY_COMPARISON_REPORT.md. Local candidate: not yet published.

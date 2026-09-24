@@ -1,5 +1,5 @@
 import {ensureRecordReferences,softwareReference} from './references.mjs';
-import {previewDomesticPrices} from './domestic-prices.mjs';
+import {previewDomesticPrices,latestDomesticPrices,domesticPriceDifference} from './domestic-prices.mjs';
 
 export const DOMESTIC_SCOPE='LAE_DOMESTIC';
 export const DOMESTIC_SEGMENTS=['ACCESSORIES','FRAME - FAB','MILKING UNIT','TUBES','MOTOR','ENGINE','OTHER'];
@@ -21,6 +21,40 @@ export function domesticBomTotals(lines){
  return {knownMinor,totalMinor:lines.length&&!missing.length?knownMinor:null,missing};
 }
 export function domesticAssemblyLine(bom){return {assemblyId:bom.id,assemblyRevision:bom.revision,assemblyConfirmed:bom.compositionConfirmed,assemblyType:bom.assemblyType||'CAN_SET',components:structuredClone(bom.lines),code:bom.code,description:bom.name,segment:DOMESTIC_ASSEMBLY_TYPES[bom.assemblyType||'CAN_SET'],uom:'SET',quantityMilli:1000,rateMinor:null};}
+// Read-only supplier scenarios for one current saved assembly; never reprice a BOM.
+export function compareDomesticAssemblySuppliers(state,bomId,vendorIds,baselineVendorId){
+ const bom=(state.domesticBoms||[]).find(b=>b.id===bomId&&b.scope===DOMESTIC_SCOPE&&domesticIsAssembly(b));
+ if(!bom)throw new Error('Select a saved assembly BOM.');
+ const selected=[...new Set(vendorIds)],baselineId=selected.includes(baselineVendorId)?baselineVendorId:selected[0]||'',issues=[];
+ if(!bom.lines.length)issues.push('Add assembly parts to this BOM.');
+ if(bom.compositionConfirmed!==true)issues.push('Confirm the complete assembly composition in Edit BOM.');
+ if(new Set(bom.lines.map(l=>l.itemId)).size!==bom.lines.length)issues.push('Correct duplicate assembly parts in Edit BOM.');
+ const sources=new Map((state.domesticPriceLists||[]).map(q=>[q.id,q]));
+ const rows=bom.lines.map(line=>{
+  const quotes=new Map(latestDomesticPrices(state,line.itemId).map(q=>[q.vendorId,q]));
+  return {line,cells:selected.map(vendorId=>{
+   const quote=quotes.get(vendorId)||null;let issue='',amountMinor=null;
+   if(line.assemblyId||!line.itemId)issue='Use purchased parts in this assembly BOM.';
+   else if(!Number.isSafeInteger(line.quantityMilli)||line.quantityMilli<=0||line.quantityMilli>1000000000||(['PCS','SET'].includes(line.uom)&&line.quantityMilli%1000))issue='Enter a valid BOM quantity.';
+   else if(!quote)issue='Not quoted';
+   else if(quote.uom!==line.uom)issue='Different UOM';
+   else if(sources.get(quote.quoteId)?.currency!=='INR')issue='Quote must be in INR';
+   else if(!Number.isSafeInteger(quote.rateMinor)||quote.rateMinor<0)issue='Invalid quoted rate';
+   else try{amountMinor=domesticBomTotals([{...line,rateMinor:quote.rateMinor}]).totalMinor;}catch(e){issue=e.message;}
+   return {vendorId,quote,amountMinor,issue};
+  })};
+ });
+ const cells=selected.map((vendorId,index)=>{
+  const parts=rows.map(r=>r.cells[index]),pricedParts=parts.filter(p=>p.amountMinor!==null).length;
+  let knownMinor=0,issue='';
+  for(const part of parts)if(part.amountMinor!==null){if(!Number.isSafeInteger(knownMinor+part.amountMinor)){knownMinor=null;issue='BOM total is too large.';break;}knownMinor+=part.amountMinor;}
+  const complete=!issues.length&&parts.length>0&&pricedParts===parts.length&&knownMinor!==null;
+  return {vendorId,pricedParts,knownMinor,totalMinor:complete?knownMinor:null,complete,issue,lowest:false,deltaMinor:null,percentText:null};
+ });
+ const complete=cells.filter(c=>c.complete),lowest=complete.length>1?Math.min(...complete.map(c=>c.totalMinor)):null,baseline=cells.find(c=>c.vendorId===baselineId);
+ for(const cell of cells){cell.lowest=cell.complete&&cell.totalMinor===lowest;if(cell.complete&&baseline?.complete)Object.assign(cell,domesticPriceDifference({uom:'SET',rateMinor:baseline.totalMinor},{uom:'SET',rateMinor:cell.totalMinor}));}
+ return {bom,issues,baselineVendorId:baselineId,rows,cells};
+}
 export function applyDomesticCommand(state,type,p,ctx,h){
  const {ensure,toMinor,event}=h,{user,now,id}=ctx;
  ensure(domesticCanEdit(user),'LAE Domestic purchase access is required.','FORBIDDEN');

@@ -1,5 +1,10 @@
 # Changelog — v0.6.1-alpha.16
 
+## Unreleased — Assembly supplier total comparison (2026-09-24)
+- Compare the same saved assembly across suppliers: full total, reference-supplier difference in INR/percent, photos, quantities and quote-by-quote breakdown.
+- Missing quotes/quantities and unconfirmed compositions remain incomplete and cannot win the lowest-total comparison. No saved BOM or supplier data changes.
+- Verified: 256 native tests and 152 server/review browser checks. DEC-073 / WF-067; not deployed.
+
 ## Unreleased — Domestic inline removal and manual prices (2026-09-24)
 - Remove selected BOM items directly from their pictured list rows, preserving other draft entries. DEC-069 / WF-063.
 - Enter supplier prices manually with photos, names, item codes and Used in BOM; review/edit/save with immutable quotation evidence. Keep template upload/download and existing BOM costs. DEC-070 / WF-064.
@@ -416,3 +421,9 @@ DEC-064–066 / WF-058–060 are live at https://purchase.dvjassociates.com in r
 
 
 **Publication verified, 2026-09-24:** runtime **45b19d41f38ce9672f36ae3531dc261686941baa**, Coolify deployment **fvlltkmx31apzhb0h9pvlste** (finished; running:healthy). Frame assembly creation opens the parts editor; BOM save errors now have persistent, field-specific guidance beside Save. **247 native tests, 328 local server/review browser checks and 87 read-only live checks passed.** The live check exercised missing-reason recovery for all four frames and mobile 390/320px layouts without submitting business mutations. A fresh **464,883,507-byte recovery ZIP** passed download hashes, archive verification and isolated restore/startup checks. **4** verified managed backups retained; 0 older copies removed. Complete workspace revision **1516**, accounts, evidence, audit, archives and retry receipts match the pre-release snapshot. Supersedes candidate status for DEC-072 / WF-066. Private evidence: test-output/frame-save-release/.
+
+
+## Domestic assembly purchase orders — 2026-09-24 candidate
+- Executives prepare pictured BOM-based drafts; Managers/Admins approve and issue with immutable order content.
+- Automatic Domestic PO references, supplier terms, selected parts, reasoned changes, print/PDF and retained cancellation.
+- Includes assembly supplier-total comparison. Live verification pending; DEC-074 / WF-068.
