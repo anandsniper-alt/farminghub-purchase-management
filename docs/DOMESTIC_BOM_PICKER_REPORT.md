@@ -1,6 +1,6 @@
 # Domestic BOM picture list — 2026-09-24
 
-Status: local candidate; not published. Decision DEC-068 / workflow WF-062.
+Status: published and verified, 2026-09-24. Decision DEC-068 / workflow WF-062.
 
 ## Use the new editor
 
@@ -22,3 +22,10 @@ The six workbook columns, current saved revisions, pictures, permanent reference
 Reproduce: `node scripts/build.mjs --domestic-preview`, `node --test tests/domestic.test.mjs tests/domestic-prices.test.mjs tests/startup.test.mjs`, then `node tests/domestic-picker-browser.mjs`. Set `FH_PLAYWRIGHT_MODULE` and `FH_BROWSER_PATH` if the test runner/browser are elsewhere. The browser test starts both temporary HTTP servers itself.
 
 Before publication, follow the mandatory downloaded recovery ZIP gate in BACKUP_RESTORE_RUNBOOK.md; retain the five newest verified release ZIPs.
+
+
+## Live release
+
+**Publication verified, 2026-09-24:** runtime **9f7c3c804518dfed6db954bebdb7fa0cd2eeea58**, Coolify deployment **iqbhj3adw7rti1f0eyof60tk** (finished; running:healthy). **241 native tests, 66 local server/review browser checks and 42 live checks passed.** The picture/name click-to-add BOM editor is live. A fresh **464,872,834-byte recovery ZIP** was downloaded/packaged and checked against the server snapshot; isolated restored-copy candidate startup preserved all data. The archive includes the complete database/evidence and matching previous running source. Five-copy retention applied: 1 verified ZIP currently retained, 0 older ZIPs removed. Live business workspace is unchanged at revision **1513**; all accounts, uploaded bodies, audit rows, archives and retry receipts match the pre-release snapshot. Browser verification made **zero business-write requests**. This supersedes DEC-068 / WF-062's local-only status. Private evidence remains under test-output/bom-picker-release/ and backups/releases/.
+
+Read-only live checks covered HTTPS, committed asset hashes, existing-account sign-in, pictured selection/search/segment filter, editable unsaved quantities/prices, retained entries, cancellation, assembly choices, desktop and 390/320px layouts, price-template navigation and the Import pipeline. The browser blocked all non-read API requests and no business write was attempted.

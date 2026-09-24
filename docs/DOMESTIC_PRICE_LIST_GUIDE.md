@@ -17,3 +17,6 @@ CS1 serves TX-MM1. CS2 is shared by GJ-MM2, GJ-MM3 and GJ-MM4. Assembly composit
 
 ## BOM selection update — local candidate, DEC-068
 In Edit BOM, click the item picture/name in the searchable list to add it, then use Edit quantities & prices. Choose a supplier quote or enter a manual rate in the selected row. A later add/remove keeps your manual rate and does not reselect an old quote. Assembly totals still come from their parts. See DOMESTIC_BOM_PICKER_REPORT.md for testing and publication status.
+
+
+The DEC-068 pictured BOM selector is now published and verified (2026-09-24). Follow the click-to-add instructions above; see DOMESTIC_BOM_PICKER_REPORT.md for release evidence.
