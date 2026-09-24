@@ -4,7 +4,7 @@ import {DOMESTIC_SCOPE,DOMESTIC_SEGMENTS,DOMESTIC_UOMS,domesticCanEdit,domesticB
 import {softwareReference} from '../shared/references.mjs';
 
 export function createDomesticUI(host){
- const {context,esc,head,ph,button,badge,note,field,command,showDialog,renderModal,upload,getFile}=host;
+ const {context,esc,head,ph,button,badge,note,field,command,showDialog,renderModal,navigate,upload,getFile}=host;
  const money=n=>n==null?'Pending':new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR'}).format(n/100);
  const value=n=>n==null?'':(n/100).toFixed(2),qty=n=>n==null?'':String(n/1000);
  const allowed=()=>{const {user}=context();return user?.role==='ADMIN'||user?.scopes?.includes(DOMESTIC_SCOPE);};
@@ -56,6 +56,22 @@ export function createDomesticUI(host){
   const b=boms().find(b=>b.id===draft.id);document.getElementById('domestic-selected-rows').innerHTML=draftRows(b);updatePicker(message);hydrate();draftTotals();
  }
  function syncDraft(){const form=document.getElementById('dialog-form');if(!draft||!form)return;draft.lines.forEach((l,n)=>{l.quantity=form.querySelector('[name="quantity-'+n+'"]')?.value??l.quantity;if(!l.assemblyId)l.rate=form.querySelector('[name="rate-'+n+'"]')?.value??l.rate;l.quoteId=form.querySelector('[name=quote-'+n+']')?.value||'';});draft.reason=form.querySelector('[name=reason]')?.value||'';draft.notes=form.querySelector('[name=notes]')?.value||'';draft.compositionConfirmed=!!form.querySelector('[name=compositionConfirmed]')?.checked;}
+ function bindSaveGuidance(){
+  const form=document.getElementById('dialog-form');if(!form||context().ui.modal!=='domestic-bom')return;
+  const hint=document.createElement('p');hint.id='domestic-save-guidance';hint.className='domestic-save-guidance';hint.setAttribute('role','status');hint.setAttribute('aria-live','polite');form.querySelector('.modal-foot').prepend(hint);
+  let attempted=false,queued=false;
+  const update=()=>{
+   const reason=form.querySelector('[name=reason]');reason.setCustomValidity(reason.value.trim()?'':'Enter a reason for this revision.');
+   const invalid=[...form.querySelectorAll('input,select,textarea')].filter(el=>!el.validity.valid);
+   for(const el of form.querySelectorAll('input,select,textarea')){if(attempted&&!el.validity.valid){el.setAttribute('aria-invalid','true');el.setAttribute('aria-describedby',hint.id);}else{el.removeAttribute('aria-invalid');el.removeAttribute('aria-describedby');}}
+   hint.classList.toggle('has-error',attempted&&invalid.length>0);
+   const el=invalid[0],line=el&&draft.lines[Number(el.name.split('-')[1])];
+   hint.textContent=attempted&&el?(el.name==='reason'?'Enter a reason for this revision before saving.':(line?line.code+' — ':'')+(el.name.startsWith('quantity-')?'Check the quantity. ':el.name.startsWith('rate-')?'Check the price. ':'')+el.validationMessage):'Pending quantities or prices can be saved as Draft. A revision reason is required.';
+   return invalid[0];
+  };
+  form.addEventListener('invalid',event=>{event.preventDefault();attempted=true;if(!queued){queued=true;queueMicrotask(()=>{queued=false;update()?.focus();});}},true);
+  form.addEventListener('input',update);form.addEventListener('change',update);update();
+ }
  function draftTotals(){if(!draft)return;syncDraft();const lines=draft.lines.map(l=>({...l,quantityMilli:l.quantity===''?null:Math.round(Number(l.quantity)*1000),rateMinor:l.rate===''?null:Math.round(Number(l.rate)*100)})),target=document.getElementById('domestic-bom-total');if(target){try{target.innerHTML=totalsPanel(lines,draft.compositionConfirmed);}catch(e){target.textContent=e.message;}}}
  function modal(t,d){
   if(t.startsWith('domestic-price-')||t==='domestic-vendor')return prices.modal(t,d);
@@ -65,7 +81,7 @@ export function createDomesticUI(host){
   if(t==='domestic-history'){const b=boms().find(x=>x.id===d.id);return {title:'BOM revision history',sub:ref(b),body:b.history.length?b.history.slice().reverse().map(r=>'<details class="domestic-history"><summary>Revision '+r.revision+' · '+esc(r.replacedBy)+' · '+esc(r.replacedAt.slice(0,10))+'</summary><p>'+esc(r.reason)+'</p>'+readonlyTable(r.lines,{id:b.id,revision:r.revision})+totalsPanel(r.lines,r.compositionConfirmed)+'</details>').join(''):note('No previous revisions. The next saved change will retain this version.'),submit:null,wide:true};}
   if(t==='domestic-item'){const i=items().find(x=>x.id===d.id);return {title:i?'Edit Domestic item':'Add Domestic item',sub:i?.code||'Permanent item code assigned when saved',wide:true,submit:'Save item',body:'<div class="form-grid">'+field('segment','segment',i?.segment||'ACCESSORIES','select',{options:DOMESTIC_SEGMENTS,required:true})+field('uom','UOM',i?.uom||'PCS','select',{options:DOMESTIC_UOMS,required:true})+field('description','Item Description',i?.description||'','textarea',{required:true,full:true,attrs:'maxlength="600"'})+field('rate','Rate (before GST) · INR',value(i?.rateMinor),'number',{attrs:'min="0" step="0.01"',hint:'Leave blank until the price is known.'})+field('picture','Identification picture','','file',{attrs:'accept="image/png,image/jpeg,image/webp"',hint:'Existing picture stays unless replaced.'})+(i?field('reason','Reason for change','','textarea',{required:true,full:true}):'')+'</div>'+(i?picture(i):'')};}
   const b=boms().find(x=>x.id===d.id);
-  queueMicrotask(()=>{hydrate();draftTotals();updatePicker();});
+  queueMicrotask(()=>{hydrate();draftTotals();updatePicker();bindSaveGuidance();});
   return {title:'Edit BOM · '+bomLabel(b),sub:ref(b)+' · Revision '+b.revision,wide:true,submit:'Save BOM revision',body:(draft.lines.some(l=>l.assemblyId)?note('This edit uses the latest assembly revisions. Saving retains the previous model BOM and its costs. Assembly cost is calculated from its parts.'):'')+itemPicker(b)+'<div class="domestic-selected-head"><h3 id="domestic-selected-heading" tabindex="-1">2. Quantities & prices</h3><span id="domestic-selected-count" class="muted"></span></div><div class="table-wrap domestic-table-wrap"><table class="domestic-table" aria-label="Selected BOM items">'+headers()+'<tbody id="domestic-selected-rows">'+draftRows(b)+'</tbody></table></div><label class="domestic-confirm"><input name="compositionConfirmed" type="checkbox" '+(draft.compositionConfirmed?'checked':'')+'> All required components for this '+(b.kind==='MODEL'?'machine':'assembly')+' are included.</label><div id="domestic-bom-total"></div>'+field('notes','BOM notes',draft.notes,'textarea',{full:true})+field('reason','Reason for this revision',draft.reason,'textarea',{required:true,full:true})};
  }
  async function action(a,d){
@@ -93,7 +109,7 @@ export function createDomesticUI(host){
   showDialog(a,{...d});queueMicrotask(hydrate);return true;
  }
  async function submit(t,d,form){if(t.startsWith('domestic-price-')||t==='domestic-vendor')return prices.submit(t,d,form);const f=Object.fromEntries(new FormData(form));
-  if(t==='domestic-set')return command('DOMESTIC_CREATE_ASSEMBLY',{code:f.code,name:f.name,assemblyType:f.assemblyType},{message:'Assembly BOM created. Add its assembly parts.'});
+  if(t==='domestic-set'){const result=await command('DOMESTIC_CREATE_ASSEMBLY',{code:f.code,name:f.name,assemblyType:f.assemblyType},{message:'Assembly created. Choose its parts, then save the BOM revision.'});if(result?.id){navigate('domestic/'+result.id);await action('domestic-bom',{id:result.id});}return result;}
   if(t==='domestic-item'){const old=items().find(i=>i.id===d.id),file=form.querySelector('[name=picture]').files[0];let imageFileId=old?.imageFileId||null;if(file){if(!['image/png','image/jpeg','image/webp'].includes(file.type))throw new Error('Use a PNG, JPG or WebP picture.');imageFileId=await upload(file,[],DOMESTIC_SCOPE);}return command('DOMESTIC_SAVE_ITEM',{itemId:old?.id,segment:f.segment,description:f.description,uom:f.uom,rate:f.rate,imageAsset:old?.imageAsset||null,imageFileId,reason:f.reason},{message:'Domestic item saved.'});}
   syncDraft();return command('DOMESTIC_SAVE_BOM',{bomId:d.id,revision:draft.revision,lines:draft.lines.map(l=>({itemId:l.itemId,assemblyId:l.assemblyId,assemblyRevision:l.assemblyRevision,quoteId:l.quoteId,quantity:l.quantity,rate:l.assemblyId?null:l.rate})),notes:draft.notes,reason:draft.reason,compositionConfirmed:draft.compositionConfirmed},{message:'BOM revision saved. Previous version retained.'});
  }

@@ -312,3 +312,7 @@ On Price lists, group Download template, Upload price list and primary Enter pri
 
 ## Domestic price comparison — DEC-071
 Reuse the Minimal wide modal, standard selects/checkboxes/search, existing photo enlargement and item/Used in BOM identity. Comparison tables keep readable columns and scroll horizontally inside their container on narrow screens. Show quotation dates/references and units next to rates; use existing green/red/amber/gray status badges with text, never colour alone. Do not introduce a new pricing-screen theme.
+
+
+## Domestic BOM save guidance — DEC-072
+Reuse the existing modal footer and muted/red theme tokens for durable save guidance. Show the relevant item code for numeric errors, focus the field and retain inputs. Guidance and Save must fit 320px/390px screens. No new theme or business-status terminology.

@@ -587,3 +587,11 @@ Price lists adds Compare prices with selectable supplier columns and same-suppli
 
 
 **Publication verified, 2026-09-24:** runtime **ef945cc01a51099f3c27e13a61122ff3e6be862f**, Coolify deployment **k11t2xx3yzvakh3vpjkc20xa** (finished; running:healthy). Domestic Price lists → Compare prices is live, with supplier comparison and same-supplier old/new quotations. **247 native tests, 97 local server/review browser checks and 61 read-only live checks passed.** A fresh **464,877,213-byte recovery ZIP** was downloaded and verified with full database/evidence, matching prior source, archive/member hashes and isolated restored-copy startup. Retention: 3 verified managed ZIPs, 0 older ZIPs removed. Workspace revision **1513**, accounts, evidence bodies, audit records, archives and retry receipts match the pre-release snapshot. No live business-write requests were made. Supersedes candidate publication status for DEC-071 / WF-065. Private evidence: test-output/price-comparison-release/; recovery ZIPs: backups/releases/.
+
+
+## Fresh Domestic full-flow verification — 2026-09-24
+247 native, 331 local browser and 72 live read-only checks passed. Purchase Manager completed supplier/item creation, manual/XLSX quotations, comparison, six can/frame assemblies, all four model costs and deliberate quote/assembly revision adoption with preserved history. Live workspace remained at revision 1516 with no business writes. Live Domestic readiness: 37 items, four models, three newly requested suppliers available, zero saved quotations, six empty assembly BOMs, zero costed models. Actual prices/composition/quantities remain operator inputs. No runtime change or deployment. See DOMESTIC_FULL_FLOW_TEST_REPORT.md for exact scope and deferred modules.
+
+
+## Frame BOM save fix — 2026-09-24 candidate
+Assembly creation now opens its parts editor directly. BOM save validation stays beside Save and focuses missing/invalid fields, preserving selected parts. Pending quantities and prices may still save as Draft with a user revision reason. Locally verified: 247 native tests and 328 browser checks (116 frame, 94 picker, 118 integrated flow). No live business records changed during diagnosis. Publication is recorded after backup and live verification.

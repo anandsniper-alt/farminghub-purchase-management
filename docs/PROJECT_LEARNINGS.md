@@ -502,3 +502,11 @@ Minimal-theme selectors can override generic button height and table padding. Ve
 
 ## Domestic comparison learnings — DEC-071
 Latest-per-item supplier comparison and exact-quotation history answer different questions: a partial new list preserves old latest rates for omitted items, but a selected historical comparison must show that omission. Dates prevent the older carried rate appearing newly quoted. Explicit zero is valid and differs from absent pricing. UOM changes must be flagged, never silently converted. BigInt integer arithmetic computes two-decimal half-up percentage without overflow near the permitted safe-integer paise limit. Shared pure helpers keep server/review views consistent; the server static-module allowlist and review bundler must both include new browser modules. Comparison can reuse the scoped Viewer read model without granting editing permissions.
+
+
+## Full-flow regression evidence — 2026-09-24
+The reusable domestic-full-flow-browser runner joins supplier/item creation, manual and XLSX quotation saving, selection into can/frame assemblies, all four machine totals, later quote changes, assembly adoption and historical drill-down in one scoped Manager sequence. Assert independently calculated totals and per-record audit/evidence, not only that screens load. The upload-failures runner confirms invalid file review offers no Save and leaves saved state untouched. Both run against fresh local stores in server/review modes; live verification blocks writes and keeps unknown operating inputs pending. No rule or workflow change is established by these test fixtures.
+
+
+## Frame save validation coverage — 2026-09-24
+Happy-path frame saves did not cover the reported apparent non-save: a required revision reason can block native submit while the application error panel is empty. Reproduce missing/whitespace reason and invalid numeric fields, check durable messages and retained entries, then correct and verify the persisted revision. Pending prices and quantities already save correctly as Draft. New tests cover creation, all four existing frames, Manager/Executive and server/review modes. Do not claim the user's exact failure was captured when its input/error details are unavailable.

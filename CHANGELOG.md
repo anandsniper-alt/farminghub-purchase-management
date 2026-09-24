@@ -407,3 +407,9 @@ DEC-064–066 / WF-058–060 are live at https://purchase.dvjassociates.com in r
 
 
 **Publication verified, 2026-09-24:** runtime **ef945cc01a51099f3c27e13a61122ff3e6be862f**, Coolify deployment **k11t2xx3yzvakh3vpjkc20xa** (finished; running:healthy). Domestic Price lists → Compare prices is live, with supplier comparison and same-supplier old/new quotations. **247 native tests, 97 local server/review browser checks and 61 read-only live checks passed.** A fresh **464,877,213-byte recovery ZIP** was downloaded and verified with full database/evidence, matching prior source, archive/member hashes and isolated restored-copy startup. Retention: 3 verified managed ZIPs, 0 older ZIPs removed. Workspace revision **1513**, accounts, evidence bodies, audit records, archives and retry receipts match the pre-release snapshot. No live business-write requests were made. Supersedes candidate publication status for DEC-071 / WF-065. Private evidence: test-output/price-comparison-release/; recovery ZIPs: backups/releases/.
+
+
+## Frame BOM entry and save feedback — 2026-09-24
+- New assemblies open directly into their parts editor after reference assignment.
+- Missing reasons and invalid quantities/prices have persistent, field-specific feedback beside Save; pending costs remain savable Drafts.
+- 247 native tests and 328 local browser checks passed. DEC-072 / WF-066. Release status recorded in DOMESTIC_FRAME_SAVE_REPORT.md.
