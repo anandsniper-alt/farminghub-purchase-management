@@ -65,10 +65,24 @@ export function applyDomesticCommand(state,type,p,ctx,h){
  state.domesticItems??=[];state.domesticModels??=[];state.domesticBoms??=[];
  const find=(type,recordId)=>{const r=state[type].find(r=>r.id===recordId);ensure(r&&r.scope===DOMESTIC_SCOPE,'Domestic record not found.','NOT_FOUND');return r;};
  const stamp={updatedAt:now,updatedBy:user.name};
+ const taxDetails=()=>{
+  const normalized=(value,label)=>{ensure(value==null||typeof value==='string',label+' must be text.');return (value||'').trim().toUpperCase();};
+  const gstin=normalized(p.gstin,'GSTIN'),pan=normalized(p.pan,'PAN');
+  ensure(!gstin||/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/.test(gstin),'Enter a valid 15-character GSTIN or leave it blank.');
+  ensure(!pan||/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(pan),'Enter a valid 10-character PAN or leave it blank.');
+  ensure(!gstin||!pan||gstin.slice(2,12)===pan,'PAN must match the PAN within the GSTIN.');
+  return {gstin,pan};
+ };
+ if(type==='DOMESTIC_UPDATE_VENDOR_TAX'){
+  ensure(['ADMIN','MANAGER'].includes(user.role),'Purchase Manager access is required for vendor master changes.','FORBIDDEN');
+  const v=state.vendors.find(v=>v.id===p.vendorId&&v.kind==='SUPPLIER'&&v.scopes?.includes(DOMESTIC_SCOPE));ensure(v,'Domestic supplier not found.','NOT_FOUND');
+  const details=taxDetails(),why=reason(),before=structuredClone(v);Object.assign(v,details,stamp);
+  event('vendor',v.id,'DOMESTIC_VENDOR_TAX_UPDATED',why,before,structuredClone(v));return {id:v.id};
+ }
  if(type==='DOMESTIC_SAVE_VENDOR'){
   ensure(['ADMIN','MANAGER'].includes(user.role),'Purchase Manager access is required for vendor master changes.','FORBIDDEN');
   const code=clean(p.code,'Supplier code',80).toUpperCase();ensure(!state.vendors.some(v=>v.code.toUpperCase()===code||v.fullReference?.toUpperCase()===code),'Supplier code already exists. Use the existing supplier.');
-  const v={id:id(),code,fullReference:code,name:clean(p.name,'Supplier name',200),kind:'SUPPLIER',status:'ACTIVE',scopes:[DOMESTIC_SCOPE],country:clean(p.country,'Country',100),contact:typeof p.contact==='string'?p.contact.slice(0,200):'',email:'',phone:typeof p.phone==='string'?p.phone.slice(0,80):'',currency:'INR',defaultBillingCurrency:'INR',defaultPriceListCurrency:'INR',paymentTermsText:typeof p.paymentTermsText==='string'?p.paymentTermsText.slice(0,1000):'',source:'Domestic vendor master',createdAt:now,...stamp};
+  const v={...taxDetails(),id:id(),code,fullReference:code,name:clean(p.name,'Supplier name',200),kind:'SUPPLIER',status:'ACTIVE',scopes:[DOMESTIC_SCOPE],country:clean(p.country,'Country',100),contact:typeof p.contact==='string'?p.contact.slice(0,200):'',email:'',phone:typeof p.phone==='string'?p.phone.slice(0,80):'',currency:'INR',defaultBillingCurrency:'INR',defaultPriceListCurrency:'INR',paymentTermsText:typeof p.paymentTermsText==='string'?p.paymentTermsText.slice(0,1000):'',source:'Domestic vendor master',createdAt:now,...stamp};
   state.vendors.push(v);event('vendor',v.id,'DOMESTIC_VENDOR_CREATED','Domestic supplier created in the shared vendor master.',null,v);return {id:v.id};
  }
  if(type==='DOMESTIC_IMPORT_PRICES'){

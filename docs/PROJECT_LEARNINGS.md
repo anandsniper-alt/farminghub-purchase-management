@@ -518,3 +518,7 @@ A cheaper unit quote is not necessarily a cheaper assembly: multiply each suppli
 
 ## Domestic PO identity and preservation — 2026-09-24
 Use a separate domesticOrders collection and reference type so Import stages/payments are not accidentally applied to Domestic orders. Allocate the new reference counter lazily at the first real Domestic PO: merely releasing the code need not rewrite existing workspaces or append a reference-initialization event. Persist derived BOM line snapshots and freeze issued content, rather than reading current Item Master at print time. Test Executive draft → Manager issue → pictured PDF → cancellation in server and review modes. Avoid helper names such as document inside UI factories; they shadow the browser document object.
+
+
+### Supplier tax identifiers — DEC-075
+Keep supplier tax identifiers separate from GST commercial terms and financial calculations. Blank means not recorded. Avoid live master lookups while printing historical POs: snapshot GSTIN/PAN with vendor identity on draft save. Test master editing and printed snapshot preservation in server and review modes.
