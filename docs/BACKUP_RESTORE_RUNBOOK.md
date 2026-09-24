@@ -38,3 +38,7 @@ Before publishing 9f7c3c804518dfed6db954bebdb7fa0cd2eeea58, a fresh 507,654,144-
 
 ## Downloaded recovery ZIP for manual prices — 2026-09-24
 Before publishing 8f24c088b8fa25c7d098ccc39aed69d8f9f7b255, a fresh 507,654,144-byte consistent SQLite snapshot (revision 1513) was downloaded and matched to its server SHA-256. All 87 running source files matched 9f7c3c804518dfed6db954bebdb7fa0cd2eeea58. The verified 464,874,649-byte ZIP includes database/evidence, source archive, manifest and recovery guide. CRC, member hashes, SQLite integrity/foreign keys and isolated candidate startup/data preservation passed. Retention keeps 2 verified managed ZIPs; 0 older ZIPs removed. Files and verification receipts are held privately in backups/releases/. This remains a release recovery procedure, not scheduled off-site backup.
+
+
+## Downloaded recovery ZIP for price comparison — 2026-09-24
+Before publishing ef945cc01a51099f3c27e13a61122ff3e6be862f, a fresh 507,654,144-byte SQLite snapshot (revision 1513) was downloaded and matched to the server SHA-256. 87 running source files matched 8f24c088b8fa25c7d098ccc39aed69d8f9f7b255. The 464,877,213-byte verified recovery ZIP contains database/evidence, matching source, manifest and recovery instructions. CRC/member hashes, SQLite integrity/foreign keys and isolated candidate startup/data preservation passed. Retention keeps 3 verified managed ZIPs; 0 removed. Private files/verification receipts are in backups/releases/. This release recovery procedure does not establish scheduled off-site backup.

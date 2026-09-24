@@ -1,6 +1,6 @@
 # Domestic supplier price comparison
 
-Date: 2026-09-24. Status: tested candidate; publication pending.
+Date: 2026-09-24. Status: published and verified, 2026-09-24.
 
 Price lists now has **Compare prices**. Across suppliers shows the latest saved rate for each item and selected supplier, with quotation date/reference and lowest comparable rate. Same supplier compares two chosen quotations and shows old/new rates, INR difference and percentage change. Both views retain item photos, permanent item codes and current saved BOM usage, and support item name/code search.
 
@@ -28,3 +28,10 @@ Full release regression: **247 native tests passed**, with zero failures. **49 m
 Commands: `node --test tests/domestic-price-comparison.test.mjs tests/domestic-prices.test.mjs tests/startup.test.mjs`; `node tests/domestic-comparison-browser.mjs`. Ignored evidence: test-output/price-comparison/2026-09-24T10-39-08-076Z/.
 
 Release gate: full native regression, build, fresh downloaded recovery ZIP with isolated restore rehearsal, healthy deployment, read-only live checks and database preservation. No populated live comparison is claimed if production has no saved Domestic quotations.
+
+
+## Live release
+
+**Publication verified, 2026-09-24:** runtime **ef945cc01a51099f3c27e13a61122ff3e6be862f**, Coolify deployment **k11t2xx3yzvakh3vpjkc20xa** (finished; running:healthy). Domestic Price lists → Compare prices is live, with supplier comparison and same-supplier old/new quotations. **247 native tests, 97 local server/review browser checks and 61 read-only live checks passed.** A fresh **464,877,213-byte recovery ZIP** was downloaded and verified with full database/evidence, matching prior source, archive/member hashes and isolated restored-copy startup. Retention: 3 verified managed ZIPs, 0 older ZIPs removed. Workspace revision **1513**, accounts, evidence bodies, audit records, archives and retry receipts match the pre-release snapshot. No live business-write requests were made. Supersedes candidate publication status for DEC-071 / WF-065. Private evidence: test-output/price-comparison-release/; recovery ZIPs: backups/releases/.
+
+Live verification opened Compare prices, checked the production quotation state and guidance, and confirmed the committed comparison module and shared calculation assets. Production had no Domestic quotations at verification, so populated supplier/history scenarios were tested only on isolated local fixtures; no dummy quotations were added live. Existing manual entry, inline BOM removal, Import navigation and 390/320px layouts also passed.
