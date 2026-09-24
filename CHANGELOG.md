@@ -413,3 +413,6 @@ DEC-064–066 / WF-058–060 are live at https://purchase.dvjassociates.com in r
 - New assemblies open directly into their parts editor after reference assignment.
 - Missing reasons and invalid quantities/prices have persistent, field-specific feedback beside Save; pending costs remain savable Drafts.
 - 247 native tests and 328 local browser checks passed. DEC-072 / WF-066. Release status recorded in DOMESTIC_FRAME_SAVE_REPORT.md.
+
+
+**Publication verified, 2026-09-24:** runtime **45b19d41f38ce9672f36ae3531dc261686941baa**, Coolify deployment **fvlltkmx31apzhb0h9pvlste** (finished; running:healthy). Frame assembly creation opens the parts editor; BOM save errors now have persistent, field-specific guidance beside Save. **247 native tests, 328 local server/review browser checks and 87 read-only live checks passed.** The live check exercised missing-reason recovery for all four frames and mobile 390/320px layouts without submitting business mutations. A fresh **464,883,507-byte recovery ZIP** passed download hashes, archive verification and isolated restore/startup checks. **4** verified managed backups retained; 0 older copies removed. Complete workspace revision **1516**, accounts, evidence, audit, archives and retry receipts match the pre-release snapshot. Supersedes candidate status for DEC-072 / WF-066. Private evidence: test-output/frame-save-release/.
