@@ -378,3 +378,23 @@ GLOBAL RULE: preserve each user's session and typed entries. Permit unrelated or
 
 ## Controlled Item Master identity correction — DEC-063 / WF-057 (2026-09-21)
 **GLOBAL identity rule:** The permanent software reference and internal item ID remain fixed. A Purchase Manager or Admin may correct an existing ERP Item Code or select another configured brand/brand code only with a mandatory reason. Item code uniqueness and one-brand-per-Base-Item validation remain authoritative. If the item has ever appeared on a PO, its Base Item Code and supplier cannot be reassigned; create a new ERP item for that structural change. Issued PO lines, complaints and historical audit snapshots retain their originally recorded code/brand. New documents use the corrected current master. Record the correction as `ITEM_IDENTITY_CORRECTED`; never rewrite history.
+
+
+## Domestic component and BOM rules — DEC-064 / WF-058
+**MODULE-SPECIFIC RULE:** preserve the source six-column workbook layout and original description/UOM/photo mapping. Rates absent from the source remain null, never assumed zero. Components are purchased separately. CS1 belongs to TX-MM1; one shared CS2 serves GJ-MM2/3/4. Keep each model's separate motor, frame and other required parts. Can-set composition and unspecified model quantities remain pending until supplied.
+
+Shared can sets contain purchased parts only. Cost each set from its components once, and snapshot its revision inside the model BOM; do not silently reprice saved model revisions when a set or master price changes. A newer linked revision requires explicit model save/reason, with concurrency validation. Retain previous revisions and permanent references. A numeric subtotal is not a complete BOM until composition is explicitly confirmed. See DOMESTIC_BOM_TRIAL.md for formulas, units, rounding and edge cases.
+
+**Exception to generic flat tables:** the source Picture column remains in-cell; quantities appear inside the UOM cell so the user's six-column order is retained. Identification pictures can enlarge without replacing an unsaved editor. This is an approved Domestic layout requirement, not a new global table standard.
+
+
+## Major BOM versus assembly parts — DEC-065 / WF-059
+**MODULE-SPECIFIC RULE:** "Assembly parts" means components used to build the machine. Do not label them replacement spares or add a spare allowance. The Major BOM holds major components/assemblies; an assembly BOM holds its purchased parts. Generalise CS1/CS2's saved-revision rules to frame, motor/pump, engine and other assemblies. Complete purchased major units may remain single rows when no further parts breakdown is supplied. The expected five or six major components is not a hard-coded count.
+
+View assembly parts must show the exact model/historical snapshot, including part pictures, rather than silently substituting the current assembly. Opening the editable assembly is a separate labelled action. Old saved models are not regrouped or repriced automatically. See DOMESTIC_BOM_TRIAL.md for the unchanged cost formula.
+
+
+## Domestic quotations — DEC-066 / WF-060
+**MODULE-SPECIFIC RULE:** use active Domestic item codes/descriptions/UOM in the downloadable XLSX/CSV price format. Rates are INR per stated UOM, before GST, with at most two decimals. Blank means unquoted/skipped; explicit zero is retained and highlighted in review. Reject unknown/inactive/mismatched/duplicate items, negative/invalid/overflow rates, future/invalid dates, formulas, and identical supplier/date/reference/file-hash retries. Reject the whole batch if any row fails; require at least one priced row, supplier, source file, quote reference and reason/conditions. Maximum 500 data rows per upload.
+Save each supplier quote as an immutable record with evidence and a permanent FH-LAE-D-PRC-n reference. Compare the latest quote date per supplier/item (last saved breaks same-date ties); retain older quotes. Do not treat rate-only comparisons as landed cost. Never silently update Item Master or saved BOM costs. A chosen quote must match the current item/UOM/rate and be available to the actor; manual rate changes clear the quote association. BOM revisions preserve supplier/date/reference provenance and historical snapshots.
+**GLOBAL RULE:** editing an existing vendor preserves its division scopes. Domestic suppliers use the shared vendor collection; creating one requires Domestic Manager/Admin access. Reusing a quote supplier requires an active supplier visible within the user's assigned divisions. User-approved release action adds LAE_DOMESTIC to all active MANAGER/EXECUTIVE profiles; preserve all existing scopes and roles.

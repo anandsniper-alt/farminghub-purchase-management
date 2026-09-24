@@ -354,3 +354,25 @@ Runtime `6efbf29813a59ba372fd5755d014692a41713209` is live through Coolify deplo
 
 ### Published
 Runtime `d11918f147a236e85c5f010e5373d923ecc0c03d` is live through Coolify deployment `biiv5slzzxdju89x2dugfdov` (finished; running:healthy). A fresh backup/restored-copy rehearsal, 16 read-only live checks and final preservation passed at unchanged revision 1372. The observed `PW8RG` Item Master record and issued PO-23 snapshot were not modified by verification. See `docs/ITEM_MASTER_CORRECTION_RELEASE_REPORT.md`.
+
+
+## Unreleased — LAE Domestic workbook and reusable BOM trial (2026-09-24)
+- Add workbook-format component Item Master with source pictures and permanent item references.
+- Add four photographed machine models and separate, reusable CS1/CS2 can-set BOMs.
+- Preserve model-specific parts, missing-price/quantity states, integer INR rollups, immutable saved set revisions and reasoned BOM history.
+- Keep work isolated in a local trial; no production import or release.
+
+
+## Unreleased — Major BOM and assembly parts (2026-09-24)
+- Clarify assembly parts as the machine's build components, not replacement spares.
+- Extend can-set BOMs to frame, motor/pump, engine and other assemblies.
+- Add saved assembly-parts drill-down with pictures from the machine Major BOM.
+- Preserve shared CS1/CS2, costing, scope, references and revision history; local trial only.
+
+
+## LAE Domestic BOM and supplier price-list candidate — 2026-09-24
+- Add model Major BOMs and reusable Assembly parts BOMs, original workbook pictures, four model photographs and immutable cost revisions.
+- Download a price template with current Domestic item codes/descriptions/units; upload and review supplier INR prices before GST.
+- Compare supplier quotations and explicitly select a quote when revising a BOM. Preserve earlier quotations and saved BOM costs.
+- Add Domestic suppliers to the shared master, preserving existing vendor scopes when edited.
+- DEC-064–066 / WF-058–060. Publication verification recorded separately; no test prices or suppliers are intended for live seeding.

@@ -467,3 +467,21 @@ Replacing the SPA state after reauthentication destroys the user's unsaved form 
 
 ## 2026-09-21 — Correct the master, preserve the transaction (DEC-063)
 An ERP item code is current master data, while an issued PO line is an immutable transactional snapshot. Correcting a legacy master code must keep the same internal ID/software reference and must not rewrite historical PO lines or complaint labels. Brand code comes from the selected controlled brand prefix, not free text. Restrict identity changes to Manager/Admin, require a reason, reject duplicate base/brand mappings, and forbid moving a used item across Base Item Code or supplier boundaries. Surface the correction action on the PLM product where staff notice the bad identity.
+
+
+## Domestic workbook/BOM learnings — 2026-09-24
+- The workbook uses both Excel rich-value pictures and WPS DISPIMG references. Extract through relationship metadata; checking only worksheet drawing anchors misses the three frame images. Verify all 33 picture cells against 30 original image hashes.
+- The sheet supplies catalogue alternatives, not full model quantities or rates. All rates are blank. Do not treat every source row as a required part of every machine or infer component compatibility from photos.
+- Reusable can-set composition and model cost history solve different needs: maintain CS1/CS2 once, snapshot the selected set revision per saved model. Explicit adoption prevents silent historical repricing; linked-revision checks prevent stale-save errors.
+- Use integer quantity-thousandths and rate-paise with BigInt intermediate multiplication. Round half-up per line, and distinguish unknown from zero cost.
+- Whole-number number inputs need a whole-number minimum when step=1; min=0.001 makes integer quantities invalid in the browser even when shared validation accepts them.
+- The existing support stylesheet places the modal backdrop at z-index 270. Place the identification-photo overlay inside that backdrop to preserve both visibility and the unsaved form; support Escape and restore focus.
+- Native storage persists new scoped collections without a SQL-table migration; register their permanent reference types and scope their records/events/pictures at the server boundary. Normal startup must not auto-import the trial catalogue.
+
+
+## 2026-09-24 — Assembly parts terminology (DEC-065)
+The user's term "spare parts per machine" refers to manufacturing/assembly inputs, not replacement extras. A can set is one kind of reusable major assembly. Generalise the existing snapshot model rather than introducing a separate formula or mutable shared rows. The saved-parts viewer must resolve both the model revision and saved assembly snapshot; master editing is a separate action. Source photographs alone do not define a frame BOM or resolve supplier-bundled motor accessories.
+
+
+## Supplier rates are purchasing evidence — DEC-066
+Populate template identifiers from current Item Master rather than making operators copy codes manually. Validate on both review and server commit; a clean preview is not permission to bypass the current transaction. Store quotations separately from item defaults and BOM snapshots. Integer paise, blank-vs-zero handling, dated selection and explicit adoption prevent silent cost drift. Workbook XML may use namespace prefixes and UTF-8 byte-order marks; support both. Formula caches may be stale, so Domestic quote uploads accept values only. Unknown Domestic commands intentionally retain conservative whole-workspace conflict handling; no automatic merge.

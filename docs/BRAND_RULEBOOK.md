@@ -287,3 +287,15 @@ Use the existing inline warning note, labelled email/password fields and small p
 
 ## Item Master correction — DEC-063
 On a PLM product's brand-variant row, use the established small ghost **Edit item master** action. The shared dialog labels the fields **ERP Item Code** and **Brand / brand code**, displays prefix plus brand name, and gives one visible warning that historical issued records remain unchanged. Use the standard full-width reason field; do not add a new colour, modal style or separate correction screen.
+
+
+## Domestic workbook layout — DEC-064, 2026-09-24
+**MODULE-SPECIFIC:** retain Minimal theme, Farming Hub identity, existing native fields/buttons/badges/dialogs and color/font tokens. Model cards use the four supplied photographs with contain sizing. Catalogue and BOM tables retain S.No, segment, Item Description, UOM, Picture, Rate (before GST), in that order. Show codes beneath descriptions and quantities within UOM cells. Source pictures remain inside Picture cells and enlarge on demand. Use horizontal table scrolling on small screens and a single-column card/header layout. Distinguish Pending/Incomplete from a zero INR value. Shared-set adoption notices and incomplete-cost explanations are operational information, retained in Minimal theme.
+
+
+## Major assembly navigation — DEC-065
+Use Assembly BOMs as the reusable-assembly navigation label, Major BOM for the machine table and Assembly parts for its child table. Retain the source six-column picture layout. Put View assembly parts in the major row and open the saved composition in the existing wide dialog; Open assembly BOM leads to the current record for editing. Preserve Minimal theme, typography, color, normal mobile table scrolling and image enlargement.
+
+
+## Domestic price upload presentation — DEC-066
+Reuse Minimal theme tabs, standard buttons and wide dialogs. Keep Download template and Upload price list together on Price lists, followed by a short numbered instruction. The supplier comparison uses item/supplier/quote-date/UOM/INR columns. In the XLSX template preserve item identifiers and use pale yellow only for editable rate cells. Retain the established six picture columns in BOMs; place the quote selector inside the rate cell. Use explicit rejected/skipped/zero-rate review text, mobile horizontal tables and existing error/confirmation styling.

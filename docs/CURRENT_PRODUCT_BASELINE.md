@@ -547,3 +547,17 @@ DEC-060 / WF-054 is live at https://purchase.dvjassociates.com in runtime **6578
 225 native tests, 16 two-user/server/review browser checks and three complete Manager workflows (68 checks) passed. Fresh consistent SQLite backup **399114240 bytes** passed integrity and candidate startup on an isolated server-side restored copy. All saved state and protected account/evidence/audit/archive/retry tables matched exactly. The initial network download timed out; no partial download was used as recovery evidence.
 
 **66 live checks passed**, including committed assets, two independent live sessions, authenticated revision endpoint, existing module/workflow navigation and mobile layout. Zero browser runtime errors or business-write requests. Post-deployment SQLite verification preserved all 20 original orders, existing master records, attachments, accounts, archive rows, audit history and retry receipts. Live work progressed from revision 1326 to 1335: 1 new order and 2 new files were reconciled to 10 user audit events. The live order count was 21; no rollback or migration was performed. Unchanged masters: 37 vendors, 388 items and 106 price lists. Existing domain, port 8000, single instance and persistent /app/data retained. No migration or reference reset. Private reports/backups remain outside Git in ignored operator storage and the application data volume.
+
+
+## Unpublished Domestic BOM trial — 2026-09-24
+Branch codex/domestic-bom adds LAE Domestic Model BOMs, Can-set BOMs and Item Master. Source: 33 workbook components with pictures plus four user-specified motor/pump items, four photographed models, CS1 linked to TX-MM1 and CS2 shared by GJ-MM2/3/4. Reuse the source six-column layout, input quantities/rates, revision history, permanent references, scoped native storage and isolated browser review.
+
+This trial is not live. Can sets start empty; unprovided rates, model-frame mappings and quantities remain pending. Quotations/price comparison, manual stock/MRP, cost actualisation, production and ERP integration are not implemented in this trial. Native Import workflows remain unchanged. See DOMESTIC_BOM_TRIAL.md for startup and verification.
+
+
+## Unpublished assembly hierarchy update — 2026-09-24
+DEC-065 / WF-059 extends the Domestic trial to reusable frame, motor/pump, can, engine and other assemblies. Machine detail is Major BOM; View assembly parts opens the saved component/photo table. CS1/CS2 remain shared as agreed. Fresh preview catalogues include one empty frame assembly per model; no frame item or additional component quantity is guessed. Existing browser data, references and earlier revisions remain intact. Direct purchased major units are supported. This remains a local trial, with no live deployment.
+
+
+## Domestic release candidate — 2026-09-24
+DEC-066 / WF-060 extends DEC-064/065 with shared Domestic supplier creation, current-item XLSX template download, XLSX/CSV review/import, supplier rate comparisons, immutable quotation/evidence history and deliberate quote selection in BOM revisions. Current source catalogue remains 37 items, four photographed models, CS1/CS2 and four empty frame assemblies; unprovided compositions, quantities and prices remain pending. This supersedes the earlier trial statement that quotation comparison is unimplemented. Stock/MRP, actual purchase receipts/cost actualisation, production and ERP connectors remain outside this release. Publication and exact verification status are in DOMESTIC_RELEASE_REPORT.md. Import orders, payments and master data are preserved.
