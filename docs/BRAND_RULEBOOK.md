@@ -324,3 +324,7 @@ Extend the existing Compare prices dialog with Assembly totals; reuse Minimal fo
 
 ## Domestic PO screens and pictured documents — DEC-074
 Reuse Minimal pages, tabs, standard form fields, status badges and photo viewer. Add Purchase orders to Domestic navigation and Create purchase order on assembly detail. Draft entry shows source BOM code/revision, selected parts, photos, derived quantities, rates and commercial terms. Detail and Print / Save PDF repeat the BOM identity and each part photo/code/description. Clearly mark Draft and Cancelled documents; label amounts Parts subtotal before GST / freight. Print must load identification photos before invoking the browser print dialog.
+
+
+### Supplier addresses — DEC-076
+Reuse standard multiline textarea, reason input, save/cancel dialog and small Edit address button. Show escaped multiline address in Supplier master and PO supplier block using domestic-po-text. No new visual tokens.

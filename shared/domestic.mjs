@@ -65,6 +65,18 @@ export function applyDomesticCommand(state,type,p,ctx,h){
  state.domesticItems??=[];state.domesticModels??=[];state.domesticBoms??=[];
  const find=(type,recordId)=>{const r=state[type].find(r=>r.id===recordId);ensure(r&&r.scope===DOMESTIC_SCOPE,'Domestic record not found.','NOT_FOUND');return r;};
  const stamp={updatedAt:now,updatedBy:user.name};
+ const supplierAddress=()=>{
+  ensure(p.address==null||typeof p.address==='string','Supplier address must be text.');
+  const address=(p.address||'').replace(/\r\n?/g,'\n').trim();
+  ensure(address.length<=1500&&!/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/.test(address),'Supplier address must be at most 1,500 characters without control characters.');
+  return address;
+ };
+ if(type==='DOMESTIC_UPDATE_VENDOR_ADDRESS'){
+  ensure(['ADMIN','MANAGER'].includes(user.role),'Purchase Manager access is required for vendor master changes.','FORBIDDEN');
+  const v=state.vendors.find(v=>v.id===p.vendorId&&v.kind==='SUPPLIER'&&v.scopes?.includes(DOMESTIC_SCOPE));ensure(v,'Domestic supplier not found.','NOT_FOUND');
+  const address=supplierAddress(),why=reason(),before=structuredClone(v);Object.assign(v,{address},stamp);
+  event('vendor',v.id,'DOMESTIC_VENDOR_ADDRESS_UPDATED',why,before,structuredClone(v));return {id:v.id};
+ }
  const taxDetails=()=>{
   const normalized=(value,label)=>{ensure(value==null||typeof value==='string',label+' must be text.');return (value||'').trim().toUpperCase();};
   const gstin=normalized(p.gstin,'GSTIN'),pan=normalized(p.pan,'PAN');
@@ -82,7 +94,7 @@ export function applyDomesticCommand(state,type,p,ctx,h){
  if(type==='DOMESTIC_SAVE_VENDOR'){
   ensure(['ADMIN','MANAGER'].includes(user.role),'Purchase Manager access is required for vendor master changes.','FORBIDDEN');
   const code=clean(p.code,'Supplier code',80).toUpperCase();ensure(!state.vendors.some(v=>v.code.toUpperCase()===code||v.fullReference?.toUpperCase()===code),'Supplier code already exists. Use the existing supplier.');
-  const v={...taxDetails(),id:id(),code,fullReference:code,name:clean(p.name,'Supplier name',200),kind:'SUPPLIER',status:'ACTIVE',scopes:[DOMESTIC_SCOPE],country:clean(p.country,'Country',100),contact:typeof p.contact==='string'?p.contact.slice(0,200):'',email:'',phone:typeof p.phone==='string'?p.phone.slice(0,80):'',currency:'INR',defaultBillingCurrency:'INR',defaultPriceListCurrency:'INR',paymentTermsText:typeof p.paymentTermsText==='string'?p.paymentTermsText.slice(0,1000):'',source:'Domestic vendor master',createdAt:now,...stamp};
+  const v={...taxDetails(),address:supplierAddress(),id:id(),code,fullReference:code,name:clean(p.name,'Supplier name',200),kind:'SUPPLIER',status:'ACTIVE',scopes:[DOMESTIC_SCOPE],country:clean(p.country,'Country',100),contact:typeof p.contact==='string'?p.contact.slice(0,200):'',email:'',phone:typeof p.phone==='string'?p.phone.slice(0,80):'',currency:'INR',defaultBillingCurrency:'INR',defaultPriceListCurrency:'INR',paymentTermsText:typeof p.paymentTermsText==='string'?p.paymentTermsText.slice(0,1000):'',source:'Domestic vendor master',createdAt:now,...stamp};
   state.vendors.push(v);event('vendor',v.id,'DOMESTIC_VENDOR_CREATED','Domestic supplier created in the shared vendor master.',null,v);return {id:v.id};
  }
  if(type==='DOMESTIC_IMPORT_PRICES'){

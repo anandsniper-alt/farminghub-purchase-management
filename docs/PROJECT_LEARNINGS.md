@@ -522,3 +522,7 @@ Use a separate domesticOrders collection and reference type so Import stages/pay
 
 ### Supplier tax identifiers — DEC-075
 Keep supplier tax identifiers separate from GST commercial terms and financial calculations. Blank means not recorded. Avoid live master lookups while printing historical POs: snapshot GSTIN/PAN with vendor identity on draft save. Test master editing and printed snapshot preservation in server and review modes.
+
+
+### Supplier address reuse — DEC-076
+Domestic PO snapshots already carry vendor.address. Reuse that field and display it rather than adding redundant address storage or migrating historical orders. Test supplier creation/edit, reload, role restrictions, and unchanged printed snapshot after master edits.

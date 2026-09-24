@@ -433,3 +433,7 @@ Create Domestic POs only from a confirmed, saved assembly BOM with known part qu
 
 ### Domestic supplier tax details — DEC-075
 MODULE-SPECIFIC RULE: optional GSTIN/PAN, uppercase and structurally validated; when both exist PAN must match GSTIN characters 3–12. This is not registration verification. Manager/Admin can edit Domestic suppliers with mandatory reason and audit; existing role/scope/transaction checks apply. No inferred tax rates or mandatory registration policy. PO creation/re-save snapshots identifiers; issued snapshots remain immutable.
+
+
+### Domestic supplier address — DEC-076
+MODULE-SPECIFIC RULE: store full address in existing vendor.address, max 1500 characters, multiline text, optional for legacy compatibility. Manager/Admin edits require reason and before/after audit. Preserve GSTIN/PAN and other master data. Escape display; retain line breaks in PO/PDF. Print saved PO vendor address, never current master lookup; issued snapshots immutable.
