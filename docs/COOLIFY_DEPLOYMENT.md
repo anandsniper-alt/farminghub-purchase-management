@@ -83,3 +83,7 @@ DEC-063 / WF-057 is live in runtime `d11918f147a236e85c5f010e5373d923ecc0c03d` t
 
 ## Domestic BOM and price lists published — 2026-09-24
 DEC-064–066 / WF-058–060 are live at https://purchase.dvjassociates.com in runtime **803bf34346735f781f1008c5d9000777ce50ded1**, deployment **dihpggiuw45cg7swfijdky31** (finished, running:healthy). This supersedes the prior local-only/candidate status. **241 native tests, 52 local browser checks and 39 live read-only checks passed.** A fresh consistent 507,609,088-byte SQLite backup and restored-copy candidate rehearsal passed. Original orders, payments, masters, accounts, evidence, audit, references and serials were preserved; only reference setup and the approved source catalogue were added. No test supplier or price data was seeded. Both active Managers already had Domestic access; no scope change was needed. Assembly contents/quantities and supplier rates remain for the user to enter. See DOMESTIC_RELEASE_REPORT.md and DOMESTIC_PRICE_LIST_GUIDE.md.
+
+
+## Mandatory pre-release download — DEC-067
+Before every release push/deployment, complete the downloaded, verified recovery ZIP and five-copy retention procedure in BACKUP_RESTORE_RUNBOOK.md. A server-local snapshot alone is insufficient. Stop release if download, ZIP verification or isolated restore fails. Runtime credentials stay in private configuration, outside the ZIP and repository.

@@ -485,3 +485,10 @@ The user's term "spare parts per machine" refers to manufacturing/assembly input
 
 ## Supplier rates are purchasing evidence — DEC-066
 Populate template identifiers from current Item Master rather than making operators copy codes manually. Validate on both review and server commit; a clean preview is not permission to bypass the current transaction. Store quotations separately from item defaults and BOM snapshots. Integer paise, blank-vs-zero handling, dated selection and explicit adoption prevent silent cost drift. Workbook XML may use namespace prefixes and UTF-8 byte-order marks; support both. Formula caches may be stale, so Domestic quote uploads accept values only. Unknown Domestic commands intentionally retain conservative whole-workspace conflict handling; no automatic merge.
+
+
+## 2026-09-24 — Picture selection and retained manual prices (DEC-068)
+The source workbook's pictures make a click-to-add catalogue easier to identify than a long text-only dropdown. Update only selected rows and Added indicators so search, scroll, notes, confirmation and error state stay in place. Synchronize typed values before replacing row controls. An empty quoteId means the user explicitly chose a manual rate; use nullish fallback, not truthy fallback, when considering a historical priceSource, or adding another row will silently restore the old quotation. Test saved-quote → manual rate → add/remove → save, not only new unsaved rows.
+
+## 2026-09-24 — Recovery copies before releases (DEC-067)
+A consistent server snapshot protects against application changes but not loss of the server. The user's release gate adds a downloaded, verified ZIP with matching source and manifest. Apply five-copy retention only after successful validation, so a failed backup cannot destroy the last good recovery point. Local pre-release archives are distinct from a scheduled cloud-backup service.

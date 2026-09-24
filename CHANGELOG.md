@@ -1,5 +1,12 @@
 # Changelog — v0.6.1-alpha.16
 
+## Unreleased — Domestic BOM picture list (2026-09-24)
+- Click source pictures/item names to add BOM components; search by code/name/segment and see Added markers.
+- Edit quantities and prices after adding, preserving unsaved entries and cleared supplier-quote selections across row changes.
+- Keep the original six-column BOM layout and existing assembly rollups/history. 16 native and 66 local browser checks passed. DEC-068 / WF-062.
+- Future live releases require a downloaded verified recovery ZIP; retain five newest verified managed copies. DEC-067 / WF-061. No new deployment or backup download performed in this update.
+
+
 ## Unreleased — Supplier PI in Order pipeline (2026-09-21)
 
 - Show the current Supplier PI number and PI date directly in each pipeline row; show Awaiting PI when missing.

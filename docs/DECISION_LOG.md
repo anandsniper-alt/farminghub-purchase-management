@@ -635,3 +635,21 @@ DEC-058/059 and WF-052/053 are live in runtime ec0863ffa49450cc8a36f63e03fb9611c
 **Files:** shared/domestic*.mjs, shared/references.mjs, shared/domain.mjs, web/domestic*.mjs, web/app.mjs, navigation, server/index.mjs, template, build, tests. **Documentation:** rulebook, brand, learnings, baseline, WF-060, Domestic guide and release report updated.
 
 **DEC-066 implementation status, 2026-09-24:** published and verified under runtime 803bf34 / deployment dihpggiuw45cg7swfijdky31. The user explicitly approved temporary SSH key access for backup/rehearsal and final verification. 241 native, 52 local-browser and 39 read-only live checks passed; all existing business data preserved. See DOMESTIC_RELEASE_REPORT.md.
+
+
+## DEC-067 — Download recovery ZIP before every live release
+**Date:** 2026-09-24. **Area/scope:** GLOBAL release operations. **Status:** user-confirmed mandatory procedure; next release must execute it.
+**Considered decision:** require a local recovery copy before each publication and retain five copies.
+**Existing behaviour:** consistent server snapshots and restored-copy rehearsals; downloads were not mandatory for every release and no five-ZIP retention rule existed.
+**Proposed/final behaviour:** download the fresh production snapshot, package matching source/assets and recovery metadata, verify checksum/archive/isolated restore, then permit publication; retain five newest verified managed ZIPs.
+**Alternatives:** server-only snapshots; unlimited local archives; scheduled cloud backups. **Advantages:** an independent recovery copy and bounded local storage. **Disadvantages:** transfer/storage time and responsibility for private operator storage. **Risks:** incomplete copies, pruning too early, restoring over later writes. Fail the release gate on verification failure and prune only after success; reconcile later writes before recovery.
+**Dependencies:** existing snapshot/rehearsal and authenticated transfer procedures, current live source identification, available local disk space. **Workflow/other modules:** release workflow only; application business behavior unchanged. **Reason:** user's explicit recovery/retention instruction. **Affected files:** AGENTS.md, BACKUP_RESTORE_RUNBOOK.md, COOLIFY_DEPLOYMENT.md and project memory. **Documentation updated:** yes, WF-061. No current ZIP download or scheduled backup is claimed merely by recording this procedure.
+
+## DEC-068 — Clickable picture list for Domestic BOM selection
+**Date:** 2026-09-24. **Area/scope:** MODULE-SPECIFIC, LAE Domestic BOM editing. **Status:** implemented/tested locally; unpublished.
+**Considered decision:** simplify item selection and edit prices after adding.
+**Existing behaviour:** choose a long text dropdown entry, then press Add row; quantity/rate editing takes place in the workbook table.
+**Proposed/final behaviour:** searchable image/name/code list, click once to add, visibly mark Added, then enter quantities and INR rates or choose supplier quotations below.
+**Alternatives:** retain dropdown; separate multi-step picker dialog; replace the six-column workbook with a different grid. **Advantages:** direct visual identification, rapid additions, existing costing remains familiar. **Disadvantages:** a scrollable list uses vertical space. **Risks:** accidental duplicates, lost unsaved edits, stale quote selection. Guard duplicate IDs, update rows without replacing the form, and preserve explicit cleared quoteId.
+**Dependencies:** current Domestic items/photos, shared assembly snapshots, quote selector, existing domain validation and persistence. **Workflow impact:** selection step changes; saved revisions and reason requirement remain. **Other modules/calculations:** unchanged; Item Master and quote prices are not overwritten. **Reason:** user's explicit simplification request; source pictures already exist.
+**Files/components:** web/domestic.mjs, web/domestic.css, tests/domestic-picker-browser.mjs, local preview build. **Documentation updated:** rulebook, brand, learnings, baseline, WF-062, picker report and guide. 16 native and 66 local browser checks passed; no live writes/deployment.

@@ -299,3 +299,7 @@ Use Assembly BOMs as the reusable-assembly navigation label, Major BOM for the m
 
 ## Domestic price upload presentation — DEC-066
 Reuse Minimal theme tabs, standard buttons and wide dialogs. Keep Download template and Upload price list together on Price lists, followed by a short numbered instruction. The supplier comparison uses item/supplier/quote-date/UOM/INR columns. In the XLSX template preserve item identifiers and use pale yellow only for editable rate cells. Retain the established six picture columns in BOMs; place the quote selector inside the rate cell. Use explicit rejected/skipped/zero-rate review text, mobile horizontal tables and existing error/confirmation styling.
+
+
+## Domestic BOM picture selector — DEC-068
+Reuse Minimal colors/fonts, native search/segment fields, button focus treatment and existing wide dialog. The compact scrollable list places a contained source thumbnail beside the item name/code, with Add/Added at the right. Missing photographs say Picture pending; assemblies without their own photo are labelled Assembly rather than borrowing another item's identity. Keep the selected BOM's original six columns below, with an Edit quantities & prices shortcut. On narrow screens filters stack and the BOM table scrolls internally; Save/Cancel and mascot clearance remain available. No global theme or animation change.

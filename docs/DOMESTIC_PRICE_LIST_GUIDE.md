@@ -13,3 +13,7 @@ Open **Order Management → LAE Domestic → Price lists**.
 A Purchase Manager or Administrator can add a supplier under **Supplier master**. Existing active suppliers visible in your divisions can also quote Domestic items. Rate comparison uses the latest quote date per supplier/item; a later upload wins for equal dates. Earlier-dated uploads stay in history. Freight, GST, quantity breaks and other conditions are not added to these unit-rate comparisons.
 
 CS1 serves TX-MM1. CS2 is shared by GJ-MM2, GJ-MM3 and GJ-MM4. Assembly composition, rates and unprovided quantities must be entered before a complete cost is shown. This release does not post stock, accounting entries or production orders.
+
+
+## BOM selection update — local candidate, DEC-068
+In Edit BOM, click the item picture/name in the searchable list to add it, then use Edit quantities & prices. Choose a supplier quote or enter a manual rate in the selected row. A later add/remove keeps your manual rate and does not reselect an old quote. Assembly totals still come from their parts. See DOMESTIC_BOM_PICKER_REPORT.md for testing and publication status.
