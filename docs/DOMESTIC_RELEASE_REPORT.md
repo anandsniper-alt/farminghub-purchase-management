@@ -1,4 +1,4 @@
-# LAE Domestic BOM and supplier prices — release candidate
+# LAE Domestic BOM and supplier prices — published
 
 2026-09-24. Requested by the user: test the Domestic flow and publish it, with a downloadable/uploadable supplier price-list template. Domestic access for every active Purchase Manager and Purchase Executive was explicitly confirmed. Existing Admin access remains.
 
@@ -17,15 +17,21 @@
 - XLSX structure verified: 37 unique item codes, 37 blank rate cells, no formulas, frozen header and well-formed XML parts. Authored template and browser screens visually inspected. Prefix namespaces and UTF-8 BOM compatibility issues discovered during testing were corrected.
 - Tests use isolated synthetic databases/browser storage. Test quotations, prices and suppliers have not been created on production.
 
-## Publication status
+## Publication verified
 
-**Not deployed yet.** Coolify application, main branch and domain were checked. Runtime is healthy, automatic deployment is off, and the persistent data volume remains mounted at `/app/data`. Remote main matched the candidate base during inspection.
+**Published 2026-09-24** at https://purchase.dvjassociates.com, runtime commit **803bf34346735f781f1008c5d9000777ce50ded1**. Coolify deployment **dihpggiuw45cg7swfijdky31** finished; application is **running:healthy**, HTTPS health returns 200. Main branch, domain, port 8000, single instance and persistent /app/data remain unchanged; auto-deploy remains disabled.
 
-The fresh live SQLite backup and isolated candidate restore rehearsal are pending. Automatic approval review rejected retrieval of the server SSH private key from Coolify because that credential-access step needs explicit approval. The existing local temporary key is absent. No workaround or unprotected live deployment was attempted. Publication must wait for approved server backup access and a successful rehearsal.
+**39 live read-only checks passed**, including exact committed assets/template, existing login, model/assembly/item screens, all 33 item pictures and four model photos, saved-parts viewing, template codes matching live Item Master, blank rates, upload form, mobile layout and existing Import pipeline. No browser runtime errors or business-write requests during verification.
 
-After that gate: push the tested commit, deploy, verify healthy HTTPS/login/assets, provision only the user's source catalogue through the normal authenticated command, add Domestic scope to approved active roles, and compare original orders, payments, masters, evidence, references and audit rows with the backup. Existing scopes and roles must be preserved. Never load the preview seed or test prices into live data.
+Fresh consistent SQLite backup: **507,609,088 bytes**, integrity valid. The exact candidate ran against an isolated restored copy, including startup reference initialization and catalogue provisioning. Original records and protected tables were preserved before publication.
 
-Startup will initialize new Domestic reference counters through the existing reference initializer, retaining old entries/counters/namespace and adding its normal audit event. This is additive metadata, not a PO serial reset. Catalogue provisioning is idempotent by source hash.
+Live storage comparison passed at revision **1511 → 1513**. Preserved: **36 orders, 37 vendors, 389 Import items, 107 Import supplier prices, 8 payments**, original file metadata and all **592 stored evidence bodies**, **3 accounts**, **1 soft-launch archive**, **1,629 prior audit rows**, and **539 prior retry receipts**. Original references, namespace, links and serials retained. No intervening business edits needed reconciliation.
+
+Intentional additions: reference-counter initialization and source-catalogue import (two audit events; one command receipt). The live catalogue has **37 Domestic items, four models and ten BOM records** (four model BOMs plus CS1/CS2 and four frame assemblies). No test vendors, test quotations, guessed assembly parts or example prices were loaded. Rates remain pending. Both active Purchase Managers already held Domestic scope, so no role or scope mutation was required; there were no active Executive profiles needing a grant.
+
+The initial automatic-review block on temporary SSH credential retrieval was resolved by the user's explicit approval before access. The key was restricted to the operator account and deleted after verification; deployment credential sessions were closed. Backup and rehearsal copies remain private on the persistent server volume. Do not restore the pre-release snapshot over newer writes without reconciliation.
+
+Private evidence: ignored operator storage contains baseline, provisioning, 39-check browser report, screenshots and storage comparison. The historical local-only statuses in DOMESTIC_BOM_TRIAL.md and earlier baseline entries are superseded by this verified release.
 
 ## Remaining user inputs and boundaries
 

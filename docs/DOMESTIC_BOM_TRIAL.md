@@ -86,3 +86,7 @@ See DEC-064 and WF-058. Verification evidence is local under `test-output/`; no 
 - Desktop frame photos and 390px mobile BOM editor screenshots inspected. The original source pictures and descriptions remain unchanged.
 - During QA, fixed photo overlay stacking and whole-quantity HTML step validation. Browser checks were rerun after the fixes.
 - Evidence: `test-output/domestic-native-tests.txt`, `test-output/domestic-browser-report.json`, `test-output/domestic-server-frames.png`, `test-output/domestic-review-edit-mobile.png`. Browser writes used disposable local contexts and temporary databases, not the user's preview storage or production.
+
+
+## Domestic BOM and price lists published — 2026-09-24
+DEC-064–066 / WF-058–060 are live at https://purchase.dvjassociates.com in runtime **803bf34346735f781f1008c5d9000777ce50ded1**, deployment **dihpggiuw45cg7swfijdky31** (finished, running:healthy). This supersedes the prior local-only/candidate status. **241 native tests, 52 local browser checks and 39 live read-only checks passed.** A fresh consistent 507,609,088-byte SQLite backup and restored-copy candidate rehearsal passed. Original orders, payments, masters, accounts, evidence, audit, references and serials were preserved; only reference setup and the approved source catalogue were added. No test supplier or price data was seeded. Both active Managers already had Domestic access; no scope change was needed. Assembly contents/quantities and supplier rates remain for the user to enter. See DOMESTIC_RELEASE_REPORT.md and DOMESTIC_PRICE_LIST_GUIDE.md.
