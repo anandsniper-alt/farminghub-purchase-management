@@ -445,3 +445,6 @@ MODULE-SPECIFIC: require explicit Bill to and Ship to on new/re-saved drafts and
 
 ### Domestic company billing/contact — DEC-078
 MODULE-SPECIFIC: new PO Bill to defaults from DOMESTIC_DEFAULT_BILL_TO using the supplied Erode address/GSTIN. Keep explicit overrides and saved billing. purchaseContactPhone is optional manual order data, not supplier phone or approval identity. Validate when entered; preserve omitted value on edits, allow explicit clearing; print issued snapshot only.
+
+
+MODULE-SPECIFIC RULE (DEC-079): Domestic PO PDF omits the supplier code and redundant company-name line under the logo. Supplier name and legal company billing details remain. Bill to / Ship to appear once before the pictured bordered item table; only table headings repeat across pages. Screen details and immutable snapshots are unchanged.

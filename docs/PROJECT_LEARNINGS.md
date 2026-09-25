@@ -534,3 +534,6 @@ Billing destination cannot be inferred from delivery. Keep explicit billingAddre
 
 ### Order contact — DEC-078
 A purchase follow-up phone can differ for every order. Never derive it from supplier contact or logged-in approver. Keep it in the saved PO and issued snapshot. Company billing defaults initialize new records rather than mutating historical data.
+
+
+Domestic PDF layout is a print-only variant of orderDocument; reuse issued snapshot, photo hydration and calculation helpers. Do not remove stored supplier identity or legal Bill to details to simplify a document. Pagination checks must inspect PDF page text as well as rendered pages: DOM position alone does not prove first-page placement. Synthetic print-DOM rows exercise pagination without changing saved business records (DEC-079).

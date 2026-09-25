@@ -336,3 +336,6 @@ Reuse standard multiline fields and checkbox. Show Bill to/Ship to as distinct l
 
 ### Domestic purchase contact — DEC-078
 Reuse the standard telephone field and multiline billing field. Print a distinct Purchase contact phone label beside saved commercial details, separate from supplier mobile.
+
+
+Domestic PO PDF (DEC-079): white A4 page, existing Farming Hub logo/typography, bordered six-column pictured item table with repeating column headings and unbroken item rows. Bill to / Ship to are presented before items on the first page, not repeated in later-page terms. Omit the redundant logo company subline and supplier code only in print.

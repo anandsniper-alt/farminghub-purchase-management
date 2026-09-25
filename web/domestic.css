@@ -23,3 +23,27 @@
 .domestic-po-document{margin:24px 0;line-height:1.7}.domestic-po-document>.form-grid{margin:20px 0;gap:20px}.domestic-po-document .table-wrap{margin:20px 0}.domestic-po-document table,#domestic-po-rows table{min-width:740px}.domestic-po-text{white-space:pre-wrap;overflow-wrap:anywhere}#domestic-po-rows .field{margin:0}#domestic-po-rows input[type=number]{min-width:120px}#domestic-po-rows input[type=checkbox]{width:20px;height:20px}.domestic-po-print img{width:66px;height:66px;object-fit:contain}.domestic-po-print .domestic-picture{display:block;border:0;background:white;padding:0}.domestic-po-print .table-wrap{overflow:visible}.domestic-po-print table{min-width:0;width:100%}.domestic-po-print td{white-space:normal}.domestic-po-print tr{break-inside:avoid}
 
 .domestic-po-brand{margin-bottom:20px}.domestic-po-brand img{width:150px;height:auto;object-fit:contain}.domestic-po-brand p{font-size:10px;color:var(--muted);margin-top:6px}
+
+/* Domestic PDF only: normal screen and immutable snapshots remain unchanged. */
+@media print{
+ .print-sheet.domestic-po-print{padding:4mm;font-size:10px;background:#fff!important}
+ .domestic-po-print .domestic-po-document{margin:0;line-height:1.45}
+ .domestic-po-print .domestic-po-brand{margin-bottom:8px}
+ .domestic-po-print h2{font-size:15px;margin:8px 0}
+ .domestic-po-print .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0;align-items:start}
+ .domestic-po-print .form-grid>div{min-width:0}
+ .domestic-po-print .domestic-po-addresses{border:1px solid #8b9e8d;padding:10px;break-inside:avoid}
+ .domestic-po-print .muted{color:#45614b;font-weight:600}
+ .domestic-po-print .table-wrap{margin:14px 0;overflow:visible}
+ .domestic-po-print table{table-layout:fixed;border-collapse:collapse;font-size:10px}
+ .domestic-po-print thead{display:table-header-group}
+ .domestic-po-print th,.domestic-po-print td,.domestic-po-print tr:last-child td{border:1px solid #8b9e8d;padding:8px 6px;white-space:normal;overflow-wrap:anywhere}
+ .domestic-po-print th{color:#21472a;background:#eef3e9;font-size:8px;letter-spacing:0;position:static}
+ .domestic-po-print th:nth-child(1){width:13%}
+ .domestic-po-print th:nth-child(2){width:29%}
+ .domestic-po-print th:nth-child(3),.domestic-po-print th:nth-child(4){width:13%}
+ .domestic-po-print th:nth-child(5),.domestic-po-print th:nth-child(6){width:16%}
+ .domestic-po-print td:nth-child(n+5){text-align:right;font-variant-numeric:tabular-nums}
+ .domestic-po-print img{max-width:100%}
+ .domestic-po-print tr{break-inside:avoid;page-break-inside:avoid}
+}
