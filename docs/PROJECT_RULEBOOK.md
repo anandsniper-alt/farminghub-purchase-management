@@ -448,3 +448,6 @@ MODULE-SPECIFIC: new PO Bill to defaults from DOMESTIC_DEFAULT_BILL_TO using the
 
 
 MODULE-SPECIFIC RULE (DEC-079): Domestic PO PDF omits the supplier code and redundant company-name line under the logo. Supplier name and legal company billing details remain. Bill to / Ship to appear once before the pictured bordered item table; only table headings repeat across pages. Screen details and immutable snapshots are unchanged.
+
+
+MODULE-SPECIFIC RULE (DEC-080): Domestic PO shows Supplier mobile number and Purchase Manager mobile number above items on screen and PDF, including explicit Not recorded for missing values. Supplier number defaults from master on supplier selection, may be overridden for this order only, is validated and snapshotted; manager number is manually entered per PO. Issued contacts remain immutable.

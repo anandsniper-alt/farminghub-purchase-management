@@ -10,6 +10,8 @@ for mode in ['server', 'review']:
         texts = [' '.join(p.extract_text().split()) for p in doc.pages]
         text = ' '.join(texts)
         assert 'Bill to' in texts[0] and 'Ship to' in texts[0]
+        assert 'Supplier mobile number: +91 9876543210' in texts[0]
+        assert 'Purchase Manager mobile number: +91 9123456780' in texts[0]
         assert all('Bill to' not in t and 'Ship to' not in t for t in texts[1:])
         assert 'DEMO-A' not in text and 'FARMING HUB PRIVATE LIMITED' not in text
         assert '5,240.00' in text

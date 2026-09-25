@@ -455,3 +455,7 @@ Print-only cleanup: omit supplier code and redundant logo subline; first-page Bi
 
 
 **Publication verified, 2026-09-25 — DEC-079 / WF-073:** Runtime 46d7ddd2ba256c8a43c4c1f2dbe7533e10ba5c7f; Coolify el7r4325xrrjng0plfqqywf8 finished, running:healthy. Domestic PDF-only layout is live: supplier code/redundant logo subline omitted, Bill to/Ship to first-page-only, bordered pictured item table with repeating headers. 11 native PO tests, 72 server/review browser checks, one/four-page PDF pagination checks and 39 read-only live checks passed. Live issued PO FH-LAE-D-PO-1 rendered as two pages; all 14 lines retained, addresses only on page one; both pages visually inspected. Fresh 465,039,849-byte recovery ZIP passed checksum/archive/isolated restore; five verified ZIPs retained, oldest verified ZIP pruned. Final print-background-only candidate additionally passed restored-copy startup. Workspace revision 1547 and all business content, accounts, file bodies, audit, archives and retry receipts exactly unchanged. Zero live business writes or runtime errors. Supersedes candidate status above. Private evidence: test-output/domestic-pdf-release/; recovery files: backups/releases/.
+
+
+## 2026-09-25 — Domestic mobile numbers (DEC-080)
+Both supplier and Purchase Manager mobile numbers shown above PO/PDF items. Order-only supplier phone entry defaults from master. Existing snapshots preserved; missing contacts explicitly shown.

@@ -537,3 +537,6 @@ A purchase follow-up phone can differ for every order. Never derive it from supp
 
 
 Domestic PDF layout is a print-only variant of orderDocument; reuse issued snapshot, photo hydration and calculation helpers. Do not remove stored supplier identity or legal Bill to details to simplify a document. Pagination checks must inspect PDF page text as well as rendered pages: DOM position alone does not prove first-page placement. Synthetic print-DOM rows exercise pagination without changing saved business records (DEC-079).
+
+
+DEC-080: Conditional phone rendering hid incomplete supplier snapshots; show Not recorded instead. Keep per-order supplier contact separate from vendor-master updates, preserve it when older clients omit the field, and initialize from the newly selected supplier when switching vendors. Never fill issued snapshots from current mutable master data.

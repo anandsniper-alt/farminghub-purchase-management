@@ -339,3 +339,6 @@ Reuse the standard telephone field and multiline billing field. Print a distinct
 
 
 Domestic PO PDF (DEC-079): white A4 page, existing Farming Hub logo/typography, bordered six-column pictured item table with repeating column headings and unbroken item rows. Bill to / Ship to are presented before items on the first page, not repeated in later-page terms. Omit the redundant logo company subline and supplier code only in print.
+
+
+Domestic contacts (DEC-080): use clear Supplier mobile number and Purchase Manager mobile number labels in the top supplier/assembly information blocks. Do not bury the responsible manager contact below a long item list. Preserve pictured PDF table and first-page addresses.
