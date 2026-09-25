@@ -332,3 +332,7 @@ Reuse standard multiline textarea, reason input, save/cancel dialog and small Ed
 
 ### Bill to / Ship to — DEC-077
 Reuse standard multiline fields and checkbox. Show Bill to/Ship to as distinct labelled blocks on PO/PDF, preserving line breaks. Supplier block displays address, labelled PIN and mobile/phone when recorded. No new design tokens.
+
+
+### Domestic purchase contact — DEC-078
+Reuse the standard telephone field and multiline billing field. Print a distinct Purchase contact phone label beside saved commercial details, separate from supplier mobile.

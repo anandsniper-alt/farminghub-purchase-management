@@ -530,3 +530,7 @@ Domestic PO snapshots already carry vendor.address. Reuse that field and display
 
 ### Buyer and supplier address separation — DEC-077
 Billing destination cannot be inferred from delivery. Keep explicit billingAddress, reuse deliveryAddress for Ship to, and enforce Same-as-billing server-side. Supplier phone and PIN must be snapshotted alongside supplier identity. Old clients updating address without new fields must not erase existing contacts.
+
+
+### Order contact — DEC-078
+A purchase follow-up phone can differ for every order. Never derive it from supplier contact or logged-in approver. Keep it in the saved PO and issued snapshot. Company billing defaults initialize new records rather than mutating historical data.

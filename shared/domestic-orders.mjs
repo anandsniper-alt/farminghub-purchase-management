@@ -1,4 +1,4 @@
-import {DOMESTIC_SCOPE,domesticCanEdit,domesticIsAssembly,domesticBomTotals} from './domestic.mjs';
+import {DOMESTIC_DEFAULT_BILL_TO,DOMESTIC_SCOPE,domesticCanEdit,domesticIsAssembly,domesticBomTotals} from './domestic.mjs';
 import {ensureRecordReferences,softwareReference} from './references.mjs';
 
 export function applyDomesticOrderCommand(state,type,p,ctx,h){
@@ -34,10 +34,12 @@ export function applyDomesticOrderCommand(state,type,p,ctx,h){
   });
   const totalMinor=domesticBomTotals(lines).totalMinor;
   const deliveryDate=text(p.deliveryDate,'Required delivery date',10);ensure(/^\d{4}-\d{2}-\d{2}$/.test(deliveryDate)&&Number.isFinite(Date.parse(deliveryDate))&&new Date(deliveryDate).toISOString().slice(0,10)===deliveryDate,'Enter a valid delivery date.');
-  const billingAddress=text(p.billingAddress,'Bill to details'),shipToSameAsBillTo=p.shipToSameAsBillTo===true;
+  const billingAddress=text(p.billingAddress===undefined?(order?.billingAddress??DOMESTIC_DEFAULT_BILL_TO):p.billingAddress,'Bill to details'),shipToSameAsBillTo=p.shipToSameAsBillTo===true;
   const deliveryAddress=shipToSameAsBillTo?billingAddress:text(p.deliveryAddress,'Ship to details');
+  const purchaseContactPhone=p.purchaseContactPhone===undefined?(order?.purchaseContactPhone||''):p.purchaseContactPhone;
+  ensure(typeof purchaseContactPhone==='string'&&purchaseContactPhone.length<=80&&(!purchaseContactPhone.trim()||(/^[+0-9() .-]+$/.test(purchaseContactPhone.trim())&&purchaseContactPhone.replace(/\D/g,'').length>=7&&purchaseContactPhone.replace(/\D/g,'').length<=15)),'Enter a valid purchase contact phone number or leave it blank.');
   const reasonText=reason(),before=order?structuredClone(order):null;
-  const data={vendorId:vendor.id,vendor:{id:vendor.id,code:vendor.code,name:vendor.name,address:vendor.address||'',contact:vendor.contact||'',phone:vendor.phone||'',pinCode:vendor.pinCode||'',gstin:vendor.gstin||'',pan:vendor.pan||''},bom:{id:bom.id,code:bom.code,name:bom.name,reference:softwareReference(state,'domesticBoms',bom.id),revision:bom.revision,partCount:bom.lines.length},assemblyQuantity:count,lines,totalMinor,currency:'INR',deliveryDate,billingAddress,shipToSameAsBillTo,deliveryAddress,paymentTerms:text(p.paymentTerms,'Payment terms'),taxTerms:text(p.taxTerms,'GST / tax terms'),freightTerms:text(p.freightTerms,'Freight terms'),notes:typeof p.notes==='string'?p.notes.slice(0,3000):'',updatedAt:now,updatedBy:user.name};
+  const data={vendorId:vendor.id,vendor:{id:vendor.id,code:vendor.code,name:vendor.name,address:vendor.address||'',contact:vendor.contact||'',phone:vendor.phone||'',pinCode:vendor.pinCode||'',gstin:vendor.gstin||'',pan:vendor.pan||''},bom:{id:bom.id,code:bom.code,name:bom.name,reference:softwareReference(state,'domesticBoms',bom.id),revision:bom.revision,partCount:bom.lines.length},assemblyQuantity:count,lines,totalMinor,currency:'INR',deliveryDate,billingAddress,shipToSameAsBillTo,deliveryAddress,purchaseContactPhone:purchaseContactPhone.trim(),paymentTerms:text(p.paymentTerms,'Payment terms'),taxTerms:text(p.taxTerms,'GST / tax terms'),freightTerms:text(p.freightTerms,'Freight terms'),notes:typeof p.notes==='string'?p.notes.slice(0,3000):'',updatedAt:now,updatedBy:user.name};
   const o=order||{id:id(),scope:DOMESTIC_SCOPE,status:'DRAFT',number:'',numberSource:'SOFTWARE_REFERENCE',revision:0,createdAt:now,createdBy:user.name,history:[]};
   o.history.push({at:now,actor:user.name,reason:reasonText,action:order?'DRAFT_UPDATED':'DRAFT_CREATED',previous:before?{...before,history:undefined,issuedSnapshot:undefined}:null});Object.assign(o,data);o.revision++;
   if(!order){state.domesticOrders.push(o);ensureRecordReferences(state);o.number=softwareReference(state,'domesticOrders',o.id);}

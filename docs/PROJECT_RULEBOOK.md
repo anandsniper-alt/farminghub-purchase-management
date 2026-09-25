@@ -441,3 +441,7 @@ MODULE-SPECIFIC RULE: store full address in existing vendor.address, max 1500 ch
 
 ### Domestic billing/shipping — DEC-077
 MODULE-SPECIFIC: require explicit Bill to and Ship to on new/re-saved drafts and before issue. Same as Bill to copies billing text server-side. Do not infer historical billing. Existing issued documents use immutable snapshots. Supplier PIN/phone are optional master values; validate entered PIN/phone, preserve omitted values on address-only updates, snapshot on PO save and print from saved document. No automatic tax interpretation.
+
+
+### Domestic company billing/contact — DEC-078
+MODULE-SPECIFIC: new PO Bill to defaults from DOMESTIC_DEFAULT_BILL_TO using the supplied Erode address/GSTIN. Keep explicit overrides and saved billing. purchaseContactPhone is optional manual order data, not supplier phone or approval identity. Validate when entered; preserve omitted value on edits, allow explicit clearing; print issued snapshot only.

@@ -1,3 +1,4 @@
+export const DOMESTIC_DEFAULT_BILL_TO = 'Farming Hub Private Limited\nDOOR NO:54B, EB NAGAR\nRAILWAY COLONY POST\nERODE - 638002\nGSTIN: 33AAKCD6367J1ZB';
 import {ensureRecordReferences,softwareReference} from './references.mjs';
 import {previewDomesticPrices,latestDomesticPrices,domesticPriceDifference} from './domestic-prices.mjs';
 
