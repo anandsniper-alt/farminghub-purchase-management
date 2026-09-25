@@ -26,6 +26,7 @@
 
 /* Domestic PDF only: normal screen and immutable snapshots remain unchanged. */
 @media print{
+ body:has(.domestic-po-print){background:#fff!important}
  .print-sheet.domestic-po-print{padding:4mm;font-size:10px;background:#fff!important}
  .domestic-po-print .domestic-po-document{margin:0;line-height:1.45}
  .domestic-po-print .domestic-po-brand{margin-bottom:8px}
