@@ -1,5 +1,7 @@
 # Farming Hub project memory
 
+> Engineering update (DEC-081, 2026-09-26): start with [docs/README.md](docs/README.md), [current state](docs/handover/CURRENT_STATE.md) and the relevant [architecture](docs/architecture/SYSTEM_ARCHITECTURE.md), [scale risks](docs/handover/SCALABILITY_RISKS.md) and [engineering standards](docs/standards/ENGINEERING_STANDARDS.md). These extend, not replace, the six canonical product documents. Assess current/10x/100x impact for significant work; preserve the distinction between implemented, verified and proposed. Keep the existing DEC ledger as the single decision source, using ADR fields for substantial architecture choices.
+
 Read [docs/PROJECT_RULEBOOK.md](docs/PROJECT_RULEBOOK.md), [docs/BRAND_RULEBOOK.md](docs/BRAND_RULEBOOK.md), [docs/CURRENT_PRODUCT_BASELINE.md](docs/CURRENT_PRODUCT_BASELINE.md), and the relevant entries in [docs/PROJECT_LEARNINGS.md](docs/PROJECT_LEARNINGS.md), [docs/DECISION_LOG.md](docs/DECISION_LOG.md), and [docs/WORKFLOW_CHANGE_LOG.md](docs/WORKFLOW_CHANGE_LOG.md) before changing code. These files are persistent project memory, established by the user's 2026-09-12 master instruction.
 
 - Preserve established behaviour, calculations, terminology, branding, workflows, and conventions unless the user explicitly changes them. Search first: reuse -> extend -> refactor -> create new.

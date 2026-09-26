@@ -57,3 +57,14 @@ Before publishing 45b19d41f38ce9672f36ae3531dc261686941baa, a fresh 507,658,240-
 
 
 **Publication verified, 2026-09-25 — DEC-080 / WF-074:** Runtime 335a6cd9bdae91ba40d94f94c2e9db1752eb0933; Coolify d8nmyobjglmb8vkou17ztqj8 finished, running:healthy. Supplier mobile and Purchase Manager mobile appear above PO/PDF items. Supplier number can be entered per draft, prefilling from master without modifying it. 12 native tests, 78 server/review browser checks, one/four-page PDF checks and 41 read-only live checks passed. Live two-page PO confirmed both contact labels on page one; missing supplier snapshot phone remains explicitly Not recorded. No historical contact backfill. Fresh 465,040,664-byte recovery ZIP passed checksum/archive/isolated restore; five verified ZIPs retained. Workspace revision 1547 and all business records/accounts/file bodies/audit/archives/retry receipts unchanged. Zero live business writes or runtime errors. Supersedes candidate status. Private evidence: test-output/domestic-mobile-release/; recovery ZIPs: backups/releases/.
+
+## Off-site destination access — discussion, 2026-09-26
+
+Scheduled off-site backups are not enabled by the current local repair. User asked what online access is needed; no provider/destination or credentials have been supplied.
+
+- Separate cloud server: server name/address, destination directory, and a dedicated restricted SSH account/key with only the required backup-directory permissions.
+- S3-compatible storage: provider endpoint, bucket, region (if required) and prefix. A dedicated credential needs object upload/read/list access to that prefix; grant deletion only if an agreed retention policy requires it. No account-owner/admin key is needed.
+- Configure secrets privately in Coolify or the chosen secret store, never in chat/Git/docs. Keep the backup decryption key outside the application server as well so server loss does not make recovery impossible.
+- Agree schedule, retention for off-site copies, failure-alert owner and restore test before enabling automation. The existing five verified local release ZIPs rule is unchanged; it does not establish an off-site retention policy.
+
+Destination selection, credentials and a successful independent restore/failure-alert drill remain required before claiming automatic off-site recovery.

@@ -1,5 +1,11 @@
 # Changelog — v0.6.1-alpha.16
 
+## 2026-09-26 — Engineering repairs (release candidate)
+- Repair VMS visit/history/follow-up visibility, independent offline visits and unsaved-setting preservation.
+- Allow unrelated Domestic PO edits while guarding related records; bound compact saved-view handles.
+- Index reference preservation and repair Domestic conflict navigation; add session projection, storage health, redacted request logs and CI/build contracts.
+- Verified: 287 native and 24 browser checks. Large-scale stress remains failed; no schema migration or off-site provider configured. DEC-082 through DEC-085.
+
 ## Unreleased — Assembly supplier total comparison (2026-09-24)
 - Compare the same saved assembly across suppliers: full total, reference-supplier difference in INR/percent, photos, quantities and quote-by-quote breakdown.
 - Missing quotes/quantities and unconfirmed compositions remain incomplete and cannot win the lowest-total comparison. No saved BOM or supplier data changes.

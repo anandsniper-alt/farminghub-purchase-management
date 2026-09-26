@@ -1,3 +1,4 @@
+import {REVIEW_MODULES,stripReviewModule} from './review-sources.mjs';
 import {GUIDE_POSES} from '../web/guide-poses.mjs';
 import {readFileSync,writeFileSync,copyFileSync} from 'node:fs';
 import {resolve,dirname,join} from 'node:path';
@@ -7,8 +8,8 @@ import {domesticPreviewState} from './prepare-domestic-preview.mjs';
 import {readdirSync} from 'node:fs';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..'),read=p=>readFileSync(join(root,p),'utf8');
 if(JSON.parse(read('package.json')).version!==APP_VERSION)throw new Error('package.json and shared APP_VERSION must match before issuing a build.');
-const strip=s=>s.replace(/^import\s+[^\n]*;\s*$/gm,'').replace(/^export\s+/gm,'');
-const js=['shared/references.mjs','shared/domestic-prices.mjs','shared/domestic.mjs','shared/domestic-orders.mjs','shared/vms.mjs','shared/plm.mjs','shared/shipping.mjs','shared/domain.mjs','shared/process-exemptions.mjs','shared/arrival-costing.mjs','shared/order-progress.mjs','shared/final-master-data.mjs','shared/clean-seed.mjs','web/references.mjs','web/process-exemptions.mjs','web/arrival-costing.mjs','web/navigation.mjs','web/domestic-price-comparison.mjs','web/domestic-prices.mjs','web/domestic-orders.mjs','web/domestic.mjs','web/vms-outbox.mjs','web/vms-pages.mjs','web/vms.mjs','web/concurrency.mjs','web/app.mjs','web/theme.mjs','web/support.mjs','web/guide-poses.mjs','web/experience.mjs'].map(p=>'\n// '+p+'\n'+strip(read(p))).join('\n');
+const strip=stripReviewModule;
+const js=REVIEW_MODULES.map(p=>'\n// '+p+'\n'+strip(read(p))).join('\n');
 const safe=s=>s.replace(/<\/script/gi,'<\\/script');
 const domesticImages=Object.fromEntries(readdirSync(join(root,'web/assets/domestic-bom')).filter(n=>n.endsWith('.png')).map(n=>[n,'data:image/png;base64,'+readFileSync(join(root,'web/assets/domestic-bom',n)).toString('base64')]));
 const domesticPreview=process.argv.includes('--domestic-preview');

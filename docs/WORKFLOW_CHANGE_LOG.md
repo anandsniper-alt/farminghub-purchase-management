@@ -700,3 +700,58 @@ Date: 2026-09-25; DEC-080. Previous: enter generic purchase contact lower in for
 
 
 **Publication verified, 2026-09-25 — DEC-080 / WF-074:** Runtime 335a6cd9bdae91ba40d94f94c2e9db1752eb0933; Coolify d8nmyobjglmb8vkou17ztqj8 finished, running:healthy. Supplier mobile and Purchase Manager mobile appear above PO/PDF items. Supplier number can be entered per draft, prefilling from master without modifying it. 12 native tests, 78 server/review browser checks, one/four-page PDF checks and 41 read-only live checks passed. Live two-page PO confirmed both contact labels on page one; missing supplier snapshot phone remains explicitly Not recorded. No historical contact backfill. Fresh 465,040,664-byte recovery ZIP passed checksum/archive/isolated restore; five verified ZIPs retained. Workspace revision 1547 and all business records/accounts/file bodies/audit/archives/retry receipts unchanged. Zero live business writes or runtime errors. Supersedes candidate status. Private evidence: test-output/domestic-mobile-release/; recovery ZIPs: backups/releases/.
+
+## WF-075 — Engineering audit, scale review and source-of-truth handover
+
+**Date:** 2026-09-26. **Module:** Engineering / GLOBAL. **Workflow:** substantial development task. **Related decision:** DEC-081.
+**Previous workflow:** read the six project documents → reuse existing patterns → implement → validate → update relevant rules/history. Scale findings were spread across dated reports.
+**Requested change/reason:** perform the attached initial architecture/scale/knowledge audit before costing integration; preserve continuity and make growth limits explicit.
+**New workflow:** read index/current state and relevant canonical records → inspect implementation → assess domain/data/API/security/dependency impacts → consider current/10x/100x and failure modes → record meaningful recommendation/decision → implement only authorized scope → validate/review → capture scoped lessons and current handover.
+**Steps added:** source-versus-history reconciliation, explicit growth assumptions/budgets, architecture/debt/risk ownership and ADR fields in the existing DEC ledger.
+**Steps removed:** none. **Steps modified:** documentation entry/navigation and substantial-task assessment.
+**Status changes:** engineering records distinguish proposed, implemented, locally verified, live verified and superseded; no business status changed.
+**Roles/users affected:** maintainers/future development sessions; no application role changes.
+**Dependencies affected:** AGENTS.md and documentation owner map; diagnostic benchmark fixture updated.
+**Calculations/reports affected:** no business formula changes; local synthetic capacity reporting distinguishes current-context writes from legacy conflicts.
+**Data/database/API/UI impact:** no application mutation, migration, API change or visual change.
+**Backward compatibility:** preserve all existing rules/history; dated early statements receive explicit current-reading pointers.
+**Risks:** documentation drift or treating proposals/tests as production approval. Mitigation: dated evidence and source checks, one owner per rule, existing release backup gate.
+**Final implementation:** linked architecture, engineering standards and handover documents plus canonical navigation notes; local tests/benchmark and document checks recorded separately. No live deployment or costing implementation.
+
+## WF-076 — Practical VMS visit and complete follow-up queue
+
+**Date:** 2026-09-26. **Module/workflow:** VMS visits and follow-ups. **Decision:** DEC-082.
+**Previous workflow:** open generic interaction → mandatory date/reminder → one pending entry per vendor/type → queue showed latest contact only → insertion-order history; periodic sync could rerender settings.
+**Requested change/reason:** fix audit blockages that hide work, obstruct historical/offline visits or revert location/unfinished entries.
+**New workflow:** open vendor → Record visit (VISIT selected) → date/notes/evidence → optional next follow-up → save or queue independently → all scheduled actions appear → complete/reopen with reason → chronological history shows outcome. Invalid visit dates are rejected before uploading evidence. Master location text invalidates stale hierarchy selections; notes-only saves preserve that text.
+**Steps added/modified/removed:** direct shortcut and independent queue entries added; action selection made optional; automatic reminder and latest-only filtering removed. No historical records deleted or reminders auto-completed.
+**Roles/statuses:** existing Manager/Executive writer and follow-up owner controls; Admin-only areas unchanged. Completed/Open retained; no purchase status change.
+**Dependencies/calculations/reports:** shared vendor, outbox, preference dirty state and India business-day helper. Dashboard/follow-up counts now include all actions. Financial calculations/date rules unaffected.
+**Data/API/UI impact:** optional blank nextFollowUpAt, same command/model; no migration. Existing stored histories and evidence retained; Record visit and explicit No follow-up/outcome display.
+**Compatibility/risks/final implementation:** old entries remain intact; more actions may become visible. Correct location during explicit audited saves. Native/server/review regressions recorded in ENGINEERING_REPAIR_REPORT.md; no production writes.
+
+## WF-077 — Independent Domestic saves with dependency review
+
+**Date:** 2026-09-26. **Module/workflow:** Domestic PO/BOM editing and shared edit contexts. **Decision:** DEC-083.
+**Previous:** unrelated Domestic write → workspace conflict → review/retry. Large encrypted catalogue returned with each saved view.
+**New:** open view → edit → authenticate/validate current roles → check target record and dependencies → apply atomically if unchanged → return compact opaque saved-view handle. Changed PO/BOM/parts/quotation/vendor/configuration requires explicit review; retry receipts preserve exactly-once saves.
+**Added/removed/modified:** narrow dependency comparison added; unnecessary unrelated conflicts removed; token transport changed. No auto-merge, approval removal or new permission.
+**Statuses/roles/calculations/reports:** unchanged; same order number, allocation and issued snapshot rules. Browser conflict review includes Domestic changes.
+**Data/API/dependencies:** same opaque editContext field; bounded process cache, no schema change. Older/missing handles keep strict revision checks; expired handles ask for review. Domain/references/audit remain authoritative.
+**Risks/backward compatibility:** rollout/restart invalidates old open edit handles; reviewed refresh required. Cache eviction may do the same. Whole-state bottleneck still open. **Final implementation:** tests cover independent issue, same-record conflict, dependency/access changes, bound/expiry/restart and original Import behavior; publication pending.
+
+## WF-078 — Automated local quality gate and runtime health
+
+**Date:** 2026-09-26. **Module/workflow:** engineering checks and runtime health. **Decision:** DEC-084.
+**Previous:** manual native test/review build and HTTP-only health. **Requested change/reason:** close audit validation/visibility gaps.
+**New:** tests validate build dependency/static contracts → standalone build → CI repeats native tests/build on push/PR; runtime health checks readable revision, logs redacted slow/error requests.
+**Steps added:** contract tests, CI workflow, readiness/release identity fields and bounded log content. **Removed:** obsolete storage label, raw unexpected-error output. **Modified:** health may return 503 when workspace unavailable.
+**Statuses/roles/data/API/UI/calculations/reports:** no business changes; health JSON gains releaseSha and accurate storage label; no sensitive records in health/logs. Monitoring consumers should handle 503/null source SHA.
+**Dependencies/risks/compatibility:** Node 24; unchanged review architecture; no real CI run, alert integration, write/disk-capacity probe or live release claimed. No migration. **Final implementation:** local contract/session/readiness tests; deployment remains subject to verified pre-release ZIP gate.
+
+
+## WF-079 — Domestic conflict-review link repair
+**Date:** 2026-09-26. **Module/workflow:** Domestic stale-save recovery. **Decision:** DEC-085.
+**Previous:** stale save → review changes → invalid order route. **Requested change/reason:** repair technical blockages.
+**New:** stale save → review fields → open correct saved PO in another tab → explicitly confirm review → continue editing → save deliberately.
+**Steps modified:** link destination only. **Added/removed/status/roles/calculations/reports:** none. **Data/database/API/dependencies:** unchanged, existing router reused. **UI:** current form stays intact. **Backward compatibility/risks:** old invalid messages refresh through normal review; no auto-submit or bypass. **Final implementation:** regression validates route and no automatic adoption.

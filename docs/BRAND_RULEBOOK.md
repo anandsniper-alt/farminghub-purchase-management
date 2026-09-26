@@ -1,5 +1,7 @@
 # Farming Hub brand rulebook
 
+> **2026-09-26 audit note:** no visual change. Minimal-only DEC-045 and subsequent module/print rules supersede the earlier theme experiment/Current-choice paragraphs. See the [knowledge index](README.md) and [current state](handover/CURRENT_STATE.md); this file remains the authoritative brand source.
+
 Persistent mascot clearance, DEC-029 QA follow-up: retain the approved fixed dock and imagery. Main content reserves 112px plus device safe-area bottom space so pagination can scroll above it. Print suppresses that reservation with the already hidden dock. No visual-token or branding change.
 
 ## Current approved presentation - DEC-026 / WF-020 (2026-09-12)

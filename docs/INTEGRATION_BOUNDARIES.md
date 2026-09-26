@@ -1,5 +1,7 @@
 # Integration boundaries — alpha 0.1.0-alpha.1
 
+> **Current architecture audit — 2026-09-26:** native VMS is integrated using shared vendors (DEC-044/046); the old planned PostgreSQL/Prisma replacement below was superseded, not implemented. Common ERP references/export exist, but an actual Tally/ERP connector does not. See [current system boundaries](architecture/SYSTEM_ARCHITECTURE.md) and [current state](handover/CURRENT_STATE.md).
+
 > Current project memory (2026-09-12): see [Project Rulebook](PROJECT_RULEBOOK.md), [Current Product Baseline](CURRENT_PRODUCT_BASELINE.md), [Decision Log](DECISION_LOG.md) and [Workflow Change Log](WORKFLOW_CHANGE_LOG.md). Historical release statements below remain evidence of their date, not necessarily current behaviour.
 
 ## Existing systems are not overwritten

@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createSeed} from '../shared/seed.mjs';
 import {execute} from '../shared/domain.mjs';
-import {vmsConfig,vmsEvaluation,vmsFollowups,vmsConcentration,VMS_CRITERIA} from '../shared/vms.mjs';
+import {vmsConfig,vmsEvaluation,vmsFollowups,vmsConcentration,vmsBusinessDay,vmsInteractionDates,vmsInteractionHistory,vmsProfileSnapshot,VMS_CRITERIA} from '../shared/vms.mjs';
 import {scopedState,makeServer} from '../server/index.mjs';
 import {Store} from '../server/store.mjs';
 import {mkdtempSync,rmSync} from 'node:fs';
@@ -30,7 +30,7 @@ test('VMS validation rejects malformed contacts, references, dates, numbers and 
  const f=fixture(),before=structuredClone(f.state);
  for(const change of [{contacts:[{name:''}]},{contacts:[{name:'x',email:'invalid'}]},{stageId:'unknown'},{expoId:'unknown'},{products:['missing']},{assignedToId:'u-viewer'},{annualVolume:'-1'},{website:'javascript:alert(1)'}])assert.throws(()=>f.run('VMS_SAVE_PROFILE',f.profile(change)));
  for(const scores of [{evalProductQuality:6},{evalProductQuality:1.5},{evalProductQuality:'nonsense'}])assert.throws(()=>f.run('VMS_SAVE_EVALUATION',{scores}));
- for(const change of [{occurredAt:'2026-02-30'},{occurredAt:'2026-09-14'},{nextFollowUpAt:'2026-09-10'},{nextFollowUpAt:''},{fileIds:['missing']},{notes:'',fileIds:[]}])assert.throws(()=>f.run('VMS_ADD_INTERACTION',{type:'NOTE',notes:'Test',occurredAt:'2026-09-11',nextFollowUpAt:'2026-09-13',...change}));
+ for(const change of [{occurredAt:'2026-02-30'},{occurredAt:'2026-09-14'},{nextFollowUpAt:'2026-09-10'},{nextFollowUpAt:'invalid'},{fileIds:['missing']},{notes:'',fileIds:[]}])assert.throws(()=>f.run('VMS_ADD_INTERACTION',{type:'NOTE',notes:'Test',occurredAt:'2026-09-11',nextFollowUpAt:'2026-09-13',...change}));
  assert.deepEqual(f.state,before);
 });
 test('VMS catalogues retain inactive entries, unique names and all links',()=>{
@@ -39,11 +39,36 @@ test('VMS catalogues retain inactive entries, unique names and all links',()=>{
 test('shared vendor master and CRM keep primary contact and location synchronized without losing secondary contacts',()=>{
  const f=fixture(),before=f.state.vendors.find(v=>v.id===f.vendorId);f.run('VMS_SAVE_PROFILE',f.profile({contacts:[{name:'First',phone:'123'},{name:'Second',email:'second@example.test'}],city:'Ningbo',country:'China'}));assert.equal(f.state.events.at(-1).oldValue.primaryContact.contact,before.contact||'');const saved=f.state.vendors.find(v=>v.id===f.vendorId);f.run('SAVE_VENDOR',{...saved,contact:'Changed in master',phone:'456',city:'Shanghai'});const v=f.state.vendors.find(v=>v.id===f.vendorId);assert.equal(v.crm.contacts[0].name,'Changed in master');assert.equal(v.crm.contacts[0].phone,'456');assert.equal(v.crm.contacts[1].name,'Second');assert.equal(v.crm.city,'Shanghai');assert.equal(v.crm.country,v.country);
 });
-test('VMS latest follow-up, backdated interactions, completion and reopen retain audit',()=>{
- const f=fixture(),exec=f.state.users.find(u=>u.role==='EXECUTIVE');f.run('VMS_ADD_INTERACTION',{type:'CALL',notes:'Latest',occurredAt:'2026-09-13',nextFollowUpAt:'2026-09-13'},exec);f.run('VMS_ADD_INTERACTION',{type:'VISIT',notes:'Older',occurredAt:'2026-09-11',nextFollowUpAt:'2026-09-12'});let rows=vmsFollowups(f.state.vendors,'2026-09-13');assert.equal(rows[0].interaction.notes,'Latest');assert.equal(rows[0].status,'Today');const id=rows[0].interaction.id;f.run('VMS_UPDATE_FOLLOWUP',{interactionId:id,completed:true,remarks:'Reached supplier',nextFollowUpAt:'2026-09-13'},exec);assert.equal(vmsFollowups(f.state.vendors,'2026-09-14')[0].status,'Completed');f.run('VMS_UPDATE_FOLLOWUP',{interactionId:id,completed:false,remarks:'Reopened',nextFollowUpAt:'2026-09-13'});assert.equal(vmsFollowups(f.state.vendors,'2026-09-14')[0].status,'Overdue');assert.equal(f.state.vendors.find(v=>v.id===f.vendorId).crm.interactions.length,2);
+test('VMS keeps every open follow-up visible after newer contact completion and backfill',()=>{
+ const f=fixture(),exec=f.state.users.find(u=>u.role==='EXECUTIVE');f.run('VMS_ADD_INTERACTION',{type:'CALL',notes:'Latest',occurredAt:'2026-09-13',nextFollowUpAt:'2026-09-13'},exec);f.run('VMS_ADD_INTERACTION',{type:'VISIT',notes:'Older',occurredAt:'2026-09-11',nextFollowUpAt:'2026-09-12'});
+ let rows=vmsFollowups(f.state.vendors,'2026-09-13');assert.deepEqual(rows.map(r=>[r.interaction.notes,r.status]),[['Older','Overdue'],['Latest','Today']]);const id=rows[1].interaction.id;
+ f.run('VMS_UPDATE_FOLLOWUP',{interactionId:id,completed:true,remarks:'Reached supplier',nextFollowUpAt:'2026-09-13'},exec);assert.deepEqual(vmsFollowups(f.state.vendors,'2026-09-14').map(r=>r.status),['Overdue','Completed']);
+ f.run('VMS_UPDATE_FOLLOWUP',{interactionId:id,completed:false,remarks:'Reopened',nextFollowUpAt:'2026-09-13'});assert.deepEqual(vmsFollowups(f.state.vendors,'2026-09-14').map(r=>r.status),['Overdue','Overdue']);assert.equal(f.state.vendors.find(v=>v.id===f.vendorId).crm.interactions.length,2);
+ assert.deepEqual(vmsInteractionHistory(f.state.vendors.find(v=>v.id===f.vendorId).crm.interactions).map(i=>i.notes),['Latest','Older']);assert.ok(f.state.events.some(e=>JSON.stringify(e).includes('Reached supplier')));
+});
+test('historical visits without a next action create history without artificial reminders',()=>{
+ const f=fixture();f.run('VMS_ADD_INTERACTION',{type:'VISIT',notes:'Completed factory visit',occurredAt:'2026-09-11'});const i=f.state.vendors.find(v=>v.id===f.vendorId).crm.interactions[0];assert.equal(i.nextFollowUpAt,'');assert.equal(vmsFollowups(f.state.vendors,'2026-09-13').length,0);assert.equal(i.type,'VISIT');
+});
+test('VMS dates use India midnight, reject invalid dates and preserve date-only history',()=>{
+ assert.equal(vmsBusinessDay('2026-09-13T18:29:59Z'),'2026-09-13');assert.equal(vmsBusinessDay('2026-09-13T18:30:00Z'),'2026-09-14');
+ const f=fixture(),cmd={type:'VMS_ADD_INTERACTION',payload:{vendorId:f.vendorId,type:'VISIT',notes:'Today in India',occurredAt:'2026-09-14'}};
+ const s=execute(f.state,cmd,f.user,{now:'2026-09-13T18:30:00Z'}).state;assert.equal(s.vendors.find(v=>v.id===f.vendorId).crm.interactions[0].occurredAt,'2026-09-14');
+ assert.throws(()=>execute(f.state,cmd,f.user,{now:'2026-09-13T18:29:59Z'}),/future/);
+ for(const occurredAt of ['2026-02-30','2026-9-01',null])assert.throws(()=>vmsInteractionDates({occurredAt},'2026-09-14T00:00:00Z'),/valid/);
 });
 test('VMS samples use explicit currency and integer minor units',()=>{
  const f=fixture();f.run('VMS_SAVE_SAMPLE',{name:'Engine',status:'REQUESTED',currency:'CNY',price:'125.25'});const s=f.state.vendors.find(v=>v.id===f.vendorId).crm.samples[0];assert.equal(s.priceMinor,12525);assert.equal(s.currency,'CNY');f.run('VMS_SAVE_SAMPLE',{id:s.id,name:'Engine',status:'APPROVED',currency:'CNY',price:'125.25',qualityRemarks:'Checked'});assert.equal(f.state.vendors.find(v=>v.id===f.vendorId).crm.samples.length,1);assert.throws(()=>f.run('VMS_SAVE_SAMPLE',{name:'Bad',status:'APPROVED',currency:'CNY',price:'-1'}));
+});
+test('a notes-only CRM save never restores stale geography after a master location change',()=>{
+ const f=fixture(),country=f.run('VMS_SAVE_CATALOG',{kind:'countries',name:'China'}).id,region=f.run('VMS_SAVE_CATALOG',{kind:'regions',name:'Zhejiang',parentId:country}).id,district=f.run('VMS_SAVE_CATALOG',{kind:'districts',name:'Ningbo',parentId:region}).id;
+ f.run('VMS_SAVE_PROFILE',f.profile({countryId:country,regionId:region,districtId:district}));
+ let vendor=f.state.vendors.find(v=>v.id===f.vendorId);f.run('SAVE_VENDOR',{...vendor,city:'Shanghai'});vendor=f.state.vendors.find(v=>v.id===f.vendorId);
+ assert.equal(vendor.crm.districtId,'');assert.equal(vendor.crm.regionId,'');assert.equal(vendor.crm.countryId,country);
+ f.run('VMS_SAVE_PROFILE',{...vmsProfileSnapshot(vendor),remarks:'Only notes changed'});vendor=f.state.vendors.find(v=>v.id===f.vendorId);assert.equal(vendor.city,'Shanghai');assert.equal(vendor.country,'China');
+ // A record left inconsistent by an older version is repaired only on its next explicit save.
+ vendor.crm.regionId=region;vendor.crm.districtId=district;vendor.crm.region='Zhejiang';
+ f.run('VMS_SAVE_PROFILE',{...vmsProfileSnapshot(vendor),remarks:'Legacy stale links'});vendor=f.state.vendors.find(v=>v.id===f.vendorId);assert.equal(vendor.city,'Shanghai');assert.equal(vendor.crm.districtId,'');assert.equal(vendor.crm.region,'');
+ f.run('SAVE_VENDOR',{...vendor,country:'India'});vendor=f.state.vendors.find(v=>v.id===f.vendorId);assert.equal(vendor.crm.countryId,'');f.run('VMS_SAVE_PROFILE',{...vmsProfileSnapshot(vendor),remarks:'More notes'});assert.equal(f.state.vendors.find(v=>v.id===f.vendorId).country,'India');
 });
 test('VMS sourcing coverage reports zero, single, and multiple supplier gaps',()=>{
  const config={products:[{id:'p',name:'Engines'}]};assert.equal(vmsConcentration([],config)[0].risk,'CRITICAL');const supplier={status:'ACTIVE',crm:{products:['p']}};assert.equal(vmsConcentration([supplier],config)[0].risk,'CRITICAL');assert.equal(vmsConcentration([supplier,supplier],config)[0].risk,'HIGH');assert.equal(vmsConcentration([supplier,supplier,supplier],config)[0].equalShare,33);assert.equal(vmsConcentration(Array(4).fill(supplier),config)[0].risk,'LOW');

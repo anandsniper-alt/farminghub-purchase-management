@@ -1,5 +1,7 @@
 # Project learnings
 
+> **2026-09-26 reading guide:** the [current architecture](architecture/SYSTEM_ARCHITECTURE.md) and [data architecture](architecture/DATA_ARCHITECTURE.md) supersede historical implementation descriptions below: Store now creates six tables including request receipts; a limited service worker and server revision polling exist; Domestic and native VMS are implemented. Retain old lessons as dated history; use the [knowledge index](README.md) to find the current owner.
+
 Continued Ashok QA found that visible, enabled pagination can still be unclickable when a fixed mascot intercepts pointer events. Keyboard navigation recovered all 130 base and 387 ERP rows, but is not proof of mouse accessibility. Test ordinary clicks in both themes and reserve page-bottom scroll space. Technical Approve and Reject are separate configurable grants: seeing Approve does not imply rejection access. Keep permission blockers distinct from missing feature entry points.
 
 ## Production presentation integration - DEC-026
@@ -540,3 +542,41 @@ Domestic PDF layout is a print-only variant of orderDocument; reuse issued snaps
 
 
 DEC-080: Conditional phone rendering hid incomplete supplier snapshots; show Not recorded instead. Keep per-order supplier contact separate from vendor-master updates, preserve it when older clients omit the field, and initialize from the newly selected supplier when switching vendors. Never fill issued snapshots from current mutable master data.
+
+## 2026-09-26 — Engineering audit learnings (DEC-081)
+
+**Learning:** current conflict safety and data-access scalability are different properties.
+**Scope:** SCALABILITY. **Area:** Store/edit contexts. **Rule:** assess payload/parse/hash/clone/serialization costs separately from whether independent edits pass.
+**Reason:** Import dependency contexts avoid unnecessary conflicts, but full workspace and version-catalogue work remain; Domestic commands still fall back to global business-state comparison.
+**Discovered during:** initial engineering audit and source review. **Problem prevented:** presenting safe concurrency as certified throughput, or assuming every module has narrow dependencies.
+**Applies to:** server commands, new integrations and growing records/history. **Does NOT apply to:** business approval permissions or authorization to change the database.
+**Date:** 2026-09-26. **Status:** observed current implementation; proposed remedies in scale register.
+
+**Learning:** fixtures and tests can preserve outdated assumptions.
+**Scope:** FEATURE. **Area:** verification harnesses. **Rule:** regenerate fresh automatic identities through their allocator; distinguish legacy conflict controls from current-client load and wait for every concurrent request outcome before closing the test server.
+**Reason:** the old capacity fixture discarded its registry while retaining assigned automatic PO numbers; this correctly failed the newer reference invariant. Also, passing VMS tests encode latest-only follow-up selection and therefore do not establish that all open actions are visible.
+**Discovered during:** engineering audit. **Problem prevented:** weakening production validation to pass a test, hiding transport failures, or confusing green tests with complete product acceptance.
+**Applies to:** synthetic testing and source-verified evidence. **Does NOT apply to:** repairing live reference registries or silently changing approved workflow policy.
+**Date:** 2026-09-26. **Status:** capacity harness corrected locally; workflow issue remains recorded for a separate change.
+
+**Learning:** append-only project history needs a current entry point.
+**Scope:** GLOBAL. **Area:** documentation. **Rule:** use docs/README.md and handover/CURRENT_STATE.md, then the dated authoritative decision and source; retain superseded history.
+**Reason:** older paragraphs still describe five SQL tables, no polling/service worker and Import-only scope.
+**Discovered during:** initial organization audit. **Problem prevented:** reimplementing completed features or deploying the recovered reference stack.
+**Applies to:** future substantial tasks. **Does NOT apply to:** creating duplicate business rules or rewriting the history.
+**Date:** 2026-09-26. **Status:** implemented documentation structure.
+
+## 2026-09-26 — Local engineering repair pass
+
+- A green test can encode the operational bug: the old VMS test deliberately asserted latest-only follow-ups. Replace that expectation with older-open/newer-completed and backfilled-visit scenarios (DEC-082).
+- Per-vendor duplicate prevention is appropriate for replacement profiles, but blocks legitimate appended visits. Independent IDs plus receipt replay preserve three offline visits after a dropped acknowledgement.
+- Fixing future date checks after upload is too late: validate VMS date semantics before creating evidence. Cancellation/unlinked-evidence lifecycle still needs a separate policy; do not delete files blindly.
+- Supplier location has both text and hierarchy IDs. Invalidate stale dependent IDs on an explicit master edit; reconcile already-stale unchanged references on the next audited profile save.
+- A large opaque token can carry almost as much metadata as a payload. Bounded random handles reduce transport without relaxing actor, dependency or expiry checks (DEC-083). This does not cure whole-state storage or authorize multiple replicas.
+- Session authentication can query the current profile without JSON.parse of the whole business workspace; continue checking account/profile activity for every request. SQLite still scans the JSON document internally.
+- Standalone review and native delivery must share a checked source graph. Compile concatenated ESM as well as checking native HTTP sources; successful source imports alone do not catch bundle symbol collisions.
+- Health/logging fixes provide basic evidence only; CI execution, alerting, off-site recovery and production capacity need their own verified acceptance.
+
+
+### 2026-09-26 release preparation — DEC-085
+Use a stable-ID index for reference preservation while retaining number, registry, counter and link checks. Reordered/deleted records and mutation rejection are regression-tested. Native/browser passes and compact tokens do not certify throughput: final 10,000-order stress still failed (17/20).

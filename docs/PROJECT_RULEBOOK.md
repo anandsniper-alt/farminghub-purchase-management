@@ -1,5 +1,7 @@
 # Project rulebook
 
+> **Current reading guide — 2026-09-26 / DEC-081:** use the [knowledge index](README.md), [current state](handover/CURRENT_STATE.md) and [engineering standards](standards/ENGINEERING_STANDARDS.md). Dated rules below preserve history: the theme choice in DEC-026 is superseded by Minimal-only DEC-045; Import-only B-01 is extended by Domestic DEC-064–080; approval-role defaults are governed by current controls (DEC-018/030). No business rule is changed by this audit.
+
 **GLOBAL RULE — persistent guide clearance (DEC-029 QA follow-up):** page-bottom actions must remain reachable by ordinary pointer and keyboard input while the mascot stays visible. Reserve scrollable content space for the dock and device safe area. Do not solve overlap by hiding the guide or bypassing click hit-testing. Verify both Current/Minimal and desktop/mobile.
 
 ## Current approved presentation - DEC-026 / WF-020 (2026-09-12)
@@ -451,3 +453,11 @@ MODULE-SPECIFIC RULE (DEC-079): Domestic PO PDF omits the supplier code and redu
 
 
 MODULE-SPECIFIC RULE (DEC-080): Domestic PO shows Supplier mobile number and Purchase Manager mobile number above items on screen and PDF, including explicit Not recorded for missing values. Supplier number defaults from master on supplier selection, may be overridden for this order only, is validated and snapshotted; manager number is manually entered per PO. Issued contacts remain immutable.
+
+## 2026-09-26 repair rules — DEC-082/083/084
+
+**MODULE-SPECIFIC RULE — VMS:** all non-voided scheduled follow-ups participate in the queue, including older contacts; completion affects only that action. A visit may have no next action. VMS current dates/due buckets use Asia/Kolkata; financial date policies are unchanged. History is occurrence-date-first; outcomes are visible. Independent offline interactions have independent request identities; profile replacement conflicts still require review. Background sync must preserve dirty page controls. Never derive old geography over an explicit master location edit.
+
+**GLOBAL RULE — saved views:** actor/revision/expiry-bound opaque handles are process-local and bounded; eviction or restart fails closed. No handle means strict workspace revision. Never treat stale tokens as permission or automatically overwrite changed dependencies. Domestic PO/BOM and supplier address/tax guards are explicitly enumerated; unknown commands retain broad checking. Preserve reference allocation, audits, retry receipts and issued snapshots.
+
+**GLOBAL RULE — verification:** shared review source manifest, local import/syntax/static-route contract tests and native CI build are required. Health is a read-availability check, not complete integrity or recovery certification; only report source SHA when configured. Logs must exclude credentials, payloads and arbitrary query strings. Off-site backup configuration remains pending; existing five verified pre-release ZIP rule is unchanged.
