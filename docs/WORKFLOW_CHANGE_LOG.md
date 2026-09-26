@@ -798,3 +798,6 @@ DEC-082 through DEC-085 / WF-076 through WF-079 are live in runtime `88a630393f6
 
 
 **WF-080 release-review preservation correction / DEC-086, 2026-09-26:** existing inactive supplier defaults stay recorded when editing unrelated fields. Creating a new PO from such a supplier requires explicit active-term selection instead of an automatic fallback. New inactive default assignments are rejected. Existing saved PO terms, payments and issued snapshots are retained. WF-083 logistics preset list is extended to ten by the approved 90/120-day options; no payable automation is added.
+
+
+**Publication verified — 2026-09-26:** final DEC-086–089 / WF-080–083 behavior is live at runtime `602af7d1d5db6488220fc11ef0f6e33aa71e686b`, deployment `uxgduymps8acx4myppbte1o9` (finished/healthy). 298 native tests, native/review browser scenarios, hosted CI and 27 live read-only checks passed. All 90 runtime files and unchanged revision1584 data verified. Fresh downloaded ZIP/isolated restore passed; five verified recovery ZIPs retained. This supersedes candidate-only publication statements; intermediate layouts remain superseded. See [payment terms release report](PAYMENT_TERMS_RELEASE_REPORT.md) for scope, evidence and deferred RO/payable work.

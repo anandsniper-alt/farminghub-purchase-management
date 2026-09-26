@@ -114,3 +114,6 @@ Before every release push/deployment, complete the downloaded, verified recovery
 
 ### 2026-09-26 engineering repairs published
 DEC-082 through DEC-085 / WF-076 through WF-079 are live in runtime `88a630393f63b63211d41aca02c63cf0282cb9d2`, deployment `k34g9op2bnial2cfzkddmird` (finished/healthy). Supersedes their local-only publication status. 49 live read-only checks passed; fresh downloaded ZIP/isolated restore and retention of five backups verified. Concurrent user changes from revision 1564 to 1571 were reconciled against audit with all original protected rows preserved. See [engineering repair report](ENGINEERING_REPAIR_REPORT.md) for measurements, preservation and remaining scale/off-site limits.
+
+
+**Publication verified — 2026-09-26:** final DEC-086–089 / WF-080–083 behavior is live at runtime `602af7d1d5db6488220fc11ef0f6e33aa71e686b`, deployment `uxgduymps8acx4myppbte1o9` (finished/healthy). 298 native tests, native/review browser scenarios, hosted CI and 27 live read-only checks passed. All 90 runtime files and unchanged revision1584 data verified. Fresh downloaded ZIP/isolated restore passed; five verified recovery ZIPs retained. This supersedes candidate-only publication statements; intermediate layouts remain superseded. See [payment terms release report](PAYMENT_TERMS_RELEASE_REPORT.md) for scope, evidence and deferred RO/payable work.

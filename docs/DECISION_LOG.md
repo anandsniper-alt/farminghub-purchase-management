@@ -849,3 +849,6 @@ Runtime 88a6303 is live and verified; see ENGINEERING_REPAIR_REPORT.md. Hosted n
 
 ### DEC-086 release review correction — 2026-09-26
 Preserve an existing inactive supplier-template assignment during unrelated master edits using a clearly labelled recorded option. New or reassigned vendor defaults must use an active template. If the default is inactive/unavailable, a new PO must explicitly select active terms; never silently substitute another agreement. Existing PO snapshots and explicit custom PO terms remain unchanged. This corrects the implementation to meet DEC-086 preservation, without a new payment policy. Targeted native tests passed; live verification remains pending.
+
+
+**Publication verified — 2026-09-26:** final DEC-086–089 / WF-080–083 behavior is live at runtime `602af7d1d5db6488220fc11ef0f6e33aa71e686b`, deployment `uxgduymps8acx4myppbte1o9` (finished/healthy). 298 native tests, native/review browser scenarios, hosted CI and 27 live read-only checks passed. All 90 runtime files and unchanged revision1584 data verified. Fresh downloaded ZIP/isolated restore passed; five verified recovery ZIPs retained. This supersedes candidate-only publication statements; intermediate layouts remain superseded. See [payment terms release report](PAYMENT_TERMS_RELEASE_REPORT.md) for scope, evidence and deferred RO/payable work.
