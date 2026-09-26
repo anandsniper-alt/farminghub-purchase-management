@@ -73,3 +73,7 @@ The additional 100-order synthetic burst accepted and persisted **20/20** indepe
 
 ### Hosted build correction
 GitHub run 36233175675 passed native tests but failed the standalone review build. A clean checkout has no ignored test-output directory; the builder now creates its output parent. An isolated fresh-tree build plus module/static contracts passed **3/3** focused tests. This follow-up affects scripts/tests/docs only; Docker runtime source remains the verified commit above, so no second production rollout is needed. The quality workflow will repeat the full native suite and actual build on the follow-up push.
+
+
+### Final hosted verification and cleanup
+Follow-up `22265f7989a04624486161d6cabe85b628e7ad1a` passed the complete hosted native suite and standalone build: [GitHub Actions run 36233816493](https://github.com/anandsniper-alt/farminghub-purchase-management/actions/runs/36233816493). This closes the missing-output-directory CI failure above. Runtime remains the verified 88a6303 because the follow-up changes only scripts/tests/documentation outside the Docker runtime. Temporary SSH private key and unpacked recovery staging copies were removed; the five verified recovery ZIPs remain. Deployment credential sessions were closed.
