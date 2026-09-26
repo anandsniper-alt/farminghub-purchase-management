@@ -44,3 +44,14 @@ Final full suite on the release candidate: **314 passed, 0 failed** (59.45 secon
 Publication is blocked by deployment authentication: Coolify dashboard is signed out and the existing SSH agent has no usable server key. No fresh recovery ZIP could be created, so no push or deployment was attempted. User has been asked to sign in or identify the privately configured credential. This is an access blocker, not a request for broader privileges.
 
 The interactive copied-data trial contains subsequent local user edits. A comparison against the original capture therefore no longer asserts the entire trial unchanged; those edits were retained. The original captured file remains separate. Synthetic browser/native tests use independent databases, and no live payment or order was changed by this work.
+
+## Publication verified — 2026-09-26
+
+The publication blocker above is resolved. DEC-092/093 and WF-086/087 are published in release `3ba808f7978be0ce8d3cdc3af84e569cafa294a0`. The superseded Manual prototype was excluded.
+
+- 314 native tests, native-server/standalone browser scenarios and hosted CI passed. All 22 read-only live checks passed, including fixed amount/currency fields, supplier/PO pending filters, partial RO inputs, replacement reason/outstanding display and 390/320px layout; no JavaScript errors or business writes.
+- Release and data-preservation verification passed; detailed operational evidence remains private.
+- The required backup and restore release gate passed. See BACKUP_RESTORE_RUNBOOK.md for the policy.
+- Existing payment records were preserved. Replacement requires an outstanding authorized milestone, reason and evidence.
+
+The documented limits remain: existing RO groups cannot receive additional allocations in this release; member-specific shipment/document/QC/arrival gates still apply; freight is not automatically split.

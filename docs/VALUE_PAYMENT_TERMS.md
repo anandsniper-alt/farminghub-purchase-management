@@ -41,3 +41,6 @@
 Shared enforcement and summaries live in `shared/domain.mjs`; forms reuse `web/app.mjs` helpers. Existing command names, server transactions, scoped roles and master version/audit behavior are reused. No schema migration or dependency is needed. Cost is bounded by nine milestones and existing per-order shipment/allocation lists; this work does not resolve the known whole-workspace storage scaling limitation.
 
 Follow-up display verification: typed PO/print summaries include payment stage and credit days from the saved terms snapshot; legacy percentage-only print wording is retained. The nine focused tests and review build passed again after this label refinement. Preservation verification confirmed unchanged original orders, payments, vendors, items, files and Domestic POs; only two local example templates and their two audit events were added.
+
+## Publication verified — 2026-09-26
+DEC-092/WF-086 is now live in runtime `3ba808f7978be0ce8d3cdc3af84e569cafa294a0`, together with DEC-093 RO loading and payment correction. This supersedes the local-only status above. Existing live agreements and payments were preserved; no sample master entries or automatic term conversions were published. Full release evidence: [RO loading and payment corrections](RO_LOADING_AND_PAYMENT_CORRECTIONS.md).

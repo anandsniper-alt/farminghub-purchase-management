@@ -1,5 +1,11 @@
 # Changelog — v0.6.1-alpha.16
 
+## 2026-09-26 — Fixed advances, combined RO loading and payment replacement (published 3ba808f)
+- Supplier terms support percentage or fixed advances and a remaining balance, preserving saved PO agreement snapshots.
+- Load partial items across POs and suppliers under one RO; filter pending quantities by supplier and order.
+- Replace a voided payment through a linked reason/evidence workflow with outstanding-milestone and duplicate-active-reference protection.
+- DEC-092/093, WF-086/087. 314 native tests, server/review browser scenarios, hosted CI and 22 live read-only checks passed. Exact runtime and unchanged production data verified after deployment; fresh recovery ZIP/isolated restore passed and five backups retained. See docs/RO_LOADING_AND_PAYMENT_CORRECTIONS.md for remaining limits.
+
 ## 2026-09-26 — Engineering repairs (published 88a6303)
 - Repair VMS visit/history/follow-up visibility, independent offline visits and unsaved-setting preservation.
 - Allow unrelated Domestic PO edits while guarding related records; bound compact saved-view handles.

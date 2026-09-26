@@ -71,3 +71,6 @@ User replaced DEC-090/091 Manual-at-capture trial with DEC-092/WF-086 typed mast
 
 ## Current requested release — DEC-093
 The user now requests completion and publication of pending terms, partial/cross-supplier RO loading and void correction. DEC-092 joins the release; discarded Manual prototypes are excluded. Candidate evidence and limitations: ../RO_LOADING_AND_PAYMENT_CORRECTIONS.md. Production backup/deployment verification remains pending; do not present local browser passes as live publication.
+
+## Current verified release — 2026-09-26
+The above release is now published: `3ba808f7978be0ce8d3cdc3af84e569cafa294a0`. 314 native tests, server/review browser checks, hosted CI and 22 live read-only checks passed. Backup, isolated restore and data-preservation gates passed; operational evidence remains private. See ../RO_LOADING_AND_PAYMENT_CORRECTIONS.md. Existing RO append and automatic freight allocation remain outside this release.
