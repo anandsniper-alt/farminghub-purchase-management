@@ -653,3 +653,7 @@ See [repair report](ENGINEERING_REPAIR_REPORT.md) for current checks and unresol
 
 ### 2026-09-26 authorized release candidate
 User authorized publication of verified technical repairs: 287 native tests and 24 browser checks passed; reference lookup and Domestic conflict route corrected (DEC-085/WF-079). Large-scale stress still failed (17/20 at 10,000 orders); schema migration and off-site backup decisions remain pending. See ENGINEERING_REPAIR_REPORT.md for limits and later release evidence.
+
+
+### 2026-09-26 engineering repairs published
+DEC-082 through DEC-085 / WF-076 through WF-079 are live in runtime `88a630393f63b63211d41aca02c63cf0282cb9d2`, deployment `k34g9op2bnial2cfzkddmird` (finished/healthy). Supersedes their local-only publication status. 49 live read-only checks passed; fresh downloaded ZIP/isolated restore and retention of five backups verified. Concurrent user changes from revision 1564 to 1571 were reconciled against audit with all original protected rows preserved. See [engineering repair report](ENGINEERING_REPAIR_REPORT.md) for measurements, preservation and remaining scale/off-site limits.

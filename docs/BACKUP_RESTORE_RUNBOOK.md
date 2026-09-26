@@ -68,3 +68,7 @@ Scheduled off-site backups are not enabled by the current local repair. User ask
 - Agree schedule, retention for off-site copies, failure-alert owner and restore test before enabling automation. The existing five verified local release ZIPs rule is unchanged; it does not establish an off-site retention policy.
 
 Destination selection, credentials and a successful independent restore/failure-alert drill remain required before claiming automatic off-site recovery.
+
+
+### 2026-09-26 engineering release recovery
+Before runtime `88a630393f63b63211d41aca02c63cf0282cb9d2`, verified a 524,791,808-byte snapshot at revision 1564 and 480,846,238-byte recovery ZIP, SHA-256 `876c1e546390df7d9f302b03802b5eff87b21279ea5483b3d222c6c063d35815`. ZIP/isolated startup preserved all data; newest five retained. Later user writes advanced live to 1571; preservation verified original rows and reconciled their audit events. **Do not restore the 1564 snapshot over these later writes.** Private evidence remains under engineering-release/ and backups/releases/, not Git. Scheduled encrypted off-site backup remains unconfigured.

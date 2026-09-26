@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {readFileSync,mkdtempSync,writeFileSync,rmSync} from 'node:fs';
+import {readFileSync,mkdtempSync,writeFileSync,rmSync,cpSync,existsSync,statSync} from 'node:fs';
 import {dirname,resolve,relative,join} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {tmpdir} from 'node:os';
@@ -8,6 +8,15 @@ import {execFileSync} from 'node:child_process';
 import {REVIEW_MODULES,stripReviewModule} from '../scripts/review-sources.mjs';
 import {makeServer} from '../server/index.mjs';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
+test('review build succeeds in a fresh checkout without an output directory',()=>{
+ const dir=mkdtempSync(join(tmpdir(),'fh-fresh-review-'));
+ try{
+  for(const name of ['scripts','shared','web','templates','data-reference','package.json'])cpSync(join(root,name),join(dir,name),{recursive:true});
+  assert.equal(existsSync(join(dir,'test-output')),false);
+  execFileSync(process.execPath,[join(dir,'scripts/build.mjs'),'--domestic-preview'],{cwd:dir,stdio:'pipe'});
+  assert.ok(statSync(join(dir,'test-output/Domestic_BOM_Preview.html')).size>1000000);
+ }finally{rmSync(dir,{recursive:true,force:true});}
+});
 test('review bundle contains its local ESM dependencies and compiles without symbol collisions',()=>{
  assert.equal(new Set(REVIEW_MODULES).size,REVIEW_MODULES.length);
  for(const file of REVIEW_MODULES){const source=readFileSync(join(root,file),'utf8');for(const match of source.split('\n').filter(line=>/^import\s/.test(line)).join('\n').matchAll(/\bfrom\s+['"]([^'"]+)['"]/g)){const dependency=relative(root,resolve(root,dirname(file),match[1])).replaceAll('\\','/');assert.ok(REVIEW_MODULES.includes(dependency),file+' requires '+dependency);}}

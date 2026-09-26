@@ -755,3 +755,7 @@ Date: 2026-09-25; DEC-080. Previous: enter generic purchase contact lower in for
 **Previous:** stale save → review changes → invalid order route. **Requested change/reason:** repair technical blockages.
 **New:** stale save → review fields → open correct saved PO in another tab → explicitly confirm review → continue editing → save deliberately.
 **Steps modified:** link destination only. **Added/removed/status/roles/calculations/reports:** none. **Data/database/API/dependencies:** unchanged, existing router reused. **UI:** current form stays intact. **Backward compatibility/risks:** old invalid messages refresh through normal review; no auto-submit or bypass. **Final implementation:** regression validates route and no automatic adoption.
+
+
+### 2026-09-26 engineering repairs published
+DEC-082 through DEC-085 / WF-076 through WF-079 are live in runtime `88a630393f63b63211d41aca02c63cf0282cb9d2`, deployment `k34g9op2bnial2cfzkddmird` (finished/healthy). Supersedes their local-only publication status. 49 live read-only checks passed; fresh downloaded ZIP/isolated restore and retention of five backups verified. Concurrent user changes from revision 1564 to 1571 were reconciled against audit with all original protected rows preserved. See [engineering repair report](ENGINEERING_REPAIR_REPORT.md) for measurements, preservation and remaining scale/off-site limits.

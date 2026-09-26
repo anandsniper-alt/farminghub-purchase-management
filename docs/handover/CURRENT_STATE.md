@@ -61,3 +61,7 @@ No migration is pending execution from this audit. Future changes should update 
 ## Local repair verification
 
 The candidate now includes VMS repairs, bounded edit handles, explicit Domestic dependencies, narrow session projection, build/CI contracts and basic health/slow-error logs. See [ENGINEERING_REPAIR_REPORT.md](../ENGINEERING_REPAIR_REPORT.md) for dated evidence and outstanding decisions. The original audit numbers above must not be used as current candidate measurements.
+
+
+## 2026-09-26 publication update
+The technical repairs are now live at runtime 88a6303; earlier local-only/audit-only statements above are historical. Exact runtime, backup/restore, 49 live checks and concurrent-user preservation were verified. See [repair report](../ENGINEERING_REPAIR_REPORT.md). Whole-state large-scale stress remains failed; no capacity certification or off-site service configuration is implied. The fresh-checkout review-build correction is scripts/tests/docs only.

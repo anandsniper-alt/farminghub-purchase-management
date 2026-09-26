@@ -580,3 +580,7 @@ DEC-080: Conditional phone rendering hid incomplete supplier snapshots; show Not
 
 ### 2026-09-26 release preparation — DEC-085
 Use a stable-ID index for reference preservation while retaining number, registry, counter and link checks. Reordered/deleted records and mutation rejection are regression-tested. Native/browser passes and compact tokens do not certify throughput: final 10,000-order stress still failed (17/20).
+
+
+### Clean-checkout build and active-user preservation — 2026-09-26
+Run the actual review builder in an isolated tree without test-output; compiled-module tests alone miss output-path assumptions. When live users save during release checks, reconcile audited changes and verify preservation of original protected rows and unrelated records. Never restore an older backup merely to make hashes match. Current publication evidence is in ENGINEERING_REPAIR_REPORT.md.

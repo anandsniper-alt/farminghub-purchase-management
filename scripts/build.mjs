@@ -1,6 +1,6 @@
 import {REVIEW_MODULES,stripReviewModule} from './review-sources.mjs';
 import {GUIDE_POSES} from '../web/guide-poses.mjs';
-import {readFileSync,writeFileSync,copyFileSync} from 'node:fs';
+import {readFileSync,writeFileSync,copyFileSync,mkdirSync} from 'node:fs';
 import {resolve,dirname,join} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {APP_VERSION} from '../shared/domain.mjs';
@@ -20,4 +20,4 @@ const guidePoses=structuredClone(GUIDE_POSES);for(const p of Object.values(guide
 const html=`<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#204321"><title>Farming Hub · Purchase Management · PLM + Shipping + LAE Import clean review</title><link rel="icon" type="image/png" href="${logoData}"><style>${read('web/styles.css')}\n${read('web/theme.css')}\n${read('web/support.css')}\n${read('web/domestic.css')}</style></head><body><div id="app"><div class="boot">Preparing Farming Hub Purchase Management…</div></div><div id="modal-root"></div><div id="toast-root" aria-live="polite"></div><script>window.FH_GUIDE_POSES=${JSON.stringify(guidePoses)};window.FH_MODE='clean';window.FH_TEMPLATE_BASE64='${template}';window.FH_LOGO_URL='${logoData}';</script><script>${safe(read('web/jszip.min.js'))}</script><script type="module">${safe(js)}</script></body></html>`;
 const domesticBoot='window.FH_DOMESTIC_PRICE_TEMPLATE='+JSON.stringify(readFileSync(join(root,'templates/Domestic_Price_List_Template.xlsx')).toString('base64'))+';'+'window.FH_DOMESTIC_IMAGES='+safe(JSON.stringify(domesticImages))+';'+(domesticPreview?'window.FH_INITIAL_STATE='+safe(JSON.stringify(domesticPreviewState()))+';window.FH_REVIEW_STORE="fh-domestic-preview-v1";':'');
 const outputHtml=html.replace('<script>window.FH_GUIDE_POSES=', '<script>'+domesticBoot+'window.FH_GUIDE_POSES=');
-const out=join(root,domesticPreview?'test-output/Domestic_BOM_Preview.html':'Farming_Hub_Purchase_Management_Clean_Review.html');writeFileSync(out,outputHtml);console.log('Built '+out+' ('+Buffer.byteLength(outputHtml)+' bytes)');if(process.argv.includes('--deliver'))copyFileSync(out,resolve(root,'..',`Farming_Hub_Purchase_Management_Clean_v${APP_VERSION}.html`));
+const out=join(root,domesticPreview?'test-output/Domestic_BOM_Preview.html':'Farming_Hub_Purchase_Management_Clean_Review.html');mkdirSync(dirname(out),{recursive:true});writeFileSync(out,outputHtml);console.log('Built '+out+' ('+Buffer.byteLength(outputHtml)+' bytes)');if(process.argv.includes('--deliver'))copyFileSync(out,resolve(root,'..',`Farming_Hub_Purchase_Management_Clean_v${APP_VERSION}.html`));

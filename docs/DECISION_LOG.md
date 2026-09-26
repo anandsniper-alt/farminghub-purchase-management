@@ -802,3 +802,7 @@ Date: 2026-09-25. MODULE-SPECIFIC, user requested implementation and publication
 **Options:** preserve inefficient lookup; index stable IDs; redesign storage. **Final decision/reason:** index already validated unique IDs, retain every immutable-number/registry/counter/link check, and use the existing domestic/po-<id> route.
 **Advantages:** less repeated lookup and usable conflict recovery. **Disadvantages/risks:** full workspace cloning/serialization remain; this is not capacity certification. Reordered/deleted records and number/source mutation rejection are tested.
 **Dependencies/impact:** shared references and current router; no money, roles, status, schema or business-policy changes. **Files:** shared/references.mjs, web/concurrency.mjs, native tests. **Documentation:** baseline, learnings, engineering report and WF-079 updated.
+
+
+### DEC-084 / DEC-085 publication and clean-build addendum — 2026-09-26
+Runtime 88a6303 is live and verified; see ENGINEERING_REPAIR_REPORT.md. Hosted native tests passed but the preview build exposed a missing ignored output directory on a fresh checkout. Decision: create the output parent inside the existing builder, rather than depending on a developer's old artifacts or a CI-only mkdir. Advantages: one working build path for local and hosted execution; no runtime/financial/workflow change. Fresh-tree build contract tests added and passed. Scripts/tests/docs-only follow-up does not require redeploying the unchanged Docker runtime.

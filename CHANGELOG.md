@@ -1,6 +1,6 @@
 # Changelog — v0.6.1-alpha.16
 
-## 2026-09-26 — Engineering repairs (release candidate)
+## 2026-09-26 — Engineering repairs (published 88a6303)
 - Repair VMS visit/history/follow-up visibility, independent offline visits and unsaved-setting preservation.
 - Allow unrelated Domestic PO edits while guarding related records; bound compact saved-view handles.
 - Index reference preservation and repair Domestic conflict navigation; add session projection, storage health, redacted request logs and CI/build contracts.
