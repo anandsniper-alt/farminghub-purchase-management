@@ -344,3 +344,12 @@ Domestic PO PDF (DEC-079): white A4 page, existing Farming Hub logo/typography, 
 
 
 Domestic contacts (DEC-080): use clear Supplier mobile number and Purchase Manager mobile number labels in the top supplier/assembly information blocks. Do not bury the responsible manager contact below a long item list. Preserve pictured PDF table and first-page addresses.
+
+### Vendor-type forms — DEC-086
+Reuse existing Minimal master tables, native selects, labelled inputs, reason field and modal footer. Type switching changes relevant fields in place, retaining entered values; hidden inputs are disabled. Supplier and Logistics terms occupy labelled sections within the same payment-terms master. No new visual tokens or theme.
+
+**Layout superseded by DEC-087, 2026-09-26:** keep the existing Supplier master Add/Edit vendor dialog and show a labelled Logistics partner payment terms text field for LOGISTICS vendors. Remove the logistics template selector and Logistics section from Payment Terms Master; retain supplier template controls. Continue the existing in-place type switching, disabled irrelevant fields, Minimal styling and modal footer. No separate logistics screen or new visual system.
+
+**Control superseded by DEC-088 / WF-082, 2026-09-26:** within the same LOGISTICS vendor section, use the existing labelled native select for Logistics partner payment terms and a conditional labelled Custom terms text input. Keep an empty/not-recorded choice; existing unlisted agreement text selects Custom. Reuse Minimal controls, focus treatment, type switching, disabled irrelevant fields and modal footer. Payment Terms Master stays supplier-only. This local demo change adds no new visual tokens, theme or separate logistics screen.
+
+**Custom entry superseded by DEC-089 / WF-083, 2026-09-26:** retain the same native dropdown with eight presets and blank/not recorded, removing Custom terms and its text input. For an existing unlisted saved agreement only, show `Recorded: <existing text>` selected. Preserve Minimal styling, labels, focus, type switching and the existing modal footer.
