@@ -59,3 +59,6 @@ The documented limits remain: existing RO groups cannot receive additional alloc
 
 ### Navigation update — 2026-09-26 (DEC-095 / WF-089, local candidate)
 The loading entry point is now Order Management > LAE Import > Loading (#/loading), superseding the earlier Shipping & freight > RO loading tab path. Existing RO creation, pending-item filters and business rules are reused. This navigation update is tested locally and not yet published.
+
+
+**Publication verified — 2026-09-26 (DEC-095 / WF-089):** The dedicated Loading section is live at release `3ded6093da6ad079ba7c696917017fa71e06b5ef`. Open Order Management > LAE Import > Loading for combined RO creation and pending items by supplier/PO. Shipping & freight retains tracking, rates and trends. 318 native tests, server/review browser scenarios and 18 read-only live checks passed. A fresh downloaded recovery ZIP passed archive and isolated-restore verification; the five newest verified ZIPs were retained. Business records were preserved. Existing eligibility, QC, payment and authorization rules remain unchanged. This supersedes the local-only status above. Detailed backup and deployment evidence remains private.

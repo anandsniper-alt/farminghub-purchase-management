@@ -719,3 +719,6 @@ DEC-094/WF-088 adds a reasoned Revoke approval action with active-payment protec
 
 ### Local candidate — dedicated Loading section (2026-09-26, DEC-095 / WF-089)
 LAE Import now has a Loading sidebar entry and #/loading page containing the existing combined RO creation, supplier/PO pending-item filters and RO groups. Shipping & freight retains tracking/rates/trends. Existing eligibility and business controls are unchanged. Built and verified in local server/review modes; not yet published.
+
+
+**Publication verified — 2026-09-26 (DEC-095 / WF-089):** The dedicated Loading section is live at release `3ded6093da6ad079ba7c696917017fa71e06b5ef`. Open Order Management > LAE Import > Loading for combined RO creation and pending items by supplier/PO. Shipping & freight retains tracking, rates and trends. 318 native tests, server/review browser scenarios and 18 read-only live checks passed. A fresh downloaded recovery ZIP passed archive and isolated-restore verification; the five newest verified ZIPs were retained. Business records were preserved. Existing eligibility, QC, payment and authorization rules remain unchanged. This supersedes the local-only status above. Detailed backup and deployment evidence remains private.
