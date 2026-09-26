@@ -2,7 +2,7 @@
 export function createNavigation(host){
  const {icon,esc,head,button}=host,ctx=host.context;
  const divisions=[['lae-import','LAE Import','overview'],['lae-domestic','LAE Domestic','domestic/models'],['utility','Utility Division'],['implements','Implements Division']];
- const work=[['overview','Overview','grid'],['orders','Order pipeline','orders'],['tasks','Tasks & follow-ups','clock'],['payments','Payments','money'],['shipments','Shipping & freight','ship'],['documents','QC & documents','file']];
+ const work=[['overview','Overview','grid'],['orders','Order pipeline','orders'],['tasks','Tasks & follow-ups','clock'],['payments','Payments','money'],['loading','Loading','box'],['shipments','Shipping & freight','ship'],['documents','QC & documents','file']];
  const masters=[['vendors','Vendor master','users'],['items','Item master','orders'],['prices','Supplier price lists','money'],['plm','Product Lifecycle (PLM)','box']];
  const activeView=()=>ctx().ui.view==='order'?'orders':ctx().ui.view==='product'?'plm':ctx().ui.view;
  const area=()=>ctx().ui.view==='vms'?'vms':ctx().ui.view==='domestic'||ctx().ui.view==='order-management'||[...work,...masters].some(([id])=>id===activeView())?'orders':'home';

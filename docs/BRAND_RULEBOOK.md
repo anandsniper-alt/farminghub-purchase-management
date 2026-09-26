@@ -358,3 +358,7 @@ Reuse existing Minimal master tables, native selects, labelled inputs, reason fi
 Reuse existing Minimal form fields, selects, line-editor cards and modal footer. Show three milestone rows initially; place rows 4–9 under Additional milestones. Calculation select reveals percentage or amount/currency controls; Remaining balance has no editable value. No new colors/fonts/assets. Mobile width verified at 390px; no horizontal dialog overflow. Not published.
 
 2026-09-26 / DEC-093: RO loading reuses existing tabs, panels, native labelled inputs, horizontally scrollable tables and supplier/order filters. Payment replacement uses the existing bank-payment modal with an explicit warning, required reason and evidence. Existing brand tokens, mascot, Minimal theme and page navigation remain.
+
+
+### LAE Import navigation extension — 2026-09-26 (DEC-095)
+Use the label Loading, existing box icon, standard sidebar active state and existing minimal-theme panels. Preserve the Order Management > LAE Import breadcrumb hierarchy. No new visual theme.

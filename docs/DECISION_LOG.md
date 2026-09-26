@@ -900,3 +900,11 @@ Preserve an existing inactive supplier-template assignment during unrelated mast
 
 
 **Publication verified — 2026-09-26 (DEC-094 / WF-088):** Revoke approval is live in release `ab20645c19976b963872d98c5103467d2232fd31`. 318 native tests, isolated server/review browser scenarios, hosted CI and 17 read-only live checks passed. Required reason, mobile layout and retained history verified. Backup/isolated restore and data-preservation release gates passed; detailed operational evidence remains private. No existing approval or payment was changed. This supersedes the local-only status above.
+
+
+## DEC-095 — Separate LAE Import Loading section
+**Date:** 2026-09-26. **Scope:** MODULE-SPECIFIC RULE. **Status:** implemented and tested locally; not published.
+**Confirmed request:** make partial and cross-proforma RO loading a separate segment named Loading.
+**Decision:** reuse the existing RO loading panel and command from a dedicated #/loading route and sidebar entry. Remove the nested loading tab from Shipping & freight, which retains tracking, rates and trends. Legacy loading-tab actions redirect to Loading.
+**Trade-off:** a distinct entry improves discoverability without duplicating allocation logic. This navigation change does not approve pre-production draft loading or adding allocations to an existing RO. Approved PI, production-start eligibility, QC, authorization, remaining quantity and original-order financial controls remain unchanged.
+**Evidence:** seven existing native loading tests passed; isolated server and standalone review browsers verified direct route/reload, sidebar, partial mixed-supplier save, preserved quantities through filtering and mobile access. WF-089 records the user flow.

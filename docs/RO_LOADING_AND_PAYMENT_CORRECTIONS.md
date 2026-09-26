@@ -55,3 +55,7 @@ The publication blocker above is resolved. DEC-092/093 and WF-086/087 are publis
 - Existing payment records were preserved. Replacement requires an outstanding authorized milestone, reason and evidence.
 
 The documented limits remain: existing RO groups cannot receive additional allocations in this release; member-specific shipment/document/QC/arrival gates still apply; freight is not automatically split.
+
+
+### Navigation update — 2026-09-26 (DEC-095 / WF-089, local candidate)
+The loading entry point is now Order Management > LAE Import > Loading (#/loading), superseding the earlier Shipping & freight > RO loading tab path. Existing RO creation, pending-item filters and business rules are reused. This navigation update is tested locally and not yet published.

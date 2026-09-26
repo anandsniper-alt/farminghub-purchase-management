@@ -849,3 +849,10 @@ DEC-082 through DEC-085 / WF-076 through WF-079 are live in runtime `88a630393f6
 
 
 **Publication verified — 2026-09-26 (DEC-094 / WF-088):** Revoke approval is live in release `ab20645c19976b963872d98c5103467d2232fd31`. 318 native tests, isolated server/review browser scenarios, hosted CI and 17 read-only live checks passed. Required reason, mobile layout and retained history verified. Backup/isolated restore and data-preservation release gates passed; detailed operational evidence remains private. No existing approval or payment was changed. This supersedes the local-only status above.
+
+
+## WF-089 — Dedicated Loading workspace
+**Date:** 2026-09-26. **Scope:** LAE Import, DEC-095. **Status:** local candidate only.
+**Flow:** Order Management > LAE Import > Loading > filter pending items by supplier or PO > Create combined RO > select partial quantities across eligible orders/suppliers > save. Existing RO groups appear below pending items. Shipping & freight retains container tracking, weekly rates and trends.
+**Preserved:** original PO/PI payments and documents, production-start eligibility, QC and dispatch gates, quantities and permissions. No production records changed.
+**Validation:** seven native tests passed; local server and standalone browsers passed cross-supplier partial save, navigation/reload, supplier/PO filters, quantity retention and mobile checks with zero JavaScript errors. Review build succeeded.

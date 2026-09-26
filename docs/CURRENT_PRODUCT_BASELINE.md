@@ -715,3 +715,7 @@ DEC-094/WF-088 adds a reasoned Revoke approval action with active-payment protec
 
 
 **Publication verified — 2026-09-26 (DEC-094 / WF-088):** Revoke approval is live in release `ab20645c19976b963872d98c5103467d2232fd31`. 318 native tests, isolated server/review browser scenarios, hosted CI and 17 read-only live checks passed. Required reason, mobile layout and retained history verified. Backup/isolated restore and data-preservation release gates passed; detailed operational evidence remains private. No existing approval or payment was changed. This supersedes the local-only status above.
+
+
+### Local candidate — dedicated Loading section (2026-09-26, DEC-095 / WF-089)
+LAE Import now has a Loading sidebar entry and #/loading page containing the existing combined RO creation, supplier/PO pending-item filters and RO groups. Shipping & freight retains tracking/rates/trends. Existing eligibility and business controls are unchanged. Built and verified in local server/review modes; not yet published.

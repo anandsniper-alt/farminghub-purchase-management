@@ -489,3 +489,7 @@ Voided-payment correction requires configured correction authority, reason, orig
 
 
 **MODULE-SPECIFIC RULE — LAE Import payment approval revocation (DEC-094 / WF-088, local candidate):** REVOKE_PAYMENT_AUTHORIZATION follows the configured AUTHORIZE_PAYMENT permission, requires a reason and a current approval. Block when any non-voided allocation exists for that milestone/shipment. Retain original approval with revocation actor/time/reason and append audit history. Reuse order/payment concurrency dependencies; do not delete approvals, silently void payments or alter agreed obligations. Existing explicit initial-payment completion and reauthorization remain available under their own checks. Not published.
+
+
+### MODULE-SPECIFIC RULE — LAE Import Loading navigation (DEC-095 / WF-089)
+Expose partial/combined RO loading and pending items through the dedicated Loading section. Shipping & freight retains tracking and freight tools. This presentation split does not alter production, QC, payment, quantity or permission controls.

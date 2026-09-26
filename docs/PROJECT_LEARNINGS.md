@@ -612,3 +612,7 @@ A common transport reference is not authority to merge financial obligations. Re
 
 
 2026-09-26 / DEC-094: Payment approvals are revision-scoped; an approved PO amendment makes old-revision authorizations inactive without erasing them. Inspect the current revision and active payment allocations before claiming a live approval needs revocation. The new local revoke action marks history rather than removing records and shares authorization policy and order/payment concurrency checks.
+
+
+### 2026-09-26 — Loading discoverability (MODULE-SPECIFIC, DEC-095 / WF-089)
+A feature nested under Shipping & freight was difficult to find. The user explicitly requested a separate Loading segment. Reuse its panel and command behind a dedicated route and sidebar entry; do not interpret navigation approval as permission to loosen production/QC gates. Verify direct route/reload and both server/review modes.
