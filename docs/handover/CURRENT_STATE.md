@@ -65,3 +65,9 @@ The candidate now includes VMS repairs, bounded edit handles, explicit Domestic 
 
 ## 2026-09-26 publication update
 The technical repairs are now live at runtime 88a6303; earlier local-only/audit-only statements above are historical. Exact runtime, backup/restore, 49 live checks and concurrent-user preservation were verified. See [repair report](../ENGINEERING_REPAIR_REPORT.md). Whole-state large-scale stress remains failed; no capacity certification or off-site service configuration is implied. The fresh-checkout review-build correction is scripts/tests/docs only.
+
+## 2026-09-26 — Payment terms rebuild (local, publication withheld)
+User replaced DEC-090/091 Manual-at-capture trial with DEC-092/WF-086 typed master milestones. See ../VALUE_PAYMENT_TERMS.md. 307 native tests and native/review browser checks passed. Review the local candidate before release approval; no deployment performed. Do not publish the superseded Manual commands or approval stage.
+
+## Current requested release — DEC-093
+The user now requests completion and publication of pending terms, partial/cross-supplier RO loading and void correction. DEC-092 joins the release; discarded Manual prototypes are excluded. Candidate evidence and limitations: ../RO_LOADING_AND_PAYMENT_CORRECTIONS.md. Production backup/deployment verification remains pending; do not present local browser passes as live publication.

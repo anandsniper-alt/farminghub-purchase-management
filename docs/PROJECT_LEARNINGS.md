@@ -599,3 +599,13 @@ Hiding irrelevant inputs alone is insufficient: disable their submission and sep
 
 
 **Payment-template deactivation:** filtering a dropdown to active rows can silently replace an existing inactive value with the first option. Preserve the recorded master value explicitly and use a required blank selection for new transactions. Pair UI checks with domain validation and snapshot-preservation tests.
+
+
+### Distinguish synthetic demonstrations from copied-data application trials — DEC-091
+**Scope:** MODULE-SPECIFIC Manual advance local candidate; production policy remains unapproved. A static role/payment simulation demonstrates an idea but cannot prove native authorization, evidence links, shared-domain behavior or historical-payment preservation. The user's actual-application preview request requires a separately restored local workspace, loopback-only server, private ignored source/evidence and fresh integrated checks. Preserve the captured source unchanged; do not silently convert existing orders or proxy live business writes. Document capture scope explicitly rather than calling a user-scoped state export a full recovery backup. No publication is authorized by successful preview testing.
+
+## Fixed advances and residual balances — 2026-09-26
+**Scope:** FEATURE / LAE Import payment terms. **Learning:** percentages cannot safely represent an agreed fixed-currency advance. Keep the explicit amount/currency and calculate the remainder in shared minor-unit logic. Check both draft and approved revisions; split non-PI obligations across shipments once. Prevents repeated USD 5,000 obligations, currency relabeling, negative balance and paid-order reallocation. Does not apply to logistics descriptive terms or Domestic BOM pricing. Implemented locally under DEC-092/WF-086; calculation examples and verification are in VALUE_PAYMENT_TERMS.md. Earlier Manual-at-capture trial is superseded, not approved for release.
+
+## Explicit grouping preserves commercial identity — DEC-093
+A common transport reference is not authority to merge financial obligations. Reuse per-order shipment lines and give related movements an explicit group ID; accept duplicate tracking references only inside that group and authorize every matched member. Distinguish unallocated quantity from pending departure. VOID removes a payment from balances, but another active payment can still cover the same milestone; check current payable balance before offering a linked replacement. See RO_LOADING_AND_PAYMENT_CORRECTIONS.md. Local release candidate, no live financial writes.

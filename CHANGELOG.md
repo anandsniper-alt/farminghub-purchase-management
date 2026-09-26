@@ -468,3 +468,14 @@ Both supplier and Purchase Manager mobile numbers shown above PO/PDF items. Orde
 
 
 **Publication verified, 2026-09-25 — DEC-080 / WF-074:** Runtime 335a6cd9bdae91ba40d94f94c2e9db1752eb0933; Coolify d8nmyobjglmb8vkou17ztqj8 finished, running:healthy. Supplier mobile and Purchase Manager mobile appear above PO/PDF items. Supplier number can be entered per draft, prefilling from master without modifying it. 12 native tests, 78 server/review browser checks, one/four-page PDF checks and 41 read-only live checks passed. Live two-page PO confirmed both contact labels on page one; missing supplier snapshot phone remains explicitly Not recorded. No historical contact backfill. Fresh 465,040,664-byte recovery ZIP passed checksum/archive/isolated restore; five verified ZIPs retained. Workspace revision 1547 and all business records/accounts/file bodies/audit/archives/retry receipts unchanged. Zero live business writes or runtime errors. Supersedes candidate status. Private evidence: test-output/domestic-mobile-release/; recovery ZIPs: backups/releases/.
+
+## Unreleased — Supplier fixed advances and remaining balance (2026-09-26)
+- Replace unpublished Manual-at-capture trial with Percentage / Fixed amount / Remaining balance in Supplier Payment Terms Master and PO entry.
+- Preserve fixed currency amounts, existing percentage rounding, shipment allocation, receipts, voids and issued snapshots; validate controlled revisions and payment bounds.
+- Verified: 307 native tests, native and standalone master save/reopen, revision selector, and 390px editor. Not deployed. DEC-092 / WF-086; docs/VALUE_PAYMENT_TERMS.md.
+
+### Pending release — supplier fixed advances, combined RO loading and void correction
+- Supplier payment templates support percentage/fixed first and second advances plus remaining balance.
+- Shipping adds partial cross-order/multi-supplier RO creation and supplier/order pending-item views; shared tracking preserves original financial records.
+- Voided bank entries have a reasoned, evidence-backed replacement path with duplicate/outstanding checks.
+- No historical payments, POs or supplier terms automatically changed; release verification pending.

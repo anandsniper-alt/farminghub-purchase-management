@@ -353,3 +353,8 @@ Reuse existing Minimal master tables, native selects, labelled inputs, reason fi
 **Control superseded by DEC-088 / WF-082, 2026-09-26:** within the same LOGISTICS vendor section, use the existing labelled native select for Logistics partner payment terms and a conditional labelled Custom terms text input. Keep an empty/not-recorded choice; existing unlisted agreement text selects Custom. Reuse Minimal controls, focus treatment, type switching, disabled irrelevant fields and modal footer. Payment Terms Master stays supplier-only. This local demo change adds no new visual tokens, theme or separate logistics screen.
 
 **Custom entry superseded by DEC-089 / WF-083, 2026-09-26:** retain the same native dropdown with eight presets and blank/not recorded, removing Custom terms and its text input. For an existing unlisted saved agreement only, show `Recorded: <existing text>` selected. Preserve Minimal styling, labels, focus, type switching and the existing modal footer.
+
+## Supplier milestone editor — DEC-092, local candidate
+Reuse existing Minimal form fields, selects, line-editor cards and modal footer. Show three milestone rows initially; place rows 4–9 under Additional milestones. Calculation select reveals percentage or amount/currency controls; Remaining balance has no editable value. No new colors/fonts/assets. Mobile width verified at 390px; no horizontal dialog overflow. Not published.
+
+2026-09-26 / DEC-093: RO loading reuses existing tabs, panels, native labelled inputs, horizontally scrollable tables and supplier/order filters. Payment replacement uses the existing bank-payment modal with an explicit warning, required reason and evidence. Existing brand tokens, mascot, Minimal theme and page navigation remain.
