@@ -491,3 +491,6 @@ Both supplier and Purchase Manager mobile numbers shown above PO/PDF items. Orde
 - Revoke an unused milestone approval with a required reason; preserve original authorization and audit history.
 - Reuse configured authorization rights and protect recorded payments/concurrent edits. DEC-094 / WF-088.
 - 13 focused native tests and isolated server/review browser checks passed. Not deployed.
+
+
+**Publication verified — 2026-09-26 (DEC-094 / WF-088):** Revoke approval is live in release `ab20645c19976b963872d98c5103467d2232fd31`. 318 native tests, isolated server/review browser scenarios, hosted CI and 17 read-only live checks passed. Required reason, mobile layout and retained history verified. Backup/isolated restore and data-preservation release gates passed; detailed operational evidence remains private. No existing approval or payment was changed. This supersedes the local-only status above.

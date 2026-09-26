@@ -74,3 +74,6 @@ The user now requests completion and publication of pending terms, partial/cross
 
 ## Current verified release — 2026-09-26
 The above release is now published: `3ba808f7978be0ce8d3cdc3af84e569cafa294a0`. 314 native tests, server/review browser checks, hosted CI and 22 live read-only checks passed. Backup, isolated restore and data-preservation gates passed; operational evidence remains private. See ../RO_LOADING_AND_PAYMENT_CORRECTIONS.md. Existing RO append and automatic freight allocation remain outside this release.
+
+
+**Publication verified — 2026-09-26 (DEC-094 / WF-088):** Revoke approval is live in release `ab20645c19976b963872d98c5103467d2232fd31`. 318 native tests, isolated server/review browser scenarios, hosted CI and 17 read-only live checks passed. Required reason, mobile layout and retained history verified. Backup/isolated restore and data-preservation release gates passed; detailed operational evidence remains private. No existing approval or payment was changed. This supersedes the local-only status above.
