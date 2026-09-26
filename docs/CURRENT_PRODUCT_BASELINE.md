@@ -708,3 +708,7 @@ DEC-093/WF-087 completes partial cross-order/multi-supplier RO allocation, pendi
 **Final local release gate, DEC-093:** full suite 314/314 passed; native/review browser, supplier/PO filters and inspected mobile layout passed. Publication blocked by missing deployment authentication (dashboard signed out; SSH key unavailable). No push, deployment or fresh recovery ZIP claimed. Preserve interactive trial edits; do not restore the original capture over them. See RO_LOADING_AND_PAYMENT_CORRECTIONS.md.
 
 **Publication verified, 2026-09-26 — DEC-092/093:** Release `3ba808f7978be0ce8d3cdc3af84e569cafa294a0` is published. Fixed/percentage/balance supplier terms, combined RO loading, supplier/PO pending filters and traced void replacement are available. 314 native tests, server/review browser scenarios, hosted CI and 22 read-only live checks passed. Backup, isolated restore and preservation gates passed; operational evidence remains private. Supersedes the publication blocker above. Scope and limitations: RO_LOADING_AND_PAYMENT_CORRECTIONS.md.
+
+
+## 2026-09-26 — Unpaid milestone revocation, local candidate
+DEC-094/WF-088 adds a reasoned Revoke approval action with active-payment protection and retained history. 13 focused native tests and native/standalone desktop/mobile browser checks passed; review build generated. No deployment or live mutation. Existing production revision scoping already makes earlier PO-revision approvals inactive.

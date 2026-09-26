@@ -609,3 +609,6 @@ Hiding irrelevant inputs alone is insufficient: disable their submission and sep
 
 ## Explicit grouping preserves commercial identity — DEC-093
 A common transport reference is not authority to merge financial obligations. Reuse per-order shipment lines and give related movements an explicit group ID; accept duplicate tracking references only inside that group and authorize every matched member. Distinguish unallocated quantity from pending departure. VOID removes a payment from balances, but another active payment can still cover the same milestone; check current payable balance before offering a linked replacement. See RO_LOADING_AND_PAYMENT_CORRECTIONS.md. Local release candidate, no live financial writes.
+
+
+2026-09-26 / DEC-094: Payment approvals are revision-scoped; an approved PO amendment makes old-revision authorizations inactive without erasing them. Inspect the current revision and active payment allocations before claiming a live approval needs revocation. The new local revoke action marks history rather than removing records and shares authorization policy and order/payment concurrency checks.

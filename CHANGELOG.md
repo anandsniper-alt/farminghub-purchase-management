@@ -485,3 +485,9 @@ Both supplier and Purchase Manager mobile numbers shown above PO/PDF items. Orde
 - Shipping adds partial cross-order/multi-supplier RO creation and supplier/order pending-item views; shared tracking preserves original financial records.
 - Voided bank entries have a reasoned, evidence-backed replacement path with duplicate/outstanding checks.
 - No historical payments, POs or supplier terms automatically changed; release verification pending.
+
+
+## Unreleased — Unpaid payment approval revocation (2026-09-26)
+- Revoke an unused milestone approval with a required reason; preserve original authorization and audit history.
+- Reuse configured authorization rights and protect recorded payments/concurrent edits. DEC-094 / WF-088.
+- 13 focused native tests and isolated server/review browser checks passed. Not deployed.
