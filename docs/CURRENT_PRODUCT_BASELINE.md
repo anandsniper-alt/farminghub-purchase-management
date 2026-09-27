@@ -722,3 +722,14 @@ LAE Import now has a Loading sidebar entry and #/loading page containing the exi
 
 
 **Publication verified — 2026-09-26 (DEC-095 / WF-089):** The dedicated Loading section is live at release `3ded6093da6ad079ba7c696917017fa71e06b5ef`. Open Order Management > LAE Import > Loading for combined RO creation and pending items by supplier/PO. Shipping & freight retains tracking, rates and trends. 318 native tests, server/review browser scenarios and 18 read-only live checks passed. A fresh downloaded recovery ZIP passed archive and isolated-restore verification; the five newest verified ZIPs were retained. Business records were preserved. Existing eligibility, QC, payment and authorization rules remain unchanged. This supersedes the local-only status above. Detailed backup and deployment evidence remains private.
+
+
+### Local demo candidate — item-selected loading plans (2026-09-26, DEC-096 / WF-090)
+Loading plan replaces immediate combined-RO creation. Three modes, dependent supplier/PO choices, item checkboxes, partial quantities, separate saved-plan/RO assignment and disjoint quantity stages are implemented locally. 323 native tests and server/review browser flows passed. Live retains DEC-095; this candidate has not been pushed or deployed.
+
+
+### 2026-09-26 — Tasks and overview local candidate (DEC-097 / WF-091)
+Added supplier/PO/status/owner/date filters, sorting, brand-wise short item summaries, daily plan/completion/pending report and user-approved on-time follow-up rating with separate audit effort log. Overview cards and pipeline groups navigate to matching filtered lists. Reuses existing write commands and scoped data; no migration or live release. Previous Loading-plan demo remains local. Verification: 327 native tests passed, including four reporting tests; isolated server/review browser flows cover filtering, sorting, completion, adding a plan, metric drill-downs, browser Back/reload and mobile. Evidence remains in ignored test-output/task-overview/.
+
+
+**Publication authorized — 2026-09-27:** User approved publication of the reviewed Loading plan and Tasks/overview changes (DEC-096/097, WF-090/091). Release remains gated by fresh downloaded recovery ZIP, isolated restore and live verification; authorization is not a claim of completed deployment.

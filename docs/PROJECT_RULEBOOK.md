@@ -493,3 +493,11 @@ Voided-payment correction requires configured correction authority, reason, orig
 
 ### MODULE-SPECIFIC RULE — LAE Import Loading navigation (DEC-095 / WF-089)
 Expose partial/combined RO loading and pending items through the dedicated Loading section. Shipping & freight retains tracking and freight tools. This presentation split does not alter production, QC, payment, quantity or permission controls.
+
+
+### MODULE-SPECIFIC RULE — Loading plan before RO (DEC-096 / WF-090, demo candidate)
+Select the loading type, supplier/PO and ticked item quantities before creating a plan. Reserve quantities once; assign/combine an RO afterward through the existing shared-RO command. Supplier changes constrain PO options. Completed shipping never releases quantities for replanning; only cancellation does. Preserve production/QC/payment gates and distinguish reported tracking from actual departure. Publish only after user review/approval.
+
+
+### Follow-up reporting — DEC-097 / WF-091 (MODULE-SPECIFIC, demo candidate)
+Rate recorded on-time follow-up completion only, using the selected Asia/Kolkata due-date cohort. Show the formula, denominator and supporting rows. Do not equate daily completion count with same-day plan completion, credit system closures, replace missing plans with 100%, or attribute another actor's interactions to the assigned manager. Keep current/future ratings provisional and disclose that historical schedules are not frozen plan snapshots. Keep current operational flags distinct from as-of task status. URL-driven drill-downs must match the originating metric and preserve scope/deleted-order restrictions. No change to domain write permissions or workflow gates.

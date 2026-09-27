@@ -859,3 +859,19 @@ DEC-082 through DEC-085 / WF-076 through WF-079 are live in runtime `88a630393f6
 
 
 **Publication verified — 2026-09-26 (DEC-095 / WF-089):** The dedicated Loading section is live at release `3ded6093da6ad079ba7c696917017fa71e06b5ef`. Open Order Management > LAE Import > Loading for combined RO creation and pending items by supplier/PO. Shipping & freight retains tracking, rates and trends. 318 native tests, server/review browser scenarios and 18 read-only live checks passed. A fresh downloaded recovery ZIP passed archive and isolated-restore verification; the five newest verified ZIPs were retained. Business records were preserved. Existing eligibility, QC, payment and authorization rules remain unchanged. This supersedes the local-only status above. Detailed backup and deployment evidence remains private.
+
+
+## WF-090 — Loading plan selection and later RO assignment
+**Date:** 2026-09-26. **Scope:** LAE Import, DEC-096. **Status:** demo only; awaiting approval to publish.
+**Flow:** Loading > Loading plan > choose loading type > select supplier/PO > tick items > enter partial quantities > planned dates/route/instructions > Save loading plan. Saved plans reserve quantities with no RO. Later choose Assign / combine RO, tick one or more saved plans, enter RO and reason, then save. Existing booking, release, QC/document/payment, vessel, BL/insurance and arrival steps remain authoritative.
+**Dependencies:** PO dropdown only lists selected supplier's orders and clears an incompatible earlier PO filter. All-items view shows reservations/shipping separately; fully allocated lines cannot be newly planned. No historical tracking dates are silently corrected.
+**Verification:** 323 native tests passed. Isolated server and standalone browsers verified all three modes, supplier-dependent PO filters, checkbox exclusion, partial saves, hidden-selection retention, separate RO assignment including same-PO partial plans, and mobile controls with zero JavaScript errors. Copied-live-data demo is loopback-only with separate browser storage and no live API writes.
+
+
+## WF-091 — Daily purchase follow-up plan and filtered overview
+**Date:** 2026-09-26. **Scope:** LAE Import, DEC-097. **Status:** demo only.
+Tasks & follow-ups > select India date, supplier, dependent PO, owner and status > sort by due date/supplier/PO/status > inspect brand totals and item summaries > select a PO and Add follow-up, or Record outcome on an open task. Manager table separates scheduled work, on-time completions, all completions on the day, pending work, transparent rating and audit-actor efforts. Click counts to inspect supporting tasks. Select past dates to review as-of task status; operational flags remain current.
+Overview > click Active purchase orders / In production / Containers in transit / Critical flags or a pipeline group > matching list with visible filter context. Query-backed destinations support Back and reload. No production data writes or release in this cycle.
+
+
+**Publication authorized — 2026-09-27:** User approved publication of the reviewed Loading plan and Tasks/overview changes (DEC-096/097, WF-090/091). Release remains gated by fresh downloaded recovery ZIP, isolated restore and live verification; authorization is not a claim of completed deployment.

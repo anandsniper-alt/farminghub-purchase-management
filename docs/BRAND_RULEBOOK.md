@@ -362,3 +362,11 @@ Reuse existing Minimal form fields, selects, line-editor cards and modal footer.
 
 ### LAE Import navigation extension — 2026-09-26 (DEC-095)
 Use the label Loading, existing box icon, standard sidebar active state and existing minimal-theme panels. Preserve the Order Management > LAE Import breadcrumb hierarchy. No new visual theme.
+
+
+### Loading plan UI — 2026-09-26 (DEC-096, demo candidate)
+Use Loading plan for the primary action and Assign / combine RO for the later step. Retain minimal-theme panels, native dropdowns and item selection checkboxes. Required markers follow the chosen loading mode. Copied-live-data demos need a persistent Demo only / not published banner.
+
+
+### Tasks and overview — DEC-097 (2026-09-26, demo only)
+Reuse Minimal native selects, date field, tables, status badges and KPI cards. Show supplier names, PO/PI references and compact brand/item quantities. Supporting detail and formula use disclosures. Numeric drill-downs use keyboard-accessible links with visible focus and clear filter context. Task tables scroll within their container on mobile; retain mascot clearance.

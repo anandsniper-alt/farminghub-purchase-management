@@ -616,3 +616,11 @@ A common transport reference is not authority to merge financial obligations. Re
 
 ### 2026-09-26 — Loading discoverability (MODULE-SPECIFIC, DEC-095 / WF-089)
 A feature nested under Shipping & freight was difficult to find. The user explicitly requested a separate Loading segment. Reuse its panel and command behind a dedicated route and sidebar entry; do not interpret navigation approval as permission to loosen production/QC gates. Verify direct route/reload and both server/review modes.
+
+
+### 2026-09-26 — Allocation is not vessel departure (DEC-096, MODULE-SPECIFIC)
+A user-reported loaded order had all quantity reserved, a container-release record and completion wording in remarks, but no completed factory-loading milestone or actual departure. Do not infer movement from remarks or convert estimates to actuals. Default pending-plan views should exclude fully allocated stock and offer an all-items reconciliation view with distinct reserved, loaded and departed counts. Report record discrepancies without changing real shipment data.
+
+
+### 2026-09-26 — Follow-up effort differs from order progress (DEC-097)
+A manager's daily completed count can include overdue recovery while today's plan is still pending. Keep due-date-cohort on-time performance separate from completion-day activity, and keep audit actor distinct from assigned owner. System closures at arrival are not follow-up effort. Drill-down counts must use the same predicate as destination filters; cancelled shipments must not inflate transit counts. All reporting remains a demo until approved.
