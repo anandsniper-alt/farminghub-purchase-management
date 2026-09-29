@@ -119,3 +119,96 @@ body[data-preview-theme=minimal] .scope-card.active{flex:0 1 260px;padding:12px 
 .software-reference{font-size:10px;overflow-wrap:anywhere}
 
 .order-step-guide ol{margin:0;padding-left:22px;display:grid;gap:8px}.order-step-guide h2{font-size:18px}.order-step-blocker{margin-top:14px;color:var(--fh-green);font-weight:600}.order-step-guide .panel-head{gap:12px;flex-wrap:wrap}
+
+/* DEC-099: web adaptation of HIG hierarchy, legibility and input rules.
+   Screen-only: issued PO/PDF layouts and approved logo assets are preserved. */
+.skip-link{position:fixed;top:8px;left:16px;z-index:30000;transform:translateY(-160%);padding:12px 18px;border-radius:8px;background:#fff;color:#204321;border:2px solid #204321;font-size:16px}
+.skip-link:focus{transform:none}
+.dialog-open{overflow:hidden}
+.unsaved-notice{padding:16px 24px;background:#fff3df;color:#67430e;border-bottom:1px solid #a48655;flex-shrink:0}
+.unsaved-notice p{margin:4px 0 12px}.unsaved-notice>div{display:flex;gap:10px;flex-wrap:wrap}
+@media screen{
+ body[data-preview-theme=minimal]{--muted:#536356;--line:#d9e1d5;font-size:15px;line-height:1.5}
+ body[data-preview-theme=minimal] :is(.content,.panel,.panel-body,.grid-main,.grid-two,.workspace,.form-grid,.field){min-width:0}
+ body[data-preview-theme=minimal] .content{max-width:1720px;margin-inline:auto;padding:28px clamp(16px,2.4vw,36px) 112px}
+ body[data-preview-theme=minimal] h1{font-size:clamp(24px,2.2vw,32px);line-height:1.2;letter-spacing:-.5px}
+ body[data-preview-theme=minimal] :is(.panel-head h2,.po-sheet-heading,.po-catalog-head){font-size:16px;line-height:1.4}
+ body[data-preview-theme=minimal] :is(.panel-head,.page-head,.toolbar,.head-actions){flex-wrap:wrap;gap:12px}
+ body[data-preview-theme=minimal] .panel-head{padding:18px 22px;border-bottom:1px solid var(--line)}
+ body[data-preview-theme=minimal] :is(.panel-head p,.panel-footer,.subtitle,.note-box,.field,.field label,.field>span,.field small,.sub,.small,.badge,.kv-label,.summary-label,.summary-sub,.kpi-foot,.software-reference,.form-section){font-size:13px;line-height:1.55}
+ body[data-preview-theme=minimal] :is(.sub,.muted,.subtitle,.field small,.kv-label,.summary-label,.summary-sub,.kpi-foot,.panel-head p,.modal-head p,.breadcrumb,.breadcrumb a,.software-reference,.event-top,.timeline-content p,.doc-card p){color:var(--muted)}
+ body[data-preview-theme=minimal] :is(.field,.field label,.field>span){color:var(--text);font-weight:600}
+ body[data-preview-theme=minimal] :is(.field input,.field select,.field textarea,.filters input,.filters select,.select-small){font-family:inherit;font-size:14px;min-height:42px;line-height:1.5;padding:9px 12px;color:var(--text);border:1px solid #81917f;border-radius:8px;background:#fff}
+ body[data-preview-theme=minimal] :is(input,textarea)::placeholder{color:#667269;opacity:1}
+ body[data-preview-theme=minimal] :is(input,select,textarea,button){accent-color:var(--fh-green)}
+ body[data-preview-theme=minimal] :is(input[type=checkbox],input[type=radio]){min-width:20px;min-height:20px;width:20px;height:20px;padding:0;flex-shrink:0}
+ body[data-preview-theme=minimal] .field small{font-weight:400;margin-top:7px}
+ body[data-preview-theme=minimal] :is(.button,.button.small,.icon-button,.tab,.segmented button){font-size:13px;min-height:38px;line-height:1.4}
+ body[data-preview-theme=minimal] .icon-button{min-width:38px;flex-shrink:0}
+ body[data-preview-theme=minimal] .button{white-space:normal;gap:7px;padding:9px 14px}
+ body[data-preview-theme=minimal] .button.primary{color:white}
+ body[data-preview-theme=minimal] :is(a,button,input,select,textarea,summary,[tabindex]):focus-visible{outline:3px solid #204321;outline-offset:3px;box-shadow:0 0 0 5px white}
+ body[data-preview-theme=minimal] .sidebar :is(a,button,select,summary):focus-visible{outline-color:var(--fh-lime);box-shadow:none}
+ body[data-preview-theme=minimal] :is(.nav-link,.nav-catalogues summary,.vms-nav .button){font-size:14px;line-height:1.45;min-height:42px}
+ body[data-preview-theme=minimal] .module-sidebar .nav-section-title{font-size:12px;letter-spacing:.04em}
+ body[data-preview-theme=minimal] .topbar{min-height:64px;height:auto;padding-block:12px}
+ body[data-preview-theme=minimal] .breadcrumb{font-size:13px}
+ body[data-preview-theme=minimal] .filters{display:flex;flex-wrap:wrap;gap:10px;min-width:0}
+ body[data-preview-theme=minimal] .filters :is(input,select){max-width:100%}
+ body[data-preview-theme=minimal] .task-filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:end;background:#fff;border:1px solid var(--line);border-radius:12px;margin-bottom:20px}
+ body[data-preview-theme=minimal] .task-filters .field{min-width:0;max-width:none}
+ body[data-preview-theme=minimal] .task-filters .field>span{display:block;margin-bottom:6px}
+ body[data-preview-theme=minimal] .task-filters :is(input,select){width:100%;margin-top:0}
+ body[data-preview-theme=minimal] .task-filters>.button{grid-column:1/-1;justify-self:end}
+ body[data-preview-theme=minimal] .content>.panel+.panel{margin-top:20px}
+ body[data-preview-theme=minimal] :is(.panel-footer,summary){color:var(--muted)}
+ body[data-preview-theme=minimal] .tab:not(.active){color:var(--muted)}
+ body[data-preview-theme=minimal] .sidebar summary{color:#e9f1df}
+ body[data-preview-theme=minimal] .table-wrap{max-width:100%;overflow:auto;overscroll-behavior-x:contain}
+ body[data-preview-theme=minimal] table{font-size:14px;font-variant-numeric:tabular-nums}
+ body[data-preview-theme=minimal] th{font-size:12px;color:#435746;text-transform:none;letter-spacing:0;line-height:1.45;background:#f2f5ed;padding:12px 16px}
+ body[data-preview-theme=minimal] td{padding:14px 16px;line-height:1.55;color:var(--text)}
+ body[data-preview-theme=minimal] :is(td.right,.kpi-value,.summary-value){font-variant-numeric:tabular-nums}
+ body[data-preview-theme=minimal] tr:focus-within{background:#f0f5e9}
+ body[data-preview-theme=minimal] .badge{white-space:normal;font-weight:600}
+ body[data-preview-theme=minimal] .badge.green{color:#2f6632}.badge.amber{color:#795414}.badge.red{color:#883f3d}
+ body[data-preview-theme=minimal] :is(.note-box,.note-box.blue){color:#435e6e;background:#f3f7fb}
+ body[data-preview-theme=minimal] .note-box.warn{color:#705322;background:#fff8ea}
+ body[data-preview-theme=minimal] :is(.note-box.red,.form-error){color:#8b3e32;background:#fff0ea}
+ body[data-preview-theme=minimal] .form-error{font-size:14px}
+ body[data-preview-theme=minimal] .kpi{padding:20px}.kpi-value{font-variant-numeric:tabular-nums}
+ body[data-preview-theme=minimal] .kpi-top{font-size:14px;font-weight:600}
+ body[data-preview-theme=minimal] .kpi-value{font-size:32px;line-height:1.2;margin:10px 0 6px}
+ body[data-preview-theme=minimal] .tabs{overflow-x:auto;gap:20px;max-width:100%;scroll-padding:12px}
+ body[data-preview-theme=minimal] .tab{flex-shrink:0}
+ body[data-preview-theme=minimal] summary{min-height:36px;cursor:pointer;line-height:1.5}
+ body[data-preview-theme=minimal] .modal{max-height:calc(100dvh - 32px)}
+ body[data-preview-theme=minimal] :is(.modal-head,.modal-foot){flex-shrink:0;padding:18px 24px}
+ body[data-preview-theme=minimal] .modal-head h2{font-size:21px;line-height:1.3}
+ body[data-preview-theme=minimal] .modal-head p{font-size:13px}
+ body[data-preview-theme=minimal] .modal-body{overscroll-behavior:contain;scroll-padding-block:16px}
+ body[data-preview-theme=minimal] .modal-foot{flex-wrap:wrap;gap:10px}
+ body[data-preview-theme=minimal] .po-entry-modal .po-item-sheet :is(input,select){font-size:14px;min-height:40px}
+ body[data-preview-theme=minimal] :is(.po-catalog-row b,.po-catalog-row span,.po-item-details,.po-price-warning,.po-sheet-heading span){font-size:12px;line-height:1.5}
+ body[data-preview-theme=minimal] .po-catalog-row span{color:var(--muted)}
+ body[data-preview-theme=minimal] .toast{font-size:14px;line-height:1.5;bottom:110px;color:#fff}
+ body[data-preview-theme=minimal] .toast.error{background:#8b3e32}
+ @media(max-width:1000px){body[data-preview-theme=minimal] .task-filters{grid-template-columns:repeat(2,minmax(0,1fr))}}
+ @media(max-width:720px){
+  body[data-preview-theme=minimal] .content{padding:20px 16px 128px}
+  body[data-preview-theme=minimal] :is(.button,.button.small,.icon-button,.tab,.segmented button){min-height:44px}
+  body[data-preview-theme=minimal] .icon-button{min-width:44px}
+  body[data-preview-theme=minimal] :is(.field input,.field select,.field textarea,.filters input,.filters select){font-size:16px;min-height:44px}
+  body[data-preview-theme=minimal] .filters{width:100%}
+  body[data-preview-theme=minimal] .filters :is(input,select){flex:1 1 150px;min-width:0}
+  body[data-preview-theme=minimal] .modal-backdrop{padding:8px}
+  body[data-preview-theme=minimal] .modal{max-height:calc(100dvh - 16px);border-radius:12px}
+  body[data-preview-theme=minimal] :is(.modal-head,.modal-foot,.modal-body){padding:16px}
+  body[data-preview-theme=minimal] .modal-head h2{font-size:20px}
+  body[data-preview-theme=minimal] .kpi{padding:16px}.unsaved-notice{padding:14px 16px}
+ }
+ @media(max-width:420px){body[data-preview-theme=minimal] .task-filters{grid-template-columns:minmax(0,1fr)}body[data-preview-theme=minimal] .kpi-value{font-size:28px}}
+ @media(prefers-contrast:more){body[data-preview-theme=minimal]{--muted:#354738;--line:#657661}body[data-preview-theme=minimal] :is(.button,.panel,.kpi){border-color:#657661}}
+ @media(forced-colors:active){body[data-preview-theme=minimal] :is(.badge,.button,.panel,.kpi){border:1px solid CanvasText}body[data-preview-theme=minimal] :focus-visible{outline:3px solid Highlight}}
+}
+@media print{.skip-link,.unsaved-notice{display:none!important}}

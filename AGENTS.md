@@ -16,3 +16,7 @@ Read [docs/PROJECT_RULEBOOK.md](docs/PROJECT_RULEBOOK.md), [docs/BRAND_RULEBOOK.
 - Do not redesign or rewrite during a documentation pass. Known gaps are recorded in the baseline; recording one does not authorize a fix or a new product policy.
 
 Local start: `node --env-file=.env server/index.mjs`. Native tests: `node --test tests/*.test.mjs`. Review build: `node scripts/build.mjs`. See the baseline and `docs/COOLIFY_DEPLOYMENT.md` for deployment boundaries.
+
+
+## Apple HIG design reference
+For UI work, read [docs/APPLE_HIG_RULEBOOK.md](docs/APPLE_HIG_RULEBOOK.md) and [docs/APPLE_HIG_APPLICATION.md](docs/APPLE_HIG_APPLICATION.md). Apply relevant rules with their IDs, adapt them to semantic web controls and accessibility, preserve approved branding and business behavior, and document justified exceptions. User adoption: 2026-09-29, DEC-098 / WF-092.

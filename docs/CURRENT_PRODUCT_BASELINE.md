@@ -736,3 +736,16 @@ Added supplier/PO/status/owner/date filters, sorting, brand-wise short item summ
 
 
 **Publication verified — 2026-09-27 (DEC-096/097, WF-090/091):** User-approved Loading plan and Tasks/overview changes are live at release `9433f25934544ea0b1ec2ffaf5cf0b1a6feae605`; Coolify deployment `br36titd2jnw9dyqthor42tb` finished and the container is running/healthy. Three loading modes, supplier-dependent PO selection, item ticks/partial quantities and later RO assignment are published. Tasks now include supplier/PO/status sorting and filters, brand item summaries, daily plan/completion/pending counts and the approved on-time rating with separate effort history. Overview cards and pipeline bars open matching filtered lists. This supersedes the earlier local-only candidate status. 327 native tests, both isolated server/review browser suites and 35 final read-only live checks passed, with no JavaScript errors or business-write requests. All 93 runtime files match the tested commit. A fresh 481,597,946-byte downloaded recovery ZIP passed checksum/archive/isolated-startup checks; five verified ZIPs remain. Workspace revision 1635, accounts, evidence bodies, audit history, archives and retry receipts are unchanged. No demo records or historical shipment repairs were published. Private verification remains in ignored test-output/loading-task-release/ and recovery ZIPs in the main checkout backups/releases/.
+
+
+### 2026-09-29 — Design reference adopted (DEC-098 / WF-092)
+User-supplied APPLE_HIG_RULEBOOK.md is retained unchanged and linked from project instructions with web-specific APPLE_HIG_APPLICATION.md. Future UI work follows applicable rules while preserving approved branding and business behavior. No runtime change, UI compliance claim or live deployment in this adoption.
+
+### 2026-09-29 — HIG shared-interface revision (DEC-099 / WF-093)
+Local candidate in test-output/domestic-bom: screen-only Minimal styling and web/theme.mjs enhancements for labels, keyboard tables, skip link, modal focus/background isolation, error focus and unsaved-dialog recovery. Rebuilt standalone review. No domain, database or live-site change. Verification and review boundaries are recorded in HIG_UI_REVIEW.md; publication remains separate.
+
+### 2026-09-29 — GSAP motion (DEC-100 / WF-094)
+The active test-output/domestic-bom candidate bundles GSAP 3.15.0 locally for page/dialog/disclosure transitions, with reduced-motion and context cleanup. Runtime static map, HTML and standalone build include the same pinned core asset. No npm runtime dependency, domain edits or live publication. See GSAP_MOTION.md.
+
+
+**Publication authorized — 2026-09-29:** User approved the HIG shared UI and GSAP changes (DEC-098–100 / WF-092–094). Publication is gated by a fresh downloaded recovery ZIP, isolated restore and live verification.

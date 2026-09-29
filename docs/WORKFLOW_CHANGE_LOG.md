@@ -878,3 +878,18 @@ Overview > click Active purchase orders / In production / Containers in transit 
 
 
 **Publication verified — 2026-09-27 (DEC-096/097, WF-090/091):** User-approved Loading plan and Tasks/overview changes are live at release `9433f25934544ea0b1ec2ffaf5cf0b1a6feae605`; Coolify deployment `br36titd2jnw9dyqthor42tb` finished and the container is running/healthy. Three loading modes, supplier-dependent PO selection, item ticks/partial quantities and later RO assignment are published. Tasks now include supplier/PO/status sorting and filters, brand item summaries, daily plan/completion/pending counts and the approved on-time rating with separate effort history. Overview cards and pipeline bars open matching filtered lists. This supersedes the earlier local-only candidate status. 327 native tests, both isolated server/review browser suites and 35 final read-only live checks passed, with no JavaScript errors or business-write requests. All 93 runtime files match the tested commit. A fresh 481,597,946-byte downloaded recovery ZIP passed checksum/archive/isolated-startup checks; five verified ZIPs remain. Workspace revision 1635, accounts, evidence bodies, audit history, archives and retry receipts are unchanged. No demo records or historical shipment repairs were published. Private verification remains in ignored test-output/loading-task-release/ and recovery ZIPs in the main checkout backups/releases/.
+
+
+## WF-092 — UI review uses Apple HIG rule IDs
+**Date:** 2026-09-29. **Scope:** GLOBAL development/review process, DEC-098. Read APPLE_HIG_RULEBOOK.md and APPLE_HIG_APPLICATION.md before UI changes; select applicable rules, preserve approved behavior, verify relevant states and record evidence/exceptions. Purchase and vendor workflows are unchanged. Documentation-only adoption, no deployment.
+
+## WF-093 — Shared dialog recovery and readable controls
+**Date:** 2026-09-29. **Scope:** GLOBAL UI, DEC-099. **Status:** local review.
+Open a form > enter values or add/remove rows > Cancel/Close/Escape > Keep editing or Discard changes. Focus remains within the dialog; closing restores focus. Unchanged forms close directly. Nested item pictures close independently. Shared lists, forms and task filters gain clearer typography, contrast and spacing; existing business commands and workflow stages remain unchanged. See HIG_UI_REVIEW.md for rule IDs, reproduction and evidence.
+
+## WF-094 — GSAP page/dialog/reveal transitions
+**Date:** 2026-09-29. **Scope:** GLOBAL presentation, DEC-100. **Status:** local demo.
+Navigate/open dialog/reveal optional detail > short GSAP transition > original styles restored. Reduced motion skips animation and cancels an active transition immediately. Route replacement cleans detached targets; input, focus and save/recovery flow stay authoritative. Locally bundled dependency supports server and standalone modes. See GSAP_MOTION.md.
+
+
+**Publication authorized — 2026-09-29:** User approved the HIG shared UI and GSAP changes (DEC-098–100 / WF-092–094). Publication is gated by a fresh downloaded recovery ZIP, isolated restore and live verification.

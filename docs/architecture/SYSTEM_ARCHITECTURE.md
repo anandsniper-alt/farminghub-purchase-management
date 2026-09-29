@@ -4,7 +4,7 @@ Observed 2026-09-26; source baseline `1297840`. This is an implementation map, n
 
 ## Runtime and boundaries
 
-A modular application built with vanilla browser JavaScript ESM, native Node HTTP and synchronous SQLite. `package.json` declares no npm dependencies; browser JSZip is vendored, so “no npm dependencies” does not mean “no third-party code.” Node >=22.16 is declared; the Docker image uses Node 24. The active VMS is native code in this application. `vms-reference/` is recovered React/Express/Prisma reference material and is excluded from deployment.
+A modular application built with vanilla browser JavaScript ESM, native Node HTTP and synchronous SQLite. `package.json` declares no npm dependencies; browser JSZip and GSAP core are vendored, so “no npm dependencies” does not mean “no third-party code.” Node >=22.16 is declared; the Docker image uses Node 24. The active VMS is native code in this application. `vms-reference/` is recovered React/Express/Prisma reference material and is excluded from deployment.
 
 ```mermaid
 flowchart LR

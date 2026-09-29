@@ -501,3 +501,10 @@ Select the loading type, supplier/PO and ticked item quantities before creating 
 
 ### Follow-up reporting — DEC-097 / WF-091 (MODULE-SPECIFIC, demo candidate)
 Rate recorded on-time follow-up completion only, using the selected Asia/Kolkata due-date cohort. Show the formula, denominator and supporting rows. Do not equate daily completion count with same-day plan completion, credit system closures, replace missing plans with 100%, or attribute another actor's interactions to the assigned manager. Keep current/future ratings provisional and disclose that historical schedules are not frozen plan snapshots. Keep current operational flags distinct from as-of task status. URL-driven drill-downs must match the originating metric and preserve scope/deleted-order restrictions. No change to domain write permissions or workflow gates.
+
+
+## GLOBAL RULE — Apple HIG adoption (DEC-098 / WF-092)
+Follow [APPLE_HIG_RULEBOOK.md](APPLE_HIG_RULEBOOK.md) for UI design and review, with the web adaptations in [APPLE_HIG_APPLICATION.md](APPLE_HIG_APPLICATION.md). Preserve approved business behavior and Farming Hub branding; cite rule IDs and record exceptions. Adoption is documentation only and does not declare existing screens compliant.
+
+## GLOBAL RULE — Shared HIG interaction pattern (DEC-099 / WF-093)
+Use the shared dialog recovery, labels, keyboard focus and screen styles when extending UI. Do not bypass the Cancel/Close/Escape unsaved-entry guard or replace audited financial corrections with generic Undo. Keep background interaction isolated during dialogs and preserve nested picture controls. Local implementation and verification limits are in HIG_UI_REVIEW.md.

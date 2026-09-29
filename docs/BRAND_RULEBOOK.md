@@ -370,3 +370,13 @@ Use Loading plan for the primary action and Assign / combine RO for the later st
 
 ### Tasks and overview — DEC-097 (2026-09-26, demo only)
 Reuse Minimal native selects, date field, tables, status badges and KPI cards. Show supplier names, PO/PI references and compact brand/item quantities. Supporting detail and formula use disclosures. Numeric drill-downs use keyboard-accessible links with visible focus and clear filter context. Task tables scroll within their container on mobile; retain mascot clearance.
+
+
+## Apple HIG application — 2026-09-29
+The user adopted [APPLE_HIG_RULEBOOK.md](APPLE_HIG_RULEBOOK.md) as design guidance. Apply [APPLE_HIG_APPLICATION.md](APPLE_HIG_APPLICATION.md): clear hierarchy, readable text, accessible controls, restrained motion and concise labels while retaining approved Farming Hub identity and Minimal theme. Apple system fonts/materials are platform guidance, not replacement brand tokens. DEC-098.
+
+### Shared HIG interface — DEC-099 (2026-09-29, local candidate)
+Keep approved logo, AmsiPro/fallback typography, dark green/lime identity, Minimal standard and mascot. Improve legibility with darker muted text, larger supporting/table type, clear field borders and visible keyboard focus. Mobile controls use a 44 CSS-pixel minimum height as a web touch-target choice, not a conversion from native Apple points. Preserve issued PO/PDF layout via screen-only styling. See HIG_UI_REVIEW.md.
+
+### GSAP motion — DEC-100 (2026-09-29, local candidate)
+Use short GSAP page (280 ms), dialog (240 ms) and optional-detail (220 ms) transitions with restrained opacity/transform changes. Preserve reduced motion, legibility, immediate input and approved brand assets. No new continuous or per-row animation. See GSAP_MOTION.md.

@@ -624,3 +624,13 @@ A user-reported loaded order had all quantity reserved, a container-release reco
 
 ### 2026-09-26 — Follow-up effort differs from order progress (DEC-097)
 A manager's daily completed count can include overdue recovery while today's plan is still pending. Keep due-date-cohort on-time performance separate from completion-day activity, and keep audit actor distinct from assigned owner. System closures at arrival are not follow-up effort. Drill-down counts must use the same predicate as destination filters; cancelled shipments must not inflate transit counts. All reporting remains a demo until approved.
+
+
+## GLOBAL — Adapting Apple HIG to Farming Hub (2026-09-29)
+Use the supplied numbered design rules as review guidance, not authorization to replace brand tokens, use native Apple assets, convert points directly to CSS pixels or undo audited transactions. APPLE_HIG_APPLICATION.md records the web adaptations and preserved decisions. DEC-098 / WF-092.
+
+### 2026-09-29 — Shared accessibility must respect dynamic and nested forms (GLOBAL, DEC-099)
+A field event alone misses BOM rows added/removed with buttons; compare the open form snapshot as well. Do not reset dirty state when the same modal is enhanced again. Focus loops must exclude hidden controls. Nested item-picture dialogs need their own Escape handler before outer-form dismissal. Browser review should cover both authenticated server CSS order and the standalone bundle. Native tests do not establish visual or screen-reader compliance; keep sampled evidence and unverified areas explicit.
+
+### 2026-09-29 — GSAP needs lifecycle-aware cleanup (GLOBAL, DEC-100)
+Native document.getAnimations() does not report GSAP tweens. Browser checks must inspect actual GSAP calls/tweens as well as CSS animations. Use per-transition contexts and revert original styles on completion, reduced-motion change and DOM removal. Keep the local runtime asset and inline standalone copy identical.
