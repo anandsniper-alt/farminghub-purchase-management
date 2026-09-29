@@ -634,3 +634,7 @@ A field event alone misses BOM rows added/removed with buttons; compare the open
 
 ### 2026-09-29 — GSAP needs lifecycle-aware cleanup (GLOBAL, DEC-100)
 Native document.getAnimations() does not report GSAP tweens. Browser checks must inspect actual GSAP calls/tweens as well as CSS animations. Use per-transition contexts and revert original styles on completion, reduced-motion change and DOM removal. Keep the local runtime asset and inline standalone copy identical.
+
+
+## Permanent shared UI and release learnings — DEC-101 / WF-095
+**Date:** 2026-09-29. **Status:** user-confirmed durable guidance. **Scope/area:** GLOBAL engineering and BRAND/UI; all future module/UI work. **Learning/rule:** Use [UI_UX_RULEBOOK.md](standards/UI_UX_RULEBOOK.md), especially rendered selector contrast, button-driven form changes, nested Escape ownership, GSAP context restoration, dual-mode checks and exact-source verified recovery ZIPs. **Reason/problem prevented:** Shared helpers can regress other modules or lose user work despite one successful screen; partial backups and historical test counts cannot prove a new release. **Discovered during:** DEC-098–100 implementation and 2026-09-29 publication. **Applies to:** new and changed shared screens and their release process. **Does not apply to:** silently changing financial/permission policy, certifying exhaustive accessibility/capacity or deploying during a documentation pass. Historical evidence remains in HIG_UI_REVIEW.md, GSAP_MOTION.md and HIG_RELEASE_REPORT.md.

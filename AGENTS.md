@@ -20,3 +20,7 @@ Local start: `node --env-file=.env server/index.mjs`. Native tests: `node --test
 
 ## Apple HIG design reference
 For UI work, read [docs/APPLE_HIG_RULEBOOK.md](docs/APPLE_HIG_RULEBOOK.md) and [docs/APPLE_HIG_APPLICATION.md](docs/APPLE_HIG_APPLICATION.md). Apply relevant rules with their IDs, adapt them to semantic web controls and accessibility, preserve approved branding and business behavior, and document justified exceptions. User adoption: 2026-09-29, DEC-098 / WF-092.
+
+
+## Permanent UI and release lessons
+Before any new module or UI change, read [docs/standards/UI_UX_RULEBOOK.md](docs/standards/UI_UX_RULEBOOK.md) (DEC-101 / WF-095), alongside the existing product and brand authorities. Apply its reusable UI-01–UI-12 rules, GSAP lifecycle/reduced-motion contract and change-review checklist. Revalidate dated evidence; do not treat prior test counts as a current pass.

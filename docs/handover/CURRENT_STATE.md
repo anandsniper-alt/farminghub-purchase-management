@@ -77,3 +77,7 @@ The above release is now published: `3ba808f7978be0ce8d3cdc3af84e569cafa294a0`. 
 
 
 **Publication verified — 2026-09-26 (DEC-094 / WF-088):** Revoke approval is live in release `ab20645c19976b963872d98c5103467d2232fd31`. 318 native tests, isolated server/review browser scenarios, hosted CI and 17 read-only live checks passed. Required reason, mobile layout and retained history verified. Backup/isolated restore and data-preservation release gates passed; detailed operational evidence remains private. No existing approval or payment was changed. This supersedes the local-only status above.
+
+
+## 2026-09-29 — Permanent UI/change guidance
+The HIG/GSAP release is recorded in [HIG_RELEASE_REPORT.md](../HIG_RELEASE_REPORT.md). The user subsequently requested permanent learnings; [UI_UX_RULEBOOK.md](../standards/UI_UX_RULEBOOK.md) is required for future module/UI work under DEC-101 / WF-095. This documentation pass changes no runtime or data and does not re-run the historical audit or certify its remaining gaps.

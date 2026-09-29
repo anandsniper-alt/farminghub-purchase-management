@@ -23,3 +23,7 @@ Prioritize readable hierarchy and progressive detail (R021-R032), plain action l
 For each changed screen record rule ID, expected/observed behavior, reproduction steps, evidence and Pass/Fix/Not applicable. Check relevant desktop/mobile layouts, keyboard and focus, larger text, reduced motion, empty/loading/error/success states and recovery from mistakes. Retain existing business calculations, server enforcement, immutable snapshots, terminology and workflow approvals. Reuse -> extend -> refactor -> create new.
 
 This is adoption of a design reference, not an audit result, completed redesign or live deployment. Future implementation changes require their relevant verification and the established publication/backup procedure.
+
+
+## Permanent implementation checklist — DEC-101
+Use [UI_UX_RULEBOOK.md](standards/UI_UX_RULEBOOK.md) with this reference for every new module and UI change. It contains the approved web rules, GSAP lifecycle contract, lessons and evidence checklist. Source HIG text remains unchanged.

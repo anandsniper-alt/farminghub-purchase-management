@@ -42,3 +42,7 @@ Keep credentials, private databases, recovery archives and raw test artifacts ou
 ## Latest local repair candidate
 
 [Engineering repair report](ENGINEERING_REPAIR_REPORT.md) records DEC-082–084 fixes, current checks and remaining infrastructure/storage decisions. It does not supersede the last verified live release.
+
+
+## Required UI/change rulebook — 2026-09-29
+Read [UI and change rulebook](standards/UI_UX_RULEBOOK.md) before future modules or screen edits, together with [Apple HIG web adaptations](APPLE_HIG_APPLICATION.md). See [verified HIG/GSAP release](HIG_RELEASE_REPORT.md) for dated implementation evidence. DEC-101 / WF-095 makes these learnings permanent project guidance.

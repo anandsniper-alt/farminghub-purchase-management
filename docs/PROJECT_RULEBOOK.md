@@ -508,3 +508,7 @@ Follow [APPLE_HIG_RULEBOOK.md](APPLE_HIG_RULEBOOK.md) for UI design and review, 
 
 ## GLOBAL RULE — Shared HIG interaction pattern (DEC-099 / WF-093)
 Use the shared dialog recovery, labels, keyboard focus and screen styles when extending UI. Do not bypass the Cancel/Close/Escape unsaved-entry guard or replace audited financial corrections with generic Undo. Keep background interaction isolated during dialogs and preserve nested picture controls. Local implementation and verification limits are in HIG_UI_REVIEW.md.
+
+
+## Permanent module and UI standards — DEC-101 / WF-095
+**GLOBAL RULE, confirmed 2026-09-29:** [UI and change rulebook](standards/UI_UX_RULEBOOK.md) is required reading for all future modules and UI changes. It consolidates approved HIG web adaptations, shared Minimal/GSAP behavior, accessible interaction and recovery/release lessons. It extends existing business/brand/engineering rules and preserves their approval boundaries; it does not authorize a redesign or financial-policy change.

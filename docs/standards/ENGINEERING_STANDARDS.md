@@ -53,3 +53,7 @@ Use the existing [Project Learnings](../PROJECT_LEARNINGS.md), scoped as GLOBAL,
 For durable new lessons record: Learning; Scope; Area; Rule; Reason; Discovered during; Problem prevented; Applies to; Does NOT apply to; Date; Status. Prefer an enforceable guard/test when it prevents recurrence. Do not repeat rules already owned elsewhere.
 
 After substantial work, update [Current state](../handover/CURRENT_STATE.md) and relevant owner documents with completed/changed work, decisions, affected modules, verification, scale assumption, remaining bottlenecks/issues and the next step. Keep transient command logs and artifacts in ignored task output. Do not label dated historical evidence as current.
+
+
+## Shared UI work — DEC-101
+[UI_UX_RULEBOOK.md](UI_UX_RULEBOOK.md) is the practical required checklist for new modules and UI changes. It reuses the existing DEC/WF ledgers and canonical product rules; historical test evidence must be revalidated for the affected scope.
