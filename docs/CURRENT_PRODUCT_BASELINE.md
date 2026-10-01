@@ -756,3 +756,7 @@ The active test-output/domestic-bom candidate bundles GSAP 3.15.0 locally for pa
 
 ### Permanent rulebook — 2026-09-29 (DEC-101 / WF-095)
 User-confirmed documentation standard: [UI_UX_RULEBOOK.md](standards/UI_UX_RULEBOOK.md) applies to future modules and UI changes. Consolidates existing approved HIG/Minimal/GSAP/recovery behavior and dated lessons; no runtime, business policy or live-site change in this documentation cycle.
+
+
+### Implements integration candidate - 2026-10-01
+Implemented online /implements/ module, isolated SQLite aggregate/events and authenticated exports, reusing main login and scope. Imports the real reviewed workspace separately from source deployment. Local verification passed; do not infer live publication from this candidate note. Review PO documents are not formally issued supplier orders. [Release evidence and limitations](IMPLEMENTS_RELEASE.md) records final publication separately.

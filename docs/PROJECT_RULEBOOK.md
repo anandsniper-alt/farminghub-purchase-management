@@ -512,3 +512,7 @@ Use the shared dialog recovery, labels, keyboard focus and screen styles when ex
 
 ## Permanent module and UI standards — DEC-101 / WF-095
 **GLOBAL RULE, confirmed 2026-09-29:** [UI and change rulebook](standards/UI_UX_RULEBOOK.md) is required reading for all future modules and UI changes. It consolidates approved HIG web adaptations, shared Minimal/GSAP behavior, accessible interaction and recovery/release lessons. It extends existing business/brand/engineering rules and preserves their approval boundaries; it does not authorize a redesign or financial-policy change.
+
+
+### Implements online module - DEC-103 / WF-097 (2026-10-01)
+Module data stays separate from Import/Domestic state. Existing login/scope/roles, server transactions, immutable snapshots and append-only audit apply. Shared calculations retain the user's reviewed syntax weights and pending values. This specific release follows the user's explicit deployment-before-backup order; subsequent releases retain the standing backup-first rule. See [Implements release](IMPLEMENTS_RELEASE.md).

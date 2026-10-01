@@ -1,6 +1,6 @@
 FROM node:24-bookworm-slim
 
-RUN apt-get update && apt-get install -y --no-install-recommends curl \
+RUN apt-get update && apt-get install -y --no-install-recommends curl python3 python3-openpyxl python3-reportlab python3-pil \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 ENV NODE_ENV=production HOST=0.0.0.0 PORT=8000 FH_DATA_DIR=/app/data

@@ -81,3 +81,7 @@ The above release is now published: `3ba808f7978be0ce8d3cdc3af84e569cafa294a0`. 
 
 ## 2026-09-29 — Permanent UI/change guidance
 The HIG/GSAP release is recorded in [HIG_RELEASE_REPORT.md](../HIG_RELEASE_REPORT.md). The user subsequently requested permanent learnings; [UI_UX_RULEBOOK.md](../standards/UI_UX_RULEBOOK.md) is required for future module/UI work under DEC-101 / WF-095. This documentation pass changes no runtime or data and does not re-run the historical audit or certify its remaining gaps.
+
+
+### Implements online integration - 2026-10-01
+See [release notes](../IMPLEMENTS_RELEASE.md), DEC-103 and WF-097. The reviewed Rotavator UI is integrated at /implements/ using separate online state/events and existing authorization. Main purchasing state is not migrated. Publication status must be read from the release evidence, not inferred from local checks.

@@ -46,3 +46,6 @@ Keep credentials, private databases, recovery archives and raw test artifacts ou
 
 ## Required UI/change rulebook — 2026-09-29
 Read [UI and change rulebook](standards/UI_UX_RULEBOOK.md) before future modules or screen edits, together with [Apple HIG web adaptations](APPLE_HIG_APPLICATION.md). See [verified HIG/GSAP release](HIG_RELEASE_REPORT.md) for dated implementation evidence. DEC-101 / WF-095 makes these learnings permanent project guidance.
+
+
+- [Implements online release](IMPLEMENTS_RELEASE.md): DEC-103 / WF-097, integration boundaries, verification and publication record.
