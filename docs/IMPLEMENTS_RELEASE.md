@@ -45,3 +45,19 @@ Current: approximately 2 MB of reviewed module data, 187 models and 148 shared i
 The full existing application suite plus initial Implements checks passed: **330 tests**. A subsequent focused run covers four online invariants, including server-verified sales costs. The adapted Rotavator suite passed **62 tests**. The standalone build and startup module graph passed. The isolated server accepted the real price workbook and exported model costs (17 models), item photographs, and supplier PO PDF/XLSX. Existing main workspace equality, auth/scope/CSRF rejection, demo rejection, stale edits, retry replay, immutable history and full recovery integrity were checked.
 
 Browser checks cover the main division entry, protected module startup, selected-17 costing, reasoned fabrication-rate save and persistence after reload. Tests and trial orders run only in a separate local release database. Publication/runtime hashes, production preservation and final recovery results are recorded after deployment; this paragraph alone is not proof of live publication.
+
+
+## Publication verified - 2026-10-01
+
+The module is live at **https://purchase.dvjassociates.com/implements/#/costing?status=review**, reached through Order Management > Implements Division > Rotavator purchasing. Runtime commit `4217df4e2adbb15f0f50b2572d57a6f45ce50bd0`; Coolify deployment `sbnthqs1aw7xjr6lzhcdescc` completed its rolling update and passed health on the first attempt. This supersedes the candidate-only publication status above and in the baseline.
+
+The actual reviewed local workspace was imported once into the empty online module, producing module revision 1. All imported source fields except the deliberately server-owned root revision/audit match the reviewed input exactly. Verified: 187 model definitions, 148 shared items, 131 entered prices, all selected 17 fabrication reviews, base INR125/kg plus transport INR1.50/kg, zero synthetic plans and zero synthetic purchase orders. Existing pending prices and review flags remain pending. No commercial assumptions were filled in.
+
+Live read-only checks matched all 81 module routes/assets (text line endings normalized across Git checkouts), rejected unauthenticated data/code requests, and exported the 17-model workbook: 17 model rows, 178 segment rows and 785 detail rows with no Excel error cells. Browser navigation from Implements, online startup, reload and selected-review filters passed with no JavaScript errors. The full main workspace stayed exactly unchanged at revision 1859 with 36 orders, before and after module import. No account grants or main business records were edited. Final local checks: 330 full-suite tests, then 66 focused module tests after the final shared import correction, plus startup graph and review build. The current review PO PDF was rendered and inspected.
+
+Private verification, migration input and recovery artifacts remain outside Git. Later changes to the actual local 8874 prototype are not synchronized automatically; the live online workspace is now the working site. The receiving/issuing and costing limits listed above remain explicit.
+
+
+### Post-release recovery completed
+
+Following the user's requested order, the complete live database was downloaded after publication and import. The 614,785,024-byte SQLite snapshot matched the server SHA-256. The 630,096,276-byte recovery ZIP contains the full database, exact runtime source and recovery guide. Archive CRC, extracted file hashes, SQLite integrity/foreign keys and isolated startup all passed; all nine tables were identical before/after startup. Main revision 1859 and Implements revision 1 are retained. The package was copied to the established private release-backup directory, the copied checksum verified, and the newest five verified archives retained. Recovery status is PASS. This is a local point-in-time recovery package, not scheduled off-site backup.

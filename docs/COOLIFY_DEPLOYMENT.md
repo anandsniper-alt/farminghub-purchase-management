@@ -127,3 +127,6 @@ DEC-082 through DEC-085 / WF-076 through WF-079 are live in runtime `88a630393f6
 
 ### Implements deployment (DEC-103, 2026-10-01)
 The same Dockerfile/native Node application now includes authenticated /implements/ and Python system packages for spreadsheet/PDF exports. Keep the existing /app/data volume and single-instance deployment. No new ports, secrets, accounts or permission grants are required. The reviewed workspace is imported through the authenticated module API after deployment, never through Git. For this request only, the user explicitly directed live publication before the full verified recovery package. See [release record](IMPLEMENTS_RELEASE.md).
+
+
+**Publication verified - 2026-10-01 (DEC-103 / WF-097):** Implements purchasing is live at runtime `4217df4e2adbb15f0f50b2572d57a6f45ce50bd0`, deployment `sbnthqs1aw7xjr6lzhcdescc`, healthy. The actual reviewed workspace is online at module revision 1; no demo plans/orders were imported. Main workspace revision 1859 and all 36 existing orders are unchanged. Live assets/data/export/browser checks passed. The user-requested post-release full recovery ZIP passed checksum/archive/isolated startup verification with all nine tables preserved; five verified archives retained privately. Supersedes candidate-only status. [Full release evidence](IMPLEMENTS_RELEASE.md).

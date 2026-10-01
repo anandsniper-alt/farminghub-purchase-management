@@ -85,3 +85,6 @@ The HIG/GSAP release is recorded in [HIG_RELEASE_REPORT.md](../HIG_RELEASE_REPOR
 
 ### Implements online integration - 2026-10-01
 See [release notes](../IMPLEMENTS_RELEASE.md), DEC-103 and WF-097. The reviewed Rotavator UI is integrated at /implements/ using separate online state/events and existing authorization. Main purchasing state is not migrated. Publication status must be read from the release evidence, not inferred from local checks.
+
+
+**Publication verified - 2026-10-01 (DEC-103 / WF-097):** Implements purchasing is live at runtime `4217df4e2adbb15f0f50b2572d57a6f45ce50bd0`, deployment `sbnthqs1aw7xjr6lzhcdescc`, healthy. The actual reviewed workspace is online at module revision 1; no demo plans/orders were imported. Main workspace revision 1859 and all 36 existing orders are unchanged. Live assets/data/export/browser checks passed. The user-requested post-release full recovery ZIP passed checksum/archive/isolated startup verification with all nine tables preserved; five verified archives retained privately. Supersedes candidate-only status. [Full release evidence](../IMPLEMENTS_RELEASE.md).

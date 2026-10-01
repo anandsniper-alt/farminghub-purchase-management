@@ -760,3 +760,6 @@ User-confirmed documentation standard: [UI_UX_RULEBOOK.md](standards/UI_UX_RULEB
 
 ### Implements integration candidate - 2026-10-01
 Implemented online /implements/ module, isolated SQLite aggregate/events and authenticated exports, reusing main login and scope. Imports the real reviewed workspace separately from source deployment. Local verification passed; do not infer live publication from this candidate note. Review PO documents are not formally issued supplier orders. [Release evidence and limitations](IMPLEMENTS_RELEASE.md) records final publication separately.
+
+
+**Publication verified - 2026-10-01 (DEC-103 / WF-097):** Implements purchasing is live at runtime `4217df4e2adbb15f0f50b2572d57a6f45ce50bd0`, deployment `sbnthqs1aw7xjr6lzhcdescc`, healthy. The actual reviewed workspace is online at module revision 1; no demo plans/orders were imported. Main workspace revision 1859 and all 36 existing orders are unchanged. Live assets/data/export/browser checks passed. The user-requested post-release full recovery ZIP passed checksum/archive/isolated startup verification with all nine tables preserved; five verified archives retained privately. Supersedes candidate-only status. [Full release evidence](IMPLEMENTS_RELEASE.md).
