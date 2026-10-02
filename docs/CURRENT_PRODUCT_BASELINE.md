@@ -779,3 +779,6 @@ Shared sidebar, logo home destination, breadcrumbs, module switching and whole-c
 ## Implements oil/grease update - 2026-10-02 (DEC-107 / WF-101)
 
 Scoped candidate restores old consumable quantities for 16 matched active BOMs, with S4.V20 oil/grease PPM pending. Gandhaar 184.62/ltr default, ENI 179/ltr alternative, grease 258.75/kg landed. Item Master 154 parts / 137 priced; active BOMs 17 and catalogue 187 unchanged. Kg/ltr quantities retain 3 decimal precision in BOM, stock, monthly MRP, buffers/extras and supplier POs; pcs remain integer. Sixteen scoped regression tests and native export/isolated browser checks passed. Release/live evidence is maintained in [lubricant release report](IMPLEMENTS_LUBRICANTS.md).
+
+
+**Lubricants publication verified - 2026-10-02 (DEC-107 / WF-101):** Runtime `ff31c40` is healthy; Implements revision 4 retains 187 models/17 active BOMs, with 16 old consumption matches and S4.V20 quantities pending. All 86 checked assets match. Prior module records and main revision 1859/36 orders preserved. [Evidence](IMPLEMENTS_LUBRICANTS.md).

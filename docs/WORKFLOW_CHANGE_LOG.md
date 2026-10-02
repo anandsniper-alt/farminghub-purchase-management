@@ -966,3 +966,6 @@ Purchase prices retains quoted base and shows included transport and effective B
 ## WF-101 - Lubricant consumption to model cost and supplier PO (2026-10-02)
 
 Model BOM -> LUBRICANTS segment -> quantity per machine in ltr/kg -> Purchase prices with base/included transport -> monthly quantity demand minus earliest-month allocated stock -> 10% buffer (upward to whole pcs or 0.001kg/ltr) plus extras -> supplier review PO -> PDF/Excel with units. Explicit zero is excluded; missing quantity stays pending and flagged. Price import checks each item unit; stock/extras retain decimals. Existing saved PO/history/API/revision boundaries are preserved. DEC-107; [verification](IMPLEMENTS_LUBRICANTS.md).
+
+
+**Lubricants publication verified - 2026-10-02 (DEC-107 / WF-101):** Runtime `ff31c40` is healthy; Implements revision 4 retains 187 models/17 active BOMs, with 16 old consumption matches and S4.V20 quantities pending. All 86 checked assets match. Prior module records and main revision 1859/36 orders preserved. [Evidence](IMPLEMENTS_LUBRICANTS.md).
