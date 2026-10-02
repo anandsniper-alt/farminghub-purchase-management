@@ -392,3 +392,6 @@ Use the same Farming Hub logo home control, green/lime Minimal sidebar, typograp
 
 ### RO costing page — DEC-106 (2026-10-02, local)
 Reuse the LAE Import sidebar, money icon, branded Minimal panels, invoice tables, native labelled fields and shared dirty-form/focus/reduced-motion/GSAP behavior. Dense cost tables scroll within labelled regions. Pending status uses text plus established amber badges. No theme, font or mascot change. See RO_COSTINGS.md.
+
+
+**DEC-109 UI note:** Implements costing warning signs use semantic links/buttons with accessible names and explanatory hover titles. Numeric totals and existing branded layout remain prominent. Apply UI-06 and HIG R140; no color-only status and no new sidebar or typography scheme.

@@ -527,3 +527,6 @@ All module shells must reuse web/navigation.mjs and shared Minimal sidebar styli
 ## RO before-GST cost capture — DEC-106 (2026-10-02)
 
 MODULE-SPECIFIC RULE: LAE Import RO costing archive. Preserve exact identifiers and original evidence; multiple invoices within one RO are valid. Divide actual supplier INR plus net bank/forwarder/other expenses plus BCD/SWS by total unique invoice goods USD. Exclude GST and retain face-value extras separately. Customs FX is reference, not payment/final landed conversion. Missing values stay pending; complete coverage requires actual verification, explicit nil amounts where applicable and a reasoned revision. Shared charges must be allocated once on total goods invoice value. Do not import stock or rewrite existing order arrival costing under this module. Scope, CSRF, revisions and audit remain authoritative. See RO_COSTINGS.md.
+
+
+**MODULE-SPECIFIC RULE - Implements costing (DEC-109):** Show numeric calculated current totals with warning signs for missing inputs; keep unknown values null and distinguish current subtotal from complete verified cost. Warning controls must open the relevant missing inputs. Preserve full-cost readiness for downstream sales margins.
