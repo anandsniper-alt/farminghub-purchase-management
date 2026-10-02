@@ -13,7 +13,7 @@ test('page-guide defaults remain off and only a saved boolean true enables them'
  assert.deepEqual(personalPreferences({preferences:{showPageGuides:true}}),{showPageGuides:true});
 });
 test('every active role can change its own guides while all other users and business collections stay unchanged',()=>{
- for(const role of USER_ROLES){const seed=createSeed('2026-09-11'),user=seed.users.find(u=>u.role===role),before=structuredClone(seed),next=execute(seed,{type:'SAVE_PERSONAL_PREFERENCES',payload:{showPageGuides:true}},user).state;
+ for(const role of USER_ROLES){const seed=createSeed('2026-09-11');if(!seed.users.some(u=>u.role===role))seed.users.push({id:'test-'+role,name:'Isolated role fixture',role,scopes:['BOM_MANAGEMENT'],active:true});const user=seed.users.find(u=>u.role===role),before=structuredClone(seed),next=execute(seed,{type:'SAVE_PERSONAL_PREFERENCES',payload:{showPageGuides:true}},user).state;
   assert.deepEqual(seed,before);assert.equal(next.users.find(u=>u.id===user.id).preferences.showPageGuides,true);assert.deepEqual(next.users.filter(u=>u.id!==user.id),before.users.filter(u=>u.id!==user.id));
   for(const key of Object.keys(before).filter(k=>!['users','events','revision'].includes(k)))assert.deepEqual(next[key],before[key],key);
   const event=next.events.at(-1);assert.equal(event.entityId,user.id);assert.equal(event.actorId,user.id);assert.equal(event.action,'PERSONAL_PREFERENCES_UPDATED');assert.deepEqual(event.oldValue,{showPageGuides:false});assert.deepEqual(event.newValue,{showPageGuides:true});assert.deepEqual(next.events.slice(0,-1),before.events);

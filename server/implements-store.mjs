@@ -3,6 +3,7 @@ import {blankState,validateState,ensureMonthly,createOrders} from '../shared/imp
 import {validateSalesState,netMargin} from '../shared/implements/sales-pricing.mjs';
 import {calculateModelCost} from '../shared/implements/costing.mjs';
 import {RuleError,scopeAllowed,canCreate} from '../shared/domain.mjs';
+import {BOM_SCOPE,canApproveBom,assertTechnicalOnly} from '../shared/bom-management.mjs';
 
 export const IMPLEMENTS_SCOPE='IMPLEMENTS_DOMESTIC';
 const digest=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
@@ -34,18 +35,20 @@ export class ImplementsStore{
  CREATE TRIGGER IF NOT EXISTS implements_audit_no_delete BEFORE DELETE ON implements_events BEGIN SELECT RAISE(ABORT,'Implements audit is append-only'); END;
  `);}
  read(){const row=this.db.prepare('SELECT payload FROM implements_workspace WHERE id=1').get();return row?JSON.parse(row.payload):ensureMonthly(blankState({version:'implements-online-v1',models:[],parts:[],suppliers:[]}));}
- save(input,actorId){
-  this.db.exec('BEGIN IMMEDIATE');
+ save(input,actorId,{technical=false,transactionOpen=false}={}){
+  if(!transactionOpen)this.db.exec('BEGIN IMMEDIATE');
   try{
-   const actor=this.store.read().users.find(u=>u.id===actorId);assertImplementsAccess(actor);
-   if(!canWriteImplements(actor))fail('Purchase editing access is required.','FORBIDDEN');
+   const actor=this.store.read().users.find(u=>u.id===actorId);
+   if(technical){if(!scopeAllowed(actor,BOM_SCOPE)||!canApproveBom(actor))fail('BOM approval access is required.','FORBIDDEN');}
+   else {assertImplementsAccess(actor);if(!canWriteImplements(actor))fail('Purchase editing access is required.','FORBIDDEN');}
    if(!Number.isSafeInteger(input?.expectedRevision)||!/^[-\w]{12,120}$/.test(input?.requestId||''))fail('Expected revision and a valid request ID are required.');
    if(typeof input.message!=='string'||!input.message.trim()||input.message.length>1200)fail('Describe the change (maximum 1,200 characters).');
    const previous=this.read(),requestDigest=digest(input),access=JSON.stringify([actor.role,[...(actor.scopes||[])].sort()]);
    const receipt=this.db.prepare('SELECT digest,access FROM implements_events WHERE actor_id=? AND request_id=?').get(actor.id,input.requestId);
-   if(receipt){if(receipt.digest!==requestDigest||receipt.access!==access)fail('Request ID or account access changed. Reload before continuing.','CONFLICT');this.db.exec('COMMIT');return previous;}
+   if(receipt){if(receipt.digest!==requestDigest||receipt.access!==access)fail('Request ID or account access changed. Reload before continuing.','CONFLICT');if(!transactionOpen)this.db.exec('COMMIT');return previous;}
    if(previous.revision!==input.expectedRevision)fail('Another user saved this Implements workspace. Your entries are still on screen. Download your entries if needed, then reload and review the current values before saving.','CONFLICT');
    const next=validate(input.state),initial=!this.db.prepare('SELECT id FROM implements_workspace WHERE id=1').get();
+   if(technical){if(initial)fail('Initialize the Implements workspace before technical review.');try{assertTechnicalOnly(previous,next);}catch(error){fail(error.message);}}
    if(initial&&actor.role!=='ADMIN')fail('An administrator must import the reviewed workspace first.','FORBIDDEN');
    if(!initial){
     prefix(previous.orders,next.orders,'Purchase order');prefix(previous.priceImports,next.priceImports,'Price import');
@@ -74,7 +77,7 @@ export class ImplementsStore{
    next.audit=[...(initial?next.audit:previous.audit),{at,message:input.message,actorId:actor.id,actorName:actor.name,revision:next.revision}];
    this.db.prepare('INSERT INTO implements_events VALUES(?,?,?,?,?,?,?,?,?,?)').run(next.revision,actor.id,at,input.message,JSON.stringify(changes(previous,next)),digest(previous),digest(next),input.requestId,requestDigest,access);
    this.db.prepare('INSERT INTO implements_workspace VALUES(1,?,?) ON CONFLICT(id) DO UPDATE SET revision=excluded.revision,payload=excluded.payload').run(next.revision,JSON.stringify(next));
-   this.db.exec('COMMIT');return next;
-  }catch(error){this.db.exec('ROLLBACK');throw error;}
+   if(!transactionOpen)this.db.exec('COMMIT');return next;
+  }catch(error){if(!transactionOpen)this.db.exec('ROLLBACK');throw error;}
  }
 }

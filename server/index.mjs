@@ -2,6 +2,8 @@ import {downloadRecovery} from './recovery.mjs';
 import {RoCostingStore} from './ro-costing-store.mjs';
 import {ImplementsStore,assertImplementsAccess,canWriteImplements} from './implements-store.mjs';
 import {implementsAssets,implementsExport} from './implements-files.mjs';
+import {BomManagementStore,assertBomAccess} from './bom-management-store.mjs';
+import {bomAssets,exportTechnical} from './bom-management-files.mjs';
 import {domesticImageAsset} from '../shared/domestic.mjs';
 import {scopedRecordReferences,integrationSnapshot} from '../shared/references.mjs';
 /** Isolated local alpha. Never point it at the live VMS/ERP database.
@@ -22,7 +24,7 @@ async function body(req,maxBytes=12*1024*1024){let n=0;const parts=[];for await(
 const cookie=req=>String(req.headers.cookie||'').split(';').map(x=>x.trim()).find(x=>x.startsWith('fh_session='))?.slice(11)||null;
 const ext=s=>'.'+s.split('.').at(-1).toLowerCase();
 const MIME={'.svg':'image/svg+xml','.webmanifest':'application/manifest+json','.mjs':'text/javascript; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.html':'text/html; charset=utf-8','.pdf':'application/pdf','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.webp':'image/webp','.txt':'text/plain','.csv':'text/csv','.eml':'message/rfc822','.docx':'application/vnd.openxmlformats-officedocument.wordprocessingml.document','.xlsx':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'};
-export function makeServer(store,{origin=null,secureCookie=false,releaseSha=process.env.SOURCE_COMMIT||process.env.FH_RELEASE_SHA||null,log=event=>console.log(JSON.stringify(event))}={}){let roCostingStore;const getRoCostings=()=>roCostingStore||(roCostingStore=new RoCostingStore(store));let implementsStore;const getImplements=()=>implementsStore||(implementsStore=new ImplementsStore(store));const attempts=new Map(),release=/^[a-f0-9]{7,64}$/i.test(releaseSha||'')?releaseSha:null;return http.createServer(async(req,res)=>{
+export function makeServer(store,{origin=null,secureCookie=false,releaseSha=process.env.SOURCE_COMMIT||process.env.FH_RELEASE_SHA||null,log=event=>console.log(JSON.stringify(event))}={}){let roCostingStore;const getRoCostings=()=>roCostingStore||(roCostingStore=new RoCostingStore(store));let implementsStore;const getImplements=()=>implementsStore||(implementsStore=new ImplementsStore(store));let bomStore;const getBom=()=>bomStore||(bomStore=new BomManagementStore(store,getImplements()));const attempts=new Map(),release=/^[a-f0-9]{7,64}$/i.test(releaseSha||'')?releaseSha:null;return http.createServer(async(req,res)=>{
  const started=performance.now(),requestId=randomUUID();let route='static';
  res.setHeader('X-Request-ID',requestId);
  res.once('finish',()=>{const durationMs=Math.round(performance.now()-started);if(res.statusCode>=500||durationMs>=1000){try{log({event:'http_request',requestId,method:req.method,route,status:res.statusCode,durationMs});}catch{/* Logging failures must not affect a completed request. */}}});
@@ -34,6 +36,14 @@ export function makeServer(store,{origin=null,secureCookie=false,releaseSha=proc
   if(path==='/api/login'&&req.method==='POST'){const ip=req.socket.remoteAddress;let a=attempts.get(ip)||{count:0,since:Date.now()};if(Date.now()-a.since>60000)a={count:0,since:Date.now()};if(a.count>=10)return json(res,429,{error:'Too many attempts. Wait a minute before signing in.'});const p=await body(req);if(typeof p.email!=='string'||typeof p.password!=='string'||p.email.length>254||p.password.length>256)throw new RuleError('Invalid login request.');const s=store.login(p.email,p.password);if(!s){a.count++;attempts.set(ip,a);return json(res,401,{error:'Invalid credentials or inactive account.'});}attempts.delete(ip);res.setHeader('Set-Cookie',`fh_session=${s.token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=28800${secureCookie?'; Secure':''}`);return json(res,200,{user:s.user});}
   const session=store.session(cookie(req));if(!session)return json(res,401,{error:'Sign in to the local pilot workspace.'});if(write&&req.headers['x-csrf-token']!==session.csrf)throw new RuleError('Session request token is missing or invalid.','FORBIDDEN');
   if(path==='/api/admin/recovery'&&req.method==='POST'){if(session.user.role!=='ADMIN')throw new RuleError('Administrator access is required.','FORBIDDEN');await downloadRecovery(store,res);return;}
+  if(path.startsWith('/api/bom-management/')){
+   assertBomAccess(session.user);const module=getBom();
+   if(path==='/api/bom-management/workspace'&&req.method==='GET')return json(res,200,{...module.read(session.user.id),csrf:session.csrf});
+   if(path==='/api/bom-management/reviews'&&req.method==='GET')return json(res,200,module.reviewPage(session.user.id,{modelId:url.searchParams.get('modelId')||'',status:url.searchParams.get('status')||'',before:url.searchParams.has('before')?Number(url.searchParams.get('before')):null}));
+   if(path==='/api/bom-management/commands'&&req.method==='POST')return json(res,200,module.command(session.user.id,await body(req,2*1024*1024)));
+   if(path.startsWith('/api/bom-management/export/')&&req.method==='POST'){const out=exportTechnical(module.read(session.user.id),await body(req,100000),path.split('/').at(-1));res.writeHead(200,{'Content-Type':out.type,'Content-Disposition':'attachment; filename="'+out.name+'"','Cache-Control':'no-store'});return res.end(out.bytes);}
+   return json(res,404,{error:'Not found.'});
+  }
   if(path.startsWith('/api/ro-costings')){
    const module=getRoCostings(),actorId=session.user.id;
    if(path==='/api/ro-costings'&&req.method==='GET')return json(res,200,module.list(actorId,{q:url.searchParams.get('q')||'',status:url.searchParams.get('status')||'',offset:Number(url.searchParams.get('offset')||0)}));
@@ -75,6 +85,11 @@ export function makeServer(store,{origin=null,secureCookie=false,releaseSha=proc
  }
  if(!['GET','HEAD'].includes(req.method))return json(res,405,{error:'Method not allowed.'});
  if(path==='/mode.js'){res.writeHead(200,{'Content-Type':'text/javascript','Cache-Control':'no-store'});return res.end("window.FH_MODE='server';");}
+ if(path==='/bom'||path.startsWith('/bom/')||path==='/shared/bom-management.mjs'){
+  const session=store.session(cookie(req));if(!session){if(path==='/bom'||path==='/bom/'){res.writeHead(303,{Location:'/#/home'});return res.end();}return json(res,401,{error:'Sign in to view BOM & Syntax.'});}
+  assertBomAccess(session.user);if(path==='/bom'){res.writeHead(303,{Location:'/bom/'});return res.end();}
+  const asset=bomAssets.get(path);if(!asset||!['GET','HEAD'].includes(req.method))return json(res,404,{error:'Not found.'});res.writeHead(200,{'Content-Type':asset.type,'Cache-Control':'private, no-store'});return res.end(req.method==='HEAD'?undefined:readFileSync(asset.file));
+ }
  if(path==='/implements'||path.startsWith('/implements/')||path.startsWith('/shared/implements/')){
   const session=store.session(cookie(req));if(!session){if(path==='/implements'||path==='/implements/'){res.writeHead(303,{Location:'/#/order-management/implements'});return res.end();}return json(res,401,{error:'Sign in to view Implements.'});}
   assertImplementsAccess(session.user);if(path==='/implements'){res.writeHead(303,{Location:'/implements/'});return res.end();}

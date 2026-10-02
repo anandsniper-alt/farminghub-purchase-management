@@ -110,3 +110,8 @@ RO costings is added under LAE Import, after Loading, using the current native a
 
 
 **RO costings published — 2026-10-02:** DEC-106/WF-100 is now live at runtime f1acbb2. Open LAE Import → RO costings. Thirty reviewed records/473 originals imported and verified; actuals stay pending where missing. Main data and concurrent Implements review retained. See ../RO_COSTINGS_RELEASE.md. Supersedes the local-only status above. Active release checkout: `PMS/ro-costings-release`, branch `codex/ro-costings-live`; refresh origin/main before further release work.
+
+
+### 2026-10-02 — Production review module (DEC-110 / WF-104)
+
+Implemented and locally verified in implements-current-cost, branch codex/implements-bom-syntax. Separate /bom/ uses the existing Implements truth through technical-only APIs and protected photos/CSV. Production Reviewer cannot access financial scopes even if assigned accidentally; no actual staff grants made. Components/fabrication/syntax proposal, checking, approval/rejection, history, filters and phone drawer are verified on an isolated actual-data copy. Pending approvals are the default. Indexed reviews use 100-record cursor pages; source aggregate remains bounded and module-wide revision contention is known debt. Recovery/live publication verification still required. Contract: ../BOM_SYNTAX_MANAGEMENT.md.

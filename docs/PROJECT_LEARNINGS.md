@@ -663,3 +663,8 @@ Scope: DOMAIN/MODULE, LAE Import RO costing. Status: implemented and locally ver
 
 
 **DEC-109 / WF-103 - Cost display:** An incomplete costing report can still show its known parts/fabrication/charges sum. Give missing values accessible warning controls without changing their null representation or treating a partial total as a complete financial input. Verify server-generated downloads against authoritative reports, not client-supplied quotes.
+
+
+## 2026-10-02 — Production review confidentiality (DEC-110 / WF-104)
+
+Scope: MODULE/INTEGRATION, shared Implements BOM. Status: implemented and locally verified. A separate production screen must use a server field allowlist and role boundary, not a purchasing payload with hidden columns. Exports, photos, historical comparisons and bootstrap data require the same check. Raw source flags can carry commercial notes; project only technical identity/numeric PPM. Independent price updates should preserve technical proposals/checks, while changed technical item definitions should invalidate them. Prevent accidental financial scopes for the production role. Apply to restricted operational review; this does not change existing commercial approval rules. Tests cover these boundaries and atomic approval.

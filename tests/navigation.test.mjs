@@ -36,3 +36,9 @@ test('existing main, domestic and vendor navigation retains its routes',()=>{
  const nav=createNavigation(host({view:'order-management',orderId:'implements'}));
  assert.match(nav.sidebar(),/data-to="order-management\/implements" aria-current="page"/);
 });
+
+test('production reviewers have only BOM navigation and clickable home; purchasing users need the separate BOM scope',()=>{
+ const make=user=>createNavigation({...host({view:'home'}),context:()=>({ui:{view:'home'},user}),head:()=>'',button:()=>''});
+ const nav=make({role:'BOM_REVIEWER',scopes:['BOM_MANAGEMENT','IMPLEMENTS_DOMESTIC']});assert.match(nav.home(),/href="\/bom\/"/);assert.ok(!nav.home().includes('href="#/order-management"'));assert.ok(!nav.sidebar().includes('value="vms"'));assert.match(nav.sidebar(),/aria-label="Farming Hub home"/);
+ assert.ok(!make({role:'MANAGER',scopes:['IMPLEMENTS_DOMESTIC']}).home().includes('href="/bom/"'));assert.match(make({role:'MANAGER',scopes:['BOM_MANAGEMENT']}).home(),/href="\/bom\/"/);assert.equal(moduleDestination('bom-management'),'/bom/');
+});
