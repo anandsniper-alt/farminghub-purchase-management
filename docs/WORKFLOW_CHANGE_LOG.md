@@ -955,3 +955,7 @@ User reported inconsistent logo/icon clicks and left-column behavior. Implements
 
 
 **Navigation publication verified - 2026-10-02 (DEC-104 / WF-098):** Runtime `5dc831e30df691a8508abe399e8a5765879566ff` is live and healthy. Shared logo/home/sidebar/icon/card navigation passed live browser checks; 334 tests passed. All checked assets match, Implements revision 2 and main revision 1859/36 orders are unchanged, and fresh pre-release recovery/retention passed. [Release evidence](IMPLEMENTS_NAVIGATION_RELEASE.md).
+
+## WF-099 - PTO from editable quote to BOM, MRP and supplier PO (2026-10-02)
+
+Purchase prices retains quoted base and shows included transport and effective BOM/PO price. Each model has 1 selected PTO; MJ for non-Bananovator, Racer TT-35 for Bananovator. Cost calculation, monthly stock allocation and supplier PO use the effective price; priced PDF/Excel show its basis. Model-copy preserves destination PTO. Actual IMP codes stay flagged rather than fabricated. All other BOM, fabrication, charge and planning records are retained; no synthetic order is published. See DEC-105 and [PTO release evidence](IMPLEMENTS_PTO_PRICING.md).

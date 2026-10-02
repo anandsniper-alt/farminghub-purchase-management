@@ -23,6 +23,14 @@ async function setup(){
  return {base,dir,store,mod,call,login,close:async()=>{await new Promise(r=>server.close(r));store.close();rmSync(dir,{recursive:true,force:true});}};
 }
 const payload=(state,message='Reviewed update')=>({state,expectedRevision:state.revision,requestId:randomUUID(),message});
+test('transport-inclusive PO prices are server verified and retained in snapshots',async()=>{
+ const f=await setup();try{
+  const input=fixture();Object.assign(input.parts[0],{rate:3723,transportPercent:5,transportInCost:true});input.models[0].lines[0].ppm=1;
+  let s=f.mod.save(payload(input),'admin');s.plan={'S2.V58':2};s.monthlyPlans[s.activeMonth]=s.plan;s.settings.bufferPercent=0;s.orders=createOrders(s,['IMP-1'],{date:'2026-10-02',quantityOnly:false});
+  assert.equal(s.orders[0].total,7818.3);const bad=structuredClone(s);bad.orders[0].lines[0].purchaseBaseRate=1;assert.throws(()=>f.mod.save(payload(bad),'admin'),/match|reconcile/);
+  s=f.mod.save(payload(s),'admin');const snapshot=structuredClone(s.orders);s.parts[0].rate=4000;s=f.mod.save(payload(s),'admin');assert.deepEqual(s.orders,snapshot);assert.equal(calculateModelCost(s,'S2.V58').rows[0].rate,4200);
+ }finally{await f.close();}
+});
 test('sales snapshots use server-verified costs and current-list changes retain their reason',async()=>{
  const f=await setup();try{
   let s=f.mod.save(payload(fixture()),'admin');saveSalesList(s,{name:'October prices',month:'2026-10',kind:'current',rows:[{modelId:'S2.V58',price:1000}]},{id:'sales-test'});

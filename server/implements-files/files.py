@@ -60,6 +60,7 @@ def pdf(po):
     for l in po['lines']:
         label=(l.get('code') or 'Code pending')+'\n'+l['name']
         if l.get('fabricated'):label+='\nFabrication subassembly (one pc per machine)'
+        if l.get('transportInCost') and priced:label+='\nBase INR '+money(l.get('purchaseBaseRate'))+' + '+n(l.get('purchaseTransportPercent'))+'% transport (included in rate)'
         line=[p(label),n(l['mrp']),n(l['buffer']),n(l['extras']),n(l['orderQty']),n(l.get('weight')) if l.get('weight') is not None else ('Pending' if l.get('fabricated') else '-')]
         if priced:line += [money(l['rate']),l['rateUnit'],money(l['amount'])]
         rows.append(line)

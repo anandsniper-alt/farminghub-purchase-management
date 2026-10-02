@@ -646,3 +646,5 @@ A prototype with browser-local storage requires authoritative identity/revision 
 
 ### Isolated module navigation - DEC-104 / WF-098 (2026-10-02)
 Prototype sidebars drift after integration. Render the main navigation helper inside subpath modules and translate only destinations: scoped hash locally, global /#/ routes externally. Click delegation must resolve closest data-action from SVG children. Make a model card one link rather than a body link plus dead footer. Shared CSS sets --side to zero on phone widths, so off-canvas menu width must be an explicit 230px rather than that desktop layout variable. Validate icon clicks, home-return, module switching, unsaved navigation, phone dismissal and both native/review builds.
+
+**PTO pricing lesson — 2026-10-02:** A transport percentage alone is ambiguous legacy metadata. Require explicit cost inclusion and retain base/transport/effective values in immutable PO snapshots. Apply the same helper to costing and MRP; preserve target-specific PTO on BOM copy. See DEC-105 / WF-099 and IMPLEMENTS_PTO_PRICING.md.

@@ -12,6 +12,14 @@ export function number(v,label,{integer=false,nullable=false,max=1e8}={}){
 export function validDate(value,label='Date'){if(!/^\d{4}-\d{2}-\d{2}$/.test(String(value))||!Number.isFinite(Date.parse(value+'T00:00:00Z'))||new Date(value+'T00:00:00Z').toISOString().slice(0,10)!==value)throw Error(label+' must be a valid calendar date.');return value;}
 export const blankState=seed=>({schema:1,seedVersion:seed.version,revision:0,models:clone(seed.models),parts:clone(seed.parts),suppliers:clone(seed.suppliers),plan:{},stock:{},stockAsOf:'',adjustments:{},orders:[],settings:{fabricationRate:null,fabricationTransportRate:0,bufferPercent:10,buyer:'Farming Hub Private Limited',address:'',gstin:'',phone:''},audit:[]});
 export function fabricationPrice(settings){const baseRate=number(settings.fabricationRate,'Fabrication rate',{nullable:true}),transportRate=number(settings.fabricationTransportRate??0,'Fabrication transport rate');return {baseRate,transportRate,effectiveRate:baseRate==null?null:number(round(baseRate+transportRate,2),'Combined fabrication rate')};}
+// Transport percentages on older price imports are reference-only. Inclusion is explicit.
+export function purchasePrice(part){
+ const baseRate=number(part.rate,'Purchase price',{nullable:true}),transportPercent=part.transportInCost?number(part.transportPercent,'Transport percentage',{nullable:true,max:100}):0;
+ if(!part.transportInCost)return {baseRate,transportPercent:0,transportAmount:baseRate==null?null:0,effectiveRate:baseRate};
+ const transportAmount=baseRate==null||transportPercent==null?null:round(baseRate*transportPercent/100,2);
+ const effectiveRate=transportAmount==null?null:number(round(baseRate+transportAmount,2),'Purchase price including transport');
+ return {baseRate,transportPercent,transportAmount,effectiveRate};
+}
 // User-confirmed 2026-10-01: retain Input Shaft Shield and its PPM in every BOM,
 // but ignore it for fabrication weight/cost. Use its stable identity, not editable names/codes.
 export const fabricationCalculationExcluded=row=>row.partId==='source-row-33';
@@ -27,6 +35,7 @@ function calculatePlan(state){
   if(ppm===0)return;
   let r=items.get(key);
   if(!r){r={key,partId:part.id,code:part.code||'',name:part.name,category:part.category||'',fabricated:!!part.fabricated,supplier:part.supplier||'',demand:0,rate:part.fabricated?fabPrice.effectiveRate:part.rate,rateUnit:part.fabricated?'kg':'pcs',fabricationBaseRate:part.fabricated?fabPrice.baseRate:null,fabricationTransportRate:part.fabricated?fabPrice.transportRate:null,weightPerPiece:weight,children:clone(children),models:[]};items.set(key,r);}
+  if(!part.fabricated){const price=purchasePrice(part);r.rate=price.effectiveRate;if(part.transportInCost)Object.assign(r,{purchaseBaseRate:price.baseRate,purchaseTransportPercent:price.transportPercent,purchaseTransportAmount:price.transportAmount,transportInCost:true});}
   r.demand+=ppm*machines;if(!Number.isSafeInteger(r.demand)||r.demand>1e8)throw Error('Combined item demand exceeds the supported limit of 100 million pcs.');r.models.push({model:model.id,ppm,machines,quantity:ppm*machines});
  }
  for(const [id,raw] of Object.entries(state.plan)){
@@ -129,6 +138,9 @@ export function copyBom(state,targetId,sourceId){
  const target=state.models.find(m=>m.id===targetId),source=state.models.find(m=>m.id===sourceId);
  if(!source?.bomAvailable||!target)throw Error('Choose a model with an existing BOM.');
  const next=clone(target);next.lines=clone(source.lines);next.fabrication=clone(source.fabrication);
+ // Retain the target's confirmed PTO variant when copying a different series' BOM.
+ const ownPto=target.lines.filter(l=>state.parts.find(p=>p.id===l.partId)?.componentFamily==='PTO');
+ if(ownPto.length){next.lines=next.lines.filter(l=>state.parts.find(p=>p.id===l.partId)?.componentFamily!=='PTO');next.lines.push(...clone(ownPto));}
  // Keep target identity/stock keys. Source weights are not evidence for another model.
  const own=new Map(target.fabrication.map(l=>[l.drawingCode||l.name,l]));
  next.fabrication=next.fabrication.map(l=>{const original=own.get(l.drawingCode||l.name);return {...l,weight:original?.weight??null,weightSource:original?.weightSource||'',source:`Copied from ${sourceId}; check model differences`};});
@@ -174,7 +186,7 @@ export function validateState(s){
  number(s.settings.bufferPercent,'Buffer %',{max:1000});fabricationPrice(s.settings);
  for(const m of s.models)validateModel(m,s);
  for(const r of Object.values(s.stock))number(r.qty,'Stock',{integer:true});codeIndex(s);
- for(const p of s.parts){number(p.rate,'Purchase price',{nullable:true});number(p.gstPercent,'GST percentage',{nullable:true,max:100});number(p.transportPercent,'Transport percentage',{nullable:true,max:100});}
+ for(const p of s.parts){number(p.rate,'Purchase price',{nullable:true});number(p.gstPercent,'GST percentage',{nullable:true,max:100});number(p.transportPercent,'Transport percentage',{nullable:true,max:100});if(p.transportInCost!=null&&typeof p.transportInCost!=='boolean')throw Error('Transport inclusion must be a boolean.');purchasePrice(p);}
  if(s.monthlyPlans){validMonth(s.activeMonth);if(!s.monthlyAdjustments||Object.keys(s.monthlyPlans).length>120)throw Error('Monthly planning supports up to 120 saved months.');for(const [month,plan] of Object.entries(s.monthlyPlans)){validMonth(month);calculatePlan({...s,plan,stock:{},adjustments:s.monthlyAdjustments[month]||{}});}}
  calculateMRP(s);return s;
 }

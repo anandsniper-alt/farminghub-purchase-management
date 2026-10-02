@@ -520,3 +520,5 @@ Module data stays separate from Import/Domestic state. Existing login/scope/role
 
 ### Shared navigation - DEC-104 / WF-098 (2026-10-02)
 All module shells must reuse web/navigation.mjs and shared Minimal sidebar styling. Brand logo is a home button for the original Farming Hub application. Preserve global module switcher, account settings and version history; keep module configuration explicitly named. Isolated subpath applications translate global routes to /#/... and local routes to their own hash. Ensure icon children and the complete card hit area invoke the same destination. Preserve dirty forms and mobile navigation accessibility. This supersedes the Implements prototype sidebar exception.
+
+**Implements PTO rule (DEC-105 / WF-099):** 1 PTO/machine; MJ for non-Bananovator and Racer TT-35 for Bananovator. Opted-in PTO transport is included once in cost/MRP/PO; legacy percentages remain reference-only. Base quotes remain editable, actual IMP codes pending, saved PO prices immutable. [Details](IMPLEMENTS_PTO_PRICING.md).

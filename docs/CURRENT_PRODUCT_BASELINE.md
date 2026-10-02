@@ -770,3 +770,5 @@ Shared sidebar, logo home destination, breadcrumbs, module switching and whole-c
 
 
 **Navigation publication verified - 2026-10-02 (DEC-104 / WF-098):** Runtime `5dc831e30df691a8508abe399e8a5765879566ff` is live and healthy. Shared logo/home/sidebar/icon/card navigation passed live browser checks; 334 tests passed. All checked assets match, Implements revision 2 and main revision 1859/36 orders are unchanged, and fresh pre-release recovery/retention passed. [Release evidence](IMPLEMENTS_NAVIGATION_RELEASE.md).
+
+**PTO implementation — 2026-10-02:** Transport-inclusive BOM/MRP/PO pricing and destination-PTO preservation on model-copy are locally verified (12 scoped tests and isolated export/browser checks). The reviewed 187-model data update awaits the publication record in [PTO release](IMPLEMENTS_PTO_PRICING.md). Other module baselines remain unchanged.

@@ -1024,3 +1024,7 @@ Supersedes the prototype sidebar exception in DEC-103. Rejected a second copy of
 
 
 **Navigation publication verified - 2026-10-02 (DEC-104 / WF-098):** Runtime `5dc831e30df691a8508abe399e8a5765879566ff` is live and healthy. Shared logo/home/sidebar/icon/card navigation passed live browser checks; 334 tests passed. All checked assets match, Implements revision 2 and main revision 1859/36 orders are unchanged, and fresh pre-release recovery/retention passed. [Release evidence](IMPLEMENTS_NAVIGATION_RELEASE.md).
+
+## DEC-105 - Confirmed PTO allocation and transport-inclusive pricing (2026-10-02)
+
+MODULE-SPECIFIC RULE. User confirms 1 PTO per machine: MJ TT-38 at INR3723 +5% transport for all except Bananovator, Racer TT-35 at INR5850 +5% for Bananovator, and Racer TT-38 at INR3650 +5% as an alternative master item. Preserve quoted base prices and pending actual Tally codes. An explicit transport-in-cost flag ensures this transport enters BOM/MRP/PO once, while earlier imported percentages remain reference-only. Saved POs retain their price basis. Destination PTO remains when copying a BOM. Pending models remain pending. Existing API/history/permission boundaries and main purchasing data are preserved. See [PTO verification and release](IMPLEMENTS_PTO_PRICING.md).
