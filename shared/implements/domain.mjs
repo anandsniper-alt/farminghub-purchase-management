@@ -1,9 +1,14 @@
-// Isolated local trial. Units: quantities are integer pcs; weights are kg per machine.
+// Quantities: whole pcs; kg/ltr support 3 decimals. Fabrication weights: kg per machine.
 import {validateItemImages} from './item-images.mjs';
 // These pure rules can later be called from the production shared-domain dispatcher.
 export const normalizeCode=v=>String(v??'').trim().toUpperCase().replace(/^IMP[\s-]*0*(\d+)$/,'IMP-$1');
 export const clone=v=>structuredClone(v);
 export const round=(v,d=3)=>Math.round((v+Number.EPSILON)*10**d)/10**d;
+export const quantityUnit=part=>['kg','ltr'].includes(part?.uom)?part.uom:'pcs';
+export function quantity(value,label,part,options={}){
+ const unit=quantityUnit(part),n=number(value,label,{integer:unit==='pcs',...options});
+ if(n==null)return n;if(unit!=='pcs'&&Math.abs(round(n,3)-n)>1e-8)throw Error(label+' supports up to 3 decimal places for '+unit+'.');return n;
+}
 export function number(v,label,{integer=false,nullable=false,max=1e8}={}){
  if(v===''||v===null||v===undefined){if(nullable)return null;throw Error(`${label} is required.`);}
  if(!['number','string'].includes(typeof v)||(typeof v==='string'&&!v.trim()))throw Error(`${label} must be numeric.`);
@@ -33,10 +38,11 @@ function calculatePlan(state){
  function add(key,part,model,ppm,machines,weight=null,children=[]){
   if(ppm==null){issues.push({model:model.id,item:part.name,message:'PPM pending'});return;}
   if(ppm===0)return;
+  ppm=quantity(ppm,'PPM',part,{max:1e6});
   let r=items.get(key);
-  if(!r){r={key,partId:part.id,code:part.code||'',name:part.name,category:part.category||'',fabricated:!!part.fabricated,supplier:part.supplier||'',demand:0,rate:part.fabricated?fabPrice.effectiveRate:part.rate,rateUnit:part.fabricated?'kg':'pcs',fabricationBaseRate:part.fabricated?fabPrice.baseRate:null,fabricationTransportRate:part.fabricated?fabPrice.transportRate:null,weightPerPiece:weight,children:clone(children),models:[]};items.set(key,r);}
+  if(!r){r={key,partId:part.id,code:part.code||'',name:part.name,category:part.category||'',fabricated:!!part.fabricated,supplier:part.supplier||'',demand:0,rate:part.fabricated?fabPrice.effectiveRate:part.rate,rateUnit:part.fabricated?'kg':quantityUnit(part),...(quantityUnit(part)!=='pcs'?{uom:quantityUnit(part)}:{}),fabricationBaseRate:part.fabricated?fabPrice.baseRate:null,fabricationTransportRate:part.fabricated?fabPrice.transportRate:null,weightPerPiece:weight,children:clone(children),models:[]};items.set(key,r);}
   if(!part.fabricated){const price=purchasePrice(part);r.rate=price.effectiveRate;if(part.transportInCost)Object.assign(r,{purchaseBaseRate:price.baseRate,purchaseTransportPercent:price.transportPercent,purchaseTransportAmount:price.transportAmount,transportInCost:true});}
-  r.demand+=ppm*machines;if(!Number.isSafeInteger(r.demand)||r.demand>1e8)throw Error('Combined item demand exceeds the supported limit of 100 million pcs.');r.models.push({model:model.id,ppm,machines,quantity:ppm*machines});
+  r.demand=round(r.demand+ppm*machines,3);if(r.demand>1e8)throw Error('Combined item demand exceeds the supported limit of 100 million units.');r.models.push({model:model.id,ppm,machines,quantity:round(ppm*machines,3)});
  }
  for(const [id,raw] of Object.entries(state.plan)){
   const machines=number(raw,'Planned machines',{integer:true,max:100000});if(!machines)continue;
@@ -49,8 +55,8 @@ function calculatePlan(state){
  }
  const rows=[...items.values()].map(r=>{
   const stockEntry=state.stock[r.key],stock=stockEntry?.qty??0,stockKnown=stockEntry!=null;
-  const mrp=Math.max(0,r.demand-stock),adjust=state.adjustments[r.key]||{},percent=number(adjust.bufferPercent??state.settings.bufferPercent,'Buffer %',{max:1000});
-  const buffer=Math.ceil(round(mrp*percent/100,8)),extras=number(adjust.extras??0,'Extras',{integer:true}),orderQty=mrp+buffer+extras;
+  const mrp=round(Math.max(0,r.demand-stock),3),adjust=state.adjustments[r.key]||{},percent=number(adjust.bufferPercent??state.settings.bufferPercent,'Buffer %',{max:1000});
+  const scale=quantityUnit(r)==='pcs'?1:1000,buffer=Math.ceil(round(mrp*percent/100*scale,8))/scale,extras=quantity(adjust.extras??0,'Extras',r),orderQty=round(mrp+buffer+extras,3);
   const weight=r.fabricated&&r.weightPerPiece!=null?round(orderQty*r.weightPerPiece,6):null;
   const amount=r.rate==null||(r.fabricated&&weight==null)?null:Math.round((r.fabricated?weight:orderQty)*r.rate*100)/100;
   return {...r,stock,stockKnown,mrp,bufferPercent:percent,buffer,extras,orderQty,weight,amount,supplier:adjust.supplier??r.supplier};
@@ -72,10 +78,10 @@ export function calculateMRP(state,month=state.activeMonth){
  for(const earlier of Object.keys(plans).filter(m=>m<month).sort()){
   const prior=calculatePlan({...state,plan:plans[earlier],stock:{},adjustments:{}});
   priorIssues.push(...prior.issues.map(i=>({...i,message:`Earlier month ${earlier}: ${i.message}; stock allocation may change when completed`})));
-  for(const row of prior.rows){if(!stock[row.key])continue;const consume=Math.min(stock[row.key].qty,row.demand);stock[row.key].qty-=consume;used[row.key]=(used[row.key]||0)+consume;}
+  for(const row of prior.rows){if(!stock[row.key])continue;const consume=Math.min(stock[row.key].qty,row.demand);stock[row.key].qty=round(stock[row.key].qty-consume,3);used[row.key]=round((used[row.key]||0)+consume,3);}
  }
  const report=calculatePlan({...state,plan:plans[month]||{},stock,adjustments:month===state.activeMonth?state.adjustments:state.monthlyAdjustments[month]||{}});
- return {...report,issues:[...report.issues,...priorIssues],month,stockAllocation:'Earliest planned month first; only existing stock carries forward',rows:report.rows.map(row=>({...row,originalStock:state.stock[row.key]?.qty??0,stockUsedEarlier:used[row.key]||0,closingStock:Math.max(0,row.stock-row.demand)}))};
+ return {...report,issues:[...report.issues,...priorIssues],month,stockAllocation:'Earliest planned month first; only existing stock carries forward',rows:report.rows.map(row=>({...row,originalStock:state.stock[row.key]?.qty??0,stockUsedEarlier:used[row.key]||0,closingStock:round(Math.max(0,row.stock-row.demand),3)}))};
 }
 export function pricePercent(value,label){if(value==null||value==='')return null;if(typeof value==='boolean')throw Error(label+' must be numeric.');const raw=typeof value==='string'?value.trim().replace(/%$/,''):value,percent=typeof raw==='number'&&raw<=1?raw*100:raw;return round(number(percent,label,{max:100}),6);}
 export function previewPrices(state,rows,codeColumn,rateColumn,{headerRow=0,unitColumn=-1,supplier='',supplierColumn=-1,gstColumn=-1,transportColumn=-1}={}){
@@ -91,9 +97,9 @@ export function previewPrices(state,rows,codeColumn,rateColumn,{headerRow=0,unit
   const key=index.get(code),part=state.parts.find(p=>p.id===key);
   if(!part||part.fabricated){errors.push({row:i+1,code,message:'Fabrication uses the common INR/kg rate in Purchase prices'});continue;}
   try{
-   const unit=unitColumn<0?'pcs':String(row[unitColumn]??'').trim().toLowerCase();if(!['pcs','pc','piece','pieces','nos','no','each','ea'].includes(unit))throw Error('Price unit must be pcs; kg/set/box rates need conversion before import');
+   const unit=unitColumn<0?quantityUnit(part):String(row[unitColumn]??'').trim().toLowerCase(),aliases={pcs:['pcs','pc','piece','pieces','nos','no','each','ea'],kg:['kg','kgs','kilogram','kilograms'],ltr:['ltr','l','litre','litres','liter','liters']};if(!aliases[quantityUnit(part)].includes(unit))throw Error('Price unit must match this item: '+quantityUnit(part));
    const raw=row[rateColumn];if(typeof raw==='boolean')throw Error('Enter a numeric purchase price');let value=raw;
-   if(typeof raw==='string'){value=raw.trim().replace(/^(?:₹|INR\s*|Rs\.?\s*)/i,'').trim();if(!/^(?:\d+|\d{1,3}(?:,\d{2,3})+)(?:\.\d+)?$/.test(value))throw Error('Enter a numeric price in INR per piece');value=value.replaceAll(',','');}
+   if(typeof raw==='string'){value=raw.trim().replace(/^(?:₹|INR\s*|Rs\.?\s*)/i,'').trim();if(!/^(?:\d+|\d{1,3}(?:,\d{2,3})+)(?:\.\d+)?$/.test(value))throw Error('Enter a numeric price in INR per '+quantityUnit(part));value=value.replaceAll(',','');}
    let rowSupplier=supplier||part.supplier||'';
    if(!supplier&&supplierColumn>=0){const vendor=String(row[supplierColumn]??'').trim().toUpperCase(),found=state.suppliers.find(s=>s.id.toUpperCase()===vendor||s.name.toUpperCase()===vendor);if(!found)throw Error('Supplier name is missing or unmatched');rowSupplier=found.id;}
    const metadata={};if(gstColumn>=0)metadata.gstPercent=pricePercent(row[gstColumn],'GST percentage');if(transportColumn>=0)metadata.transportPercent=pricePercent(row[transportColumn],'Transport percentage');
@@ -122,7 +128,7 @@ export function previewStock(state,rows,codeColumn,qtyColumn,headerRow=0){
   const code=normalizeCode(row[codeColumn]);if(!code){errors.push({row:i+1,code:'',message:'Item code missing'});continue;}
   if(seen.has(code)){const prior=matched.findIndex(m=>m.code===code);if(prior>=0){const removed=matched.splice(prior,1)[0];errors.push({row:removed.row,code,message:'Duplicate code; combine stock rows before importing'});}errors.push({row:i+1,code,message:'Duplicate code; combine stock rows before importing'});continue;}seen.add(code);
   if(!index.has(code)){errors.push({row:i+1,code,message:'Unmatched code'});continue;}
-  try{const qty=number(row[qtyColumn],`Stock at row ${i+1}`,{integer:true});matched.push({key:index.get(code),code,qty,row:i+1});}catch(e){errors.push({row:i+1,code,message:e.message});}
+  try{const key=index.get(code),p=state.parts.find(p=>p.id===key),qty=quantity(row[qtyColumn],`Stock at row ${i+1}`,p);matched.push({key,code,qty,row:i+1});}catch(e){errors.push({row:i+1,code,message:e.message});}
  }
  return {matched,errors};
 }
@@ -150,7 +156,7 @@ export function validateModel(model,state){
  if(!Array.isArray(model.lines)||!Array.isArray(model.fabrication)||model.lines.length>5000||model.fabrication.length>5000)throw Error('Invalid model component list.');
  for(const value of Object.values(model.costs||{}))number(value,'Additional cost',{nullable:true});
  const ids=new Set(state.parts.map(p=>p.id)),seen=new Set();
- for(const l of model.lines){if(!ids.has(l.partId)||seen.has(l.partId))throw Error('BOM contains an unknown or duplicate component.');seen.add(l.partId);l.ppm=number(l.ppm,'PPM',{integer:true,nullable:true,max:1e6});}
+ for(const l of model.lines){if(!ids.has(l.partId)||seen.has(l.partId))throw Error('BOM contains an unknown or duplicate component.');seen.add(l.partId);l.ppm=quantity(l.ppm,'PPM',state.parts.find(p=>p.id===l.partId),{nullable:true,max:1e6});}
  for(const l of model.fabrication){l.ppm=number(l.ppm,'Fabricated PPM',{integer:true,nullable:true,max:1e6});l.weight=number(l.weight,'Weight per machine',{nullable:true,max:1e5});}
  if(model.fabricationCode){const candidate=clone(state);candidate.models=candidate.models.map(m=>m.id===model.id?model:m);codeIndex(candidate);}
  return model;
@@ -163,12 +169,12 @@ export function createOrders(state,selectedKeys,{date,delivery='',notes='',quant
  for(const row of rows){if(!row.supplier||!state.suppliers.some(s=>s.id===row.supplier))throw Error(`Assign a supplier for ${row.code||row.name}.`);if(!quantityOnly&&row.amount==null)throw Error(`Price or weight pending for ${row.code||row.name}. Use a quantity-only PO or complete the value.`);}
  const groups=new Map();for(const row of rows){if(!groups.has(row.supplier))groups.set(row.supplier,[]);groups.get(row.supplier).push(clone(row));}
  let n=Math.max(state.orders.length,...state.orders.map(po=>Number(String(po.id).match(/^FH-IMP-PO-(\d+)$/)?.[1]||0)));
- return [...groups].map(([supplier,lines])=>({id:`FH-IMP-PO-${String(++n).padStart(4,'0')}`,date,delivery,notes,planningMonth:state.activeMonth||'',stockAllocation:report.stockAllocation||'',quantityOnly,status:'Saved review PO',createdAt:new Date().toISOString(),supplier:clone(state.suppliers.find(s=>s.id===supplier)),buyer:clone(state.settings),lines,total:quantityOnly?null:round(lines.reduce((a,l)=>a+l.amount,0),2),plan:clone(state.plan),warnings:clone(report.issues),stockAsOf:state.stockAsOf,bufferRule:'10% default on net MRP, rounded up to whole pcs; per-item overrides shown',snapshot:true}));
+ return [...groups].map(([supplier,lines])=>({id:`FH-IMP-PO-${String(++n).padStart(4,'0')}`,date,delivery,notes,planningMonth:state.activeMonth||'',stockAllocation:report.stockAllocation||'',quantityOnly,status:'Saved review PO',createdAt:new Date().toISOString(),supplier:clone(state.suppliers.find(s=>s.id===supplier)),buyer:clone(state.settings),lines,total:quantityOnly?null:round(lines.reduce((a,l)=>a+l.amount,0),2),plan:clone(state.plan),warnings:clone(report.issues),stockAsOf:state.stockAsOf,bufferRule:lines.some(l=>quantityUnit(l)!=='pcs')?'10% default on net MRP; whole pcs or 3 decimal places for kg/ltr; per-item overrides shown':'10% default on net MRP, rounded up to whole pcs; per-item overrides shown',snapshot:true}));
 }
 export function validateOrder(po){
  if(!po?.id||!Array.isArray(po.lines)||!po.lines.length||po.lines.length>1000||!po.supplier?.name||!po.buyer||typeof po.quantityOnly!=='boolean')throw Error('Invalid saved purchase order.');
  validDate(po.date,'PO date');if(po.delivery){validDate(po.delivery,'Delivery date');if(po.delivery<po.date)throw Error('Delivery date cannot be before the PO date.');}
- for(const l of po.lines){for(const key of ['mrp','buffer','extras','orderQty'])number(l[key],'PO '+key,{integer:true});if(l.mrp+l.buffer+l.extras!==l.orderQty)throw Error('Purchase order quantities do not reconcile.');if(!po.quantityOnly){number(l.rate,'PO rate');number(l.amount,'PO amount');const basis=l.fabricated?number(l.weight,'PO weight'):l.orderQty;if(Math.abs(round(basis*l.rate,2)-l.amount)>.011)throw Error('Purchase order amount does not reconcile.');}}
+ for(const l of po.lines){for(const key of ['mrp','buffer','extras','orderQty'])quantity(l[key],'PO '+key,l);if(round(l.mrp+l.buffer+l.extras,3)!==l.orderQty)throw Error('Purchase order quantities do not reconcile.');if(!po.quantityOnly){number(l.rate,'PO rate');number(l.amount,'PO amount');const basis=l.fabricated?number(l.weight,'PO weight'):l.orderQty;if(Math.abs(round(basis*l.rate,2)-l.amount)>.011)throw Error('Purchase order amount does not reconcile.');}}
  if(!po.quantityOnly){number(po.total,'PO total');if(Math.abs(round(po.lines.reduce((a,l)=>a+l.amount,0),2)-po.total)>.011)throw Error('Purchase order total does not reconcile.');}return po;
 }
 export function validateState(s){
@@ -180,12 +186,12 @@ export function validateState(s){
  number(s.revision,'Workspace revision',{integer:true});if(!Array.isArray(s.audit))throw Error('Workspace audit history is missing.');
  const stockKeys=new Set([...s.parts.filter(p=>!p.fabricated).map(p=>p.id),...s.models.map(m=>'fab:'+m.id)]),suppliers=new Set(s.suppliers.map(x=>x.id));
  for(const key of Object.keys(s.stock))if(!stockKeys.has(key))throw Error('Unknown stock item '+key);
- const adjustments=values=>{for(const [key,r] of Object.entries(values)){if(!stockKeys.has(key))throw Error('Unknown purchase adjustment item.');if(r.extras!=null)number(r.extras,'Extras',{integer:true});if(r.bufferPercent!=null)number(r.bufferPercent,'Buffer %',{max:1000});if(r.supplier&&!suppliers.has(r.supplier))throw Error('Unknown adjustment supplier.');}};
+ const adjustments=values=>{for(const [key,r] of Object.entries(values)){if(!stockKeys.has(key))throw Error('Unknown purchase adjustment item.');if(r.extras!=null)quantity(r.extras,'Extras',s.parts.find(p=>p.id===key));if(r.bufferPercent!=null)number(r.bufferPercent,'Buffer %',{max:1000});if(r.supplier&&!suppliers.has(r.supplier))throw Error('Unknown adjustment supplier.');}};
  adjustments(s.adjustments);for(const values of Object.values(s.monthlyAdjustments||{}))adjustments(values);
  if(new Set(s.orders.map(o=>o.id)).size!==s.orders.length)throw Error('Duplicate purchase order identity.');for(const po of s.orders)validateOrder(po);
  number(s.settings.bufferPercent,'Buffer %',{max:1000});fabricationPrice(s.settings);
  for(const m of s.models)validateModel(m,s);
- for(const r of Object.values(s.stock))number(r.qty,'Stock',{integer:true});codeIndex(s);
+ for(const [key,r] of Object.entries(s.stock))quantity(r.qty,'Stock',s.parts.find(p=>p.id===key));codeIndex(s);
  for(const p of s.parts){number(p.rate,'Purchase price',{nullable:true});number(p.gstPercent,'GST percentage',{nullable:true,max:100});number(p.transportPercent,'Transport percentage',{nullable:true,max:100});if(p.transportInCost!=null&&typeof p.transportInCost!=='boolean')throw Error('Transport inclusion must be a boolean.');purchasePrice(p);}
  if(s.monthlyPlans){validMonth(s.activeMonth);if(!s.monthlyAdjustments||Object.keys(s.monthlyPlans).length>120)throw Error('Monthly planning supports up to 120 saved months.');for(const [month,plan] of Object.entries(s.monthlyPlans)){validMonth(month);calculatePlan({...s,plan,stock:{},adjustments:s.monthlyAdjustments[month]||{}});}}
  calculateMRP(s);return s;

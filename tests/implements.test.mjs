@@ -23,6 +23,15 @@ async function setup(){
  return {base,dir,store,mod,call,login,close:async()=>{await new Promise(r=>server.close(r));store.close();rmSync(dir,{recursive:true,force:true});}};
 }
 const payload=(state,message='Reviewed update')=>({state,expectedRevision:state.revision,requestId:randomUUID(),message});
+test('server retains kg/litre orders and rejects altered unit or quantity snapshots',async()=>{
+ const f=await setup();try{
+  const input=fixture();Object.assign(input.parts[0],{name:'Grease',uom:'kg',rate:258.75});input.models[0].lines[0].ppm=0.4;
+  let s=f.mod.save(payload(input),'admin');s.plan={'S2.V58':2};s.monthlyPlans[s.activeMonth]=s.plan;s.settings.bufferPercent=10;s.stock={'IMP-1':{qty:0.1}};s.adjustments={'IMP-1':{extras:0.07}};s.orders=createOrders(s,['IMP-1'],{date:'2026-10-02',quantityOnly:false});
+  assert.equal(s.orders[0].lines[0].orderQty,0.84);assert.equal(s.orders[0].total,217.35);
+  const wrong=structuredClone(s);wrong.orders[0].lines[0].uom='ltr';assert.throws(()=>f.mod.save(payload(wrong),'admin'),/match/);
+  s=f.mod.save(payload(s),'admin');const snapshot=structuredClone(s.orders);s.parts[0].rate=300;s=f.mod.save(payload(s),'admin');assert.deepEqual(s.orders,snapshot);assert.equal(calculateModelCost(s,'S2.V58').rows[0].amount,120);
+ }finally{await f.close();}
+});
 test('transport-inclusive PO prices are server verified and retained in snapshots',async()=>{
  const f=await setup();try{
   const input=fixture();Object.assign(input.parts[0],{rate:3723,transportPercent:5,transportInCost:true});input.models[0].lines[0].ppm=1;

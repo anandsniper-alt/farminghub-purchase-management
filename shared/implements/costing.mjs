@@ -1,4 +1,4 @@
-import {number,round,fabricationTotals,fabricationPrice,purchasePrice} from './domain.mjs';
+import {number,round,fabricationTotals,fabricationPrice,purchasePrice,quantity,quantityUnit} from './domain.mjs';
 
 const amount=(quantity,rate)=>{
  const value=round(quantity*rate,2);
@@ -13,9 +13,9 @@ export function calculateModelCost(state,id){
  const parts=new Map(state.parts.map(p=>[p.id,p]));
  const rows=m.lines.map(l=>{
   const p=parts.get(l.partId);if(!p)throw Error('Missing component '+l.partId);
-  const ppm=number(l.ppm,'PPM',{nullable:true,integer:true,max:1000000}),price=purchasePrice(p),rate=price.effectiveRate;
+  const ppm=quantity(l.ppm,'PPM',p,{nullable:true,max:1000000}),price=purchasePrice(p),rate=price.effectiveRate;
   const pending=[];if(ppm==null)pending.push('PPM pending');if(ppm!==0&&rate==null)pending.push('Price pending');
-  return {id:p.id,code:p.code||'',name:p.name,segment:p.category||'Other components',kind:'part',type:'Non-fabricated',supplier:p.supplier||'',ppm,unit:'pcs',rate,...(p.transportInCost?{purchaseBaseRate:price.baseRate,purchaseTransportPercent:price.transportPercent,transportInCost:true}:{}),weight:null,amount:ppm===0?0:pending.length?null:amount(ppm,rate),status:ppm===0?'Excluded · PPM 0':pending.join(' · ')||'Complete',pending};
+  return {id:p.id,code:p.code||'',name:p.name,segment:p.category||'Other components',kind:'part',type:'Non-fabricated',supplier:p.supplier||'',ppm,unit:quantityUnit(p),rate,...(p.transportInCost?{purchaseBaseRate:price.baseRate,purchaseTransportPercent:price.transportPercent,transportInCost:true}:{}),weight:null,amount:ppm===0?0:pending.length?null:amount(ppm,rate),status:ppm===0?'Excluded · PPM 0':pending.join(' · ')||'Complete',pending};
  });
  const weight=fabricationTotals(m),fabPrice=fabricationPrice(state.settings),fabRate=fabPrice.effectiveRate,fabPending=[];
  if(!m.fabrication.length)fabPending.push('Fabrication BOM pending');

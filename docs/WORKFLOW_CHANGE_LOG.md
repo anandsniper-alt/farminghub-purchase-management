@@ -961,3 +961,8 @@ User reported inconsistent logo/icon clicks and left-column behavior. Implements
 Purchase prices retains quoted base and shows included transport and effective BOM/PO price. Each model has 1 selected PTO; MJ for non-Bananovator, Racer TT-35 for Bananovator. Cost calculation, monthly stock allocation and supplier PO use the effective price; priced PDF/Excel show its basis. Model-copy preserves destination PTO. Actual IMP codes stay flagged rather than fabricated. All other BOM, fabrication, charge and planning records are retained; no synthetic order is published. See DEC-105 and [PTO release evidence](IMPLEMENTS_PTO_PRICING.md).
 
 **PTO publication verified — 2026-10-02 (DEC-105 / WF-099):** Runtime 644b0e8 and online Implements revision 3 verified. MJ INR3909.15 applies to 184 models, Racer TT-35 INR6142.50 to three Bananovators; 1 pc each. Base quotes remain editable and transport included once. Prior data/main purchasing preserved. [Evidence](IMPLEMENTS_PTO_PRICING.md).
+
+
+## WF-101 - Lubricant consumption to model cost and supplier PO (2026-10-02)
+
+Model BOM -> LUBRICANTS segment -> quantity per machine in ltr/kg -> Purchase prices with base/included transport -> monthly quantity demand minus earliest-month allocated stock -> 10% buffer (upward to whole pcs or 0.001kg/ltr) plus extras -> supplier review PO -> PDF/Excel with units. Explicit zero is excluded; missing quantity stays pending and flagged. Price import checks each item unit; stock/extras retain decimals. Existing saved PO/history/API/revision boundaries are preserved. DEC-107; [verification](IMPLEMENTS_LUBRICANTS.md).

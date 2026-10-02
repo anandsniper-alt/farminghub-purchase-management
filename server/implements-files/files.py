@@ -55,11 +55,13 @@ def pdf(po):
     info=Table([[p('SUPPLIER\n'+supplier['name']+'\n'+supplier.get('address','')+'\nGSTIN: '+(supplier.get('gstin') or 'Pending')+'\n'+supplier.get('phone','')),p('BUYER\n'+buyer.get('buyer','')+'\n'+buyer.get('address','')+'\nGSTIN: '+(buyer.get('gstin') or 'Pending')),p('PO date: '+po['date']+'\nDelivery: '+(po.get('delivery') or 'To be agreed')+'\nPlan month: '+(po.get('planningMonth') or 'Not assigned')+'\nStock date: '+(po.get('stockAsOf') or 'Not supplied'))]],colWidths=[300,290,188])
     info.setStyle(TableStyle([('VALIGN',(0,0),(-1,-1),'TOP'),('BACKGROUND',(0,0),(-1,-1),colors.HexColor('#f2f5dd')),('TOPPADDING',(0,0),(-1,-1),10),('BOTTOMPADDING',(0,0),(-1,-1),10)]));story.extend([info,Spacer(1,16)])
     priced=not po['quantityOnly']
-    heads=['Item code / component','MRP\npcs','Buffer\npcs','Extras\npcs','Order\npcs','Weight\nkg']+(['Rate INR','Basis','Amount INR'] if priced else [])
+    mixed=any(l.get('uom') in ('ltr','kg') for l in po['lines'])
+    heads=['Item code / component','MRP\nqty' if mixed else 'MRP\npcs','Buffer\nqty' if mixed else 'Buffer\npcs','Extras\nqty' if mixed else 'Extras\npcs','Order\nqty' if mixed else 'Order\npcs','Weight\nkg']+(['Rate INR','Basis','Amount INR'] if priced else [])
     rows=[[p(h,'WhiteCell') for h in heads]]
     for l in po['lines']:
         label=(l.get('code') or 'Code pending')+'\n'+l['name']
         if l.get('fabricated'):label+='\nFabrication subassembly (one pc per machine)'
+        if mixed:label+='\nQuantity unit: '+l.get('uom','pcs')
         if l.get('transportInCost') and priced:label+='\nBase INR '+money(l.get('purchaseBaseRate'))+' + '+n(l.get('purchaseTransportPercent'))+'% transport (included in rate)'
         line=[p(label),n(l['mrp']),n(l['buffer']),n(l['extras']),n(l['orderQty']),n(l.get('weight')) if l.get('weight') is not None else ('Pending' if l.get('fabricated') else '-')]
         if priced:line += [money(l['rate']),l['rateUnit'],money(l['amount'])]

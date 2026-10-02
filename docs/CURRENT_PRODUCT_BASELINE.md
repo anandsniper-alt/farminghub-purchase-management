@@ -774,3 +774,8 @@ Shared sidebar, logo home destination, breadcrumbs, module switching and whole-c
 **PTO implementation — 2026-10-02:** Transport-inclusive BOM/MRP/PO pricing and destination-PTO preservation on model-copy are locally verified (12 scoped tests and isolated export/browser checks). The reviewed 187-model data update awaits the publication record in [PTO release](IMPLEMENTS_PTO_PRICING.md). Other module baselines remain unchanged.
 
 **PTO live baseline — 2026-10-02:** DEC-105 / WF-099 is published at runtime 644b0e8 and Implements revision 3; all 187 allocations and three prices verified. Actual Tally codes are flagged. Main revision 1859/36 orders and unrelated data are unchanged. [Release evidence](IMPLEMENTS_PTO_PRICING.md).
+
+
+## Implements oil/grease update - 2026-10-02 (DEC-107 / WF-101)
+
+Scoped candidate restores old consumable quantities for 16 matched active BOMs, with S4.V20 oil/grease PPM pending. Gandhaar 184.62/ltr default, ENI 179/ltr alternative, grease 258.75/kg landed. Item Master 154 parts / 137 priced; active BOMs 17 and catalogue 187 unchanged. Kg/ltr quantities retain 3 decimal precision in BOM, stock, monthly MRP, buffers/extras and supplier POs; pcs remain integer. Sixteen scoped regression tests and native export/isolated browser checks passed. Release/live evidence is maintained in [lubricant release report](IMPLEMENTS_LUBRICANTS.md).
