@@ -388,3 +388,7 @@ Apply [UI_UX_RULEBOOK.md](standards/UI_UX_RULEBOOK.md) for future screens. It ma
 
 ### Implements shared shell - DEC-104 (2026-10-02)
 Use the same Farming Hub logo home control, green/lime Minimal sidebar, typography, spacing and global module switcher as the main application. Reuse shared styles/navigation; retain module-specific tables and existing product images. The logo returns to the original Farming Hub home, not a local catalogue.
+
+
+### RO costing page — DEC-106 (2026-10-02, local)
+Reuse the LAE Import sidebar, money icon, branded Minimal panels, invoice tables, native labelled fields and shared dirty-form/focus/reduced-motion/GSAP behavior. Dense cost tables scroll within labelled regions. Pending status uses text plus established amber badges. No theme, font or mascot change. See RO_COSTINGS.md.

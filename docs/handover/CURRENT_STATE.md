@@ -99,3 +99,11 @@ DEC-104 / WF-098 replace the prototype sidebar with the main Farming Hub navigat
 **PTO update (2026-10-02, DEC-105 / WF-099):** [Pricing and verification](../IMPLEMENTS_PTO_PRICING.md). Quoted base plus explicit included transport drives BOM/MRP/PO and sales costs; destination selection survives model-copy. Actual Tally codes remain pending. Publication status is maintained in that release record.
 
 **PTO publication verified:** Runtime 644b0e8, Implements revision 3, all 187 assignments and preserved main revision 1859/36 orders. [Full evidence](../IMPLEMENTS_PTO_PRICING.md).
+
+
+### 2026-10-02 RO costings local implementation — DEC-106 / WF-100
+
+RO costings is added under LAE Import, after Loading, using the current native application and shared shell. Independent RO records, actual before-GST workings, source flags, protected individual evidence, separate Suresh rates, revisions/history and bounded private imports are implemented. Local refresh: 30 exact ROs/473 evidence files; all record values and document bodies verified. Missing actual payment/expense coverage keeps all final rates pending. Existing main purchasing/Implements aggregates are not migrated. Both server and standalone browser flows verified. Not published. Next step: review local module, then follow mandatory recovery/deployment gates before production and private data import. Full contract: ../RO_COSTINGS.md.
+
+
+**2026-10-02 important-document clarification:** DEC-106 document follow-up: important CI/inward-BOE panel is implemented above workings, with missing status, authenticated PDF viewing and upload roles. Local preview now includes original document access; production remains unpublished.

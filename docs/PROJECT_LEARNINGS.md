@@ -653,3 +653,10 @@ Prototype sidebars drift after integration. Render the main navigation helper in
 ## 2026-10-02 - Restore consumables without changing physical-part rules
 
 Old consumption and price basis must be traced separately: zero grease is an explicit exclusion, absent model quantity is pending, and the old grease rate 250 x1.035 already includes its expense. Extend quantities by item unit throughout costing, stock allocation, buffer rounding and PO validation/export; changing only the input would leave whole-piece rounding downstream. Mixed-unit Excel needs 3-decimal quantity display and explicit units. Isolated preview verified0.225kg edit saves and recalculates58.22. Preserve existing pcs snapshots and unrelated transport imports.
+
+
+## RO cost capture — DEC-106 / WF-100 (2026-10-02)
+
+Scope: DOMAIN/MODULE, LAE Import RO costing. Status: implemented and locally verified. Keep customs FX, actual supplier payment and final landed INR/USD as distinct values. Reference/proforma charges retained in a document ledger must not be automatically added to manually confirmed actual workings. Goods USD is unique supplier-invoice goods value, excluding face-value extras; shared loading charges enter once. Missing amounts/currency/coverage remain pending, with explicit nil and a verification explanation. Use a separately paginated per-RO resource instead of expanding the main aggregate with document history. Private imports need exact RO folder containment, checksums, stable retries and review before overwriting changed financial records. Applies to recurring import cost capture; does not authorize stock imports, payment execution or holding-cost rules.
+
+**DEC-106 / WF-100 evidence classification lesson:** An agent named on a document can be its customer rather than its issuer. Verify issuer/payment beneficiary and bill-to before assigning an important role. An overseas-agent debit note to Future Consol and a carrier tax invoice to Future Consol do not replace Future Consol's bill to Farming Hub. Retain provisional status and immutable originals; append reasoned checksum-bound classification corrections independently of money revisions.

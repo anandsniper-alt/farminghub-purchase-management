@@ -782,3 +782,8 @@ Scoped candidate restores old consumable quantities for 16 matched active BOMs, 
 
 
 **Lubricants publication verified - 2026-10-02 (DEC-107 / WF-101):** Runtime `ff31c40` is healthy; Implements revision 4 retains 187 models/17 active BOMs, with 16 old consumption matches and S4.V20 quantities pending. All 86 checked assets match. Prior module records and main revision 1859/36 orders preserved. [Evidence](IMPLEMENTS_LUBRICANTS.md).
+
+
+## 2026-10-02 RO costing local addition — DEC-106 / WF-100
+
+New shared-shell LAE Import RO costings page: invoice/expense workings before GST, separate AI/Suresh conversions, exact RO archive with authenticated evidence, pending flags, reasoned versions, atomic private imports and pagination. Per-RO SQLite resources preserve main/Implements data. Thirty current refresh records and 473 files are imported and hash verified in local ignored storage; final rates remain pending because actual payment/expense coverage is incomplete. Both server/review browser modes checked. This addition is not published; runtime 644b0e8 remains the last verified live application. See RO_COSTINGS.md.

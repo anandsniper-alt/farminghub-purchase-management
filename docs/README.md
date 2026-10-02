@@ -31,6 +31,8 @@ Earlier documents contain dated “current”, “candidate” and “published�
 
 ## Module entry points
 
+- [RO costings](RO_COSTINGS.md): before-GST RO costing, protected important documents and separate AI/Suresh workings.
+
 - Import: [Manager workflow](MANAGER_WORKFLOW.md), [approval administration](ADMINISTRATION.md), [process exemptions](PROCESS_EXEMPTIONS.md), [arrival costing](ARRIVAL_COSTING.md), [references](ERP_REFERENCE_FOUNDATION.md).
 - Domestic: [PO guide and release history](DOMESTIC_PO_RELEASE_REPORT.md), [assembly comparison](DOMESTIC_ASSEMBLY_COMPARISON_REPORT.md), [quotation comparison](DOMESTIC_PRICE_COMPARISON_REPORT.md).
 - VMS: [module contract](VMS_MODULE.md), [parity boundaries](VMS_PARITY_REPORT.md), [workflow audit](VMS_WORKFLOW_AUDIT.md).

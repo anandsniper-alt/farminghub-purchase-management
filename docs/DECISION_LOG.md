@@ -1038,3 +1038,23 @@ MODULE-SPECIFIC RULE. User selects Gandhaar oil INR181/ltr +2% transport =184.62
 
 
 **Lubricants publication verified - 2026-10-02 (DEC-107 / WF-101):** Runtime `ff31c40` is healthy; Implements revision 4 retains 187 models/17 active BOMs, with 16 old consumption matches and S4.V20 quantities pending. All 86 checked assets match. Prior module records and main revision 1859/36 orders preserved. [Evidence](IMPLEMENTS_LUBRICANTS.md).
+
+
+## DEC-106 — RO cost capture and evidence module (2026-10-02)
+
+Status: IMPLEMENTED and locally verified; not published. MODULE-SPECIFIC RULE. User requested integration of the prepared RO costings into the import purchase website. Extend native ESM/HTTP/SQLite with a shared-shell LAE Import RO costings page. Keep exact RO identities, multiple supplier invoices, actual before-GST INR workings, AI/Suresh comparisons and protected separate documents. Final rate uses total unique goods USD and verified actual INR costs; missing actuals/currency/coverage stay pending. Customs FX is reference. No FTWZ/Tally stock migration or change to existing arrival-costing/order/Implements rules.
+
+Architecture: additive indexed per-RO records/events/evidence in the existing SQLite database; reuse identity, CSRF, scope, revisions, receipts, recovery and UI factories. Alternative whole-main-workspace embedding rejected because document history would enlarge every bootstrap and main save. Scale: 30 current ROs/473 files; list 50, evidence page 100, import batch 30, single file 50 MB, record 150 KB. At 10x/100x requests stay bounded; buffered BLOB storage and substring search remain known constraints. No dependency or framework change.
+
+Private records/documents were imported only into an ignored local database through authenticated endpoints and verified against source/hashes. Production requires the existing release backup gate and private import after empty-module publication. UI-01–12, HIG R021/R022/R100/R105/R114/R135 reuse shared branding/forms/tables/dialog/motion. Existing concurrent Implements edits are outside this feature. See [module contract and validation](RO_COSTINGS.md).
+
+
+**2026-10-02 important-document clarification:** User clarification to DEC-106: prominently show original Commercial Invoice and Inward BOE above the workings, preserve all invoice revisions and distinguish inward/full BOE from DTA and draft evidence. Authenticated PDF viewing and typed uploads reuse existing evidence boundaries. Local-only preview has a separate ignored loopback adapter.
+
+
+**2026-10-02 RO link clarification — DEC-106 / WF-100:** Costing-register RO numbers are underlined native hyperlinks to the corresponding document/costing detail. Navigate to the top and focus important CI/inward-BOE evidence, preserving exact RO identifiers and existing routing/access.
+
+
+**2026-10-02 important documents only:** DEC-106 user clarification: restrict visible RO evidence to commercial invoice, forwarder billing documents and inward/main BOE. Preserve other files in storage, exclude draft/DTA from main BOE, and retain explicit proforma/debit-note status.
+
+**2026-10-02 forwarding-agent correction — DEC-106:** User clarified the forwarding agent is Yasuda, World Gates or Future Consol. Show only verified bills from that agent to Farming Hub in the agent section; preserve proformas as provisional. Overseas-agent debit notes and carrier invoices addressed to the agent remain archived. Correct evidence roles through scoped, reasoned, checksum-bound, optimistic and append-only classification events; source files and financial records stay immutable. Implemented and verified locally, not published.

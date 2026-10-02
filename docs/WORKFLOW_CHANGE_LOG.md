@@ -969,3 +969,19 @@ Model BOM -> LUBRICANTS segment -> quantity per machine in ltr/kg -> Purchase pr
 
 
 **Lubricants publication verified - 2026-10-02 (DEC-107 / WF-101):** Runtime `ff31c40` is healthy; Implements revision 4 retains 187 models/17 active BOMs, with 16 old consumption matches and S4.V20 quantities pending. All 86 checked assets match. Prior module records and main revision 1859/36 orders preserved. [Evidence](IMPLEMENTS_LUBRICANTS.md).
+
+
+## WF-100 — RO documents to verified before-GST conversion (2026-10-02)
+
+LAE Import → RO costings → find/open RO → review invoices/net document charges → enter actual supplier payment and allocated net costs → verify currency/expense coverage → save a reasoned version → review AI and Suresh rates. Upload individual documents; multiple suppliers/invoices remain in one exact RO. Pending amounts are visible, not zero. Final INR/USD divides total actual before-GST cost by unique goods USD. Protected evidence, retained financial versions, optimistic revisions and retry checks are authoritative. October 2 refresh: 30 RO records/473 original attachments imported locally; all final rates pending. No production changes. See DEC-106 and RO_COSTINGS.md.
+
+
+**2026-10-02 important-document clarification:** WF-100 clarification: open RO → review Commercial Invoice and Inward BOE first → view/download originals → check cost workings. Missing key evidence is visible; draft/DTA BOEs stay separate. No financial records or original files change.
+
+
+**2026-10-02 RO link clarification — DEC-106 / WF-100:** Costing-register RO numbers are underlined native hyperlinks to the corresponding document/costing detail. Navigate to the top and focus important CI/inward-BOE evidence, preserving exact RO identifiers and existing routing/access.
+
+
+**2026-10-02 important documents only:** WF-100: click RO → see only Commercial Invoice, Forwarder Invoice and Inward/Main BOE → review workings. Other attachments no longer clutter the RO page; originals are retained.
+
+**2026-10-02 forwarding-agent correction — WF-100:** Open RO → Commercial Invoice → Forwarding Agent Invoice with Yasuda/World Gates/Future Consol issuer → Inward/Main BOE → workings. Verify bill issuer and customer rather than merely finding the agent name in a file. RO1547 now links to Future Consol's own proforma, while the Y-Shing debit note remains archived. Verified missing agent bills remain visible. No costing totals changed.
