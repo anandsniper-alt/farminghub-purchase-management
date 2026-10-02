@@ -384,3 +384,7 @@ Use short GSAP page (280 ms), dialog (240 ms) and optional-detail (220 ms) trans
 
 ## Durable UI implementation rules — DEC-101
 Apply [UI_UX_RULEBOOK.md](standards/UI_UX_RULEBOOK.md) for future screens. It makes the approved shared Minimal, GSAP and accessible interaction rules reusable. Historical local-candidate notes for DEC-099/100 are superseded by the verified publication in [HIG_RELEASE_REPORT.md](HIG_RELEASE_REPORT.md); brand preservation remains in force.
+
+
+### Implements shared shell - DEC-104 (2026-10-02)
+Use the same Farming Hub logo home control, green/lime Minimal sidebar, typography, spacing and global module switcher as the main application. Reuse shared styles/navigation; retain module-specific tables and existing product images. The logo returns to the original Farming Hub home, not a local catalogue.

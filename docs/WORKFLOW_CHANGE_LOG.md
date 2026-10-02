@@ -947,3 +947,8 @@ Deployment sequence is explicitly user-authorized: verify candidate > publish ex
 
 
 **Publication verified - 2026-10-01 (DEC-103 / WF-097):** Implements purchasing is live at runtime `4217df4e2adbb15f0f50b2572d57a6f45ce50bd0`, deployment `sbnthqs1aw7xjr6lzhcdescc`, healthy. The actual reviewed workspace is online at module revision 1; no demo plans/orders were imported. Main workspace revision 1859 and all 36 existing orders are unchanged. Live assets/data/export/browser checks passed. The user-requested post-release full recovery ZIP passed checksum/archive/isolated startup verification with all nine tables preserved; five verified archives retained privately. Supersedes candidate-only status. [Full release evidence](IMPLEMENTS_RELEASE.md).
+
+
+## WF-098 - Implements shares Farming Hub navigation (2026-10-02)
+
+User reported inconsistent logo/icon clicks and left-column behavior. Implements now renders the shared main sidebar: logo -> Farming Hub home, module switcher -> original Order Management/VMS, global settings/history -> main application, scoped tools -> Implements routes. Preserve active state and dirty-form guards. Model-card body/footer share one link. Mobile menu opens, dismisses on scrim/Escape, and restores focus. No BOM or price edits are included. See DEC-104 and IMPLEMENTS_NAVIGATION_RELEASE.md.

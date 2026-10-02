@@ -88,3 +88,7 @@ See [release notes](../IMPLEMENTS_RELEASE.md), DEC-103 and WF-097. The reviewed 
 
 
 **Publication verified - 2026-10-01 (DEC-103 / WF-097):** Implements purchasing is live at runtime `4217df4e2adbb15f0f50b2572d57a6f45ce50bd0`, deployment `sbnthqs1aw7xjr6lzhcdescc`, healthy. The actual reviewed workspace is online at module revision 1; no demo plans/orders were imported. Main workspace revision 1859 and all 36 existing orders are unchanged. Live assets/data/export/browser checks passed. The user-requested post-release full recovery ZIP passed checksum/archive/isolated startup verification with all nine tables preserved; five verified archives retained privately. Supersedes candidate-only status. [Full release evidence](../IMPLEMENTS_RELEASE.md).
+
+
+### Implements navigation - 2026-10-02
+DEC-104 / WF-098 replace the prototype sidebar with the main Farming Hub navigation shell. Global routes return to the original application; module sections remain scoped. No data migration accompanies this UI change. Read [release evidence](../IMPLEMENTS_NAVIGATION_RELEASE.md) for current runtime and preservation checks.

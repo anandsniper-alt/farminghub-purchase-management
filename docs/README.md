@@ -49,3 +49,5 @@ Read [UI and change rulebook](standards/UI_UX_RULEBOOK.md) before future modules
 
 
 - [Implements online release](IMPLEMENTS_RELEASE.md): DEC-103 / WF-097, integration boundaries, verification and publication record.
+
+- [Implements navigation correction](IMPLEMENTS_NAVIGATION_RELEASE.md): DEC-104 / WF-098, shared sidebar, home return and release verification.

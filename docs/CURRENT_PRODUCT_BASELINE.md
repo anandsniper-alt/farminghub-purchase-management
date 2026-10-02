@@ -763,3 +763,7 @@ Implemented online /implements/ module, isolated SQLite aggregate/events and aut
 
 
 **Publication verified - 2026-10-01 (DEC-103 / WF-097):** Implements purchasing is live at runtime `4217df4e2adbb15f0f50b2572d57a6f45ce50bd0`, deployment `sbnthqs1aw7xjr6lzhcdescc`, healthy. The actual reviewed workspace is online at module revision 1; no demo plans/orders were imported. Main workspace revision 1859 and all 36 existing orders are unchanged. Live assets/data/export/browser checks passed. The user-requested post-release full recovery ZIP passed checksum/archive/isolated startup verification with all nine tables preserved; five verified archives retained privately. Supersedes candidate-only status. [Full release evidence](IMPLEMENTS_RELEASE.md).
+
+
+### Implements navigation correction - 2026-10-02 (DEC-104 / WF-098)
+Shared sidebar, logo home destination, breadcrumbs, module switching and whole-card links implemented. Module-local settings remain separate from global Users & settings. Actual BOMs, purchase prices and common additional costs are untouched. Current verification/publication status: [navigation release evidence](IMPLEMENTS_NAVIGATION_RELEASE.md).

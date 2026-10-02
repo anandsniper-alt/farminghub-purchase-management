@@ -516,3 +516,7 @@ Use the shared dialog recovery, labels, keyboard focus and screen styles when ex
 
 ### Implements online module - DEC-103 / WF-097 (2026-10-01)
 Module data stays separate from Import/Domestic state. Existing login/scope/roles, server transactions, immutable snapshots and append-only audit apply. Shared calculations retain the user's reviewed syntax weights and pending values. This specific release follows the user's explicit deployment-before-backup order; subsequent releases retain the standing backup-first rule. See [Implements release](IMPLEMENTS_RELEASE.md).
+
+
+### Shared navigation - DEC-104 / WF-098 (2026-10-02)
+All module shells must reuse web/navigation.mjs and shared Minimal sidebar styling. Brand logo is a home button for the original Farming Hub application. Preserve global module switcher, account settings and version history; keep module configuration explicitly named. Isolated subpath applications translate global routes to /#/... and local routes to their own hash. Ensure icon children and the complete card hit area invoke the same destination. Preserve dirty forms and mobile navigation accessibility. This supersedes the Implements prototype sidebar exception.

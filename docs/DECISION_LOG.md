@@ -1014,3 +1014,10 @@ Implemented and verified locally; publication evidence follows deployment. Archi
 
 
 **Publication verified - 2026-10-01 (DEC-103 / WF-097):** Implements purchasing is live at runtime `4217df4e2adbb15f0f50b2572d57a6f45ce50bd0`, deployment `sbnthqs1aw7xjr6lzhcdescc`, healthy. The actual reviewed workspace is online at module revision 1; no demo plans/orders were imported. Main workspace revision 1859 and all 36 existing orders are unchanged. Live assets/data/export/browser checks passed. The user-requested post-release full recovery ZIP passed checksum/archive/isolated startup verification with all nine tables preserved; five verified archives retained privately. Supersedes candidate-only status. [Full release evidence](IMPLEMENTS_RELEASE.md).
+
+
+## DEC-104 - Consistent Implements navigation (2026-10-02)
+
+GLOBAL NAVIGATION / MODULE UI. User requested that Implements use the same left navigation and return-home behavior as the other modules. Reuse createNavigation, shared Minimal styles, logo home button, breadcrumbs, account controls and module selector. Keep ten Implements tools as scoped sections, with Implements settings separate from Users & settings. Global destinations leave /implements/ for the original main routes; section destinations remain local. The entire model card is a single accessible link, including its footer.
+
+Supersedes the prototype sidebar exception in DEC-103. Rejected a second copy of the main sidebar because it would drift again. No purchasing domain, persistence, permissions or business calculations change. At current, 10x and 100x data volumes this navigation remains stateless; existing aggregate-storage limits still apply. Shared guide/motion integration inside the isolated module remains outside this correction. See IMPLEMENTS_NAVIGATION_RELEASE.md for verification and publication evidence.

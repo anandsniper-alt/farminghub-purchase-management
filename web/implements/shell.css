@@ -1,0 +1,22 @@
+/* Shared Farming Hub shell; module data/table styles remain local. */
+.shell{display:block;min-height:100vh}
+.module-shell{min-width:0}
+.module-shell main{max-width:1570px;margin:0 auto;padding:29px 34px 70px}
+.module-shell .topbar .flex{min-width:0;flex:1;flex-wrap:wrap}
+.module-shell .breadcrumb{flex-wrap:wrap;white-space:normal}
+.module-shell .top-tools{flex-wrap:wrap;justify-content:flex-end}
+.module-shell .account .strong{font-size:12px}
+.module-shell .saved{display:inline-flex;align-items:center;gap:6px;font-size:11px}
+.module-sidebar{overflow-y:auto;overscroll-behavior:contain}
+.module-sidebar .module-navigation{padding-bottom:16px}
+.module-sidebar .nav-link{width:100%;justify-content:flex-start;white-space:normal;text-align:left}
+.model-card{color:var(--text);text-decoration:none}
+.model-card-body{padding:21px;flex:1}
+.module-shell .model-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.module-shell .toolbar .search{min-width:180px}
+.module-shell .toolbar>label{min-width:150px}
+@media(min-width:1500px){.module-shell .model-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:1150px){.module-shell .model-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.module-shell main{padding:24px 17px 55px}.module-shell .topbar{position:sticky;min-height:76px;height:auto;padding:12px 17px;gap:12px}.module-shell .top-tools{gap:8px}.module-shell .account{padding-left:8px}.module-shell .saved{display:none}.module-shell .breadcrumb{flex-wrap:wrap}.module-shell .model-grid{grid-template-columns:1fr}}
+@media(max-width:720px){.module-shell{margin-left:0}.module-sidebar{width:230px;position:fixed;top:0;bottom:0;padding:29px 16px 18px;z-index:30}.module-sidebar .brand-home,.module-sidebar .nav-section-title,.module-sidebar .sidebar-bottom{display:block}.module-shell .mobile-toggle{display:inline-flex}.module-shell .topbar .account>div{display:none}}
+@media print{.module-sidebar,.module-shell .topbar,.nav-scrim{display:none}.module-shell{margin-left:0}.module-shell main{padding:0}}
