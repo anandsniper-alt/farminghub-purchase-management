@@ -1,6 +1,6 @@
 # RO costings module
 
-2026-10-02 · DEC-106 / WF-100 · Implemented and locally verified. Not published to the production website.
+2026-10-02 · DEC-106 / WF-100 · Published and verified at https://purchase.dvjassociates.com/#/ro-costings. See RO_COSTINGS_RELEASE.md.
 
 Open **Order Management → LAE Import → RO costings**. This is an RO document archive and cost capture module. It does not import FTWZ/Tally stock, post accounting entries, replace order arrival costing, or apply stock holding interest/rent/revised duty.
 
@@ -75,3 +75,8 @@ Local content verification reclassified 12 legacy documents: five Future Consol 
 ## Live publication preparation — 2026-10-02
 
 The user authorized publication of the reviewed RO module and private RO records/evidence. The release checkout is based on the newest published lubricant changes (DEC-107/WF-101), preserving the full existing Implements code and data. Native verification: 345 of 347 checks passed in the restricted run; the two process-spawning build checks then passed with process execution enabled (all three build-contract checks passed). Authenticated-server and standalone browser checks passed. All 134 checked running assets match the pre-release source. A fresh 624,652,288-byte full production snapshot matched the server SHA-256 at revision 1859. Recovery ZIP verification, candidate restore and production deployment are still in progress; these preparation results alone do not claim publication.
+
+
+## Publication verified — 2026-10-02
+
+Runtime `f1acbb2f60d29e74d855b6cb92f33169a75239b7`, Coolify deployment `bm0xltjw7mcmvjvyn1ysf5ji`, finished and healthy. The reviewed 30 RO records and 473 individual originals are online; every costing source field and every document SHA-256 body matches the reviewed input. Twelve verified issuer classifications retain five Future Consol proformas, exclude five overseas-agent debit notes and two carrier bills from the agent section, and preserve original files. All 30 final conversions remain Pending because their recorded actual supplier payments/expense coverage are incomplete; publication does not fabricate costs. Main purchasing is unchanged at revision1859/36 orders. A concurrent audited Implements review update to revision6 predates deployment; original business fields and that update are preserved. Native/build/hosted checks, 137 served-source matches, live desktop/mobile/document-view checks and the downloaded verified recovery ZIP passed. Five verified recovery ZIPs retained. Supersedes prior local-only publication statements. [Release evidence](RO_COSTINGS_RELEASE.md).

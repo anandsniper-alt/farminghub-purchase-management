@@ -107,3 +107,6 @@ RO costings is added under LAE Import, after Loading, using the current native a
 
 
 **2026-10-02 important-document clarification:** DEC-106 document follow-up: important CI/inward-BOE panel is implemented above workings, with missing status, authenticated PDF viewing and upload roles. Local preview now includes original document access; production remains unpublished.
+
+
+**RO costings published — 2026-10-02:** DEC-106/WF-100 is now live at runtime f1acbb2. Open LAE Import → RO costings. Thirty reviewed records/473 originals imported and verified; actuals stay pending where missing. Main data and concurrent Implements review retained. See ../RO_COSTINGS_RELEASE.md. Supersedes the local-only status above. Active release checkout: `PMS/ro-costings-release`, branch `codex/ro-costings-live`; refresh origin/main before further release work.
