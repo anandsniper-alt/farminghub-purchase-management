@@ -92,3 +92,6 @@ See [release notes](../IMPLEMENTS_RELEASE.md), DEC-103 and WF-097. The reviewed 
 
 ### Implements navigation - 2026-10-02
 DEC-104 / WF-098 replace the prototype sidebar with the main Farming Hub navigation shell. Global routes return to the original application; module sections remain scoped. No data migration accompanies this UI change. Read [release evidence](../IMPLEMENTS_NAVIGATION_RELEASE.md) for current runtime and preservation checks.
+
+
+**Navigation publication verified - 2026-10-02 (DEC-104 / WF-098):** Runtime `5dc831e30df691a8508abe399e8a5765879566ff` is live and healthy. Shared logo/home/sidebar/icon/card navigation passed live browser checks; 334 tests passed. All checked assets match, Implements revision 2 and main revision 1859/36 orders are unchanged, and fresh pre-release recovery/retention passed. [Release evidence](../IMPLEMENTS_NAVIGATION_RELEASE.md).

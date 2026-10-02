@@ -767,3 +767,6 @@ Implemented online /implements/ module, isolated SQLite aggregate/events and aut
 
 ### Implements navigation correction - 2026-10-02 (DEC-104 / WF-098)
 Shared sidebar, logo home destination, breadcrumbs, module switching and whole-card links implemented. Module-local settings remain separate from global Users & settings. Actual BOMs, purchase prices and common additional costs are untouched. Current verification/publication status: [navigation release evidence](IMPLEMENTS_NAVIGATION_RELEASE.md).
+
+
+**Navigation publication verified - 2026-10-02 (DEC-104 / WF-098):** Runtime `5dc831e30df691a8508abe399e8a5765879566ff` is live and healthy. Shared logo/home/sidebar/icon/card navigation passed live browser checks; 334 tests passed. All checked assets match, Implements revision 2 and main revision 1859/36 orders are unchanged, and fresh pre-release recovery/retention passed. [Release evidence](IMPLEMENTS_NAVIGATION_RELEASE.md).

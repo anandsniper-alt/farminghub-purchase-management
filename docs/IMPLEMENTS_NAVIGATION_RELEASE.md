@@ -23,3 +23,10 @@ Fresh production snapshot at 2026-10-02T01:07:24.158Z: full SQLite 617,140,224 b
 
 
 Full native regression suite passed: 334 tests, zero failures/skips, including standalone review build/dependency contracts. Final syntax and staged whitespace checks passed. No test database or operator artifacts are staged.
+
+
+## Publication verified - 2026-10-02
+
+Live runtime 5dc831e30df691a8508abe399e8a5765879566ff, Coolify deployment cerp2uge4f4xacffjvxfwzse: rolling update succeeded and health passed on its first attempt. Read-only production checks matched all 86 checked module/shared assets, enforced unauthenticated module boundaries, and confirmed exact equality of the complete Implements state to the pre-release snapshot at revision 2. All 187 models, 131 entered item prices and INR5,000 common additional costs per model remain present. Main purchasing state is identical at revision 1859 with all 36 orders. No business writes or grants accompanied this correction.
+
+Live browser checks passed Implements entry, logo-image click -> original /#/home, return through Order Management/Implements, sidebar SVG click -> Price calculation, and model-card footer -> correct BOM. Final catalogue screenshot saved privately; no JavaScript errors were logged. Current site uses the shared shell. Supersedes candidate-only wording above. Pre-release recovery passed and five verified archives remain retained.

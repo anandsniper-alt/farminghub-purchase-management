@@ -952,3 +952,6 @@ Deployment sequence is explicitly user-authorized: verify candidate > publish ex
 ## WF-098 - Implements shares Farming Hub navigation (2026-10-02)
 
 User reported inconsistent logo/icon clicks and left-column behavior. Implements now renders the shared main sidebar: logo -> Farming Hub home, module switcher -> original Order Management/VMS, global settings/history -> main application, scoped tools -> Implements routes. Preserve active state and dirty-form guards. Model-card body/footer share one link. Mobile menu opens, dismisses on scrim/Escape, and restores focus. No BOM or price edits are included. See DEC-104 and IMPLEMENTS_NAVIGATION_RELEASE.md.
+
+
+**Navigation publication verified - 2026-10-02 (DEC-104 / WF-098):** Runtime `5dc831e30df691a8508abe399e8a5765879566ff` is live and healthy. Shared logo/home/sidebar/icon/card navigation passed live browser checks; 334 tests passed. All checked assets match, Implements revision 2 and main revision 1859/36 orders are unchanged, and fresh pre-release recovery/retention passed. [Release evidence](IMPLEMENTS_NAVIGATION_RELEASE.md).
