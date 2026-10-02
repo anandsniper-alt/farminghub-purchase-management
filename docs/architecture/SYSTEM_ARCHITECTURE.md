@@ -68,3 +68,8 @@ The standalone HTML runs the same domain rules but simulates roles, stores state
 ## Production inventory extension ? DEC-111 (2026-10-02)
 
 `/production/` uses shared navigation and a technical-only server projection. `shared/production.mjs` validates physical quantities/serials/dates; `server/production-store.mjs` owns authorization, dedicated indexed records, request receipts and transactions. Batch/unit/event/movement tables share SQLite with Implements; internal inventory-only saves atomically update stock and consumed planning quantities while preserving commercial fields. Purchasing stock changes are captured in the same quantity ledger once initialized. No extra service, runtime framework, replica or credential introduced. Batch/unit/movement pages are bounded to 100; detail has ?1,000 units and latest 100 events. Shared stock aggregate and module revision contention remain known scale constraints; current/10?/100? assessment is in the module contract.
+
+
+## Division navigation - DEC-112 (2026-10-02)
+
+Shared `web/navigation.mjs` defines division hubs and canonical standalone module destinations. Main app owns `#/division/lae` and `#/division/implements`; BOM, production and purchasing shells return to those root routes. Existing protected `/bom/`, `/production/`, `/implements/` remain separate screens in the same service. Presentation filtering does not grant API access or change database state; technical confidentiality stays server-enforced.
