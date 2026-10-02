@@ -16,4 +16,4 @@ No source PPM, syntax weights, item master quotes, transport, stock, plans, purc
 - Review build passed; Implements depends on authenticated APIs, so standalone offline review is not a supported execution mode for this module.
 - Fresh production snapshot at 2026-10-02T04:01:25.744Z matches runtime f1acbb2 and main revision1859 / Implements revision8. CRC, manifest hashes, isolated startup, SQLite integrity/FK checks and equality of all 14 restored tables passed. Five newest verified archives retained.
 
-Publication verification pending. Private receipts and screenshots remain ignored in test-output/current-cost.
+Publication verified: runtime `19d10a44cdc970902b7b93047e6f2c1b484c9960`, deployment `14pcp6m9tikz2oxjf1i5sor5`, finished healthy. Live warnings filter to the exact missing PPM rows; numeric current totals are visible. Main and Implements whole-state equality, all 30 RO record payloads/revisions and 473 document identity/hash/size records preserved; four served assets match the runtime. Private receipts and screenshots remain ignored in test-output/current-cost.
