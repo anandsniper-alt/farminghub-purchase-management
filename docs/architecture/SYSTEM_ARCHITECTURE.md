@@ -63,3 +63,8 @@ The standalone HTML runs the same domain rules but simulates roles, stores state
 ## Maintainability observations
 
 `web/app.mjs` is approximately 269 kB and `shared/domain.mjs` 132 kB, with dense long functions; new module factories already provide a useful extraction pattern. The manual build list and regex stripping are fragile coupling points. Targeted extraction and build characterization are preferable to a framework rewrite. Known issues and acceptance criteria live in [Technical debt](../handover/TECHNICAL_DEBT.md).
+
+
+## Production inventory extension ? DEC-111 (2026-10-02)
+
+`/production/` uses shared navigation and a technical-only server projection. `shared/production.mjs` validates physical quantities/serials/dates; `server/production-store.mjs` owns authorization, dedicated indexed records, request receipts and transactions. Batch/unit/event/movement tables share SQLite with Implements; internal inventory-only saves atomically update stock and consumed planning quantities while preserving commercial fields. Purchasing stock changes are captured in the same quantity ledger once initialized. No extra service, runtime framework, replica or credential introduced. Batch/unit/movement pages are bounded to 100; detail has ?1,000 units and latest 100 events. Shared stock aggregate and module revision contention remain known scale constraints; current/10?/100? assessment is in the module contract.

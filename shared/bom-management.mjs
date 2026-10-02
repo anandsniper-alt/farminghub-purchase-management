@@ -6,7 +6,7 @@ const partFields=['id','code','name','category','fabricated','uom'];
 const fabricationFields=['partId','code','drawingCode','name','ppm','weight'];
 const select=(value,fields)=>Object.fromEntries(fields.filter(k=>value?.[k]!==undefined).map(k=>[k,value[k]]));
 const equal=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
-export const canReviewBom=actor=>actor?.active!==false&&['ADMIN','MANAGER','EXECUTIVE','PRODUCT_MANAGER','BOM_REVIEWER'].includes(actor?.role);
+export const canReviewBom=actor=>actor?.active!==false&&['ADMIN','MANAGER','EXECUTIVE','PRODUCT_MANAGER','BOM_REVIEWER','PRODUCTION_OPERATOR'].includes(actor?.role);
 export const canApproveBom=actor=>actor?.active!==false&&['ADMIN','MANAGER'].includes(actor?.role);
 export function technicalModel(m){return {...select(m,modelFields),lines:(m.lines||[]).map(l=>select(l,['partId','ppm'])),fabrication:(m.fabrication||[]).map(l=>({...select(l,fabricationFields),excluded:l.partId==='source-row-33'}))};}
 export function technicalParts(state){const brands=new Map(Object.entries(state.stickerPolicy?.brandBySeries||{}).map(([series,line])=>[line.partId,series]));return (state.parts||[]).map(p=>({...select(p,partFields),...(brands.has(p.id)?{brandSeries:brands.get(p.id)}:{})}));}

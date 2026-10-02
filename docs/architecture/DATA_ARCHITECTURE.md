@@ -56,3 +56,8 @@ Startup initializes missing serials/references with an idempotent, backed-up pat
 Before entity storage is introduced, define aggregate ownership, database uniqueness reservations/counters, foreign keys, index/query patterns, per-entity revisions and cross-order payment transactions. Rehearse against an isolated restored copy; compare financial outputs, every retained identity and evidence hash, replay safety and printed historical documents. Measure duration and rollback compatibility. Database replacement, destructive migration and new infrastructure remain proposed until explicitly approved.
 
 This audit approves no schema or data changes. Recovery procedures remain solely in [Backup/restore runbook](../BACKUP_RESTORE_RUNBOOK.md).
+
+
+## Production tables ? DEC-111 (2026-10-02)
+
+`production_batches` stores model/requirements/issued snapshots; `production_units` uses globally unique uppercase serial PK and batch FK; `production_events` stores append-only actor/request digest receipts and stage history; `production_stock_movements` stores append-only item deltas/before/after. Current source stock, consumed plan month/model counts and these rows commit together. No delete API; reversed units become VOID and numbers remain reserved. Current quantities remain shared Implements truth. Read initialization adds empty tables/indexes/triggers only. No migration of business balances or automatic serial seeding.

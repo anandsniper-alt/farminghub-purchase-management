@@ -671,3 +671,10 @@ Scope: MODULE/INTEGRATION, shared Implements BOM. Status: implemented and locall
 
 
 **Production checking release verified — 2026-10-02 (DEC-110 / WF-104):** Keep technical confidentiality in a server allowlist and a role that denies commercial scopes even if assigned accidentally. Pending corrections and current-revision checks share technical fingerprints, so independent price updates do not invalidate physical review. Verify full production data hashes after deploying shared-role/navigation changes; the 356-test suite and read-only live comparisons passed with no business edits. Production accounts require an explicit administrator assignment after release.
+
+
+### 2026-10-02 ? Production inventory checks (DEC-111 / WF-105)
+
+Keep actual-BOM browser fixtures separate from production and synthetic physical balances. Null PPM must not become zero through numeric coercion: posting requires explicit explained consumption. Reversal must use issued quantities, not a later master BOM. Test direct completion and prior issue separately to catch duplicate stock reduction; duplicate serial failures must roll back stock too. MRP must consume remaining plans after issue, or it allocates the already-issued requirement again. Export status tests must inspect status values rather than matching the ?Completed date? header. Use immutable ledger rows, guarded retries and current role/scope checks; hidden costs in the UI alone are insufficient.
+
+Shared theme hooks require both app and modal-root containers even where native dialogs are used. Verify a reload and post-navigation console after adding a module, not only the happy-path form.

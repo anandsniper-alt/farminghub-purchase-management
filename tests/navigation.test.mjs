@@ -42,3 +42,8 @@ test('production reviewers have only BOM navigation and clickable home; purchasi
  const nav=make({role:'BOM_REVIEWER',scopes:['BOM_MANAGEMENT','IMPLEMENTS_DOMESTIC']});assert.match(nav.home(),/href="\/bom\/"/);assert.ok(!nav.home().includes('href="#/order-management"'));assert.ok(!nav.sidebar().includes('value="vms"'));assert.match(nav.sidebar(),/aria-label="Farming Hub home"/);
  assert.ok(!make({role:'MANAGER',scopes:['IMPLEMENTS_DOMESTIC']}).home().includes('href="/bom/"'));assert.match(make({role:'MANAGER',scopes:['BOM_MANAGEMENT']}).home(),/href="\/bom\/"/);assert.equal(moduleDestination('bom-management'),'/bom/');
 });
+test('production operators have stock and BOM modules without commercial navigation and stock-only grants have no dead BOM link',()=>{
+ const make=user=>createNavigation({...host({view:'home'}),context:()=>({ui:{view:'home'},user}),head:()=>'',button:()=>''});
+ const nav=make({role:'PRODUCTION_OPERATOR',scopes:['PRODUCTION_MANAGEMENT','BOM_MANAGEMENT','IMPLEMENTS_DOMESTIC']});assert.match(nav.home(),/href="\/production\/"/);assert.match(nav.home(),/href="\/bom\/"/);assert.ok(!nav.home().includes('href="#/order-management"'));assert.ok(!nav.sidebar().includes('value="vms"'));assert.match(nav.sidebar(),/value="production-stock"/);
+ assert.ok(!make({role:'PRODUCTION_OPERATOR',scopes:['PRODUCTION_MANAGEMENT']}).home().includes('href="/bom/"'));assert.ok(!make({role:'BOM_REVIEWER',scopes:['BOM_MANAGEMENT','PRODUCTION_MANAGEMENT']}).home().includes('href="/production/"'));assert.equal(moduleDestination('production-stock'),'/production/');
+});

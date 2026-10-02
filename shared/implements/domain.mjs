@@ -72,15 +72,16 @@ export function ensureMonthly(state,month=currentMonth()){
 export function syncMonthly(state){if(state.monthlyPlans){state.monthlyPlans[state.activeMonth]=clone(state.plan);state.monthlyAdjustments[state.activeMonth]=clone(state.adjustments);}}
 export function activateMonth(state,month){validMonth(month);ensureMonthly(state);syncMonthly(state);if(!state.monthlyPlans[month]&&Object.keys(state.monthlyPlans).length>=120)throw Error('Monthly planning supports up to 120 saved months.');state.activeMonth=month;state.plan=clone(state.monthlyPlans[month]||{});state.adjustments=clone(state.monthlyAdjustments[month]||{});syncMonthly(state);}
 export function calculateMRP(state,month=state.activeMonth){
- if(!state.monthlyPlans)return calculatePlan(state);
+ const remaining=(plan,month)=>Object.fromEntries(Object.entries(plan||{}).map(([id,qty])=>[id,Math.max(0,Number(qty)-Number(state.productionConsumed?.[month]?.[id]||0))]));
+ if(!state.monthlyPlans)return calculatePlan({...state,plan:remaining(state.plan,month)});
  validMonth(month);const plans={...state.monthlyPlans,[state.activeMonth]:state.plan},stock=clone(state.stock),used={},priorIssues=[];
  // Only existing stock carries forward. Unreceived purchases, buffers and extras are not receipts.
  for(const earlier of Object.keys(plans).filter(m=>m<month).sort()){
-  const prior=calculatePlan({...state,plan:plans[earlier],stock:{},adjustments:{}});
+  const prior=calculatePlan({...state,plan:remaining(plans[earlier],earlier),stock:{},adjustments:{}});
   priorIssues.push(...prior.issues.map(i=>({...i,message:`Earlier month ${earlier}: ${i.message}; stock allocation may change when completed`})));
   for(const row of prior.rows){if(!stock[row.key])continue;const consume=Math.min(stock[row.key].qty,row.demand);stock[row.key].qty=round(stock[row.key].qty-consume,3);used[row.key]=round((used[row.key]||0)+consume,3);}
  }
- const report=calculatePlan({...state,plan:plans[month]||{},stock,adjustments:month===state.activeMonth?state.adjustments:state.monthlyAdjustments[month]||{}});
+ const report=calculatePlan({...state,plan:remaining(plans[month],month),stock,adjustments:month===state.activeMonth?state.adjustments:state.monthlyAdjustments[month]||{}});
  return {...report,issues:[...report.issues,...priorIssues],month,stockAllocation:'Earliest planned month first; only existing stock carries forward',rows:report.rows.map(row=>({...row,originalStock:state.stock[row.key]?.qty??0,stockUsedEarlier:used[row.key]||0,closingStock:round(Math.max(0,row.stock-row.demand),3)}))};
 }
 export function pricePercent(value,label){if(value==null||value==='')return null;if(typeof value==='boolean')throw Error(label+' must be numeric.');const raw=typeof value==='string'?value.trim().replace(/%$/,''):value,percent=typeof raw==='number'&&raw<=1?raw*100:raw;return round(number(percent,label,{max:100}),6);}
