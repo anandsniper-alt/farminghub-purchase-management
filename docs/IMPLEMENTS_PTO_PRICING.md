@@ -23,3 +23,9 @@ Fresh pre-release SQLite snapshot: 2026-10-02T02:17:40.014Z, matching running so
 UI-03/UI-05 and HIG semantic controls apply: reuse existing editable fields, tables, filters and pending flags; do not introduce another navigation system. The new rate column uses the existing horizontal table wrapper. Current/10x/100x computation remains linear in BOM/PO lines with three additional master records; no storage or deployment architecture change. Existing aggregate scaling limits remain.
 
 Publication is recorded below after live verification.
+
+## Publication verified — 2026-10-02
+
+Live runtime `644b0e800d75f17226e39f852719f7e4d42fe95a`, Coolify deployment `0ii1kfw7phsft3nsmufinsml`: rolling update succeeded and first healthcheck passed. The reviewed update saved online at Implements revision 3 through the existing audit API. All 187 allocations verified: 184 MJ and three Bananovator Racer TT-35, each 1 pc; three new master prices and 134 total entered prices. All prior item/supplier records, other model fields, fabrication, common INR5000 charges, stock, plans and saved orders were preserved. Source flags and old placeholder remain retained; actual Tally codes are pending flags. The 17 available BOMs remain available and all 170 pending models remain pending.
+
+All 86 checked deployed assets matched local release source; unauthenticated module routes remained blocked. Main purchasing aggregate is identical to the baseline at revision 1859 with all 36 orders. No demo plan or order was saved. Live browser checks showed all three quote/transport/effective prices and correct MJ/Bananovator BOM calculations. Final price screenshot is retained privately. Twelve scoped tests and PDF/Excel fixture verification passed; pre-release recovery and five-archive retention passed. This supersedes the candidate-only wording above.

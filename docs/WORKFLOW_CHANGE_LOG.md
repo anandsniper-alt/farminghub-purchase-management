@@ -959,3 +959,5 @@ User reported inconsistent logo/icon clicks and left-column behavior. Implements
 ## WF-099 - PTO from editable quote to BOM, MRP and supplier PO (2026-10-02)
 
 Purchase prices retains quoted base and shows included transport and effective BOM/PO price. Each model has 1 selected PTO; MJ for non-Bananovator, Racer TT-35 for Bananovator. Cost calculation, monthly stock allocation and supplier PO use the effective price; priced PDF/Excel show its basis. Model-copy preserves destination PTO. Actual IMP codes stay flagged rather than fabricated. All other BOM, fabrication, charge and planning records are retained; no synthetic order is published. See DEC-105 and [PTO release evidence](IMPLEMENTS_PTO_PRICING.md).
+
+**PTO publication verified — 2026-10-02 (DEC-105 / WF-099):** Runtime 644b0e8 and online Implements revision 3 verified. MJ INR3909.15 applies to 184 models, Racer TT-35 INR6142.50 to three Bananovators; 1 pc each. Base quotes remain editable and transport included once. Prior data/main purchasing preserved. [Evidence](IMPLEMENTS_PTO_PRICING.md).
