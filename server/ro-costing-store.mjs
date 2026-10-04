@@ -1,6 +1,6 @@
 import {createHash,randomUUID} from 'node:crypto';
 import {RuleError,MAX_UPLOAD_BYTES,UPLOAD_EXTENSIONS} from '../shared/domain.mjs';
-import {assertRoCostAccess,roCode,validateRoRecord,calculateRoCosting} from '../shared/ro-costing.mjs';
+import {assertRoCostAccess,roCode,validateRoRecord,calculateRoCosting,worksheetComparisonSummary} from '../shared/ro-costing.mjs';
 import {importantRoDocuments,forwardingAgentDocument} from '../shared/ro-documents.mjs';
 
 const roDigest=value=>createHash('sha256').update(value).digest('hex');
@@ -26,11 +26,11 @@ export class RoCostingStore{
   this.actor(actorId);if(typeof q!=='string'||q.length>200||!['','Pending','Complete'].includes(status)||!Number.isSafeInteger(offset)||offset<0||!Number.isSafeInteger(limit)||limit<1||limit>50)throw new RuleError('Invalid RO list filter.');
   const query='%'+q.replace(/[\\%_]/g,'\\$&')+'%',where="(ro LIKE ? ESCAPE '\\' OR supplier LIKE ? ESCAPE '\\') AND (?='' OR status=?)",args=[query,query,status,status];
   const total=this.db.prepare('SELECT count(*) n FROM ro_costings WHERE '+where).get(...args).n;
-  const rows=this.db.prepare('SELECT ro,revision,payload,updated_at FROM ro_costings WHERE '+where+' ORDER BY ro COLLATE NOCASE LIMIT ? OFFSET ?').all(...args,limit,offset).map(r=>{const record=JSON.parse(r.payload),cost=calculateRoCosting(record),important=this.important(r.ro,record);return {ro:r.ro,revision:r.revision,supplier:record.supplier,invoices:record.invoices.map(i=>i.invoice),inwardDate:record.inwardDate,boeDate:record.boeDate,updatedAt:r.updated_at,...cost,documents:important.commercialInvoices.length+important.forwarderInvoices.length+important.inwardBoe.length};});
+  const rows=this.db.prepare('SELECT ro,revision,payload,updated_at FROM ro_costings WHERE '+where+' ORDER BY ro COLLATE NOCASE LIMIT ? OFFSET ?').all(...args,limit,offset).map(r=>{const record=JSON.parse(r.payload),cost=calculateRoCosting(record),important=this.important(r.ro,record);return {ro:r.ro,revision:r.revision,supplier:record.supplier,invoices:record.invoices.map(i=>i.invoice),inwardDate:record.inwardDate,boeDate:record.boeDate,updatedAt:r.updated_at,...cost,worksheetComparison:worksheetComparisonSummary(record),documents:important.commercialInvoices.length+important.inwardBoe.length+important.importerCopies.length};});
   return {rows,total,offset,limit};
  }
  detail(actorId,ro){this.actor(actorId);const row=this.db.prepare('SELECT * FROM ro_costings WHERE ro=?').get(roCode(ro));if(!row)throw new RuleError('RO costing not found.','NOT_FOUND');const record=JSON.parse(row.payload);return {record,revision:row.revision,cost:calculateRoCosting(record),importantDocuments:this.important(ro,record),documents:this.documents(actorId,ro),history:this.db.prepare('SELECT revision,actor_id,at,reason FROM ro_costing_events WHERE ro=? ORDER BY revision DESC LIMIT 50').all(ro)};}
- important(ro,record){const importantFiles=this.db.prepare("SELECT d.id,d.name,coalesce(c.kind,d.kind) kind,d.kind originalKind,d.sha256,length(d.body) bytes,d.at FROM ro_costing_documents d LEFT JOIN ro_document_classifications c ON c.sequence=(SELECT max(sequence) FROM ro_document_classifications WHERE document_id=d.id) WHERE d.ro=? AND (coalesce(c.kind,d.kind) LIKE 'Commercial invoice%' OR coalesce(c.kind,d.kind) LIKE 'Forwarding agent %' OR coalesce(c.kind,d.kind) IN ('Inward BOE','Assessed BOE')) ORDER BY d.id LIMIT 100").all(ro);return importantRoDocuments(record,importantFiles);}
+ important(ro,record){const importantFiles=this.db.prepare("SELECT d.id,d.name,coalesce(c.kind,d.kind) kind,d.kind originalKind,d.sha256,length(d.body) bytes,d.at FROM ro_costing_documents d LEFT JOIN ro_document_classifications c ON c.sequence=(SELECT max(sequence) FROM ro_document_classifications WHERE document_id=d.id) WHERE d.ro=? AND (coalesce(c.kind,d.kind) LIKE 'Commercial invoice%' OR coalesce(c.kind,d.kind) LIKE 'Forwarding agent %' OR coalesce(c.kind,d.kind) IN ('Inward BOE','Assessed BOE','Importer copy')) ORDER BY d.id LIMIT 100").all(ro);return importantRoDocuments(record,importantFiles);}
  classify(actorId,{id,sha256,kind,reason,expectedSequence},requestId){
   if(typeof id!=='string'||typeof sha256!=='string'||(!forwardingAgentDocument(kind)&&!['Shipping-line invoice','Overseas agent debit note'].includes(kind))||typeof reason!=='string'||!reason.trim()||reason.length>2000||!Number.isSafeInteger(expectedSequence)||expectedSequence<0)throw new RuleError('Provide a verified document role, reason and current classification.');
   this.db.exec('BEGIN IMMEDIATE');try{
@@ -48,9 +48,13 @@ export class RoCostingStore{
    const actor=this.actor(actorId,true),checked=this.store.requestCheck(actor,requestId,'RO_COSTINGS',input);
    if(checked?.replayed){this.db.exec('COMMIT');return checked.result;}
    const out=[],seen=new Set();for(const entry of input.records){
-    const record=validateRoRecord(entry.record);if(seen.has(record.ro))throw new RuleError('Duplicate RO in import.');seen.add(record.ro);
+    let record=validateRoRecord(entry.record);if(seen.has(record.ro))throw new RuleError('Duplicate RO in import.');seen.add(record.ro);
     const before=this.db.prepare('SELECT * FROM ro_costings WHERE ro=?').get(record.ro),revision=before?.revision||0;
     if(entry.expectedRevision!==revision)throw new RuleError('RO '+record.ro+' changed. Reload it before saving; nothing was overwritten.','CONFLICT');
+    // Older editors do not know worksheetComparison. Omission must not erase evidence.
+    if(before&&!Object.hasOwn(entry.record,'worksheetComparison')){
+     const previous=JSON.parse(before.payload);if(previous.worksheetComparison)record=validateRoRecord({...record,worksheetComparison:previous.worksheetComparison});
+    }
     const at=new Date().toISOString(),next=revision+1,status=calculateRoCosting(record).status;
     this.db.prepare('INSERT INTO ro_costings VALUES(?,?,?,?,?,?) ON CONFLICT(ro) DO UPDATE SET revision=excluded.revision,supplier=excluded.supplier,status=excluded.status,payload=excluded.payload,updated_at=excluded.updated_at').run(record.ro,next,record.supplier,status,JSON.stringify(record),at);
     this.db.prepare('INSERT INTO ro_costing_events VALUES(?,?,?,?,?,?,?,?)').run(randomUUID(),record.ro,next,actor.id,at,input.reason,before?.payload||null,JSON.stringify(record));out.push({ro:record.ro,revision:next});

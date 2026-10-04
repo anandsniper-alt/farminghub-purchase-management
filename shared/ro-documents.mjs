@@ -6,11 +6,12 @@ export function forwardingAgentDocument(kind=''){
 }
 /** A named party must be the issuer, not merely the recipient of another agent's bill. */
 export function importantRoDocuments(record,files=[]){
- const commercialInvoices=[],forwarderInvoices=[],inwardBoe=[],otherBoe=[];
+ const commercialInvoices=[],forwarderInvoices=[],inwardBoe=[],otherBoe=[],importerCopies=[];
  for(const file of files){
   if(/^Commercial invoice(?:$| \()/i.test(file.kind||''))commercialInvoices.push(file);
   else if(forwardingAgentDocument(file.kind))forwarderInvoices.push({...file,agent:forwardingAgentDocument(file.kind).agent});
   else if(file.kind==='Inward BOE')inwardBoe.push(file);
+  else if(file.kind==='Importer copy')importerCopies.push(file);
   else if(file.kind==='Assessed BOE'){
    const reference=String(record.boe||'');
    if(reference&&file.name.startsWith(reference))inwardBoe.push(file);
@@ -19,5 +20,5 @@ export function importantRoDocuments(record,files=[]){
  }
  const matched=new Set((record.invoices||[]).map(i=>i.sha256).filter(Boolean));
  commercialInvoices.sort((a,b)=>Number(matched.has(b.sha256))-Number(matched.has(a.sha256))||a.name.localeCompare(b.name));
- return {commercialInvoices,forwarderInvoices,inwardBoe,otherBoe};
+ return {commercialInvoices,forwarderInvoices,inwardBoe,otherBoe,importerCopies};
 }
