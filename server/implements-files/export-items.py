@@ -9,7 +9,7 @@ from PIL import Image as PILImage
 
 def export(data):
     wb=Workbook();ws=wb.active;ws.title='Item Master'
-    columns=[('image','Product image'),('code','Tally code (IMP-XXX)'),('name','Item name'),('category','Category'),('type','Type'),('unit','Unit'),('models','Models'),('drawing','Drawing code'),('supplier','Supplier'),('imageStatus','Image status')]
+    columns=[('image','Product image'),('code','Tally code (IMP-XXX)'),('name','Item name'),('category','Category'),('type','Type'),('unit','Unit'),('models','Models'),('drawing','Drawing code'),('supplier','Supplier'),('imageStatus','Image status'),('supplierPartCodes','Supplier part codes')]
     ws.append([label for _,label in columns])
     for cell in ws[1]:cell.fill=PatternFill('solid',fgColor='204321');cell.font=Font(color='FFFFFF',bold=True);cell.alignment=Alignment(wrap_text=True,vertical='center')
     ws.row_dimensions[1].height=32
@@ -27,9 +27,9 @@ def export(data):
                 if decoded.format=='WEBP':
                     converted=io.BytesIO();decoded.save(converted,format='PNG');raw=converted.getvalue()
             image=Image(io.BytesIO(raw));scale=min(88/image.width,76/image.height,1);image.width*=scale;image.height*=scale;ws.add_image(image,f'A{index}')
-    for i,width in enumerate([15,23,62,29,22,10,45,20,30,22],1):ws.column_dimensions[get_column_letter(i)].width=width
+    for i,width in enumerate([15,23,62,29,22,10,45,20,30,22,45],1):ws.column_dimensions[get_column_letter(i)].width=width
     ws.freeze_panes='C2';ws.sheet_view.showGridLines=False
-    table=Table(displayName='ItemMaster',ref=f'A1:J{len(data["rows"])+1}');table.tableStyleInfo=TableStyleInfo(name='TableStyleMedium4',showRowStripes=True);ws.add_table(table)
+    table=Table(displayName='ItemMaster',ref=f'A1:K{len(data["rows"])+1}');table.tableStyleInfo=TableStyleInfo(name='TableStyleMedium4',showRowStripes=True);ws.add_table(table)
     ws.print_title_rows='1:1';ws.sheet_properties.pageSetUpPr.fitToPage=True;ws.page_setup.orientation='landscape';ws.page_setup.paperSize=ws.PAPERSIZE_A3;ws.page_setup.fitToWidth=1;ws.page_setup.fitToHeight=0
     notes=wb.create_sheet('Read me');notes.append(['Rotavator Item Master']);notes.append(['Downloaded from Farming Hub Implements purchase.']);notes.append(['Excel edits do not sync back. Use Item Master > Edit item to update the site.']);notes.append(['Photos are references. Confirm item codes, dimensions and grades for purchasing.']);notes.append(['Fabrication children are a component schedule; order the model subassembly through MRP.']);notes.append(['Missing Tally codes stay blank. PPM and weights remain in model BOMs.']);notes.column_dimensions['A'].width=110
     out=io.BytesIO();wb.save(out);return out.getvalue()

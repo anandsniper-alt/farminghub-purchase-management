@@ -15,3 +15,5 @@
 .verification-summary small.sub{display:block;margin-top:3px}
 
 .demo-banner{border:2px solid #946408;background:#fff4d5}.sales-table{min-width:1000px}.sales-edit-table{min-width:950px}.sales-edit-table input[type=number]{width:112px}.sales-edit-table input[type=checkbox]{width:20px;min-width:20px}.sales-edit-table td{vertical-align:top}.sales-table .sub{display:block}.cost-stat small{white-space:normal}
+:root .vendor-photo{width:64px;height:64px;object-fit:contain;background:white;border:1px solid #dce4d5;border-radius:9px;display:inline-grid;place-items:center;flex:none;font-size:11px;color:#52664f;text-align:center}.preserve-lines{white-space:pre-wrap;overflow-wrap:anywhere}
+.table-wrap small.sub,.po-card small.sub{display:block;margin-top:3px}

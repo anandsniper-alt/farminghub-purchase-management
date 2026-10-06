@@ -4,3 +4,4 @@
 
 .bom-app .drawer-close,.bom-app .nav-scrim{display:none}
 @media(max-width:760px){.bom-app .drawer-close{display:inline-flex;position:absolute;right:12px;top:108px;color:white}.bom-app .module-sidebar.open+.nav-scrim{display:block;position:fixed;inset:0;z-index:79;background:#102d1866;border:0}.bom-app .topbar .account .small.strong{display:none}}
+.bom-app .part-photo-button{padding:0;border:0;background:transparent;border-radius:9px;cursor:zoom-in;min-width:60px;min-height:60px}.bom-app .part-photo-button:focus-visible{outline:3px solid #718333;outline-offset:3px}.bom-app .part-photo-placeholder svg{width:54px;height:54px}.technical-photo-viewer{max-width:min(760px,94vw);max-height:90vh;border:1px solid #dce4d5;border-radius:14px;padding:24px;overflow:auto}.technical-photo-viewer>img{display:block;width:100%;max-height:60vh;object-fit:contain}.technical-photo-viewer::backdrop{background:#102d1866}

@@ -1,6 +1,6 @@
 import {createNavigation} from '../navigation.mjs';
 
-export const implementsSections=[['models','Model BOMs','box'],['items','Item Master','orders'],['plan','Monthly planner','clock'],['mrp','Material planner','grid'],['stock','Stock & suppliers','users'],['prices','Purchase prices','money'],['costing','Price calculation','money'],['sales','Sales price lists','file'],['orders','Purchase orders','orders'],['settings','Implements settings','settings']];
+export const implementsSections=[['models','Model BOMs','box'],['items','Item Master','orders'],['plan','Monthly planner','clock'],['mrp','Material planner','grid'],['stock','Component stock','box'],['suppliers','Suppliers','users'],['prices','Purchase prices','money'],['costing','Price calculation','money'],['sales','Sales price lists','file'],['orders','Purchase orders','orders'],['settings','Implements settings','settings']];
 export function renderModuleShell({section,user,icon,esc,flagsButton}){
  const navigation=createNavigation({icon,esc,logo:'/assets/farming-hub-logo.png',context:()=>({user,ui:{view:'implements',orderId:section}}),implementsSections});
  const initials=String(user.name||'').split(' ').slice(0,2).map(v=>v[0]).join('');

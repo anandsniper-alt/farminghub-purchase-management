@@ -44,6 +44,12 @@ def pdf(po):
     def p(v,style='SmallCell'):return Paragraph(escape(str(v or '')).replace('\n','<br/>'),styles[style])
     def n(v):return '' if v is None else f'{v:,.3f}'.rstrip('0').rstrip('.')
     def money(v):return 'Pending' if v is None else f'{v:,.2f}'
+    def product_image(line):
+        if not line.get('imageData'):return p('Photo pending')
+        with PillowImage.open(io.BytesIO(base64.b64decode(line['imageData'],validate=True))) as decoded:
+            if decoded.width*decoded.height>40000000:raise ValueError('Image is too large.')
+            data=io.BytesIO();decoded.convert('RGB').save(data,format='PNG');width,height=decoded.size
+        scale=min(52/width,52/height);return Image(io.BytesIO(data.getvalue()),width=width*scale,height=height*scale)
     doc=SimpleDocTemplate(out,pagesize=landscape(A4),leftMargin=32,rightMargin=32,topMargin=30,bottomMargin=38)
     logo=ROOT/'../../web/assets/farming-hub-logo.png'
     from PIL import Image as PillowImage
@@ -59,11 +65,12 @@ def pdf(po):
     heads=['Item code / component','MRP\nqty' if mixed else 'MRP\npcs','Buffer\nqty' if mixed else 'Buffer\npcs','Extras\nqty' if mixed else 'Extras\npcs','Order\nqty' if mixed else 'Order\npcs','Weight\nkg']+(['Rate INR','Basis','Amount INR'] if priced else [])
     rows=[[p(h,'WhiteCell') for h in heads]]
     for l in po['lines']:
-        label=(l.get('code') or 'Code pending')+'\n'+l['name']
+        label=(l.get('code') or 'Code pending')+'\n'+l['name']+'\nSupplier part code: '+(l.get('supplierPartCode') or 'Pending')
         if l.get('fabricated'):label+='\nFabrication subassembly (one pc per machine)'
         if mixed:label+='\nQuantity unit: '+l.get('uom','pcs')
         if l.get('transportInCost') and priced:label+='\nBase INR '+money(l.get('purchaseBaseRate'))+' + '+n(l.get('purchaseTransportPercent'))+'% transport (included in rate)'
-        line=[p(label),n(l['mrp']),n(l['buffer']),n(l['extras']),n(l['orderQty']),n(l.get('weight')) if l.get('weight') is not None else ('Pending' if l.get('fabricated') else '-')]
+        product=Table([[product_image(l),p(label)]],colWidths=[56,178 if priced else 300]);product.setStyle(TableStyle([('VALIGN',(0,0),(-1,-1),'TOP'),('LEFTPADDING',(0,0),(-1,-1),0),('RIGHTPADDING',(0,0),(-1,-1),3)]))
+        line=[product,n(l['mrp']),n(l['buffer']),n(l['extras']),n(l['orderQty']),n(l.get('weight')) if l.get('weight') is not None else ('Pending' if l.get('fabricated') else '-')]
         if priced:line += [money(l['rate']),l['rateUnit'],money(l['amount'])]
         rows.append(line)
     widths=[278,53,53,53,58,68,75,45,95] if priced else [393,70,70,70,80,95]
@@ -79,7 +86,7 @@ def pdf(po):
         if not l.get('fabricated'):continue
         story.extend([Spacer(1,18),p(l['name']+' - component schedule','Heading3')])
         children=[[p('Code / drawing','WhiteCell'),p('Fabricated component','WhiteCell'),p('PPM (pcs)','WhiteCell'),p('kg / machine','WhiteCell'),p('Order weight kg','WhiteCell')]]
-        for c in l.get('children',[]):children.append([p(c.get('code') or c.get('drawingCode') or 'Pending'),p(c['name']),n(c.get('ppm')) if c.get('ppm') is not None else 'Pending',n(c.get('weight')) if c.get('weight') is not None else 'Pending',n(c['weight']*l['orderQty']) if c.get('weight') is not None else 'Pending'])
+        for c in l.get('children',[]):children.append([p(c.get('code') or c.get('drawingCode') or 'Pending'),[product_image(c),p(c['name']+'\nSupplier part code: '+(c.get('supplierPartCode') or 'Pending'))],n(c.get('ppm')) if c.get('ppm') is not None else 'Pending',n(c.get('weight')) if c.get('weight') is not None else 'Pending',n(c['weight']*l['orderQty']) if c.get('weight') is not None else 'Pending'])
         t=Table(children,colWidths=[90,390,70,110,118],repeatRows=1)
         t.setStyle(TableStyle([('BACKGROUND',(0,0),(-1,0),colors.HexColor('#204321')),('ROWBACKGROUNDS',(0,1),(-1,-1),[colors.white,colors.HexColor('#f7f8f1')]),('FONTSIZE',(0,1),(-1,-1),8),('VALIGN',(0,0),(-1,-1),'TOP'),('TOPPADDING',(0,0),(-1,-1),6),('BOTTOMPADDING',(0,0),(-1,-1),6)]));story.append(t)
     def footer(canvas,document):

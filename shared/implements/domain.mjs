@@ -1,5 +1,6 @@
 // Quantities: whole pcs; kg/ltr support 3 decimals. Fabrication weights: kg per machine.
 import {validateItemImages} from './item-images.mjs';
+import {visualFor} from './part-icons.mjs';
 // These pure rules can later be called from the production shared-domain dispatcher.
 export const normalizeCode=v=>String(v??'').trim().toUpperCase().replace(/^IMP[\s-]*0*(\d+)$/,'IMP-$1');
 export const clone=v=>structuredClone(v);
@@ -168,14 +169,14 @@ export function createOrders(state,selectedKeys,{date,delivery='',notes='',quant
  if(!/^\d{4}-\d{2}-\d{2}$/.test(date))throw Error('Enter a valid PO date.');
  validDate(date,'PO date');if(delivery){validDate(delivery,'Delivery date');if(delivery<date)throw Error('Delivery date cannot be before the PO date.');}
  for(const row of rows){if(!row.supplier||!state.suppliers.some(s=>s.id===row.supplier))throw Error(`Assign a supplier for ${row.code||row.name}.`);if(!quantityOnly&&row.amount==null)throw Error(`Price or weight pending for ${row.code||row.name}. Use a quantity-only PO or complete the value.`);}
- const groups=new Map();for(const row of rows){if(!groups.has(row.supplier))groups.set(row.supplier,[]);groups.get(row.supplier).push(clone(row));}
+ const groups=new Map();for(const row of rows){if(state.suppliers.find(s=>s.id===row.supplier)?.active===false)throw Error('Choose an active supplier for '+row.name);if(!groups.has(row.supplier))groups.set(row.supplier,[]);const saved=clone(row);saved.supplierPartCode=supplierPartCode(state,row.key,row.supplier);saved.image=itemImage(state,row.partId,row.name);saved.children=saved.children.map(c=>({...c,supplierPartCode:supplierPartCode(state,c.partId,row.supplier),image:itemImage(state,c.partId,c.name)}));groups.get(row.supplier).push(saved);}
  let n=Math.max(state.orders.length,...state.orders.map(po=>Number(String(po.id).match(/^FH-IMP-PO-(\d+)$/)?.[1]||0)));
  return [...groups].map(([supplier,lines])=>({id:`FH-IMP-PO-${String(++n).padStart(4,'0')}`,date,delivery,notes,planningMonth:state.activeMonth||'',stockAllocation:report.stockAllocation||'',quantityOnly,status:'Saved review PO',createdAt:new Date().toISOString(),supplier:clone(state.suppliers.find(s=>s.id===supplier)),buyer:clone(state.settings),lines,total:quantityOnly?null:round(lines.reduce((a,l)=>a+l.amount,0),2),plan:clone(state.plan),warnings:clone(report.issues),stockAsOf:state.stockAsOf,bufferRule:lines.some(l=>quantityUnit(l)!=='pcs')?'10% default on net MRP; whole pcs or 3 decimal places for kg/ltr; per-item overrides shown':'10% default on net MRP, rounded up to whole pcs; per-item overrides shown',snapshot:true}));
 }
 export function validateOrder(po){
  if(!po?.id||!Array.isArray(po.lines)||!po.lines.length||po.lines.length>1000||!po.supplier?.name||!po.buyer||typeof po.quantityOnly!=='boolean')throw Error('Invalid saved purchase order.');
  validDate(po.date,'PO date');if(po.delivery){validDate(po.delivery,'Delivery date');if(po.delivery<po.date)throw Error('Delivery date cannot be before the PO date.');}
- for(const l of po.lines){for(const key of ['mrp','buffer','extras','orderQty'])quantity(l[key],'PO '+key,l);if(round(l.mrp+l.buffer+l.extras,3)!==l.orderQty)throw Error('Purchase order quantities do not reconcile.');if(!po.quantityOnly){number(l.rate,'PO rate');number(l.amount,'PO amount');const basis=l.fabricated?number(l.weight,'PO weight'):l.orderQty;if(Math.abs(round(basis*l.rate,2)-l.amount)>.011)throw Error('Purchase order amount does not reconcile.');}}
+ for(const l of po.lines){validateProductImage(l.image);if(l.supplierPartCode!==undefined)supplierText(l.supplierPartCode,'PO supplier part code',120);for(const c of l.children||[]){validateProductImage(c.image);if(c.supplierPartCode!==undefined)supplierText(c.supplierPartCode,'PO supplier part code',120);}for(const key of ['mrp','buffer','extras','orderQty'])quantity(l[key],'PO '+key,l);if(round(l.mrp+l.buffer+l.extras,3)!==l.orderQty)throw Error('Purchase order quantities do not reconcile.');if(!po.quantityOnly){number(l.rate,'PO rate');number(l.amount,'PO amount');const basis=l.fabricated?number(l.weight,'PO weight'):l.orderQty;if(Math.abs(round(basis*l.rate,2)-l.amount)>.011)throw Error('Purchase order amount does not reconcile.');}}
  if(!po.quantityOnly){number(po.total,'PO total');if(Math.abs(round(po.lines.reduce((a,l)=>a+l.amount,0),2)-po.total)>.011)throw Error('Purchase order total does not reconcile.');}return po;
 }
 export function validateState(s){
@@ -184,6 +185,7 @@ export function validateState(s){
  if(s.models.length>1000||s.parts.length>5000||s.orders.length>1000)throw Error('Workspace exceeds local trial limits.');
  if(new Set(s.models.map(m=>m.id)).size!==s.models.length||new Set(s.parts.map(p=>p.id)).size!==s.parts.length)throw Error('Duplicate model or component identity.');
  if(s.suppliers.length>1000||new Set(s.suppliers.map(x=>x.id)).size!==s.suppliers.length||s.suppliers.some(x=>!x.id||!String(x.name||'').trim()))throw Error('Invalid or duplicate supplier identity.');
+ validateSuppliers(s);
  number(s.revision,'Workspace revision',{integer:true});if(!Array.isArray(s.audit))throw Error('Workspace audit history is missing.');
  const stockKeys=new Set([...s.parts.filter(p=>!p.fabricated).map(p=>p.id),...s.models.map(m=>'fab:'+m.id)]),suppliers=new Set(s.suppliers.map(x=>x.id));
  for(const key of Object.keys(s.stock))if(!stockKeys.has(key))throw Error('Unknown stock item '+key);
@@ -234,4 +236,28 @@ export function updateMasterItem(s,id,values,reason){
  s.itemHistory.push({at:new Date().toISOString(),id,reason:String(reason).trim(),before:{code:current.code,name:current.name},after:{code,name},photoChanged:(s.itemImages?.[id]?.image??null)!==(values.image??null)});
  s.itemHistory=s.itemHistory.slice(-1000);
  s.itemImages=images;
+}
+
+// Vendor references are independent of internal IMP identities and current prices.
+const supplierText=(value,label,max=300)=>{if(typeof value!=='string'||value.length>max||(/address|terms|note|reason/.test(label)?/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/:/[\x00-\x1f\x7f]/).test(value))throw Error('Invalid '+label+'.');return value.trim();};
+export function supplierPartCode(state,itemKey,supplierId){return (state.supplierItems||[]).find(r=>r.itemKey===itemKey&&r.supplierId===supplierId)?.partCode||'';}
+export function supplierItems(state,id){const all=masterItems(state),keys=new Set(all.filter(p=>p.supplier===id).map(p=>p.id));for(const m of state.models)if(m.fabricationSupplier===id){keys.add('fab:'+m.id);for(const l of m.fabrication)if(l.partId)keys.add(l.partId);}for(const r of state.supplierItems||[])if(r.supplierId===id)keys.add(r.itemKey);return [...keys].map(key=>{const m=key.startsWith('fab:')?state.models.find(m=>'fab:'+m.id===key):null,p=m?{id:key,code:m.fabricationCode,name:m.id+' fabricated parts',fabricated:true,models:[m.id]}:all.find(p=>p.id===key);return {...p,itemKey:key,supplierPartCode:supplierPartCode(state,key,id)};}).filter(p=>p.id);}
+export function itemImage(state,id,name){const entry=state.itemImages?.[id];return entry?.image||visualFor(entry?.originalName||name).image||'';}
+export function validateProductImage(src){if(src===undefined||src==='')return;if(typeof src!=='string'||src.length>100000||!(/^data:image\/(?:png|jpeg|webp);base64,[A-Za-z0-9+/]+={0,2}$/.test(src)||/^\/implements\/assets\/parts\/(?:photos\/)?[A-Za-z0-9_-]+\.(?:png|jpg|jpeg|webp)$/.test(src)))throw Error('Invalid product image.');}
+export function validateSuppliers(state){
+ const keys=new Set([...masterItems(state).map(p=>p.id),...state.models.map(m=>'fab:'+m.id)]),suppliers=new Set(state.suppliers.map(s=>s.id)),seen=new Set();
+ for(const s of state.suppliers){for(const [key,max] of Object.entries({name:300,code:80,contact:200,address:2000,gstin:30,phone:80,email:200,terms:1200,notes:1200}))if(s[key]!==undefined)supplierText(s[key],key,max);if(s.active!==undefined&&typeof s.active!=='boolean')throw Error('Invalid supplier status.');}
+ if(state.supplierItems!==undefined&&!Array.isArray(state.supplierItems))throw Error('Invalid supplier item list.');if((state.supplierItems||[]).length>20000)throw Error('Limit: 20,000 supplier item mappings.');
+ for(const r of state.supplierItems||[]){if(!r||Object.keys(r).some(k=>!['supplierId','itemKey','partCode','notes'].includes(k))||!suppliers.has(r.supplierId)||!keys.has(r.itemKey))throw Error('Unknown supplier or item in vendor mapping.');supplierText(r.partCode,'supplier part code',120);if(r.notes!==undefined)supplierText(r.notes,'supplier item note',500);const key=JSON.stringify([r.supplierId,r.itemKey]);if(seen.has(key))throw Error('Duplicate supplier item mapping.');seen.add(key);}
+}
+export function saveSupplier(state,id,values,reason){
+ reason=supplierText(reason,'change reason',1200);if(!reason)throw Error('Enter a reason for this change.');const before=state.suppliers.find(s=>s.id===id);if(id&&!before)throw Error('Supplier not found.');
+ const record={...(before||{id:'supplier-'+crypto.randomUUID()}),...Object.fromEntries(Object.entries(values).filter(([k])=>['name','code','contact','address','gstin','phone','email','terms','notes','active'].includes(k)))};
+ record.name=supplierText(record.name,'supplier name',300);if(!record.name)throw Error('Supplier name is required.');if(state.suppliers.some(s=>s.id!==record.id&&s.name.trim().toLowerCase()===record.name.toLowerCase()))throw Error('A supplier with this name already exists.');
+ if(record.code&&state.suppliers.some(s=>s.id!==record.id&&s.code?.toLowerCase()===record.code.toLowerCase()))throw Error('Supplier code is already used.');
+ const next={...state,suppliers:before?state.suppliers.map(s=>s.id===id?record:s):[...state.suppliers,record]};validateSuppliers(next);state.suppliers=next.suppliers;state.supplierHistory??=[];state.supplierHistory.push({at:new Date().toISOString(),supplierId:record.id,reason,before:before?clone(before):null,after:clone(record)});return record;
+}
+export function saveSupplierItem(state,supplierId,itemKey,partCode,notes,reason){
+ reason=supplierText(reason,'change reason',1200);if(!reason)throw Error('Enter a reason for this change.');const before=(state.supplierItems||[]).find(r=>r.supplierId===supplierId&&r.itemKey===itemKey),record={supplierId,itemKey,partCode:supplierText(partCode,'supplier part code',120),notes:supplierText(notes||'','supplier item note',500)};
+ const rows=before?state.supplierItems.map(r=>r===before?record:r):[...(state.supplierItems||[]),record];validateSuppliers({...state,supplierItems:rows});state.supplierItems=rows;state.supplierHistory??=[];state.supplierHistory.push({at:new Date().toISOString(),supplierId,itemKey,reason,before:before?clone(before):null,after:clone(record)});
 }

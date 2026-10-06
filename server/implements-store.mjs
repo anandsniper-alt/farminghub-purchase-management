@@ -55,7 +55,7 @@ export class ImplementsStore{
    if(technical){if(initial)fail('Initialize the Implements workspace before technical review.');try{assertTechnicalOnly(previous,next);}catch(error){fail(error.message);}}
    if(initial&&actor.role!=='ADMIN')fail('An administrator must import the reviewed workspace first.','FORBIDDEN');
    if(!initial){
-    prefix(previous.orders,next.orders,'Purchase order');prefix(previous.priceImports,next.priceImports,'Price import');
+    prefix(previous.orders,next.orders,'Purchase order');prefix(previous.priceImports,next.priceImports,'Price import');prefix(previous.supplierHistory,next.supplierHistory||[],'Supplier');
     prefix(previous.sales?.lists,next.sales?.lists||[],'Sales price list');prefix(previous.sales?.activationHistory,next.sales?.activationHistory||[],'Current price list');
     for(const key of ['models','parts','suppliers'])for(const old of previous[key]){
      const item=next[key].find(v=>v.id===old.id);if(!item)fail('Existing '+key+' must be retained.');
