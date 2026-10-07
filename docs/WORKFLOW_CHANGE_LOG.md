@@ -1046,3 +1046,5 @@ BOM & Syntax / model catalogue → clickable SKU Yes or Not finalised counts →
 ## WF-110 — Existing-user password reset and BOM editor filtering (2026-10-07, DEC-116)
 
 Administrator → Users & settings → account reset/change action → matched new password + reason + sign-out confirmation → atomic credential update + audit + target-session revocation. Self change requires current password and returns to sign-in. BOM & Syntax → model → Propose component/fabrication edit → search + segment → edit quantities → Submit for approval with complete filtered/hidden draft retained. No prices or approval bypass. Jayanth uses his existing production-manager access. Native tests and isolated actual-data browser verification are recorded privately under test-output/password-reset-release; publication pending.
+
+WF-110 initial publication verified at e17cb17, quality run37632623605,390 tests. Live segment editor and empty user reset dialog confirmed with no live credential/BOM writes. Final footer scrolling polish remains a separate publication candidate; recovery gate is in progress.
