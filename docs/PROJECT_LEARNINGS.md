@@ -685,3 +685,6 @@ Shared theme hooks require both app and modal-root containers even where native 
 
 
 **2026-10-07 — MODULE/FUNCTION, DEC-114:** Keep delivered stock, outstanding incoming orders and historic price-list costs distinct. Replay PO event/quote effects with the authoritative actor; receipts must commit with physical stock. Partial production needs cumulative material rounding and an explicit full-issue marker, including legacy batches, to prevent repeated deductions. Inspect PDF status text as well as footers: a changed footer alone can leave an obsolete review-only heading. Applies to Implements procurement/production/pricing; not authorization for GRN, invoices, supplier messages or a live release. Status: enforced by targeted tests and local export inspection.
+
+
+**DEC-114 live-check lesson — 2026-10-07:** When a dashboard metric combines several operational statuses, its linked register must use the same status set. In production now aggregates and filters issued plus partly completed batches; native checks exclude draft and finished records. Validate both the counter and its destination during release review.
