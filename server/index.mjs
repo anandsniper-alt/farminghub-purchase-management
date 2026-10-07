@@ -88,6 +88,14 @@ export function makeServer(store,{origin=null,secureCookie=false,releaseSha=proc
   if(path==='/api/integration/v1/snapshot'&&req.method==='GET'){if(session.user.role!=='ADMIN')throw new RuleError('Administrator access required for integration export.','FORBIDDEN');return json(res,200,integrationSnapshot(scopedState(store.read(),session.user)));}
   if(path==='/api/revision'&&req.method==='GET')return json(res,200,{revision:store.revision()});
   if(path==='/api/bootstrap'&&req.method==='GET'){const state=store.read();return json(res,200,{state:scopedState(state,session.user),user:session.user,csrf:session.csrf,editContext:store.editContext(state,session.user.id)});}
+  if(path==='/api/users/reset-password'&&req.method==='POST'){
+   if(session.user.role!=='ADMIN')throw new RuleError('Administrator access is required to reset passwords.','FORBIDDEN');
+   const key='password:'+session.user.id,now=Date.now(),prior=attempts.get(key);const limit=prior&&now-prior.since<60000?prior:{count:0,since:now};
+   if(limit.count>=10)return json(res,429,{error:'Too many password reset attempts. Wait a minute before trying again.'});limit.count++;attempts.set(key,limit);
+   const out=store.resetUserPassword(await body(req,12000),session.user.id);
+   if(out.result.reauthRequired)res.setHeader('Set-Cookie',`fh_session=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0${secureCookie?'; Secure':''}`);
+   return json(res,200,{state:scopedState(out.state,session.user),result:out.result,users:store.listAccounts(),editContext:store.editContext(out.state,session.user.id)});
+  }
   if(path==='/api/users'&&['GET','POST'].includes(req.method)){
    if(session.user.role!=='ADMIN')throw new RuleError('Administrator access is required to manage users.','FORBIDDEN');
    if(req.method==='GET')return json(res,200,{users:store.listAccounts()});

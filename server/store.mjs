@@ -57,6 +57,36 @@ export class Store{
    return cleanProfile;
   }catch(e){this.db.exec('ROLLBACK');throw e;}
  }
+ resetUserPassword(input,actorId){
+  this.db.exec('BEGIN IMMEDIATE');
+  try{
+   const previous=this.read(),actor=previous.users.find(u=>u.id===actorId);
+   if(!actor||actor.active===false||actor.role!=='ADMIN')throw new RuleError('Administrator access is required to reset passwords.','FORBIDDEN');
+   if(!input||Object.keys(input).some(k=>!['userId','password','confirmPassword','currentPassword','remarks','confirm','expectedRevision','editContext','requestId'].includes(k)))throw new RuleError('Invalid password reset request.');
+   const {userId,password,confirmPassword,currentPassword,remarks,confirm,expectedRevision,editContext,requestId}=input;
+   if(typeof userId!=='string'||!previous.users.some(u=>u.id===userId))throw new RuleError('User not found.','NOT_FOUND');
+   const account=this.db.prepare('SELECT * FROM accounts WHERE id=?').get(userId);
+   if(!account)throw new RuleError('This profile has no sign-in account.');
+   if(typeof password!=='string'||password.length<12||password.length>256)throw new RuleError('Use a password of 12–256 characters.');
+   if(password!==confirmPassword)throw new RuleError('Passwords do not match.');
+   if(confirm!==true)throw new RuleError('Confirm the password reset and session sign-out.');
+   if(typeof remarks!=='string'||!remarks.trim()||remarks.length>1200)throw new RuleError('Enter a reason of 1–1,200 characters.');
+   if(remarks.includes(password)||(typeof currentPassword==='string'&&currentPassword&&remarks.includes(currentPassword)))throw new RuleError('Keep passwords out of the checking reason.');
+   if(!Number.isSafeInteger(expectedRevision)||!requestId)throw new RuleError('Reload the user list before saving.');
+   // Retry metadata excludes passwords. The slow stored credential hash verifies exact secret replay.
+   const request=this.requestCheck(actor,requestId,'USER_PASSWORD_RESET',{userId,remarks:remarks.trim()});
+   if(request?.replayed){if(!matchPassword(password,account.password_hash))throw new RuleError('This reset request no longer matches the current password. Review and use a new request.','CONFLICT');this.db.exec('COMMIT');return {state:previous,result:request.result,replayed:true};}
+   this.editVersions.assert(previous,{type:'RESET_USER_PASSWORD'},actorId,expectedRevision,editContext);
+   if(userId===actorId&&(typeof currentPassword!=='string'||currentPassword.length>256||!matchPassword(currentPassword,account.password_hash)))throw new RuleError('Enter your correct current password.');
+   if(matchPassword(password,account.password_hash))throw new RuleError('Choose a different password.');
+   const encoded=hashPassword(password),revoked=this.db.prepare('SELECT count(*) n FROM sessions WHERE account_id=?').get(userId).n;
+   this.db.prepare('UPDATE accounts SET password_hash=? WHERE id=?').run(encoded,userId);
+   this.db.prepare('DELETE FROM sessions WHERE account_id=?').run(userId);
+   const next=structuredClone(previous);next.revision++;next.events.push({id:randomUUID(),at:new Date().toISOString(),actorId:actor.id,actorName:actor.name,entityType:'user',entityId:userId,action:'USER_PASSWORD_RESET',summary:'Password reset; existing sign-in sessions revoked.',oldValue:null,newValue:{userId,sessionsRevoked:revoked,reason:remarks.trim()},source:'User access portal'});
+   this.commit(next,previous.revision,previous);
+   const result={userId,sessionsRevoked:revoked,reauthRequired:userId===actorId};this.requestSave(actorId,requestId,'USER_PASSWORD_RESET',request,result);this.db.exec('COMMIT');return {state:next,result};
+  }catch(e){this.db.exec('ROLLBACK');throw e;}
+ }
  addProfile(profile){this.db.exec('BEGIN IMMEDIATE');try{const previous=this.read();if(previous.users.some(u=>u.id===profile.id))throw new Error('User ID exists.');const next=structuredClone(previous);next.users.push(profile);next.revision++;next.events.push({id:randomUUID(),at:new Date().toISOString(),actorId:'local-admin-cli',actorName:'Local account administrator',entityType:'user',entityId:profile.id,action:'USER_PROFILE_CREATED',summary:'Local pilot account profile added.',oldValue:null,newValue:{id:profile.id,name:profile.name,role:profile.role},source:'Account setup'});this.commit(next,previous.revision,previous);this.db.exec('COMMIT');}catch(e){this.db.exec('ROLLBACK');throw e;}}
  login(email,password){const a=this.db.prepare('SELECT * FROM accounts WHERE email=? AND active=1').get(String(email).trim().toLowerCase());const fallback='739158c358760df4bd00a297b5ff2a9e:'+('00'.repeat(64));const ok=matchPassword(String(password),a?.password_hash||fallback);const u=a?this.read().users.find(u=>u.id===a.id&&u.active!==false):null;if(!a||!ok||!u)return null;const token=randomBytes(32).toString('hex'),csrf=randomBytes(24).toString('hex');this.db.prepare('DELETE FROM sessions WHERE expires_at<?').run(Date.now());this.db.prepare('INSERT INTO sessions VALUES(?,?,?,?)').run(hashToken(token),a.id,csrf,Date.now()+8*60*60*1000);return{token,csrf,user:u};}
  session(token){if(!token)return null;const s=this.db.prepare('SELECT * FROM sessions WHERE token_hash=? AND expires_at>?').get(hashToken(token),Date.now());if(!s)return null;const a=this.db.prepare('SELECT active FROM accounts WHERE id=?').get(s.account_id);if(!a?.active)return null;const row=this.db.prepare("SELECT u.value AS profile FROM workspace w, json_each(w.payload,'$.users') u WHERE w.id=1 AND json_extract(u.value,'$.id')=?").get(s.account_id),user=row?JSON.parse(row.profile):null;return user&&user.active!==false?{...s,user}:null;}

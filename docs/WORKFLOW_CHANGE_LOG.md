@@ -1042,3 +1042,7 @@ Purchase orders → manager approval → issue → internal delivery acknowledgm
 ## WF-109 — SKU finalisation across Implements (2026-10-07, DEC-115)
 
 BOM & Syntax / model catalogue → clickable SKU Yes or Not finalised counts → combined series/BOM/specification filters → model checks and selected technical downloads. The same status appears in costing, monthly planning, sales comparisons, forward/backward analysis and production model selection. Hidden operational quantities and selected production models are retained. No live data changes. [Contract](IMPLEMENTS_SKU_FINALISATION.md).
+
+## WF-110 — Existing-user password reset and BOM editor filtering (2026-10-07, DEC-116)
+
+Administrator → Users & settings → account reset/change action → matched new password + reason + sign-out confirmation → atomic credential update + audit + target-session revocation. Self change requires current password and returns to sign-in. BOM & Syntax → model → Propose component/fabrication edit → search + segment → edit quantities → Submit for approval with complete filtered/hidden draft retained. No prices or approval bypass. Jayanth uses his existing production-manager access. Native tests and isolated actual-data browser verification are recorded privately under test-output/password-reset-release; publication pending.
