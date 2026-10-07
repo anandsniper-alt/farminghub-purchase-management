@@ -49,3 +49,5 @@ The phrase “Defect on material issue” remains unconfirmed: clarification was
 
 
 **2026-10-07 — DEC-114 supersedes whole-batch-only:** partial completion is implemented locally, with tranche serials, direct proportional consumption, no second deduction after full material issue, cumulative reversal and legacy-issued compatibility. The cost-free API and manager restrictions remain. This extension is not yet published. See [contract](IMPLEMENTS_PROCUREMENT_LIFECYCLE.md).
+
+**DEC-114 / WF-108 navigation follow-up:** In production now filters MATERIAL_ISSUED and PART_COMPLETED together; explicit individual statuses remain available. Native checks passed for both included stages and exclusion of draft/finished batches (17 targeted tests total); review build and diff checks passed. No production quantity, posting or stock policy change. Final publication requires the freshly downloaded6200d68 snapshot recovery verification and the new exact-runtime readback.
