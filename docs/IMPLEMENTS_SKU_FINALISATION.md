@@ -1,0 +1,15 @@
+# SKU finalisation across Implements
+
+2026-10-07 · DEC-115 / WF-109 · MODULE-SPECIFIC RULE
+
+The user confirmed SKU FINALISATION from ROTAVATOR SYNTAX.xlsx as a primary model parameter. Reuse the existing `salesConfirmed` boolean: true means YES and confirmed for sales; all other values remain Not finalised. This parameter is independent of BOM availability, production checking and costing completeness. No source status, model, PPM, weight, price, plan or historical snapshot is changed.
+
+BOM & Syntax now leads with clickable Yes / Not finalised counts, names the filter explicitly, shows status on model cards/details and the syntax register, and includes it in selected-model technical BOM downloads. Model catalogue and costing use the same labels and counts. Monthly model planning and its annual model table filter without deleting hidden quantities; MRP continues to use the entire saved plan. Sales pricing separates SKU status from cost readiness; the current comparison CSV follows the filtered rows. New price-list drafts inherit the active SKU filter. Forward/backward analysis applies SKU filtering to both current and historical comparisons using the current model specification, without changing retained cost snapshots. Production entry filters model choices and explicitly retains a selected model outside the filter, preserving other form entries.
+
+The pure helper is served through each app's existing authenticated asset boundary. Cost-free production/BOM projections and existing approvals remain authoritative. There are no migrations, new permissions, workflow gates or dependencies. Reuse of native labelled selects, links, chips, summary cards and bounded costing pages follows UI-01/03/04/05/06/08/12 and HIG R006/R022/R100/R135–140. Current volume is 187 models; filtering remains linear over the existing workspace at current/10x size. At 100x, existing aggregate/pagination debt still requires measurement and indexed reads; this UI change makes no scalability certification.
+
+Local verification: all 382 existing native tests and two new tests passed on the first regression run. The new export test initially called its helper with the wrong argument order; after correcting the test, all 11 SKU/technical-access checks passed. Review build passed. Read-only actual-data browser verification confirmed 20 finalised and 167 unfinalised models, independent BOM coverage, reset behavior, 10/7 filtered planner rows, costing counts, sales comparisons and preservation of the selected production model. No browser warnings/errors. Full live recovery download, matching running source, all 20 table signatures, original/candidate startup, ZIP CRC/member hashes and extracted restore passed. Publication remains pending until exact live release verification is appended.
+
+## Segment grouping requested during review
+
+The cost-free model Components screen sorts by segment, then item code with numeric ordering. Each segment has a visible heading and item count. Search and segment filters remain active; no BOM quantities, item identities, model revisions or source ordering are changed in storage.

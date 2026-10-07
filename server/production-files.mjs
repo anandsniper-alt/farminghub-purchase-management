@@ -9,6 +9,7 @@ export const productionAssets=new Map([
  ['/production/style.css',bomAssets.get('/bom/style.css')],
  ['/production/production.css',{file:join(root,'web/production/style.css'),type:'text/css; charset=utf-8'}]
 ]);
+productionAssets.set('/production/sku-finalisation.mjs',{file:join(root,'shared/sku-finalisation.mjs'),type:'text/javascript; charset=utf-8'});
 for(const [url,asset]of bomAssets)if(url.startsWith('/bom/assets/'))productionAssets.set(url.replace('/bom/','/production/'),asset);
 const cell=value=>'"'+(typeof value==='number'?String(value):String(value??'').replace(/^[=+\-@\t\r]/,"'$&")).replaceAll('"','""')+'"';
 export function productionCsv(headers,rows){return Buffer.from('\ufeff'+[headers,...rows].map(r=>r.map(cell).join(',')).join('\r\n'),'utf8');}

@@ -688,3 +688,6 @@ Shared theme hooks require both app and modal-root containers even where native 
 
 
 **DEC-114 live-check lesson — 2026-10-07:** When a dashboard metric combines several operational statuses, its linked register must use the same status set. In production now aggregates and filters issued plus partly completed batches; native checks exclude draft and finished records. Validate both the counter and its destination during release review.
+
+
+**2026-10-07 — SKU terminology:** A primary syntax-sheet parameter should use its sheet name across model-facing views, rather than being hidden behind generic Sales status. Reuse one strict boolean helper; keep SKU confirmation independent of BOM/cost readiness, preserve selected production models and hidden plan quantities, and label historical comparisons as using the current model specification.

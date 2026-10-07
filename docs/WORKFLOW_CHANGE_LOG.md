@@ -1037,3 +1037,8 @@ Implements Division → Rotavator purchasing → Suppliers → contacts/status �
 ## WF-108 — Implements procurement pipeline and partial completion (2026-10-07, DEC-114)
 
 Purchase orders → manager approval → issue → internal delivery acknowledgment → partial/full delivery → reasoned closure. Acknowledgment atomically adds delivered quantities to stock without GRN. Pipeline links to PO actions; MRP separates outstanding issued quantities from stock and warns about overlapping orders. Supplier quote comparison → optional landed-rate selection → working price history. Production draft → direct tranche completion or full issue → successive tranche serials → completed batch. Price analysis connects forward multiplier, backward target cost and old/new saved cost deltas with the user's GST-inclusive denominator. Separate local demo database retained; no live deployment/data change. See [contract](IMPLEMENTS_PROCUREMENT_LIFECYCLE.md).
+
+
+## WF-109 — SKU finalisation across Implements (2026-10-07, DEC-115)
+
+BOM & Syntax / model catalogue → clickable SKU Yes or Not finalised counts → combined series/BOM/specification filters → model checks and selected technical downloads. The same status appears in costing, monthly planning, sales comparisons, forward/backward analysis and production model selection. Hidden operational quantities and selected production models are retained. No live data changes. [Contract](IMPLEMENTS_SKU_FINALISATION.md).

@@ -534,3 +534,6 @@ MODULE-SPECIFIC RULE: LAE Import RO costing archive. Preserve exact identifiers 
 
 
 **MODULE-SPECIFIC RULE — DEC-114 / WF-108 (2026-10-07):** Implements uses internal delivery acknowledgment instead of GRN; only acknowledged quantities become stock. Preserve original PO content and append stage history. Production supports partial completion without repeated material deductions. Backward pricing is target cost; historic actual costs require saved snapshots. User margin denominator is GST-inclusive selling price with explicit GST input. See [contract](IMPLEMENTS_PROCUREMENT_LIFECYCLE.md).
+
+
+**MODULE-SPECIFIC RULE — SKU finalisation (2026-10-07, DEC-115 / WF-109):** SKU FINALISATION = YES confirms a model for sales. Preserve the existing syntax value independently of BOM/check/cost readiness. Expose explicit status, clickable counts and view filters across model-facing modules. Filtering never deletes plans, changes costs/history or creates production eligibility restrictions. [Contract](IMPLEMENTS_SKU_FINALISATION.md).

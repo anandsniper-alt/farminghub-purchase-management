@@ -24,7 +24,7 @@ def sheet(wb,title,headers,rows,widths,money_columns=()):
 
 def export(data):
     reports=data['reports'];selection=data.get('selection');wb=Workbook();wb.remove(wb.active)
-    sheet(wb,'Model costs',['Model','Series','Size','Sales confirmed','Current BOM parts INR','Current fabrication INR','Current other costs INR','Current total per machine INR','Complete cost per machine INR','Status','Missing inputs','BOM revision'],[[r['id'],r['series'],r['size'],'Yes' if r['salesConfirmed'] else 'No',r['partsKnown'],r['fabricationTotal'] or 0,r['otherKnown'],r['knownTotal'],r['total'],'BOM incomplete' if not r['bomAvailable'] else 'Partial calculation' if r['total'] is None else 'Complete',r['pending'],r['revision']] for r in reports],[18,22,15,20,25,25,25,28,28,24,18,16],range(5,10))
+    sheet(wb,'Model costs',['Model','Series','Size','SKU finalisation','Current BOM parts INR','Current fabrication INR','Current other costs INR','Current total per machine INR','Complete cost per machine INR','Status','Missing inputs','BOM revision'],[[r['id'],r['series'],r['size'],'Yes' if r['salesConfirmed'] else 'No',r['partsKnown'],r['fabricationTotal'] or 0,r['otherKnown'],r['knownTotal'],r['total'],'BOM incomplete' if not r['bomAvailable'] else 'Partial calculation' if r['total'] is None else 'Complete',r['pending'],r['revision']] for r in reports],[18,22,15,20,25,25,25,28,28,24,18,16],range(5,10))
     detail=[];segments=[]
     for r in reports:
         rows=[next(line for line in r['rows'] if line['id']==item_id) for item_id in selection['ids']] if selection else r['rows']

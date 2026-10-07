@@ -12,6 +12,7 @@ for(const name of ['part-icons.mjs','part-photos.mjs'])bomAssets.set('/bom/'+nam
 bomAssets.set('/bom/',bomAssets.get('/bom/index.html'));
 bomAssets.set('/shared/bom-management.mjs',{file:join(root,'shared/bom-management.mjs'),type:mime['.mjs']});
 for(const [url,asset] of implementsAssets)if(url.startsWith('/implements/assets/parts/')&&asset.type.startsWith('image/'))bomAssets.set(url.replace('/implements/','/bom/'),asset);
+bomAssets.set('/bom/sku-finalisation.mjs',{file:join(root,'shared/sku-finalisation.mjs'),type:mime['.mjs']});
 const cell=value=>{const str=String(value??'');return '"'+(/^[=+\-@\t\r]/.test(str)?"'"+str:str).replaceAll('"','""')+'"';};
 export function exportTechnical(data,selection={},kind='bom'){
  if(!['bom','syntax','flags','reviews'].includes(kind))throw new RuleError('Unknown technical export.');
@@ -21,5 +22,6 @@ export function exportTechnical(data,selection={},kind='bom'){
  else if(kind==='bom'){headers=['Model','Series','Type','Segment','Item code','Item name','PPM','Unit','Combined weight per machine kg','Drawing code','Included in fabrication weight','Model revision'];rows=models.flatMap(m=>[...m.lines.map(l=>{const p=index.get(l.partId);return [m.id,m.series,'Component',p?.category,p?.code,p?.name,l.ppm,p?.uom||'pcs','','','',m.revision];}),...m.fabrication.map(l=>[m.id,m.series,'Fabrication','Fabrication',l.code,l.name,l.ppm,'pcs',l.weight,l.drawingCode,l.excluded?'NO':'YES',m.revision])]);}
  else if(kind==='flags'){headers=['Model','Segment','Item / check','Issue','Old PPM','New PPM','Confirmed PPM','Source flag status'];rows=models.flatMap(m=>[...technicalIssues(m,data.parts).map(f=>[m.id,f.segment,f.id,f.message,'','','','']),...(data.sourceFlags||[]).filter(f=>f.modelId===m.id).map(f=>[m.id,f.category,f.itemCode,f.name,f.oldPpm,f.newPpm,f.confirmedPpm,f.confirmed?'Confirmed; retained in source history':'Review'])]);}
  else {headers=['Model','Type','Status','Model revision checked','Date','Checked / submitted by','Checking note'];rows=data.reviews.filter(r=>!selected||selected.has(r.modelId)).map(r=>[r.modelId,r.kind,r.status,r.modelRevision,r.createdAt,r.createdBy.name,r.reason]);}
+ if(kind==='bom'){headers.push('SKU finalisation');const byId=new Map(models.map(m=>[m.id,m]));for(const row of rows)row.push(byId.get(row[0]).salesConfirmed?'YES':'NO');}
  return {type:'text/csv; charset=utf-8',name:'Rotavator_'+kind+'_technical.csv',bytes:Buffer.from('\ufeff'+[headers,...rows].map(row=>row.map(cell).join(',')).join('\r\n'),'utf8')};
 }

@@ -5,3 +5,7 @@
 .bom-app .drawer-close,.bom-app .nav-scrim{display:none}
 @media(max-width:760px){.bom-app .drawer-close{display:inline-flex;position:absolute;right:12px;top:108px;color:white}.bom-app .module-sidebar.open+.nav-scrim{display:block;position:fixed;inset:0;z-index:79;background:#102d1866;border:0}.bom-app .topbar .account .small.strong{display:none}}
 .bom-app .part-photo-button{padding:0;border:0;background:transparent;border-radius:9px;cursor:zoom-in;min-width:60px;min-height:60px}.bom-app .part-photo-button:focus-visible{outline:3px solid #718333;outline-offset:3px}.bom-app .part-photo-placeholder svg{width:54px;height:54px}.technical-photo-viewer{max-width:min(760px,94vw);max-height:90vh;border:1px solid #dce4d5;border-radius:14px;padding:24px;overflow:auto}.technical-photo-viewer>img{display:block;width:100%;max-height:60vh;object-fit:contain}.technical-photo-viewer::backdrop{background:#102d1866}
+
+.bom-app .sku-dashboard{grid-template-columns:repeat(3,minmax(0,1fr))}@media(max-width:1100px){.bom-app .sku-dashboard{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:760px){.bom-app .sku-dashboard{grid-template-columns:1fr}}
+
+.bom-app .bom-segment-heading th{background:#edf3e2;color:#214523;border-top:2px solid #cbd9bb;padding:14px 16px;font-size:14px;text-align:left}.bom-app .bom-segment-heading .chip{margin-left:10px;font-size:12px}

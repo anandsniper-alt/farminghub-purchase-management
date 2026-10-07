@@ -11,6 +11,7 @@ const mime={'.html':'text/html; charset=utf-8','.mjs':'text/javascript; charset=
 export const implementsAssets=new Map();
 function inventory(dir,prefix=''){for(const entry of readdirSync(dir,{withFileTypes:true})){const name=prefix+entry.name;if(entry.isDirectory())inventory(join(dir,entry.name),name+'/');else if(mime[extname(name)])implementsAssets.set('/implements/'+name,{file:join(web,name),type:mime[extname(name)]});}}
 inventory(web);for(const name of ['domain.mjs','costing.mjs','sales-pricing.mjs','item-images.mjs','part-icons.mjs','part-photos.mjs','procurement.mjs'])implementsAssets.set('/shared/implements/'+name,{file:join(root,'shared/implements',name),type:'text/javascript; charset=utf-8'});implementsAssets.set('/implements/',implementsAssets.get('/implements/index.html'));
+implementsAssets.set('/implements/sku-finalisation.mjs',{file:join(root,'shared/sku-finalisation.mjs'),type:mime['.mjs']});
 let jobs=0;
 function run(file,args,data){return new Promise((resolveJob,reject)=>{
  const python=process.env.FH_PYTHON||'python3',child=spawn(python,[join(root,'server/implements-files',file),...args],{windowsHide:true,env:{...process.env,PYTHONIOENCODING:'utf-8'}}),chunks=[];let bytes=0,errors='';
