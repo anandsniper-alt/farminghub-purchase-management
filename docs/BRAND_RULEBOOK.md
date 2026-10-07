@@ -398,3 +398,8 @@ Reuse the LAE Import sidebar, money icon, branded Minimal panels, invoice tables
 
 
 **DEC-114 UI extension:** Pipeline/quotation/price analysis use the existing Implements shell, semantic cards/tables, reasoned native dialogs and accessible warning text. Production partial completion retains its cost-free shell. PO PDF/Excel show authoritative lifecycle status while preserving product identity/quantities. UI-01/02/04/06/08/11/12 apply; no new theme or animation engine.
+
+
+### Production audit - 2026-10-07
+
+WF-111 Production audit: retain the cost-free shell and shared branding. Show/focus nonempty validation errors, preserve batch entries during balance refresh, separate planned/completed sublabels and retain 44px mobile action targets. No BOM editor or print redesign.

@@ -1142,3 +1142,8 @@ WF-110 final candidate verification: 3f409a936b5723eb7d73a87cf09ebb0ac795ac4e qu
 
 
 2026-10-07 DEC-116 compatible picker extension: user cannot search the native Add component dropdown in BOM & Syntax. Reuse the existing scoped editor and native search/select controls in a compact Add component disclosure, outside the editable form. Match item names, IMP codes and segments as typed; hide already-listed/fabricated items, require a deliberate matching selection, show no-match guidance, and retain PPM inputs across search/add/remove. Search-only changes must not trigger unsaved-BOM warnings; actual additions/removals remain protected. No server contracts, approval rules, quantities, prices or staff grants change. HIG R091-R093/R100/R105 and UI-01/04/06/07/12 apply. Existing catalogue aggregate is retained; filtering is local and linear for current/10x counts, with no extra per-item requests or new dependencies. Local/production verification is recorded separately.
+
+
+### Production audit - 2026-10-07
+
+WF-111 compatible repair under DEC-111/114: user requested a thorough production audit and multiple temporary demos while staff edit BOMs. Preserve all live BOM/syntax/proposal/grant records. Fix confirmed preview, partial serial, displayed snapshot, exact lookup, chronology, filtered export, uncertain retry and validation visibility defects within existing approved policy. No database migration, accounting/scrap policy, permission expansion or new business module. Existing bounded reads and linear catalogue persistence remain; 100x capacity is not certified. Local verification397 regressions/19 production checks and synthetic browser demos; publication recorded separately.

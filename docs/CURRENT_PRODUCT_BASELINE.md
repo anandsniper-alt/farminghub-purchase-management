@@ -842,3 +842,8 @@ The main1861 and Implements17 whole states remain exactly equal to pre-release:1
 
 
 **2026-10-07 SKU finalisation candidate (DEC-115 / WF-109):** Shared syntax-sheet status, clickable counts and consistent model filters are implemented and locally verified. Historical data, financial calculations and staff permissions are unchanged. Publication verification pending. [Contract](IMPLEMENTS_SKU_FINALISATION.md).
+
+
+### Production audit - 2026-10-07
+
+WF-111 Production audit candidate: production-only preview/serial/consumption-display/date/export/retry/error-recovery fixes implemented. Nineteen production/retry tests and full397 regressions passed; isolated synthetic browser flows verified. True mobile viewport verification unavailable in the current browser; no mobile pass claimed. Publication status follows the audit report. No live BOM or production writes performed.

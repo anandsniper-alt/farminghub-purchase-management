@@ -6,7 +6,6 @@ import {BomManagementStore,assertBomAccess} from './bom-management-store.mjs';
 import {bomAssets,exportTechnical} from './bom-management-files.mjs';
 import {ProductionStore,assertProductionAccess} from './production-store.mjs';
 import {productionAssets,productionCsv} from './production-files.mjs';
-import {materialRequirements} from '../shared/production.mjs';
 import {domesticImageAsset} from '../shared/domestic.mjs';
 import {scopedRecordReferences,integrationSnapshot} from '../shared/references.mjs';
 /** Isolated local alpha. Never point it at the live VMS/ERP database.
@@ -45,11 +44,12 @@ export function makeServer(store,{origin=null,secureCookie=false,releaseSha=proc
    const filters={kind:url.searchParams.get('kind')||'batches',query:url.searchParams.get('query')||'',status:url.searchParams.get('status')||'',key:url.searchParams.get('key')||'',before:url.searchParams.has('before')?Number(url.searchParams.get('before')):null,batchId:url.searchParams.has('batchId')?Number(url.searchParams.get('batchId')):null};
    if(path==='/api/production/records'&&req.method==='GET')return json(res,200,module.page(id,filters));
    if(path==='/api/production/batch'&&req.method==='GET')return json(res,200,module.detail(id,Number(url.searchParams.get('id'))));
-   if(path==='/api/production/requirements'&&req.method==='GET')return json(res,200,materialRequirements(getImplements().read(),url.searchParams.get('modelId'),url.searchParams.get('quantity')));
+   if(path==='/api/production/unit'&&req.method==='GET')return json(res,200,module.unit(id,url.searchParams.get('serial')));
+   if(path==='/api/production/requirements'&&req.method==='GET')return json(res,200,module.requirements(id,url.searchParams.get('modelId'),url.searchParams.get('quantity')));
    if(path==='/api/production/commands'&&req.method==='POST')return json(res,200,module.command(id,await body(req,2*1024*1024)));
    if(path==='/api/production/export'&&req.method==='POST'){
     const data=await body(req,10000);let headers,rows;
-    if(data.kind==='stock'){headers=['Item code','Item name','Type','Unit','Current stock'];rows=module.read(id).items.map(p=>[p.code,p.name,p.kind,p.unit,p.qty]);}
+    if(data.kind==='stock'){if(typeof (data.query??'')!=='string'||(data.query||'').length>120||!['','Component','Fabricated set'].includes(data.type||''))throw new RuleError('Invalid stock filter.');const search=(data.query||'').toLowerCase();headers=['Item code','Item name','Type','Unit','Current stock'];rows=module.read(id).items.filter(p=>(!search||[p.code,p.name].join(' ').toLowerCase().includes(search))&&(!data.type||p.kind===data.type)).map(p=>[p.code,p.name,p.kind,p.unit,p.qty]);}
     else {const page=module.page(id,data);if(page.kind==='batches'){headers=['Batch','Model','Quantity','Status','Production date','Planning month','Issue date','Completed date','BOM revision','Machines completed','Machines remaining'];rows=page.rows.map(r=>[r.reference,r.modelId,r.quantity,r.status,r.date,r.month,r.issueDate,r.completedDate,r.model.revision,r.completedQuantity||(r.status==='COMPLETED'?r.quantity:0),r.quantity-(r.completedQuantity||(r.status==='COMPLETED'?r.quantity:0))]);}
      else if(page.kind==='units'){headers=['Serial','Model','Batch ID','Configuration','Completed date','Status','Dispatch date'];rows=page.rows.map(r=>[r.serial,r.modelId,r.batchId,r.configuration,r.completedDate,r.status,r.dispatchDate]);}
      else{headers=['Item','Date','Type','Reference','Change','Before','After','By','Reason'];rows=page.rows.map(r=>[r.key,r.date,r.type,r.reference,r.delta,r.before,r.after,r.by.name,r.reason]);}}

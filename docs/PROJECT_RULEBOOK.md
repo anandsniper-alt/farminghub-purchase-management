@@ -537,3 +537,8 @@ MODULE-SPECIFIC RULE: LAE Import RO costing archive. Preserve exact identifiers 
 
 
 **MODULE-SPECIFIC RULE — SKU finalisation (2026-10-07, DEC-115 / WF-109):** SKU FINALISATION = YES confirms a model for sales. Preserve the existing syntax value independently of BOM/check/cost readiness. Expose explicit status, clickable counts and view filters across model-facing modules. Filtering never deletes plans, changes costs/history or creates production eligibility restrictions. [Contract](IMPLEMENTS_SKU_FINALISATION.md).
+
+
+### Production audit - 2026-10-07
+
+MODULE-SPECIFIC Production audit repair (DEC-111/114, WF-111): material previews must match model/count and preserve same-selection entries. Use exact serial detail, chronological serial movements, filtered stock exports and stable receipt identities after uncertain responses. Known production validation is actionable; unexpected storage faults stay server errors. No master BOM edits or new staff grants.

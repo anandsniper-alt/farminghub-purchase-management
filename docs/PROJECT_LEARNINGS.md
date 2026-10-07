@@ -691,3 +691,8 @@ Shared theme hooks require both app and modal-root containers even where native 
 
 
 **2026-10-07 — SKU terminology:** A primary syntax-sheet parameter should use its sheet name across model-facing views, rather than being hidden behind generic Sales status. Reuse one strict boolean helper; keep SKU confirmation independent of BOM/cost readiness, preserve selected production models and hidden plan quantities, and label historical comparisons as using the current model specification.
+
+
+### Production audit - 2026-10-07
+
+WF-111 / Production: test validation through HTTP and rendered visibility, not only direct domain throws. Plain domain errors can become generic500 responses and inherited CSS can hide the resulting alert. Keep retry identity independent of balance refresh after an uncertain response, and inspect full-basis versus cumulative-issued displays during partial production. Applied only to production; no finance/approval relaxation.

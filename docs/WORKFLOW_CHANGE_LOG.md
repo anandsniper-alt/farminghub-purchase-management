@@ -1053,3 +1053,11 @@ WF-110 initial publication verified at e17cb17, quality run37632623605,390 tests
 
 
 2026-10-07 WF-110 Add component extension: Components editor → open Add component → search by item code/name → select from available matches → Add component → enter PPM → Submit for approval. Existing BOM items stay out of the add list and search preserves unsaved rows. Search/selection controls remain outside the edit form; true quantity/list edits retain the shared dismissal guard. Existing approval workflow retained; publication pending.
+
+
+2026-10-07 WF-110 Add component search publication verified: runtime/remote release8add5b717fa446f0a42c90c10027360021c31745, hosted quality run37650972010 succeeded; Coolify deployment rexm8two2obkc0f5x5h1asfk finished rolling update16:21:51 UTC with healthy attempt1. Four served assets match committed bytes. Main, Implements, BOM reviews, production and account identities exactly match the fresh pre-release snapshot. Live search for32007 returns IMP-11 and selection enables Add component; no live quantity edits, additions or correction submissions were made. Isolated filtered proposal/mobile/cancellation preservation checks and16 focused native tests passed; review build passed. Canonical recovery ZIP and exact-source/original/candidate all20-table restores passed;12 archives retained without pruning. Approval/permissions/financial logic unchanged. Private receipts and live-search.jpg remain in ignored test-output/bom-add-search-release/. This supersedes the candidate publication-pending notes.
+
+
+### Production audit - 2026-10-07
+
+WF-111 - Production-only audit repair, 2026-10-07. Locally verified: draft/preview recovery, direct and issue-first partial completion, exact serials, dispatch/return/reversal chronology, filtered stock exports, stable interrupted-save receipts, visible actionable errors and recovery links. Synthetic demos are isolated; no live production/BOM mutation. Existing material issue/completion/MRP/manager/append-only behavior retained.397 regressions and19 production/retry checks passed; publication verification pending.
