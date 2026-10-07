@@ -1,3 +1,4 @@
+import {orderProgress} from '../shared/implements/procurement.mjs';
 import {readFileSync,readdirSync} from 'node:fs';
 import {resolve,join,dirname,extname} from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -9,7 +10,7 @@ const root=resolve(dirname(fileURLToPath(import.meta.url)),'..'),web=join(root,'
 const mime={'.html':'text/html; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.webp':'image/webp'};
 export const implementsAssets=new Map();
 function inventory(dir,prefix=''){for(const entry of readdirSync(dir,{withFileTypes:true})){const name=prefix+entry.name;if(entry.isDirectory())inventory(join(dir,entry.name),name+'/');else if(mime[extname(name)])implementsAssets.set('/implements/'+name,{file:join(web,name),type:mime[extname(name)]});}}
-inventory(web);for(const name of ['domain.mjs','costing.mjs','sales-pricing.mjs','item-images.mjs','part-icons.mjs','part-photos.mjs'])implementsAssets.set('/shared/implements/'+name,{file:join(root,'shared/implements',name),type:'text/javascript; charset=utf-8'});implementsAssets.set('/implements/',implementsAssets.get('/implements/index.html'));
+inventory(web);for(const name of ['domain.mjs','costing.mjs','sales-pricing.mjs','item-images.mjs','part-icons.mjs','part-photos.mjs','procurement.mjs'])implementsAssets.set('/shared/implements/'+name,{file:join(root,'shared/implements',name),type:'text/javascript; charset=utf-8'});implementsAssets.set('/implements/',implementsAssets.get('/implements/index.html'));
 let jobs=0;
 function run(file,args,data){return new Promise((resolveJob,reject)=>{
  const python=process.env.FH_PYTHON||'python3',child=spawn(python,[join(root,'server/implements-files',file),...args],{windowsHide:true,env:{...process.env,PYTHONIOENCODING:'utf-8'}}),chunks=[];let bytes=0,errors='';
@@ -45,7 +46,7 @@ export async function implementsExport(path,data,state){
   }
   const po=state.orders.find(po=>po.id===data.id);if(!po)throw new RuleError('Saved purchase order not found.','NOT_FOUND');
   const format=path.split('/').at(-1);if(!['pdf','xlsx'].includes(format))throw new RuleError('Export not found.','NOT_FOUND');
-  const document=structuredClone(po);let imageBytes=0;
+  const document=structuredClone(po),progress=orderProgress(state,po.id);document.lifecycleStatus=progress.status;document.currentDelivery=progress.delivery;document.lifecycle=progress.events;let imageBytes=0;
   const imageData=src=>{if(!src)return '';let value;if(src.startsWith('data:')){if(src.length>100000||!/^data:image\/(?:png|jpeg|webp);base64,[A-Za-z0-9+/]+={0,2}$/.test(src))throw new RuleError('Invalid PO image.');value=src.split(',')[1];}else{const asset=implementsAssets.get(src);if(!src.startsWith('/implements/assets/parts/')||!asset?.type.startsWith('image/'))throw new RuleError('Unknown PO product image.');value=readFileSync(asset.file).toString('base64');}imageBytes+=value.length;if(imageBytes>35e6)throw new RuleError('PO images exceed the 35 MB export limit.');return value;};
   for(const line of document.lines){line.imageData=imageData(line.image??visualFor(line.name).image);for(const child of line.children||[])child.imageData=imageData(child.image??visualFor(child.name).image);}
   return {type:format==='pdf'?'application/pdf':sheetType,name:po.id+'.'+format,bytes:await run(format==='pdf'?'files.py':'export-po.py',format==='pdf'?['pdf']:[],document)};

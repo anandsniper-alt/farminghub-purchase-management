@@ -42,7 +42,7 @@ export class ProductionStore{
  detail(actorId,id){this.actor(actorId);if(!Number.isSafeInteger(id)||id<1)fail('Invalid production batch.');return {batch:this.batch(id),units:this.db.prepare('SELECT payload FROM production_units WHERE batch_id=? ORDER BY serial').all(id).map(r=>JSON.parse(r.payload)),history:this.db.prepare("SELECT payload FROM production_events WHERE json_extract(payload,'$.batchId')=? ORDER BY sequence DESC LIMIT 100").all(id).map(r=>JSON.parse(r.payload))};}
  command(actorId,input){this.db.exec('BEGIN IMMEDIATE');try{
   const actor=this.actor(actorId);if(!canWriteProduction(actor))fail('Production entry access is required.','FORBIDDEN');
-  const allowed=['type','batchId','modelId','quantity','date','month','serials','materials','key','qty','serial','reference','reason','expectedRevision','expectedProductionRevision','requestId'];
+  const allowed=['type','batchId','modelId','quantity','completeQuantity','date','month','serials','materials','key','qty','serial','reference','reason','expectedRevision','expectedProductionRevision','requestId'];
   if(!input||Object.keys(input).some(k=>!allowed.includes(k))||!/^[-\w]{12,120}$/.test(input.requestId||'')||!Number.isSafeInteger(input.expectedRevision)||!Number.isSafeInteger(input.expectedProductionRevision))fail('Invalid production command; reload before saving.');
   const access=JSON.stringify([actor.role,[...(actor.scopes||[])].sort()]),digest=hash(input),receipt=this.db.prepare('SELECT digest,access FROM production_events WHERE actor_id=? AND request_id=?').get(actor.id,input.requestId);
   if(receipt){if(receipt.digest!==digest||receipt.access!==access)fail('Request or account access changed.','CONFLICT');this.db.exec('COMMIT');return this.read(actor.id);}
@@ -58,21 +58,36 @@ export class ProductionStore{
    batch=this.batch(input.batchId);const date=productionDate(input.date,today);if(date<batch.date)fail('This stage cannot precede the batch date.');
    if(input.type==='CANCEL_BATCH'){if(batch.status!=='DRAFT')fail('Use a manager reversal to return already-issued materials.');batch.status='CANCELLED';}
    else if(input.type==='REVERSE_BATCH'){
-    if(!canManageProduction(actor))fail('A production manager must reverse a posted batch.','FORBIDDEN');if(!['MATERIAL_ISSUED','COMPLETED'].includes(batch.status))fail('Only an issued or completed batch can be reversed.');if(date<(batch.completedDate||batch.issueDate))fail('Reversal cannot precede the posted batch stage.');
+    if(!canManageProduction(actor))fail('A production manager must reverse a posted batch.','FORBIDDEN');if(!['MATERIAL_ISSUED','PART_COMPLETED','COMPLETED'].includes(batch.status))fail('Only an issued or completed batch can be reversed.');if(date<(batch.completedDate||batch.issueDate))fail('Reversal cannot precede the posted batch stage.');
     const existing=this.db.prepare('SELECT payload FROM production_units WHERE batch_id=?').all(batch.id).map(r=>JSON.parse(r.payload));if(existing.some(u=>u.status!=='AVAILABLE'))fail('Return dispatched serial numbers before reversing this batch.');
     next.stock=stockAfter(state,batch.issued,1,date,batch.reference+' reversal');movements=batch.issued.map(r=>({...r,delta:r.qty}));this.consumed(next,batch,-1);units=existing.map(u=>({...u,status:'VOID',updatedAt:now}));batch.status='REVERSED';
    }else{
-    if(!['DRAFT','MATERIAL_ISSUED'].includes(batch.status))fail('This batch is already closed.','CONFLICT');
-    if(input.type==='ISSUE_MATERIAL'&&batch.status!=='DRAFT')fail('Materials have already been issued.','CONFLICT');
+    if(!['DRAFT','MATERIAL_ISSUED','PART_COMPLETED'].includes(batch.status))fail('This batch is already closed.','CONFLICT');
+    if(input.type==='ISSUE_MATERIAL'&&batch.status!=='DRAFT')fail('Materials have already been issued or production has started.','CONFLICT');
+    const completed=batch.completedQuantity||0,remaining=batch.quantity-completed;
+    const completing=input.type==='COMPLETE_BATCH'?quantity(input.completeQuantity??remaining,'Machines completed now',{uom:'pcs'},{max:1000}):0;
+    if(input.type==='COMPLETE_BATCH'&&(completing<1||completing>remaining))fail('Completion must be between 1 and the remaining '+remaining+' machines.');
     if(batch.status==='DRAFT'){
      const current=materialRequirements(state,batch.modelId,batch.quantity);if(hash(current.model)!==hash(batch.model)||hash(current.materials)!==hash(batch.materials))fail('The model BOM or item definitions changed after this draft. Edit and resave the draft before material issue.','CONFLICT');
-     const issued=actualMaterials(batch.materials,input.materials??batch.overrides);next.stock=stockAfter(state,issued,-1,date,batch.reference);movements=issued.map(r=>({...r,delta:-r.qty}));batch.issued=issued;batch.issueDate=date;batch.issuedBy=person(actor);batch.status='MATERIAL_ISSUED';this.consumed(next,batch,1);
+     batch.consumptionBasis=actualMaterials(batch.materials,input.materials??batch.overrides);
+    }
+    if(input.type==='ISSUE_MATERIAL'){
+     const issued=batch.consumptionBasis;next.stock=stockAfter(state,issued,-1,date,batch.reference);movements=issued.map(r=>({...r,delta:-r.qty}));batch.issued=issued;batch.issueDate=date;batch.issuedBy=person(actor);batch.status='MATERIAL_ISSUED';batch.fullMaterialIssue=true;this.consumed(next,batch,1,batch.quantity);batch.consumedQuantity=batch.quantity;
     }
     if(input.type==='COMPLETE_BATCH'){
-     if(date<batch.issueDate)fail('Completion cannot precede material issue.');const requested=serialNumbers(input.serials??batch.serials,batch.quantity);if(requested.length&&requested.some(s=>this.db.prepare('SELECT serial FROM production_units WHERE serial=?').get(s)))fail('A serial number already exists; serials cannot be reused.','CONFLICT');
-     let serial=0;for(let i=0;i<batch.quantity;i++){let value=requested[i];if(!value){const prefix='FH-'+batch.modelId.replaceAll('.','')+'-'+batch.month.replace('-','')+'-';do{value=prefix+String(++serial).padStart(5,'0');}while(this.db.prepare('SELECT serial FROM production_units WHERE serial=?').get(value)||units.some(u=>u.serial===value));}
+     if(date<(batch.completedDate||batch.issueDate||batch.date))fail('Completion cannot precede the latest posted stage.');
+     // Existing issued batches retain the original whole-batch deduction. Direct
+     // completions deduct only this tranche; cumulative rounding preserves totals.
+     const fullIssue=batch.fullMaterialIssue===true||(!batch.consumptionBasis&&batch.status==='MATERIAL_ISSUED');if(fullIssue)batch.fullMaterialIssue=true;
+     if(!fullIssue){
+      const basis=batch.consumptionBasis,previous=new Map((batch.issued||[]).map(r=>[r.key,r.qty]));
+      const cumulative=basis.map(r=>{const value=round(r.qty*(completed+completing)/batch.quantity,3);if(r.unit==='pcs'&&!Number.isInteger(value))fail('Partial consumption for '+r.name+' is fractional. Issue the full batch materials first, or review the batch quantities.');return {...r,qty:value};});
+      const tranche=cumulative.map(r=>({...r,qty:round(r.qty-(previous.get(r.key)||0),3)}));next.stock=stockAfter(state,tranche,-1,date,batch.reference);movements=tranche.map(r=>({...r,delta:-r.qty}));batch.issued=cumulative;batch.issueDate??=date;batch.issuedBy??=person(actor);this.consumed(next,batch,1,completing);batch.consumedQuantity=(batch.consumedQuantity||0)+completing;
+     }
+     const defaults=(batch.serials||[]).slice(completed,completed+completing),requested=serialNumbers(input.serials??defaults,completing);if(requested.length&&requested.some(value=>this.db.prepare('SELECT serial FROM production_units WHERE serial=?').get(value)))fail('A serial number already exists; serials cannot be reused.','CONFLICT');
+     let serial=0;for(let i=0;i<completing;i++){let value=requested[i];if(!value){const prefix='FH-'+batch.modelId.replaceAll('.','')+'-'+batch.month.replace('-','')+'-';do{value=prefix+String(++serial).padStart(5,'0');}while(this.db.prepare('SELECT serial FROM production_units WHERE serial=?').get(value)||units.some(u=>u.serial===value));}
       units.push({serial:value,batchId:batch.id,modelId:batch.modelId,configuration:batch.model.configuration,modelRevision:batch.model.revision,completedDate:date,status:'AVAILABLE',createdAt:now,createdBy:person(actor),history:[]});}
-     batch.status='COMPLETED';batch.completedDate=date;batch.completedBy=person(actor);
+     batch.completedQuantity=completed+completing;batch.status=batch.completedQuantity===batch.quantity?'COMPLETED':'PART_COMPLETED';batch.completedDate=date;batch.completedBy=person(actor);result.completedNow=completing;result.completedTotal=batch.completedQuantity;
     }
    }batch.updatedAt=now;batch.stageReason=reason;
   }else if(['RECEIVE_STOCK','ADJUST_STOCK'].includes(input.type)){
@@ -93,5 +108,5 @@ export class ProductionStore{
   this.db.prepare('INSERT INTO production_events(actor_id,request_id,digest,access,payload) VALUES(?,?,?,?,?)').run(actor.id,input.requestId,digest,access,JSON.stringify({type:input.type,at:now,by:person(actor),reason,batchId:batch?.id||null,...result}));
   this.db.exec('COMMIT');return this.read(actor.id);
  }catch(error){this.db.exec('ROLLBACK');throw error;}}
- consumed(state,batch,direction){state.productionConsumed??={};state.productionConsumed[batch.month]??={};const qty=(state.productionConsumed[batch.month][batch.modelId]||0)+direction*batch.quantity;if(qty<0)fail('Production consumption history is inconsistent.');state.productionConsumed[batch.month][batch.modelId]=qty;}
+ consumed(state,batch,direction,count=batch.consumedQuantity??batch.quantity){state.productionConsumed??={};state.productionConsumed[batch.month]??={};const qty=(state.productionConsumed[batch.month][batch.modelId]||0)+direction*count;if(qty<0)fail('Production consumption history is inconsistent.');state.productionConsumed[batch.month][batch.modelId]=qty;}
 }

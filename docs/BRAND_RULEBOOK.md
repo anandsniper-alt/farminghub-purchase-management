@@ -395,3 +395,6 @@ Reuse the LAE Import sidebar, money icon, branded Minimal panels, invoice tables
 
 
 **DEC-109 UI note:** Implements costing warning signs use semantic links/buttons with accessible names and explanatory hover titles. Numeric totals and existing branded layout remain prominent. Apply UI-06 and HIG R140; no color-only status and no new sidebar or typography scheme.
+
+
+**DEC-114 UI extension:** Pipeline/quotation/price analysis use the existing Implements shell, semantic cards/tables, reasoned native dialogs and accessible warning text. Production partial completion retains its cost-free shell. PO PDF/Excel show authoritative lifecycle status while preserving product identity/quantities. UI-01/02/04/06/08/11/12 apply; no new theme or animation engine.

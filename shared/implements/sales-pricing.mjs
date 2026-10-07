@@ -3,6 +3,26 @@ import {calculateModelCost} from './costing.mjs';
 
 export const salesBasis='INR per machine, before GST. BOM parts + fabrication including transport/kg + entered additional costs. Item GST and item transport percentages are reference only.';
 export const netMargin=(price,cost)=>price==null||cost==null||price<=0?null:round((price-cost)/price*100,4);
+// User's requested denominator is selling price including GST. Preserve the
+// existing before-GST metric separately so saved historical rows never change.
+export function marginIncludingGst(priceBeforeGst,costBeforeGst,gstPercent){
+ if(priceBeforeGst==null||costBeforeGst==null||gstPercent==null)return null;
+ const price=number(priceBeforeGst,'Selling price'),cost=number(costBeforeGst,'Model cost'),gst=number(gstPercent,'GST %',{max:100});
+ return price>0?round((price-cost)/(price*(1+gst/100))*100,4):null;
+}
+export function backwardCost(priceBeforeGst,{factor=null,marginPercent=null,gstPercent=null}={}){
+ const price=number(priceBeforeGst,'Selling price');if(price<=0)throw Error('Selling price must be positive.');
+ if(factor!=null){const n=number(factor,'Multiplier',{max:10});if(n<=0)throw Error('Multiplier must be positive.');return round(price/n,2);}
+ if(gstPercent==null||marginPercent==null)return null;
+ const gst=number(gstPercent,'GST %',{max:100}),margin=number(marginPercent,'Target margin %',{max:100});
+ const cost=round(price-price*(1+gst/100)*margin/100,2);if(cost<0)throw Error('Target margin exceeds the available selling price.');return cost;
+}
+export function compareSalesCosts(state,olderId,newerId){
+ const lists=salesState(state).lists,older=lists.find(l=>l.id===olderId),newer=lists.find(l=>l.id===newerId);
+ if(!older||!newer)throw Error('Choose two saved lists.');const oldRows=new Map(older.rows.map(r=>[r.modelId,r])),newRows=new Map(newer.rows.map(r=>[r.modelId,r]));
+ const diff=(a,b)=>a==null||b==null?null:round(b-a,2);
+ return [...new Set([...oldRows.keys(),...newRows.keys()])].map(modelId=>{const a=oldRows.get(modelId),b=newRows.get(modelId);return {modelId,oldPrice:a?.price??null,newPrice:b?.price??null,oldCost:a?.cost??null,newCost:b?.cost??null,priceChange:diff(a?.price,b?.price),costChange:diff(a?.cost,b?.cost),partsChange:diff(a?.partsCost,b?.partsCost),fabricationChange:diff(a?.fabricationCost,b?.fabricationCost),otherChange:diff(a?.otherCost,b?.otherCost)};});
+}
 export function forwardPrice(cost,factor=1.25,increment=100,mode='up',adjustment=null){
  factor=number(factor,'Cost multiplier',{max:10});if(factor<=0)throw Error('Cost multiplier must be greater than zero.');
  increment=number(increment,'Rounding increment',{max:100000});if(!['up','nearest','down'].includes(mode))throw Error('Choose a rounding method.');

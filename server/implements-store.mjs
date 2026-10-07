@@ -1,3 +1,4 @@
+import {validateProcurementTransition} from '../shared/implements/procurement.mjs';
 import {createHash} from 'node:crypto';
 import {blankState,validateState,ensureMonthly,createOrders} from '../shared/implements/domain.mjs';
 import {validateSalesState,netMargin} from '../shared/implements/sales-pricing.mjs';
@@ -53,8 +54,10 @@ export class ImplementsStore{
    if(inventory){if(initial)fail('Initialize the reviewed Implements workspace first.');try{assertInventoryOnly(previous,next);validateConsumed(next);}catch(e){fail(e.message);}}
    else if(!same(previous.productionConsumed,next.productionConsumed))fail('Production consumption is controlled by the production ledger.');
    if(technical){if(initial)fail('Initialize the Implements workspace before technical review.');try{assertTechnicalOnly(previous,next);}catch(error){fail(error.message);}}
+   if(initial&&(next.procurement?.events?.length||next.procurement?.quotes?.length))fail('Initialize the workspace before recording procurement history.');
    if(initial&&actor.role!=='ADMIN')fail('An administrator must import the reviewed workspace first.','FORBIDDEN');
    if(!initial){
+    try{validateProcurementTransition(previous,next,actor);}catch(e){fail(e.message);}
     prefix(previous.orders,next.orders,'Purchase order');prefix(previous.priceImports,next.priceImports,'Price import');prefix(previous.supplierHistory,next.supplierHistory||[],'Supplier');
     prefix(previous.sales?.lists,next.sales?.lists||[],'Sales price list');prefix(previous.sales?.activationHistory,next.sales?.activationHistory||[],'Current price list');
     for(const key of ['models','parts','suppliers'])for(const old of previous[key]){
@@ -80,7 +83,7 @@ export class ImplementsStore{
    const at=new Date().toISOString();next.revision=previous.revision+1;
    if(!inventory&&this.db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='production_stock_movements'").get())for(const key of new Set([...Object.keys(previous.stock||{}),...Object.keys(next.stock||{})])){
     const before=previous.stock[key]?.qty??null,after=next.stock[key]?.qty??null;if(before===after)continue;
-    this.db.prepare('INSERT INTO production_stock_movements(item_key,payload) VALUES(?,?)').run(key,JSON.stringify({key,before,after,delta:(after||0)-(before||0),type:'PURCHASE_STOCK_UPDATE',reference:'Implements revision '+next.revision,date:at.slice(0,10),at,by:{id:actor.id,name:actor.name},reason:'Stock updated through purchasing; source audit retained in purchasing.'}));
+    this.db.prepare('INSERT INTO production_stock_movements(item_key,payload) VALUES(?,?)').run(key,JSON.stringify({key,before,after,delta:(after||0)-(before||0),type:(next.procurement?.events||[]).slice(previous.procurement?.events?.length||0).some(e=>e.type==='ACKNOWLEDGE'&&e.lines.some(l=>l.key===key))?'PO_ACKNOWLEDGMENT':'PURCHASE_STOCK_UPDATE',reference:(next.procurement?.events||[]).slice(previous.procurement?.events?.length||0).find(e=>e.type==='ACKNOWLEDGE'&&e.lines.some(l=>l.key===key))?.poId||'Implements revision '+next.revision,date:at.slice(0,10),at,by:{id:actor.id,name:actor.name},reason:'Stock updated through purchasing; source audit retained in purchasing.'}));
    }
    next.audit=[...(initial?next.audit:previous.audit),{at,message:input.message,actorId:actor.id,actorName:actor.name,revision:next.revision}];
    this.db.prepare('INSERT INTO implements_events VALUES(?,?,?,?,?,?,?,?,?,?)').run(next.revision,actor.id,at,input.message,JSON.stringify(changes(previous,next)),digest(previous),digest(next),input.requestId,requestDigest,access);

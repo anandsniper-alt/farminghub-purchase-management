@@ -6,7 +6,7 @@ from openpyxl.utils import get_column_letter
 from openpyxl.drawing.image import Image
 from PIL import Image as PILImage
 po=json.load(sys.stdin);wb=Workbook();ws=wb.active;ws.title='Purchase Order'
-rows=[['FARMING HUB - REVIEW PURCHASE ORDER',po['id']],['Status','Approval and issuing pending'],['Date',po['date']],['Supplier',po['supplier']['name']],['Supplier address',po['supplier'].get('address','')],['Buyer',po['buyer'].get('buyer','')],['Buyer address',po['buyer'].get('address','')],['Delivery',po.get('delivery','')],['Planning month',po.get('planningMonth','')],[],['Item code','Component','MRP pcs','Buffer pcs','Extras pcs','Order pcs','Weight kg','Rate INR','Basis','Amount INR']]
+rows=[['FARMING HUB - PURCHASE ORDER',po['id']],['Status',po.get('lifecycleStatus','DRAFT').replace('_',' ')],['Date',po['date']],['Supplier',po['supplier']['name']],['Supplier address',po['supplier'].get('address','')],['Buyer',po['buyer'].get('buyer','')],['Buyer address',po['buyer'].get('address','')],['Delivery',po.get('currentDelivery') or po.get('delivery','')],['Planning month',po.get('planningMonth','')],[],['Item code','Component','MRP pcs','Buffer pcs','Extras pcs','Order pcs','Weight kg','Rate INR','Basis','Amount INR']]
 mixed=any(line.get('uom') in ('kg','ltr') for line in po['lines'])
 for line in po['lines']:rows.append([line.get('code',''),line['name'],line['mrp'],line['buffer'],line['extras'],line['orderQty'],line.get('weight'),None if po['quantityOnly'] else line.get('rate'),line.get('rateUnit',''),None if po['quantityOnly'] else line.get('amount')])
 if mixed:

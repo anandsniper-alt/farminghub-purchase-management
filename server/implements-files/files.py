@@ -56,9 +56,9 @@ def pdf(po):
     with PillowImage.open(logo) as dimensions:iw,ih=dimensions.size
     image=Image(str(logo),width=126,height=126*ih/iw)
     heading=Table([[image,p('PURCHASE ORDER\n'+po['id'],'Heading2')]],colWidths=[500,278]);heading.setStyle(TableStyle([('VALIGN',(0,0),(-1,-1),'TOP')]))
-    story=[heading,Spacer(1,12),p('REVIEW PURCHASE ORDER - approval and issuing pending.','SmallNote'),Spacer(1,12)]
+    story=[heading,Spacer(1,12),p('PO status: '+po.get('lifecycleStatus','DRAFT').replace('_',' '),'SmallNote'),Spacer(1,12)]
     supplier=po['supplier'];buyer=po['buyer']
-    info=Table([[p('SUPPLIER\n'+supplier['name']+'\n'+supplier.get('address','')+'\nGSTIN: '+(supplier.get('gstin') or 'Pending')+'\n'+supplier.get('phone','')),p('BUYER\n'+buyer.get('buyer','')+'\n'+buyer.get('address','')+'\nGSTIN: '+(buyer.get('gstin') or 'Pending')),p('PO date: '+po['date']+'\nDelivery: '+(po.get('delivery') or 'To be agreed')+'\nPlan month: '+(po.get('planningMonth') or 'Not assigned')+'\nStock date: '+(po.get('stockAsOf') or 'Not supplied'))]],colWidths=[300,290,188])
+    info=Table([[p('SUPPLIER\n'+supplier['name']+'\n'+supplier.get('address','')+'\nGSTIN: '+(supplier.get('gstin') or 'Pending')+'\n'+supplier.get('phone','')),p('BUYER\n'+buyer.get('buyer','')+'\n'+buyer.get('address','')+'\nGSTIN: '+(buyer.get('gstin') or 'Pending')),p('PO date: '+po['date']+'\nDelivery: '+(po.get('currentDelivery') or po.get('delivery') or 'To be agreed')+'\nPlan month: '+(po.get('planningMonth') or 'Not assigned')+'\nStock date: '+(po.get('stockAsOf') or 'Not supplied'))]],colWidths=[300,290,188])
     info.setStyle(TableStyle([('VALIGN',(0,0),(-1,-1),'TOP'),('BACKGROUND',(0,0),(-1,-1),colors.HexColor('#f2f5dd')),('TOPPADDING',(0,0),(-1,-1),10),('BOTTOMPADDING',(0,0),(-1,-1),10)]));story.extend([info,Spacer(1,16)])
     priced=not po['quantityOnly']
     mixed=any(l.get('uom') in ('ltr','kg') for l in po['lines'])
@@ -90,7 +90,7 @@ def pdf(po):
         t=Table(children,colWidths=[90,390,70,110,118],repeatRows=1)
         t.setStyle(TableStyle([('BACKGROUND',(0,0),(-1,0),colors.HexColor('#204321')),('ROWBACKGROUNDS',(0,1),(-1,-1),[colors.white,colors.HexColor('#f7f8f1')]),('FONTSIZE',(0,1),(-1,-1),8),('VALIGN',(0,0),(-1,-1),'TOP'),('TOPPADDING',(0,0),(-1,-1),6),('BOTTOMPADDING',(0,0),(-1,-1),6)]));story.append(t)
     def footer(canvas,document):
-        canvas.setFont('Helvetica',8);canvas.setFillColor(colors.HexColor('#52664f'));canvas.drawString(32,20,po['id']+' | Review copy - not issued');canvas.drawRightString(810,20,f'Page {document.page}')
+        canvas.setFont('Helvetica',8);canvas.setFillColor(colors.HexColor('#52664f'));canvas.drawString(32,20,po['id']+' | '+po.get('lifecycleStatus','DRAFT').replace('_',' '));canvas.drawRightString(810,20,f'Page {document.page}')
     doc.build(story,onFirstPage=footer,onLaterPages=footer)
     return out.getvalue()
 
