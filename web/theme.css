@@ -212,3 +212,12 @@ body[data-preview-theme=minimal] .scope-card.active{flex:0 1 260px;padding:12px 
  @media(forced-colors:active){body[data-preview-theme=minimal] :is(.badge,.button,.panel,.kpi){border:1px solid CanvasText}body[data-preview-theme=minimal] :focus-visible{outline:3px solid Highlight}}
 }
 @media print{.skip-link,.unsaved-notice{display:none!important}}
+
+/* UI-05/06: grid text must wrap within its track, not behind panel clipping. */
+@media screen {
+ body[data-preview-theme=minimal] .release-row{grid-template-columns:95px minmax(0,1fr) 80px}
+ body[data-preview-theme=minimal] .release-row>div{min-width:0;overflow-wrap:anywhere}
+ @media(max-width:720px){
+  body[data-preview-theme=minimal] .release-row{grid-template-columns:80px minmax(0,1fr)}
+ }
+}

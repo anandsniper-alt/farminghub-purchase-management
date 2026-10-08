@@ -1,5 +1,9 @@
 # Current state — engineering handover
 
+**2026-10-08 subsequent user change (DEC-120/WF-115):** mascot launcher/tour disabled globally in the local candidate. UI-09 updated; this supersedes the visible-mascot requirement and the earlier clearance screenshot in the alignment audit. Six module shells, five standalone roles and mobile BOM footer verified; build/startup check passed. Not published.
+
+**2026-10-08 local UI update:** an isolated candidate based on `f20e75d` repairs version-log wrapping, Implements phone/tablet navigation, BOM mobile controls and shared dialog/mascot clearance. See [alignment audit](../UI_ALIGNMENT_AUDIT_2026-10-08.md) for 118 route/viewport checks, standalone verification, 24 passing server tests and explicit limits. Not published; older module classifications below remain historical.
+
 Reviewed 2026-09-26 against source `1297840ecac1dbe26893f086d32fd776383dedfe`, branch `codex/domestic-bom`. This audit examined source, governing documents, existing reports and synthetic tests. It did not inspect private production databases or run live browser workflows.
 
 **Local repair update:** DEC-082–084 / WF-076–078 now apply on top of that audited HEAD. See [engineering repair report](../ENGINEERING_REPAIR_REPORT.md). Prior audit evidence below is retained; no live release occurred.

@@ -1,5 +1,11 @@
 # Project learnings
 
+## Alignment verification — 2026-10-08
+
+GLOBAL RULE application (UI-05/09; no policy change): measure the actual viewport after resizing, then inspect settled layout. A transient sidebar animation is not a persistent alignment defect. Grid tracks containing long filenames need `minmax(0,1fr)` and wrapping; page-level width alone misses text clipped by a panel. Verify dialog footers against the visible mascot with pointer hit-testing, because shared theme specificity can override existing clearance rules. Reserve space rather than hiding the guide. Keep this CSS screen-only so PDF layout stays independent.
+
+MODULE-SPECIFIC application: Implements sidebar, workspace and menu button must share a breakpoint. Reserve the phone menu's width before allowing account tools to wrap. In BOM, compact account-text selectors must not also hide a Sign out button using the same `.small` class. See the [dated alignment audit](UI_ALIGNMENT_AUDIT_2026-10-08.md) for current evidence and untested boundaries.
+
 > **2026-09-26 reading guide:** the [current architecture](architecture/SYSTEM_ARCHITECTURE.md) and [data architecture](architecture/DATA_ARCHITECTURE.md) supersede historical implementation descriptions below: Store now creates six tables including request receipts; a limited service worker and server revision polling exist; Domestic and native VMS are implemented. Retain old lessons as dated history; use the [knowledge index](README.md) to find the current owner.
 
 Continued Ashok QA found that visible, enabled pagination can still be unclickable when a fixed mascot intercepts pointer events. Keyboard navigation recovered all 130 base and 387 ERP rows, but is not proof of mouse accessibility. Test ordinary clicks in both themes and reserve page-bottom scroll space. Technical Approve and Reject are separate configurable grants: seeing Approve does not imply rejection access. Keep permission blockers distinct from missing feature entry points.

@@ -1,9 +1,4 @@
-import {GUIDE_POSES} from './guide-poses.mjs';
 import {mountTheme} from './theme.mjs';
-import {mountSupport} from './support.mjs';
-const guidePoses=window.FH_GUIDE_POSES||GUIDE_POSES;
-window.FH_GUIDE_POSES=guidePoses;
-const logo=window.FH_LOGO_URL||'/assets/farming-hub-logo.png',mascot=guidePoses.welcome.src;
-document.body.insertAdjacentHTML('beforeend',`<div class="support-dock"><button class="support-launcher" type="button" aria-label="Guide me with Farming Hub" aria-haspopup="dialog" aria-controls="support-tour" aria-expanded="false"><img src="${mascot}" alt=""><span class="support-dock-label"><img src="${logo}" alt=""><span>Guide me</span></span></button></div><dialog id="support-tour" class="support-tour" aria-labelledby="support-title" aria-describedby="support-copy"><div class="support-ring" hidden aria-hidden="true"></div><section class="support-card"><div class="support-top"><div class="support-brand"><img src="${logo}" alt="Farming Hub"><span class="support-name">YOUR PAGE GUIDE</span></div><button type="button" class="support-close" data-support="close" aria-label="Close guide">&times;</button></div><div class="support-intro"><img class="support-mascot" src="${mascot}" alt="Farming Hub elephant mascot"><div aria-live="polite" aria-atomic="true"><p class="support-count"></p><h2 id="support-title"></h2></div></div><p id="support-copy" aria-live="polite"></p><div class="support-actions"><button type="button" class="button" data-support="take">Take me there</button><button type="button" class="button ghost support-skip" data-support="close">Skip tour</button><button type="button" class="button ghost" data-support="back">Back</button><button type="button" class="button primary" data-support="next">Next</button></div></section></dialog>`);
+// Global product preference (DEC-120): do not mount the mascot or its tour.
+// Keep shared theme, accessibility, page-guide preferences and motion active.
 mountTheme();
-mountSupport();

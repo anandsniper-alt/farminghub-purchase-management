@@ -25,13 +25,24 @@
 .support-dock .support-launcher>*{pointer-events:none}
 .support-dock .support-launcher{position:static;right:auto;bottom:auto;gap:8px;padding:6px 14px 6px 6px}.support-dock-label{display:flex;flex-direction:column;align-items:flex-start;gap:2px}.support-dock-label img{width:94px;height:26px;object-fit:contain}.support-dock-label span{font-size:10px;color:var(--muted)}
 .support-card,.support-card.support-left{bottom:94px;max-height:calc(100dvh - 120px)}.support-actions{flex-wrap:wrap;gap:6px}.support-actions [data-support=take]{flex:1 0 100%;order:-1;margin-bottom:5px}
-.modal-backdrop{padding-bottom:90px;z-index:270}.modal{max-height:calc(100dvh - 116px)}
+body:has(.support-dock) .modal-backdrop{padding-bottom:90px;z-index:270}body:has(.support-dock) .modal{max-height:calc(100dvh - 116px)}
 @media(max-width:720px){.support-dock{right:10px;bottom:12px}.support-card,.support-card.support-left{bottom:88px;max-height:calc(100dvh - 108px)}.support-dock-label img{width:84px;height:24px}}
 @media(max-width:720px){.support-dock[data-side=left]{left:max(10px,env(safe-area-inset-left))}}
 @media print{.support-dock{display:none!important}}
 
 /* Forms sit above appearance controls; notifications leave room for the guide dock. */
-.toast{bottom:94px}
+body:has(.support-dock) .toast{bottom:94px}
+body:not(:has(.support-dock)) .toast{bottom:calc(20px + env(safe-area-inset-bottom,0px))}
+body[data-preview-theme=minimal]:not(:has(.support-dock)) .toast{bottom:calc(20px + env(safe-area-inset-bottom,0px))}
 /* Keep final page controls scrollable above the persistent mascot. */
 body:has(.support-dock) .content{padding-bottom:calc(112px + env(safe-area-inset-bottom,0px))}
 @media print{body:has(.support-dock) .content{padding-bottom:0}}
+
+/* UI-09: Minimal's compact dialog rules must not cover the persistent dock. */
+@media screen {
+ body[data-preview-theme=minimal]:has(.support-dock) .modal-backdrop{padding-bottom:calc(90px + env(safe-area-inset-bottom,0px))}
+ body[data-preview-theme=minimal]:has(.support-dock) .modal{max-height:calc(100dvh - 116px - env(safe-area-inset-bottom,0px))}
+ @media(max-width:720px){
+  body[data-preview-theme=minimal]:has(.support-dock) .modal{max-height:calc(100dvh - 106px - env(safe-area-inset-bottom,0px))}
+ }
+}

@@ -1,5 +1,7 @@
 # Project knowledge index
 
+- [2026-10-08 website alignment audit](UI_ALIGNMENT_AUDIT_2026-10-08.md): locally verified presentation fixes, coverage and release boundary; not a live deployment.
+
 Reviewed 2026-09-26 against source commit `1297840ecac1dbe26893f086d32fd776383dedfe`. Start with [Current state](handover/CURRENT_STATE.md), then inspect relevant source. This index organizes existing authority; it does not replace confirmed product decisions.
 
 ## Read order

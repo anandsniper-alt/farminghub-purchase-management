@@ -20,3 +20,20 @@
 @media(max-width:760px){.module-shell main{padding:24px 17px 55px}.module-shell .topbar{position:sticky;min-height:76px;height:auto;padding:12px 17px;gap:12px}.module-shell .top-tools{gap:8px}.module-shell .account{padding-left:8px}.module-shell .saved{display:none}.module-shell .breadcrumb{flex-wrap:wrap}.module-shell .model-grid{grid-template-columns:1fr}}
 @media(max-width:720px){.module-shell{margin-left:0}.module-sidebar{width:230px;position:fixed;top:0;bottom:0;padding:29px 16px 18px;z-index:30}.module-sidebar .brand-home,.module-sidebar .nav-section-title,.module-sidebar .sidebar-bottom{display:block}.module-shell .mobile-toggle{display:inline-flex}.module-shell .topbar .account>div{display:none}}
 @media print{.module-sidebar,.module-shell .topbar,.nav-scrim{display:none}.module-shell{margin-left:0}.module-shell main{padding:0}}
+
+/* Use the same drawer breakpoint for sidebar, workspace and menu control. */
+@media screen and (max-width:760px){
+ .module-shell{margin-left:0}
+ .module-sidebar{width:246px;position:fixed;inset:0 auto 0 0;transform:translateX(-100%)}
+ .module-sidebar.open{transform:translateX(0)}
+ .nav-scrim{display:block}
+ .module-shell .mobile-toggle{display:inline-flex;min-width:44px;min-height:44px;flex-shrink:0}
+ .module-shell .topbar .flex{min-width:44px;flex-wrap:nowrap}
+ .module-shell .breadcrumb{white-space:nowrap;flex-wrap:nowrap;overflow:hidden}
+ .module-shell .top-tools{min-width:0;flex-shrink:1}
+ .module-shell .topbar .account>div{display:none}
+}
+@media screen and (max-width:420px){
+ .module-shell .topbar .flex{flex:0 0 44px}
+ .module-shell .top-tools{flex:1 1 0;flex-wrap:wrap}
+}

@@ -1066,3 +1066,7 @@ WF-111 - Production-only audit repair, 2026-10-07. Locally verified: draft/previ
 # WF-112 — Stores daily pick list and segment issue
 
 2026-10-08 · DEC-117 · Production module-specific; confirmed individual segment issue. Adds Stores & material issue, due-date/model/segment filters, aggregate picks with batch allocations/images/stock/shortages, dated issued movements, print and technical Excel CSV. Posting changes a batch to Part material issued, freezes material/segment basis and deducts selected stock once. Final segment permits existing partial/full completion without another deduction. Production-owned staged credits prevent duplicate MRP demand and reverse with exact batch quantities. Existing drafts can still use whole issue/direct completion. No live BOM/syntax/prices/permissions or demo transactions are changed. Local405 tests/27 production-retry checks, review build and synthetic responsive browser flows passed. Publication pending recovery/CI/runtime/preservation verification; see [contract](STORES_MATERIAL_ISSUE.md).
+
+# WF-115 — Global mascot visibility
+
+2026-10-08 · DEC-120 · All users/modules: pages and forms open without the floating mascot or tour. Existing page-guide settings, shared focus/dirty-form protection and GSAP remain. Dialogs no longer reserve an empty mascot strip; notifications return to normal bottom spacing. Six local server module shells and five standalone roles have zero mascot elements; mobile BOM Cancel/Submit remain reachable. Build/startup check passed. Local candidate only; no live deployment or data edits.
