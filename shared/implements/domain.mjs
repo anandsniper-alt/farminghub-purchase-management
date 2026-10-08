@@ -55,12 +55,13 @@ function calculatePlan(state){
   else issues.push({model:id,item:'Fabricated parts',message:'Fabrication list / weight pending'});
  }
  const rows=[...items.values()].map(r=>{
+  const grossDemand=r.demand,productionIssued=Math.min(grossDemand,state.productionPickCredits?.[r.key]||0);r.demand=round(grossDemand-productionIssued,3);
   const stockEntry=state.stock[r.key],stock=stockEntry?.qty??0,stockKnown=stockEntry!=null;
   const mrp=round(Math.max(0,r.demand-stock),3),adjust=state.adjustments[r.key]||{},percent=number(adjust.bufferPercent??state.settings.bufferPercent,'Buffer %',{max:1000});
   const scale=quantityUnit(r)==='pcs'?1:1000,buffer=Math.ceil(round(mrp*percent/100*scale,8))/scale,extras=quantity(adjust.extras??0,'Extras',r),orderQty=round(mrp+buffer+extras,3);
   const weight=r.fabricated&&r.weightPerPiece!=null?round(orderQty*r.weightPerPiece,6):null;
   const amount=r.rate==null||(r.fabricated&&weight==null)?null:Math.round((r.fabricated?weight:orderQty)*r.rate*100)/100;
-  return {...r,stock,stockKnown,mrp,bufferPercent:percent,buffer,extras,orderQty,weight,amount,supplier:adjust.supplier??r.supplier};
+  return {...r,...(productionIssued?{grossDemand,productionIssued}:{}),stock,stockKnown,mrp,bufferPercent:percent,buffer,extras,orderQty,weight,amount,supplier:adjust.supplier??r.supplier};
  }).sort((a,b)=>a.fabricated-b.fabricated||a.code.localeCompare(b.code,undefined,{numeric:true})||a.name.localeCompare(b.name));
  return {rows,issues,machines:Object.values(state.plan).reduce((a,n)=>a+Number(n||0),0)};
 }
@@ -74,15 +75,15 @@ export function syncMonthly(state){if(state.monthlyPlans){state.monthlyPlans[sta
 export function activateMonth(state,month){validMonth(month);ensureMonthly(state);syncMonthly(state);if(!state.monthlyPlans[month]&&Object.keys(state.monthlyPlans).length>=120)throw Error('Monthly planning supports up to 120 saved months.');state.activeMonth=month;state.plan=clone(state.monthlyPlans[month]||{});state.adjustments=clone(state.monthlyAdjustments[month]||{});syncMonthly(state);}
 export function calculateMRP(state,month=state.activeMonth){
  const remaining=(plan,month)=>Object.fromEntries(Object.entries(plan||{}).map(([id,qty])=>[id,Math.max(0,Number(qty)-Number(state.productionConsumed?.[month]?.[id]||0))]));
- if(!state.monthlyPlans)return calculatePlan({...state,plan:remaining(state.plan,month)});
+ if(!state.monthlyPlans)return calculatePlan({...state,plan:remaining(state.plan,month),productionPickCredits:state.productionMaterialIssued?.[month]});
  validMonth(month);const plans={...state.monthlyPlans,[state.activeMonth]:state.plan},stock=clone(state.stock),used={},priorIssues=[];
  // Only existing stock carries forward. Unreceived purchases, buffers and extras are not receipts.
  for(const earlier of Object.keys(plans).filter(m=>m<month).sort()){
-  const prior=calculatePlan({...state,plan:remaining(plans[earlier],earlier),stock:{},adjustments:{}});
+  const prior=calculatePlan({...state,plan:remaining(plans[earlier],earlier),productionPickCredits:state.productionMaterialIssued?.[earlier],stock:{},adjustments:{}});
   priorIssues.push(...prior.issues.map(i=>({...i,message:`Earlier month ${earlier}: ${i.message}; stock allocation may change when completed`})));
   for(const row of prior.rows){if(!stock[row.key])continue;const consume=Math.min(stock[row.key].qty,row.demand);stock[row.key].qty=round(stock[row.key].qty-consume,3);used[row.key]=round((used[row.key]||0)+consume,3);}
  }
- const report=calculatePlan({...state,plan:remaining(plans[month],month),stock,adjustments:month===state.activeMonth?state.adjustments:state.monthlyAdjustments[month]||{}});
+ const report=calculatePlan({...state,plan:remaining(plans[month],month),productionPickCredits:state.productionMaterialIssued?.[month],stock,adjustments:month===state.activeMonth?state.adjustments:state.monthlyAdjustments[month]||{}});
  return {...report,issues:[...report.issues,...priorIssues],month,stockAllocation:'Earliest planned month first; only existing stock carries forward',rows:report.rows.map(row=>({...row,originalStock:state.stock[row.key]?.qty??0,stockUsedEarlier:used[row.key]||0,closingStock:round(Math.max(0,row.stock-row.demand),3)}))};
 }
 export function pricePercent(value,label){if(value==null||value==='')return null;if(typeof value==='boolean')throw Error(label+' must be numeric.');const raw=typeof value==='string'?value.trim().replace(/%$/,''):value,percent=typeof raw==='number'&&raw<=1?raw*100:raw;return round(number(percent,label,{max:100}),6);}

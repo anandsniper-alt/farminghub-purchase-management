@@ -32,6 +32,12 @@ export function serialNumbers(values,count){if(values===undefined||values===''||
  const result=rows.map(value=>String(value).trim().toUpperCase());if(result.some(s=>!s||s.length>80||!/^[A-Z0-9][A-Z0-9._/-]*$/.test(s))||new Set(result).size!==result.length)throw Error('Serial numbers must be unique, up to 80 characters, using letters, numbers, dot, slash, hyphen or underscore.');return result;
 }
 export function productionDate(date,today){validDate(date);if(date>today)throw Error('Production and stock dates cannot be in the future.');return date;}
-export function assertInventoryOnly(before,after){for(const key of new Set([...Object.keys(before),...Object.keys(after)]))if(!['stock','stockAsOf','productionConsumed','revision','audit'].includes(key)&&!same(before[key],after[key]))throw Error('Production commands may change stock and production consumption only.');}
+export function assertInventoryOnly(before,after){for(const key of new Set([...Object.keys(before),...Object.keys(after)]))if(!['stock','stockAsOf','productionConsumed','productionMaterialIssued','revision','audit'].includes(key)&&!same(before[key],after[key]))throw Error('Production commands may change stock and production consumption only.');}
+export function validateMaterialIssued(state){
+ const records=state.productionMaterialIssued;if(records===undefined)return;
+ if(!records||typeof records!=='object'||Array.isArray(records)||Object.keys(records).length>120)throw Error('Invalid segment issue planning history.');
+ const index=new Map(productionItems(state).map(p=>[p.key,p]));
+ for(const [month,items]of Object.entries(records)){validMonth(month);if(!items||typeof items!=='object'||Array.isArray(items)||Object.keys(items).length>10000)throw Error('Invalid segment issue month.');for(const [key,qty]of Object.entries(items)){if(!index.has(key))throw Error('Unknown segment issue item.');quantity(qty,'Issued material',index.get(key));}}
+}
 export function remainingPlan(plan={},consumed={}){return Object.fromEntries(Object.entries(plan).map(([id,qty])=>[id,Math.max(0,Number(qty)-Number(consumed[id]||0))]));}
 export function validateConsumed(state){const records=state.productionConsumed;if(records===undefined)return; if(!records||Array.isArray(records)||typeof records!=='object'||Object.keys(records).length>120)throw Error('Invalid production consumption history.');for(const [month,models]of Object.entries(records)){validMonth(month);if(!models||typeof models!=='object'||Array.isArray(models))throw Error('Invalid production planning month.');for(const [id,qty]of Object.entries(models)){if(!state.models.some(m=>m.id===id))throw Error('Unknown produced model.');number(qty,'Produced machines',{integer:true,max:1e8});}}}

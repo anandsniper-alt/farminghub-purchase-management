@@ -847,10 +847,14 @@ The main1861 and Implements17 whole states remain exactly equal to pre-release:1
 ### Production audit - 2026-10-07
 
 WF-111 Production audit candidate: production-only preview/serial/consumption-display/date/export/retry/error-recovery fixes implemented. Nineteen production/retry tests and full397 regressions passed; isolated synthetic browser flows verified. True mobile viewport verification unavailable in the current browser; no mobile pass claimed. Publication status follows the audit report. No live BOM or production writes performed.
+# Stores candidate — 2026-10-08 (DEC-117 / WF-112)
+
+Production now has a daily segment pick list, separate segment posting, staged MRP credits and dated issue reporting. Existing cost-free access, master BOMs and direct completion are preserved. Locally verified405 regressions,27 production/retry checks, review build and isolated browser flows including narrow-screen shortages. No live demonstrations. Publication verification is recorded separately in [Stores contract](STORES_MATERIAL_ISSUE.md).
 
 
-**2026-10-08 local RO candidate — DEC-117 / WF-112:** Separate worksheet AI/Suresh comparison, protected essential Drive references/source library, safe bounded imports and on-demand embedded previews extend the existing RO module. Existing actual records and later main features remain intact. Local scoped native/build/server-review browser checks passed; no live publication or import claimed. See RO_WORKSHEET_COMPARISON.md.
+
+**2026-10-08 local RO candidate — DEC-118 / WF-113:** Separate worksheet AI/Suresh comparison, protected essential Drive references/source library, safe bounded imports and on-demand embedded previews extend the existing RO module. Existing actual records and later main features remain intact. Local scoped native/build/server-review browser checks passed; no live publication or import claimed. See RO_WORKSHEET_COMPARISON.md.
 
 
 ### RO Received Cost item references — 2026-10-08 local candidate
-DEC-117 / WF-112 follow-up implements protected per-RO purchase item lines, before-GST derived unit/line prices, separate source/conversion statuses, lower cost workings and existing supporting document links. 25 focused native tests and server/standalone browser checks passed, including mobile widths and preserved actuals. No private dataset is bundled and no production publication is implied. See RO_COSTINGS.md for the bounded schema and cost-precedence contract.
+DEC-118 / WF-113 follow-up implements protected per-RO purchase item lines, before-GST derived unit/line prices, separate source/conversion statuses, lower cost workings and existing supporting document links. 25 focused native tests and server/standalone browser checks passed, including mobile widths and preserved actuals. No private dataset is bundled and no production publication is implied. See RO_COSTINGS.md for the bounded schema and cost-precedence contract.
