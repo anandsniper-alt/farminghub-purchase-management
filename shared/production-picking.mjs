@@ -23,11 +23,12 @@ export function dailyPickList(state,batches,{date,mode='pending',modelId='',segm
   const warnings=rows.filter(r=>r.qty==null).length,missing=rows.filter(r=>r.qty>0&&(state.stock[r.key]?.qty??0)<r.qty).length;
   queue.push({id:b.id,reference:b.reference,modelId:b.modelId,quantity:b.quantity,date:b.date,status:b.status,stale,segmentCount:allSegments.length,issuedSegments:b.issuedSegments||[],segments:[...new Set(rows.map(r=>segments[r.key]))].sort(),pendingQuantities:warnings,shortages:mode==='pending'?missing:0});
   for(const r of rows){
-   const p=index.get(r.key),name=segments[r.key],t=totals.get(r.key)||{key:r.key,code:r.code,name:r.name,unit:r.unit,segment:name,supplierPartCode:p?.supplierPartCode||'',confirmedQty:0,pendingQuantities:0,stock:state.stock[r.key]?.qty??null,batches:[]};
+   const p=index.get(r.key),name=segments[r.key],group=JSON.stringify([r.key,name]),t=totals.get(group)||{key:r.key,code:r.code,name:r.name,unit:r.unit,segment:name,supplierPartCode:p?.supplierPartCode||'',confirmedQty:0,pendingQuantities:0,stock:state.stock[r.key]?.qty??null,batches:[]};
    if(r.qty==null)t.pendingQuantities++;else t.confirmedQty=round(t.confirmedQty+r.qty,3);
-   t.batches.push({id:b.id,reference:b.reference,modelId:b.modelId,qty:r.qty,stale,reversed:b.status==='REVERSED'});totals.set(r.key,t);
+   t.batches.push({id:b.id,reference:b.reference,modelId:b.modelId,qty:r.qty,stale,reversed:b.status==='REVERSED'});totals.set(group,t);
   }
  }
- const rows=[...totals.values()].map(r=>({...r,qty:r.pendingQuantities?null:r.confirmedQty,shortage:mode==='pending'?round(Math.max(0,r.confirmedQty-(r.stock??0)),3):0})).sort((a,b)=>a.segment.localeCompare(b.segment)||a.code.localeCompare(b.code,undefined,{numeric:true})||a.name.localeCompare(b.name));
- return {date,mode,modelId,segment,batches:queue,rows,segments:[...new Set(rows.map(r=>r.segment))],batchCount:queue.length,itemCount:rows.length,pendingQuantities:rows.reduce((n,r)=>n+r.pendingQuantities,0),shortageItems:rows.filter(r=>r.shortage>0).length};
+ const combined=new Map();for(const r of totals.values()){const t=combined.get(r.key)||{qty:0,segments:0};t.qty=round(t.qty+r.confirmedQty,3);t.segments++;combined.set(r.key,t);}
+ const rows=[...totals.values()].map(r=>({...r,qty:r.pendingQuantities?null:r.confirmedQty,sharedShortage:combined.get(r.key).segments>1,shortage:mode==='pending'?round(Math.max(0,combined.get(r.key).qty-(r.stock??0)),3):0})).sort((a,b)=>a.segment.localeCompare(b.segment)||a.code.localeCompare(b.code,undefined,{numeric:true})||a.name.localeCompare(b.name));
+ return {date,mode,modelId,segment,batches:queue,rows,segments:[...new Set(rows.map(r=>r.segment))],batchCount:queue.length,itemCount:rows.length,pendingQuantities:rows.reduce((n,r)=>n+r.pendingQuantities,0),shortageItems:new Set(rows.filter(r=>r.shortage>0).map(r=>r.key)).size};
 }

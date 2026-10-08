@@ -14,7 +14,7 @@ The user confirmed that stores must issue individual segments separately. The ne
 
 Fabricated stock remains one model subassembly set per machine. This screen does not introduce individual fabrication-piece stock or multiply approved combined fabrication weights by PPM. Existing direct completion and whole-batch issue remain available for drafts.
 
-**Issued on this date** uses actual dated stock movements, including direct-completion tranches. Reversed issues retain a visible historical marker. Print and Excel-compatible CSV use the current date/model/segment selection. CSV includes batch allocations; downloads contain technical quantities only.
+**Issued on this date** uses actual dated stock movements, including direct-completion tranches. Reversed issues retain a visible historical marker. Print and Excel-compatible CSV use the current date/model/segment selection. CSV includes batch allocations; downloads contain technical quantities only. If concurrent batches retain different segments for the same item, separate segment rows preserve their identities and explicitly mark any shortage shared across those rows.
 
 ## Posting and planning rules
 
