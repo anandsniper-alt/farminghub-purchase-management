@@ -31,7 +31,7 @@ Afterwards, read back every intended RO, comparison and document, verify source 
 
 ## Cloud continuation (2026-10-04)
 
-Publication is explicitly authorized. The cloud task fetched and checked out the seven-file transfer commit `93e77e27d67b4924221a9ce362c2307b2c7ad757`; GitHub main still pointed to the supplied base at the last read-only check. Additive reference-import planning, private batch preparation, authenticated Drive PDF references and protected source-library persistence are implemented here. See DEC-118 / WF-113 and [the API/import contract](../RO_WORKSHEET_COMPARISON.md#cloud-continuation--dec-117--wf-112-2026-10-04).
+Publication is explicitly authorized. The cloud task fetched and checked out the seven-file transfer commit `93e77e27d67b4924221a9ce362c2307b2c7ad757`; GitHub main still pointed to the supplied base at the last read-only check. Additive reference-import planning, private batch preparation, authenticated Drive PDF references and protected source-library persistence are implemented here. See DEC-119 / WF-114 and [the API/import contract](../RO_WORKSHEET_COMPARISON.md#cloud-continuation--dec-117--wf-112-2026-10-04).
 
 The local-source task reports a validated 295-RO supplement (263 AI references, 239 Suresh references and 32 pending) and a verified learning package, with private checksums/links supplied in chat. Those packages have not yet been downloaded or independently checked in this runtime. The final individual-PDF link manifest is a separate prerequisite; ZIP viewers cannot substitute for essential-document links. The source learning package does not authorize stock/holding-cost calculations or replacing historical estimates with verified actuals.
 
