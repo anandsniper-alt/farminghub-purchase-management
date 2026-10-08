@@ -212,3 +212,32 @@ body[data-preview-theme=minimal] .scope-card.active{flex:0 1 260px;padding:12px 
  @media(forced-colors:active){body[data-preview-theme=minimal] :is(.badge,.button,.panel,.kpi){border:1px solid CanvasText}body[data-preview-theme=minimal] :focus-visible{outline:3px solid Highlight}}
 }
 @media print{.skip-link,.unsaved-notice{display:none!important}}
+/* User access matrix: shared by settings and vendor-management users. */
+body[data-preview-theme="minimal"] .user-access-table{width:100%;min-width:766px;table-layout:fixed}
+body[data-preview-theme="minimal"] .user-access-table.with-accounts{min-width:1240px}
+body[data-preview-theme="minimal"] .user-access-table .user-identity-col{width:190px}
+body[data-preview-theme="minimal"] .user-access-table .user-email-col{width:200px}
+body[data-preview-theme="minimal"] .user-access-table .user-status-col{width:106px}
+body[data-preview-theme="minimal"] .user-access-table .user-scope-col{width:96px}
+body[data-preview-theme="minimal"] .user-access-table .user-actions-col{width:168px}
+body[data-preview-theme="minimal"] .user-access-table :is(th,td){vertical-align:middle;white-space:normal;overflow-wrap:anywhere}
+body[data-preview-theme="minimal"] .user-access-table th{padding:14px 12px}
+body[data-preview-theme="minimal"] .user-access-table td{padding:14px 12px}
+body[data-preview-theme="minimal"] .user-access-table .user-scope-cell{text-align:center}
+body[data-preview-theme="minimal"] .user-access-table .user-identity{display:grid;justify-items:start;gap:8px}
+body[data-preview-theme="minimal"] .user-access-table .user-identity .sub{margin:0;line-height:1.5}
+body[data-preview-theme="minimal"] .user-access-table .button{min-height:44px;max-width:100%;font-size:13px;line-height:1.4}
+body[data-preview-theme="minimal"] .user-access-table .user-identity .button{white-space:nowrap}
+body[data-preview-theme="minimal"] .user-access-hint{padding:12px 16px;border-bottom:1px solid var(--line)}
+body[data-preview-theme="minimal"] .user-access-scroll{scroll-padding-inline-start:202px}
+body[data-preview-theme="minimal"] .user-access-table :is(th:first-child,.user-identity-cell){position:sticky;left:0;z-index:1;background:#fff;border-right:1px solid var(--line)}
+body[data-preview-theme="minimal"] .user-access-table th:first-child{z-index:2;background:#f2f5ed}
+body[data-preview-theme="minimal"] .user-access-table tr:focus-within .user-identity-cell{background:#f0f5e9}
+body[data-preview-theme="minimal"] .user-account-backdrop .user-account-modal{max-height:calc(100dvh - 144px)}
+body[data-preview-theme="minimal"] .user-account-modal .check-list .checkbox{min-height:44px;align-items:center;margin:0;padding:6px 0}
+body[data-preview-theme="minimal"] .user-account-modal .check-list input{margin:0}
+body[data-preview-theme="minimal"] .user-scope-toggle{display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;border-radius:8px;cursor:pointer}
+body[data-preview-theme="minimal"] .user-scope-toggle:has(input:disabled){cursor:default}
+body[data-preview-theme="minimal"] .user-scope-toggle:has(input:focus-visible){background:#edf4df}
+body[data-preview-theme="minimal"] .user-scope-toggle input{margin:0}
+body[data-preview-theme="minimal"] .user-access-scroll:focus-visible{outline-offset:-3px}

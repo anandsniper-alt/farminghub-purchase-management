@@ -185,3 +185,10 @@ The main1861 and Implements17 whole states remain exactly equal to pre-release:1
 # Stores candidate — 2026-10-08
 
 DEC-117 / WF-112: individual segment issue, daily due/issued pick list and technical export implemented.405 native regressions/27 production-retry checks, review build and isolated browser complete/partial/shortage flows passed. Master BOMs, staff rights and live stock remain outside this change. Recovery/deployment/readback verification is pending; [contract](../STORES_MATERIAL_ISSUE.md). Synthetic data and evidence remain in ignored `test-output/stores-picking-20261008/`.
+# Stores live — 2026-10-08
+
+DEC-117/WF-112 verified live at `/production/#/picking`, release `f20e75dc7ec7e44261c6773e8c88c351c7c2b62e`. Exact hosted CI, healthy rolling deploy, eight served assets, technical report/download/auth checks and unchanged main/Implements/BOM/production/accounts passed. All405 native tests/27 production-retry checks and final build passed. Recovery214 source files/all20-table restores and14 retained private archives verified. No master BOM, live stock or staff grant changes; demos are local only. [Publication and operating contract](../STORES_MATERIAL_ISSUE.md) supersedes the candidate status. Private proof remains in ignored `test-output/stores-picking-20261008/`; final publication notes are local pending later documentation synchronization.
+
+## User access layout candidate — 2026-10-08
+
+DEC-118/WF-113 improves shared Settings/VMS matrix and account dialog alignment under the adopted UI/HIG rules.405 regressions,20 focused checks, standalone build and synthetic desktop/390px phone checks passed. No live account, credential, scope, BOM or costing writes. Fresh f20e75d recovery export is downloading; publish only after source/archive/all-table restore gates and exact CI/runtime/served-asset verification. See docs/USER_ACCESS_LAYOUT.md; private evidence in test-output/users-layout-20261008/.

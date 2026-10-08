@@ -699,3 +699,7 @@ WF-111 / Production: test validation through HTTP and rendered visibility, not o
 # Segment issue — 2026-10-08 (DEC-117 / WF-112)
 
 When stock is deducted before a whole model is consumed, remaining MRP demand must also account for issued item quantities. Convert staged credits atomically when the final segment is issued; reverse only the originating batch's credits. Derive daily issued quantities from dated ledger deltas, not cumulative batch snapshots, especially for direct partial-completion tranches. Freeze segment membership before later master category edits. Validate pending/hidden quantities and retained overrides in separate synthetic flows.
+
+## User access alignment — 2026-10-08, DEC-118
+
+Content-driven widths can let long permission headings squeeze identity and account actions. Keep stable comparison columns, allow text wrapping, centre labelled44px targets and contain overflow in a named keyboard-scroll region with a pinned identity. Check account dialogs against actual guide-reserved height, not just the full viewport. These are reusable presentation lessons; never infer new role/scope grants from a layout change. Synthetic desktop/mobile/standalone checks and405 existing regressions passed for this candidate. Publication recorded separately.

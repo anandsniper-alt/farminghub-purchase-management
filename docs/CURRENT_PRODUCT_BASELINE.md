@@ -850,3 +850,6 @@ WF-111 Production audit candidate: production-only preview/serial/consumption-di
 # Stores candidate — 2026-10-08 (DEC-117 / WF-112)
 
 Production now has a daily segment pick list, separate segment posting, staged MRP credits and dated issue reporting. Existing cost-free access, master BOMs and direct completion are preserved. Locally verified405 regressions,27 production/retry checks, review build and isolated browser flows including narrow-screen shortages. No live demonstrations. Publication verification is recorded separately in [Stores contract](STORES_MATERIAL_ISSUE.md).
+## User-access presentation candidate — 2026-10-08
+
+DEC-118/WF-113 aligns the shared Settings/VMS user-access matrix and account dialogs using the adopted HIG and UI rulebooks. Existing roles, scopes, credentials and account workflows retain their behavior. Read-only synthetic desktop/390px phone and standalone checks passed with20 focused native tests; publication pending separate recovery/CI/live verification. [Contract](USER_ACCESS_LAYOUT.md).
