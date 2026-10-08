@@ -1070,3 +1070,6 @@ Website publication is explicitly authorized, but requires current access and th
 
 
 **2026-10-08 — WF-112 / DEC-117:** RO costings → exact RO → important document → Preview document opens one inline private Drive viewer; Open in Google Drive remains available. Close returns focus; another document replaces the viewer; leaving the RO removes it. Missing Google access stays visibly explained. Worksheet AI/Suresh references and actuals retain independent status. Local server/review and scope/import tests passed; no deployment or private data import by this candidate. Transfer-only duplicate WF-107 references are reconciled to WF-112; the Implements WF-107 history remains unchanged.
+
+
+**2026-10-08 — WF-112 item detail follow-up (DEC-117):** RO costings → select exact RO → Received Cost item lines and before-GST unit/line costs → actual and selected AI/Suresh component workings → important documents/private preview. Item purchase-reference status and conversion status remain separate; known listed-line subtotals are not full reconciled RO costs. Source and correction details expand per item. Anonymous access, currency gaps and stale edits remain blocked. Implemented/local verified; deployment is a separate gate.

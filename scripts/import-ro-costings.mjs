@@ -53,7 +53,7 @@ try{
   const list=detail?await documents(record.ro):[];files.set(record.ro,list);
   report.snapshots.push({ro:record.ro,before:detail,documents:list});saveReport();
   const creation=payload.records.find(e=>e.record.ro===record.ro).creationRecord;
-  if(creation){const checked=validateRoRecord(creation);if(checked.ro!==record.ro||!isDeepStrictEqual(checked.worksheetComparison,record.worksheetComparison))throw Error('Creation record differs from its exact RO comparison patch.');}
+  if(creation){const checked=validateRoRecord(creation);if(checked.ro!==record.ro||!isDeepStrictEqual(checked.worksheetComparison,record.worksheetComparison)||(mode==='purchaseReferences'&&!isDeepStrictEqual(checked.purchaseItems,record.purchaseItems)))throw Error('Creation record differs from its exact RO reference patch.');}
   plans.push(planRoImport(!detail&&creation?creation:record,detail,mode));
  }
  const driveInputs=new Map();

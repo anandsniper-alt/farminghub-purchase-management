@@ -28,6 +28,19 @@ test('reference plan retains every existing actual field, rejects conflicting so
  assert.throws(()=>planRoImport(reference(),existing),/already differs/);
 });
 
+test('purchase references are additive, retry-safe and cannot replace reviewed items or actuals',()=>{
+ const purchaseItems={version:1,basis:'Synthetic original purchase rows',reviewedOn:'2026-10-08',rows:[{id:'line-1',supplier:'Preserved supplier',invoice:'Synthetic CI',itemCode:'GJ-TEST',masterCode:'TEST',description:'Synthetic item',quantity:2,unit:'pcs',currency:'USD',unitPrice:50,usdUnitPrice:50,status:'Verified reference',source:{file:'synthetic.xlsx',sheet:'Purchases',row:'2'}}]};
+ const incoming=validateRoRecord({...reference(),purchaseItems}),existing={record:actual(),revision:7};
+ const plan=planRoImport(incoming,existing,'purchaseReferences');
+ assert.equal(plan.action,'updated');assert.deepEqual(plan.record.actuals,existing.record.actuals);assert.deepEqual(plan.record.invoices,existing.record.invoices);
+ assert.deepEqual(plan.record.purchaseItems,incoming.purchaseItems);assert.deepEqual(calculateRoCosting(plan.record),calculateRoCosting(existing.record));
+ assert.equal(planRoImport(incoming,{record:plan.record,revision:8},'purchaseReferences').action,'skipped');
+ const changed=structuredClone(incoming);changed.purchaseItems.rows[0].quantity=3;
+ assert.throws(()=>planRoImport(changed,{record:plan.record,revision:8},'purchaseReferences'),/Conflicting existing purchase/);
+ assert.throws(()=>planRoImport(reference(),existing,'purchaseReferences'),/require purchaseItems/);
+ const legacy=planRoImport(reference(),{record:plan.record,revision:8},'worksheetComparison');assert.deepEqual(legacy.record.purchaseItems,incoming.purchaseItems);
+});
+
 test('authenticated reference import preserves actuals/history, verifies bytes, skips same-RO hash duplicates and retains attempt snapshots',async()=>{
  const dir=mkdtempSync(join(tmpdir(),'fh-reference-import-')),store=new Store(join(dir,'db.sqlite'),emptyState()),module=new RoCostingStore(store);
  store.addAccount('admin','synthetic@example.test','Synthetic-test-only-password');

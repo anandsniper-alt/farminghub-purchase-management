@@ -850,3 +850,7 @@ WF-111 Production audit candidate: production-only preview/serial/consumption-di
 
 
 **2026-10-08 local RO candidate — DEC-117 / WF-112:** Separate worksheet AI/Suresh comparison, protected essential Drive references/source library, safe bounded imports and on-demand embedded previews extend the existing RO module. Existing actual records and later main features remain intact. Local scoped native/build/server-review browser checks passed; no live publication or import claimed. See RO_WORKSHEET_COMPARISON.md.
+
+
+### RO Received Cost item references — 2026-10-08 local candidate
+DEC-117 / WF-112 follow-up implements protected per-RO purchase item lines, before-GST derived unit/line prices, separate source/conversion statuses, lower cost workings and existing supporting document links. 25 focused native tests and server/standalone browser checks passed, including mobile widths and preserved actuals. No private dataset is bundled and no production publication is implied. See RO_COSTINGS.md for the bounded schema and cost-precedence contract.

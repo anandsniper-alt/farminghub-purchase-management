@@ -44,6 +44,23 @@ export function worksheetComparisonSummary(record){
  const v=record.worksheetComparison;if(!v)return null;
  return {status:v.status,basis:v.basis,reviewedOn:v.reviewedOn,aiRate:v.ai.rate,sureshRate:v.suresh.rate};
 }
+export function validateRoPurchaseItems(input,comparison){
+ const v=worksheetObject(input);if(v.version!==1)roFail('Unsupported purchase item reference version.');
+ const ids=new Set(),rows=worksheetList(v.rows,500,'purchase items').map(input=>{
+  const r=worksheetObject(input),id=roText(r.id,200);if(!id||ids.has(id))roFail('Purchase item IDs must be present and unique within the RO.');ids.add(id);
+  const currency=roText(r.currency,10);if(!['USD','CNY','UNKNOWN','CONFLICT','FOC'].includes(currency))roFail('Confirm purchase item currency.');
+  const status=roText(r.status,40);if(!['Verified reference','Provisional reference','Pending'].includes(status))roFail('Choose an explicit purchase item reference status.');
+  const quantity=worksheetNumber(r.quantity),unitPrice=worksheetNumber(r.unitPrice),usdUnitPrice=worksheetNumber(r.usdUnitPrice),usdBasis=roText(r.usdBasis,2000),workingId=roText(r.workingId,200);
+  if(currency==='USD'&&unitPrice!==null&&usdUnitPrice!==null&&Math.abs(unitPrice-usdUnitPrice)>0.000001)roFail('USD item prices must retain the original USD unit price.');
+  if(usdUnitPrice!==null&&currency!=='USD'&&!usdBasis.trim())roFail('Explain the verified USD basis for a non-USD purchase item.');
+  if(workingId&&!comparison?.selectedWorkingIds.includes(workingId))roFail('Purchase item conversion must reference a selected worksheet working.');
+  const source=worksheetObject(r.source||{}),file=roText(source.file,300),sha256=roText(source.sha256,64);
+  if(/[\\/\x00-\x1f]/.test(file)||/^[A-Za-z]:/.test(file))roFail('Purchase source must be a file basename, without local paths.');
+  if(sha256&&!/^[a-f0-9]{64}$/i.test(sha256))roFail('Invalid purchase source checksum.');
+  return {id,supplier:roText(r.supplier,300),invoice:roText(r.invoice,200),itemCode:roText(r.itemCode,200),masterCode:roText(r.masterCode,200),masterCodeRaw:roText(r.masterCodeRaw,200),description:roText(r.description,1000),model:roText(r.model,300),productGroup:roText(r.productGroup,300),quantity,unit:roText(r.unit,40),currency,unitPrice,usdUnitPrice,usdBasis,status,workingId,source:{file,sheet:roText(source.sheet,200),row:roText(source.row,200),sha256},flags:worksheetList(r.flags,20,'item flags').map(flag=>roText(flag,1000))};
+ });
+ return {version:1,basis:roText(v.basis,4000),reviewedOn:roDate(v.reviewedOn),rows};
+}
 export function validateRoRecord(input){
  if(!input||typeof input!=='object'||Array.isArray(input))roFail('RO costing record required.');
  const invoices=input.invoices||[],expenses=input.expenses||[],issues=input.issues||[];
@@ -58,7 +75,26 @@ export function validateRoRecord(input){
  const cleanExpenses=expenses.map(e=>({document_no:roText(e.document_no,200),component:roText(e.component,200),currency:roText(e.currency,10),net:roAmount(e.net),gst:roAmount(e.gst),gross:roAmount(e.gross),basis:roText(e.basis,2000),allocation:roText(e.allocation,1000),provisional:e.provisional===true,include:e.include===true,sha256:roText(e.sha256,64),ros:Array.isArray(e.ros)?e.ros.map(roCode):[]}));
  const record={ro:roCode(input.ro),supplier:roText(input.supplier,300),inwardDate:roDate(input.inwardDate),boeDate:roDate(input.boeDate),boe:roText(input.boe,100),containers:roText(input.containers,1000),customsFx:roConversion(input.customsFx),boeGoodsUsd:roAmount(input.boeGoodsUsd),boeGoodsBasis:roText(input.boeGoodsBasis,1000),invoices:cleanInvoices,expenses:cleanExpenses,issues:issues.map(i=>({severity:roText(i.severity,30),topic:roText(i.topic,200),detail:roText(i.detail,4000)})),actuals,source:roText(input.source,300),notes:roText(input.notes,4000)};
  if(input.worksheetComparison!=null)record.worksheetComparison=validateWorksheetComparison(input.worksheetComparison);
+ if(input.purchaseItems!=null)record.purchaseItems=validateRoPurchaseItems(input.purchaseItems,record.worksheetComparison);
  if(JSON.stringify(record).length>150000)roFail('RO costing details exceed the record size limit.');return record;
+}
+export function calculateRoPurchaseItems(input){
+ const record=validateRoRecord(input),actual=calculateRoCosting(record),comparison=record.worksheetComparison;
+ const rows=(record.purchaseItems?.rows||[]).map(row=>{
+  const working=row.workingId?comparison?.workings.find(w=>w.id===row.workingId):null;
+  const reference=working?.ai||comparison?.ai,referenceStatus=working?.status||comparison?.status;
+  const rate=actual.rate??(['Historical reference','Provisional reference'].includes(referenceStatus)?reference?.rate:null)??null;
+  const rateStatus=actual.rate!==null?'Verified actual':rate!==null?referenceStatus:'Pending';
+  const rateBasis=actual.rate!==null?'Verified actual before-GST INR total / unique goods USD':rate!==null?(working?.basis||comparison?.basis||'Worksheet AI reference'):'Before-GST conversion is pending.';
+  const usdLineTotal=row.quantity!==null&&row.usdUnitPrice!==null?row.quantity*row.usdUnitPrice:null;
+  const inrUnitCost=rate!==null&&row.usdUnitPrice!==null?row.usdUnitPrice*rate:null;
+  return {...row,rate,rateStatus,rateBasis,usdLineTotal,inrUnitCost,inrLineTotal:inrUnitCost!==null&&row.quantity!==null?inrUnitCost*row.quantity:null};
+ });
+ const units=new Set(rows.map(row=>row.unit)),completeQuantity=rows.length>0&&rows.every(row=>row.quantity!==null)&&units.size===1&&!!rows[0].unit,completeUsd=rows.length>0&&rows.every(row=>row.usdLineTotal!==null),completeInr=rows.length>0&&rows.every(row=>row.inrLineTotal!==null);
+ const sum=key=>rows.reduce((total,row)=>total+(row[key]??0),0),goodsUsd=completeUsd?sum('usdLineTotal'):null;
+ const goodsBasis=actual.rate!==null?actual.goodsUsd:comparison?.ai.goodsUsd??actual.goodsUsd;
+ const differencePercent=goodsUsd!==null&&goodsBasis>0?(goodsUsd/goodsBasis-1)*100:null;
+ return {rows,totalQuantity:completeQuantity?sum('quantity'):null,quantityUnit:completeQuantity?rows[0].unit:'',knownGoodsUsd:sum('usdLineTotal'),knownTotalInr:sum('inrLineTotal'),completeUsd,completeInr,goodsBasis,differencePercent,pendingItems:rows.filter(row=>row.usdUnitPrice===null||row.rate===null||row.quantity===null).length};
 }
 export function calculateRoCosting(input){
  const record=validateRoRecord(input),a=record.actuals,pending=[];

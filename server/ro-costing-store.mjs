@@ -84,13 +84,13 @@ export class RoCostingStore{
    const actor=this.actor(actorId,true),checked=this.store.requestCheck(actor,requestId,'RO_COSTINGS',input);
    if(checked?.replayed){this.db.exec('COMMIT');return checked.result;}
    const out=[],seen=new Set();for(const entry of input.records){
-    let record=validateRoRecord(entry.record);if(seen.has(record.ro))throw new RuleError('Duplicate RO in import.');seen.add(record.ro);
-    const before=this.db.prepare('SELECT * FROM ro_costings WHERE ro=?').get(record.ro),revision=before?.revision||0;
-    if(entry.expectedRevision!==revision)throw new RuleError('RO '+record.ro+' changed. Reload it before saving; nothing was overwritten.','CONFLICT');
-    // Older editors do not know worksheetComparison. Omission must not erase evidence.
-    if(before&&!Object.hasOwn(entry.record,'worksheetComparison')){
-     const previous=JSON.parse(before.payload);if(previous.worksheetComparison)record=validateRoRecord({...record,worksheetComparison:previous.worksheetComparison});
-    }
+    const ro=roCode(entry.record?.ro);if(seen.has(ro))throw new RuleError('Duplicate RO in import.');seen.add(ro);
+    const before=this.db.prepare('SELECT * FROM ro_costings WHERE ro=?').get(ro),revision=before?.revision||0;
+    if(entry.expectedRevision!==revision)throw new RuleError('RO '+ro+' changed. Reload it before saving; nothing was overwritten.','CONFLICT');
+    // Legacy editors omit reference fields. Preserve both before validating their links.
+    const merged={...entry.record},previous=before?JSON.parse(before.payload):{};
+    for(const key of ['worksheetComparison','purchaseItems'])if(!Object.hasOwn(merged,key)&&previous[key])merged[key]=previous[key];
+    const record=validateRoRecord(merged);
     const at=new Date().toISOString(),next=revision+1,status=calculateRoCosting(record).status;
     this.db.prepare('INSERT INTO ro_costings VALUES(?,?,?,?,?,?) ON CONFLICT(ro) DO UPDATE SET revision=excluded.revision,supplier=excluded.supplier,status=excluded.status,payload=excluded.payload,updated_at=excluded.updated_at').run(record.ro,next,record.supplier,status,JSON.stringify(record),at);
     this.db.prepare('INSERT INTO ro_costing_events VALUES(?,?,?,?,?,?,?,?)').run(randomUUID(),record.ro,next,actor.id,at,input.reason,before?.payload||null,JSON.stringify(record));out.push({ro:record.ro,revision:next});
