@@ -403,3 +403,6 @@ Reuse the LAE Import sidebar, money icon, branded Minimal panels, invoice tables
 ### Production audit - 2026-10-07
 
 WF-111 Production audit: retain the cost-free shell and shared branding. Show/focus nonempty validation errors, preserve batch entries during balance refresh, separate planned/completed sublabels and retain 44px mobile action targets. No BOM editor or print redesign.
+
+
+**2026-10-08 RO preview — DEC-117 / WF-112:** Reuse existing panel, heading, ghost-button, border/radius and responsive tokens for an inline document viewer. Plain Preview document / Close preview actions and Google-open fallback retain native keyboard controls; focus moves to the document heading and returns to its action. No palette, typography, logo, global motion or print change. Synthetic server/review mobile checks and server screenshot inspection passed; real Google content is outside local visual verification.

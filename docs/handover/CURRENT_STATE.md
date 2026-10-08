@@ -180,3 +180,12 @@ The main1861 and Implements17 whole states remain exactly equal to pre-release:1
 
 
 2026-10-07 WF-111 production audit candidate: 397 tests and 19 production/retry checks passed; multiple synthetic browser flows run without live BOM changes. Fresh recovery/source/all-table restores verified and 13 canonical archives retained. Publication pending; details in docs/PRODUCTION_AUDIT_2026-10-07.md.
+
+## RO worksheet/Drive cloud candidate — 2026-10-04
+
+DEC-117 / WF-112: transferred independent AI/Suresh source comparisons; reference-only bounded imports preserve the latest actual records. Protected persisted essential-PDF Drive references and an append-only learning/source-library link reuse native module authentication. Same exact RO/hash/role local/Drive documents share one card with both access options; archive/history remains intact. Scoped reference text and narrow-screen account-header wrapping retain mobile reachability. No stock or holding-cost changes.
+
+Publication is authorized but remains pending network/secure-binding activation and the fresh downloaded/verified production recovery archive plus isolated restore. No production writes or 295-RO import by this task. Source-package counts and current live release require independent revalidation after access. See [cloud continuation](RO_COSTINGS_CLOUD_TRANSFER.md) and [API/import contract](../RO_WORKSHEET_COMPARISON.md).
+
+
+**2026-10-08 RO local candidate — DEC-117 / WF-112:** October 4 comparison/private-link code is merged into main52dc76e ancestry, with one on-demand inline Drive preview and exact-host CSP. All newer main changes retained; duplicate transfer documentation IDs reconciled without deleting histories.20 targeted native tests, standalone build and authenticated/review synthetic browser flows passed. Actual Google permission/rendering, production backup/deployment and complete RO import remain pending. See ../RO_WORKSHEET_COMPARISON.md.

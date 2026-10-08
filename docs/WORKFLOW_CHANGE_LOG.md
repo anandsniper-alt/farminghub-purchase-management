@@ -1061,3 +1061,12 @@ WF-110 initial publication verified at e17cb17, quality run37632623605,390 tests
 ### Production audit - 2026-10-07
 
 WF-111 - Production-only audit repair, 2026-10-07. Locally verified: draft/preview recovery, direct and issue-first partial completion, exact serials, dispatch/return/reversal chronology, filtered stock exports, stable interrupted-save receipts, visible actionable errors and recovery links. Synthetic demos are isolated; no live production/BOM mutation. Existing material issue/completion/MRP/manager/append-only behavior retained.397 regressions and19 production/retry checks passed; publication verification pending.
+
+## WF-112 — RO reference refresh and private source links (2026-10-04, DEC-117)
+
+Prepare canonical comparison patches and separate null-actual creation records -> verify the individual essential-PDF Drive manifest -> reconcile each current RO and document list -> save private pre-write snapshots -> add comparisons with exact current revisions -> retain/reclassify checksum-bound local evidence only with an explicit reason/current sequence -> register private Drive references and protected learning/library link -> read back records/reference metadata and locally stored document bytes -> report created/updated/skipped, actual pending, worksheet pending and essential-document gaps separately.
+
+Website publication is explicitly authorized, but requires current access and the established fresh downloaded/verified recovery archive and isolated original/candidate restore. Source ZIPs and private values stay outside public Git/static assets. Shared/joint RO identities and source alternatives remain exact; no supplier-payment, stock or expense-coverage inference. Google continues to enforce its existing sharing permissions. Implemented locally; no production deployment or data writes by this cloud task yet.
+
+
+**2026-10-08 — WF-112 / DEC-117:** RO costings → exact RO → important document → Preview document opens one inline private Drive viewer; Open in Google Drive remains available. Close returns focus; another document replaces the viewer; leaving the RO removes it. Missing Google access stays visibly explained. Worksheet AI/Suresh references and actuals retain independent status. Local server/review and scope/import tests passed; no deployment or private data import by this candidate. Transfer-only duplicate WF-107 references are reconciled to WF-112; the Implements WF-107 history remains unchanged.

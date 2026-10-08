@@ -696,3 +696,12 @@ Shared theme hooks require both app and modal-root containers even where native 
 ### Production audit - 2026-10-07
 
 WF-111 / Production: test validation through HTTP and rendered visibility, not only direct domain throws. Plain domain errors can become generic500 responses and inherited CSS can hide the resulting alert. Keep retry identity independent of balance refresh after an uncertain response, and inspect full-basis versus cumulative-issued displays during partial production. Applied only to production; no finance/approval relaxation.
+
+## 2026-10-04 — Reference-only import and Drive access evidence (DEC-117)
+
+**Scope:** RO costings / private source integration. **Rule:** merge independent worksheet references onto the freshly read actual record; do not import an old full financial record over live actuals. Preflight the whole bounded batch, preserve pre-write snapshots, use exact revisions/stable receipts and reject conflicting source versions. A creation template with null actuals is for absent exact identities only. Preserve source precision and keep actual pending separate from worksheet pending.
+
+**Problem prevented:** reference-rate population falsely completing actual expenses, erasing live edits or splitting joint identities. **Access lesson:** saved environment requirements and allowlists are draft evidence, not active runtime credentials/connectivity. Existing credentials may require secure bindings or another configuration; inspect names/status and retry after activation, never request values in chat. **Document lesson:** canonical authenticated Drive references preserve private access, but storing their metadata/checksum does not independently verify current external bytes or permissions. Applies to source-reference refreshes; does not authorize public sharing, inventory imports or new holding-cost semantics.
+
+
+**2026-10-08 — MODULE/INTEGRATION, DEC-117:** A saved Drive link does not prove that an inline preview can render for the current Google identity. Validate canonical file URLs, derive only the exact Drive preview origin, load one frame after user action and keep an external-open fallback without changing sharing. Test CSP and absent pre-click network activity along with focus/mobile behavior. Preserve every later-main change when continuing an older cloud branch, and reconcile colliding append-only decision IDs explicitly. Does not authorize public financial documents, payment changes or stock migration.

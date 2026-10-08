@@ -5,11 +5,45 @@ export const RO_ACTUAL_FIELDS=['supplierInr','bankNet','forwarderNet','otherNet'
 const roFail=(message,code)=>{throw new RuleError(message,code);};
 export const canWriteRoCosting=actor=>canCreate(actor,RO_COST_SCOPE);
 export function assertRoCostAccess(actor,write=false){if(!scopeAllowed(actor,RO_COST_SCOPE)||write&&!canWriteRoCosting(actor))roFail('LAE Import '+(write?'cost editing':'access')+' is required.','FORBIDDEN');}
-export function roCode(value){if(typeof value!=='string'||!value.length||value.length>60||/[\x00-\x20\\/]/.test(value))roFail('Enter the exact RO number without spaces or path characters.');return value;}
+export function roCode(value){if(typeof value!=='string'||!value.length||value.length>60||value.trim()!==value||/[\x00-\x1f\x7f-\x9f\\/]/.test(value))roFail('Enter the exact RO number without surrounding spaces, control characters or path characters.');return value;}
 function roText(value,max=500){if(value==null)return '';if(typeof value!=='string'||value.length>max)roFail('Invalid costing text.');return value;}
 export function roAmount(value){if(value===null||value===undefined||value==='')return null;if(typeof value!=='number'||!Number.isFinite(value)||value<0||value>1e10)roFail('Amounts must be non-negative numbers; leave missing amounts blank.');const minor=toMinor(value);if(!Number.isSafeInteger(minor))roFail('Amount is too large.');return minor/100;}
 function roConversion(value){if(value===null||value===undefined||value==='')return null;if(typeof value!=='number'||!Number.isFinite(value)||value<=0||value>1e6)roFail('Conversion rates must be positive numbers; leave missing rates blank.');return Math.round(value*1e6)/1e6;}
 function roDate(value){const s=roText(value,10),date=new Date(s+'T00:00:00Z');if(s&&(!/^\d{4}-\d{2}-\d{2}$/.test(s)||!Number.isFinite(date.getTime())||date.toISOString().slice(0,10)!==s))roFail('Use a valid YYYY-MM-DD date.');return s;}
+export const RO_WORKSHEET_STATUSES=['Historical reference','Provisional reference','Partial reference','Pending'];
+function worksheetObject(value){if(!value||typeof value!=='object'||Array.isArray(value))roFail('Worksheet comparison requires an object.');return value;}
+function worksheetList(value,max,label){if(value==null)return [];if(!Array.isArray(value)||value.length>max)roFail('Too many or invalid worksheet '+label+'.');return value;}
+function worksheetNumber(value,{signed=false,rate=false}={}){
+ if(value==null||value==='')return null;
+ if(typeof value!=='number'||!Number.isFinite(value)||Math.abs(value)>(rate?1e6:1e12)||(!signed&&value<0)||(rate&&value<=0))roFail('Invalid worksheet reference number.');
+ // Preserve source precision. These references never enter actual-payment arithmetic.
+ return value;
+}
+function worksheetStatus(value){if(!RO_WORKSHEET_STATUSES.includes(value))roFail('Choose an explicit worksheet reference status.');return value;}
+function worksheetSide(input={},withRows=false){
+ const v=worksheetObject(input),side={rate:worksheetNumber(v.rate,{rate:true}),totalInr:worksheetNumber(v.totalInr),goodsUsd:worksheetNumber(v.goodsUsd),basis:roText(v.basis,4000),formula:roText(v.formula,4000)};
+ if(withRows)side.rows=worksheetList(v.rows,600,'component rows').map(input=>{const row=worksheetObject(input),value=typeof row.value==='string'?roText(row.value,4000):worksheetNumber(row.value,{signed:true});return {label:roText(row.label,300),value,unit:roText(row.unit,40),cell:roText(row.cell,200),formula:roText(row.formula,4000),basis:roText(row.basis,4000)};});
+ return side;
+}
+export function validateWorksheetComparison(input){
+ const v=worksheetObject(input);if(v.version!==1)roFail('Unsupported worksheet comparison version.');
+ const ids=new Set(),workings=worksheetList(v.workings,100,'invoice workings').map(input=>{
+  const w=worksheetObject(input),id=roText(w.id,200);if(!id||ids.has(id))roFail('Worksheet working IDs must be present and unique.');ids.add(id);
+  const source=worksheetObject(w.source||{}),file=roText(source.file,300),sha256=roText(source.sha256,64);
+  if(/[\\/\x00-\x1f]/.test(file)||/^[A-Za-z]:/.test(file))roFail('Worksheet source must be a file basename, without local paths.');
+  if(sha256&&!/^[a-f0-9]{64}$/i.test(sha256))roFail('Invalid worksheet source checksum.');
+  return {id,invoice:roText(w.invoice,200),supplier:roText(w.supplier,300),status:worksheetStatus(w.status),basis:roText(w.basis,4000),source:{file,sheet:roText(source.sheet,200),sha256},ai:worksheetSide(w.ai,true),suresh:worksheetSide(w.suresh,true)};
+ });
+ const selectedWorkingIds=worksheetList(v.selectedWorkingIds,100,'selected workings').map(id=>roText(id,200));
+ if(new Set(selectedWorkingIds).size!==selectedWorkingIds.length||selectedWorkingIds.some(id=>!ids.has(id)))roFail('Selected worksheet IDs must identify unique retained workings.');
+ const result={version:1,status:worksheetStatus(v.status),basis:roText(v.basis,4000),reviewedOn:roDate(v.reviewedOn),source:roText(v.source,1000),selectedWorkingIds,ai:worksheetSide(v.ai),suresh:worksheetSide(v.suresh),workings};
+ if(result.status==='Pending'&&(result.ai.rate!==null||result.suresh.rate!==null))roFail('Pending worksheet comparisons must leave headline rates blank.');
+ return result;
+}
+export function worksheetComparisonSummary(record){
+ const v=record.worksheetComparison;if(!v)return null;
+ return {status:v.status,basis:v.basis,reviewedOn:v.reviewedOn,aiRate:v.ai.rate,sureshRate:v.suresh.rate};
+}
 export function validateRoRecord(input){
  if(!input||typeof input!=='object'||Array.isArray(input))roFail('RO costing record required.');
  const invoices=input.invoices||[],expenses=input.expenses||[],issues=input.issues||[];
@@ -23,6 +57,7 @@ export function validateRoRecord(input){
  if(actuals.expenseCoverage==='Complete'&&!actuals.confirmation.trim())roFail('Explain how actual payment, expenses and any nil amounts were verified.');
  const cleanExpenses=expenses.map(e=>({document_no:roText(e.document_no,200),component:roText(e.component,200),currency:roText(e.currency,10),net:roAmount(e.net),gst:roAmount(e.gst),gross:roAmount(e.gross),basis:roText(e.basis,2000),allocation:roText(e.allocation,1000),provisional:e.provisional===true,include:e.include===true,sha256:roText(e.sha256,64),ros:Array.isArray(e.ros)?e.ros.map(roCode):[]}));
  const record={ro:roCode(input.ro),supplier:roText(input.supplier,300),inwardDate:roDate(input.inwardDate),boeDate:roDate(input.boeDate),boe:roText(input.boe,100),containers:roText(input.containers,1000),customsFx:roConversion(input.customsFx),boeGoodsUsd:roAmount(input.boeGoodsUsd),boeGoodsBasis:roText(input.boeGoodsBasis,1000),invoices:cleanInvoices,expenses:cleanExpenses,issues:issues.map(i=>({severity:roText(i.severity,30),topic:roText(i.topic,200),detail:roText(i.detail,4000)})),actuals,source:roText(input.source,300),notes:roText(input.notes,4000)};
+ if(input.worksheetComparison!=null)record.worksheetComparison=validateWorksheetComparison(input.worksheetComparison);
  if(JSON.stringify(record).length>150000)roFail('RO costing details exceed the record size limit.');return record;
 }
 export function calculateRoCosting(input){

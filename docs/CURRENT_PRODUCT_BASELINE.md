@@ -847,3 +847,6 @@ The main1861 and Implements17 whole states remain exactly equal to pre-release:1
 ### Production audit - 2026-10-07
 
 WF-111 Production audit candidate: production-only preview/serial/consumption-display/date/export/retry/error-recovery fixes implemented. Nineteen production/retry tests and full397 regressions passed; isolated synthetic browser flows verified. True mobile viewport verification unavailable in the current browser; no mobile pass claimed. Publication status follows the audit report. No live BOM or production writes performed.
+
+
+**2026-10-08 local RO candidate — DEC-117 / WF-112:** Separate worksheet AI/Suresh comparison, protected essential Drive references/source library, safe bounded imports and on-demand embedded previews extend the existing RO module. Existing actual records and later main features remain intact. Local scoped native/build/server-review browser checks passed; no live publication or import claimed. See RO_WORKSHEET_COMPARISON.md.
