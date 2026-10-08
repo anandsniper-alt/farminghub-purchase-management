@@ -1147,3 +1147,10 @@ WF-110 final candidate verification: 3f409a936b5723eb7d73a87cf09ebb0ac795ac4e qu
 ### Production audit - 2026-10-07
 
 WF-111 compatible repair under DEC-111/114: user requested a thorough production audit and multiple temporary demos while staff edit BOMs. Preserve all live BOM/syntax/proposal/grant records. Fix confirmed preview, partial serial, displayed snapshot, exact lookup, chronology, filtered export, uncertain retry and validation visibility defects within existing approved policy. No database migration, accounting/scrap policy, permission expansion or new business module. Existing bounded reads and linear catalogue persistence remain; 100x capacity is not certified. Local verification397 regressions/19 production checks and synthetic browser demos; publication recorded separately.
+# DEC-117 — Separate stores segment issue
+
+2026-10-08 · Confirmed by user; implemented and locally verified. Scope: Production module. Extends DEC-111/114; no global workflow or permission change.
+
+Context: stores needs a daily pick list and explicitly chose individual segment issue rather than a single whole-batch post. Reuse existing production snapshots, quantities, stock ledger, transactions and retry receipts. The chosen implementation freezes batch materials/segment membership at first issue, deducts each selected segment once, and permits completion after all segments have been issued. Partial issues reduce remaining item MRP demand using production-owned credits; final issue converts credits to existing consumed-machine accounting. Reversal returns exact material snapshots and removes only this batch's credits.
+
+Alternative retained: direct completion and whole-batch issue for drafts. No new stock bins, scrap policy, permission grants or master BOM edits. Daily reports have explicit bounds; no schema migration or new runtime dependency. Current/10x/100x implications, UI guidance and tests are in [Stores contract](STORES_MATERIAL_ISSUE.md). 405 regressions and the review build passed; separate synthetic browser demos verified the complete path. Live publication is recorded after recovery, CI, deployment and preservation gates.

@@ -696,3 +696,6 @@ Shared theme hooks require both app and modal-root containers even where native 
 ### Production audit - 2026-10-07
 
 WF-111 / Production: test validation through HTTP and rendered visibility, not only direct domain throws. Plain domain errors can become generic500 responses and inherited CSS can hide the resulting alert. Keep retry identity independent of balance refresh after an uncertain response, and inspect full-basis versus cumulative-issued displays during partial production. Applied only to production; no finance/approval relaxation.
+# Segment issue — 2026-10-08 (DEC-117 / WF-112)
+
+When stock is deducted before a whole model is consumed, remaining MRP demand must also account for issued item quantities. Convert staged credits atomically when the final segment is issued; reverse only the originating batch's credits. Derive daily issued quantities from dated ledger deltas, not cumulative batch snapshots, especially for direct partial-completion tranches. Freeze segment membership before later master category edits. Validate pending/hidden quantities and retained overrides in separate synthetic flows.

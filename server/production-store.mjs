@@ -4,6 +4,7 @@ import {PRODUCTION_SCOPE,canWriteProduction,canManageProduction,productionItems,
 import {technicalModel} from '../shared/bom-management.mjs';
 import {quantity as rawQuantity,round,validMonth as rawMonth} from '../shared/implements/domain.mjs';
 import {visualFor} from '../web/implements/part-icons.mjs';
+import {batchSegments,stagedIssue,dailyPickList} from '../shared/production-picking.mjs';
 const hash=v=>createHash('sha256').update(JSON.stringify(v)).digest('hex');
 const fail=(message,code='VALIDATION')=>{throw new RuleError(message,code);};
 // Only known pure validation calls become client errors; database failures stay server errors.
@@ -33,7 +34,7 @@ export class ProductionStore{
  batch(id){const row=this.db.prepare('SELECT payload FROM production_batches WHERE id=?').get(id);if(!row)fail('Production batch not found.','NOT_FOUND');return JSON.parse(row.payload);}
  page(actorId,{kind='batches',query='',status='',key='',before=null,batchId=null}={}){this.actor(actorId);if(!['batches','units','movements'].includes(kind)||typeof query!=='string'||query.length>120||typeof status!=='string'||status.length>30||typeof key!=='string'||key.length>120||(before!==null&&(!Number.isSafeInteger(before)||before<1))||(batchId!==null&&(!Number.isSafeInteger(batchId)||batchId<1)))fail('Invalid production filter.');
   const table=kind==='batches'?'production_batches':kind==='units'?'production_units':'production_stock_movements',col=kind==='movements'?'sequence':'rowid',clauses=[],args=[];
-  if(status){if(kind==='batches'&&status==='IN_PRODUCTION')clauses.push("json_extract(payload,'$.status') IN ('MATERIAL_ISSUED','PART_COMPLETED')");else {clauses.push("json_extract(payload,'$.status')=?");args.push(status);}}if(kind==='units'&&batchId){clauses.push('batch_id=?');args.push(batchId);}if(kind==='movements'&&key){clauses.push('item_key=?');args.push(key);}if(query){clauses.push("(instr(upper(json_extract(payload,'$.modelId')),upper(?))>0 OR instr(upper(coalesce(json_extract(payload,'$.serial'),json_extract(payload,'$.reference'),'')),upper(?))>0)");args.push(query,query);}
+  if(status){if(kind==='batches'&&status==='IN_PRODUCTION')clauses.push("json_extract(payload,'$.status') IN ('PART_MATERIAL_ISSUED','MATERIAL_ISSUED','PART_COMPLETED')");else {clauses.push("json_extract(payload,'$.status')=?");args.push(status);}}if(kind==='units'&&batchId){clauses.push('batch_id=?');args.push(batchId);}if(kind==='movements'&&key){clauses.push('item_key=?');args.push(key);}if(query){clauses.push("(instr(upper(json_extract(payload,'$.modelId')),upper(?))>0 OR instr(upper(coalesce(json_extract(payload,'$.serial'),json_extract(payload,'$.reference'),'')),upper(?))>0)");args.push(query,query);}
   const total=this.db.prepare('SELECT count(*) n FROM '+table+(clauses.length?' WHERE '+clauses.join(' AND '):'')).get(...args).n;
   if(before!==null){clauses.push(col+'<?');args.push(before);}const rows=this.db.prepare('SELECT '+col+' cursor,payload FROM '+table+(clauses.length?' WHERE '+clauses.join(' AND '):'')+' ORDER BY '+col+' DESC LIMIT 101').all(...args),more=rows.length>100;rows.length=Math.min(rows.length,100);return {kind,rows:rows.map(row=>JSON.parse(row.payload)),total,next:more?rows.at(-1).cursor:null};
  }
@@ -45,9 +46,24 @@ export class ProductionStore{
  detail(actorId,id){this.actor(actorId);if(!Number.isSafeInteger(id)||id<1)fail('Invalid production batch.');return {batch:this.batch(id),units:this.db.prepare('SELECT payload FROM production_units WHERE batch_id=? ORDER BY serial').all(id).map(r=>JSON.parse(r.payload)),history:this.db.prepare("SELECT payload FROM production_events WHERE json_extract(payload,'$.batchId')=? ORDER BY sequence DESC LIMIT 100").all(id).map(r=>JSON.parse(r.payload))};}
  unit(actorId,value){this.actor(actorId);const serial=serialNumbers([value],1)[0],row=this.db.prepare('SELECT payload FROM production_units WHERE serial=?').get(serial);if(!row)fail('Serial number not found.','NOT_FOUND');return JSON.parse(row.payload);}
  requirements(actorId,modelId,count){this.actor(actorId);return materialRequirements(this.source.read(),modelId,count);}
+ pickList(actorId,{date,mode='pending',modelId='',segment=''}={}){
+  this.actor(actorId);validation(rawDate)(date,'2100-12-31');if(!['pending','issued'].includes(mode)||typeof modelId!=='string'||modelId.length>80||typeof segment!=='string'||segment.length>150)fail('Invalid daily pick list filter.');
+  const state=this.source.read(),args=[date];let where=mode==='pending'?"json_extract(payload,'$.status') IN ('DRAFT','PART_MATERIAL_ISSUED') AND json_extract(payload,'$.date')<=?":"id IN (SELECT json_extract(payload,'$.batchId') FROM production_stock_movements WHERE json_extract(payload,'$.date')=? AND json_extract(payload,'$.type') IN ('ISSUE_SEGMENT','ISSUE_MATERIAL','COMPLETE_BATCH') AND json_extract(payload,'$.delta')<=0)";
+  if(modelId){where+=" AND json_extract(payload,'$.modelId')=?";args.push(modelId);}
+  const rows=this.db.prepare('SELECT payload FROM production_batches WHERE '+where+' ORDER BY json_extract(payload,\'$.date\'),id LIMIT 501').all(...args);
+  if(rows.length>500)fail('More than 500 batches match. Choose a model to narrow this pick list.');
+  const batches=rows.map(r=>JSON.parse(r.payload));if(batches.reduce((n,b)=>n+(b.materials?.length||0),0)>100000)fail('Too many material lines. Choose a model to narrow this pick list.');
+  if(mode==='issued'&&batches.length){
+   const ids=batches.map(b=>b.id),ledger=this.db.prepare("SELECT payload FROM production_stock_movements WHERE json_extract(payload,'$.date')=? AND json_extract(payload,'$.type') IN ('ISSUE_SEGMENT','ISSUE_MATERIAL','COMPLETE_BATCH') AND json_extract(payload,'$.delta')<=0 AND json_extract(payload,'$.batchId') IN ("+ids.map(()=>'?').join(',')+") LIMIT 100001").all(date,...ids);
+   if(ledger.length>100000)fail('Too many issue lines. Choose a model to narrow this pick list.');
+   const moves=ledger.map(r=>JSON.parse(r.payload));for(const b of batches)b.issued=moves.filter(r=>r.batchId===b.id).map(r=>({key:r.key,code:r.code,name:r.name,unit:r.unit,qty:-r.delta,issueDate:r.date}));
+  }
+  const result=validation(dailyPickList)(state,batches,{date,mode,modelId,segment},b=>{try{const fresh=materialRequirements(state,b.modelId,b.quantity);return hash(fresh.model)===hash(b.model)&&hash(fresh.materials)===hash(b.materials);}catch{return false;}});
+  result.rows=result.rows.map(r=>({...r,image:state.itemImages?.[r.key]?.image||visualFor(r.name).image?.replace('/implements/assets/','/production/assets/')||''}));return result;
+ }
  command(actorId,input){this.db.exec('BEGIN IMMEDIATE');try{
   const actor=this.actor(actorId);if(!canWriteProduction(actor))fail('Production entry access is required.','FORBIDDEN');
-  const allowed=['type','batchId','modelId','quantity','completeQuantity','date','month','serials','materials','key','qty','serial','reference','reason','expectedRevision','expectedProductionRevision','requestId'];
+  const allowed=['type','segment','batchId','modelId','quantity','completeQuantity','date','month','serials','materials','key','qty','serial','reference','reason','expectedRevision','expectedProductionRevision','requestId'];
   if(!input||Object.keys(input).some(k=>!allowed.includes(k))||!/^[-\w]{12,120}$/.test(input.requestId||'')||!Number.isSafeInteger(input.expectedRevision)||!Number.isSafeInteger(input.expectedProductionRevision))fail('Invalid production command; reload before saving.');
   const access=JSON.stringify([actor.role,[...(actor.scopes||[])].sort()]),digest=hash(input),receipt=this.db.prepare('SELECT digest,access FROM production_events WHERE actor_id=? AND request_id=?').get(actor.id,input.requestId);
   if(receipt){if(receipt.digest!==digest||receipt.access!==access)fail('Request or account access changed.','CONFLICT');this.db.exec('COMMIT');return this.read(actor.id);}
@@ -59,28 +75,43 @@ export class ProductionStore{
    batch={...(batch||{}),modelId:requirements.model.id,model:requirements.model,quantity:requirements.quantity,materials:requirements.materials,overrides:input.materials||[],date,month,serials,status:'DRAFT',updatedAt:now,createdAt:batch?.createdAt||now,createdBy:batch?.createdBy||person(actor),reason};
    actualMaterials(batch.materials,batch.overrides,{allowPending:true}); // Drafts may retain unresolved BOM quantities; posting cannot.
    if(!batch.id){batch.id=Number(this.db.prepare('INSERT INTO production_batches(payload) VALUES(?)').run('{}').lastInsertRowid);batch.reference='FH-PROD-'+String(batch.id).padStart(6,'0');}
-  }else if(['ISSUE_MATERIAL','COMPLETE_BATCH','CANCEL_BATCH','REVERSE_BATCH'].includes(input.type)){
+  }else if(['ISSUE_SEGMENT','ISSUE_MATERIAL','COMPLETE_BATCH','CANCEL_BATCH','REVERSE_BATCH'].includes(input.type)){
    batch=this.batch(input.batchId);const date=productionDate(input.date,today);if(date<batch.date)fail('This stage cannot precede the batch date.');
    if(input.type==='CANCEL_BATCH'){if(batch.status!=='DRAFT')fail('Use a manager reversal to return already-issued materials.');batch.status='CANCELLED';}
    else if(input.type==='REVERSE_BATCH'){
-    if(!canManageProduction(actor))fail('A production manager must reverse a posted batch.','FORBIDDEN');if(!['MATERIAL_ISSUED','PART_COMPLETED','COMPLETED'].includes(batch.status))fail('Only an issued or completed batch can be reversed.');if(date<(batch.completedDate||batch.issueDate))fail('Reversal cannot precede the posted batch stage.');
+    if(!canManageProduction(actor))fail('A production manager must reverse a posted batch.','FORBIDDEN');if(!['PART_MATERIAL_ISSUED','MATERIAL_ISSUED','PART_COMPLETED','COMPLETED'].includes(batch.status))fail('Only an issued or completed batch can be reversed.');if(date<(batch.completedDate||batch.lastIssueDate||batch.issueDate))fail('Reversal cannot precede the posted batch stage.');
     const existing=this.db.prepare('SELECT payload FROM production_units WHERE batch_id=?').all(batch.id).map(r=>JSON.parse(r.payload));if(existing.some(u=>u.status!=='AVAILABLE'))fail('Return dispatched serial numbers before reversing this batch.');if(existing.some(u=>(u.history||[]).some(h=>h.date>date)))fail('Reversal cannot precede the latest serial movement.');
-    next.stock=stockAfter(state,batch.issued,1,date,batch.reference+' reversal');movements=batch.issued.map(r=>({...r,delta:r.qty}));this.consumed(next,batch,-1);units=existing.map(u=>({...u,status:'VOID',updatedAt:now}));batch.status='REVERSED';
+    next.stock=stockAfter(state,batch.issued,1,date,batch.reference+' reversal');movements=batch.issued.map(r=>({...r,delta:r.qty}));if(batch.status==='PART_MATERIAL_ISSUED')validation(stagedIssue)(next,batch,-1);else this.consumed(next,batch,-1);units=existing.map(u=>({...u,status:'VOID',updatedAt:now}));batch.status='REVERSED';
    }else{
-    if(!['DRAFT','MATERIAL_ISSUED','PART_COMPLETED'].includes(batch.status))fail('This batch is already closed.','CONFLICT');
+    if(!['DRAFT','PART_MATERIAL_ISSUED','MATERIAL_ISSUED','PART_COMPLETED'].includes(batch.status))fail('This batch is already closed.','CONFLICT');
+    if(input.type==='COMPLETE_BATCH'&&batch.status==='PART_MATERIAL_ISSUED')fail('Issue the remaining segments before completing this batch.');
     if(input.type==='ISSUE_MATERIAL'&&batch.status!=='DRAFT')fail('Materials have already been issued or production has started.','CONFLICT');
     const completed=batch.completedQuantity||0,remaining=batch.quantity-completed;
     const completing=input.type==='COMPLETE_BATCH'?quantity(input.completeQuantity??remaining,'Machines completed now',{uom:'pcs'},{max:1000}):0;
     if(input.type==='COMPLETE_BATCH'&&(completing<1||completing>remaining))fail('Completion must be between 1 and the remaining '+remaining+' machines.');
     if(batch.status==='DRAFT'){
      const current=materialRequirements(state,batch.modelId,batch.quantity);if(hash(current.model)!==hash(batch.model)||hash(current.materials)!==hash(batch.materials))fail('The model BOM or item definitions changed after this draft. Edit and resave the draft before material issue.','CONFLICT');
-     batch.consumptionBasis=actualMaterials(batch.materials,input.materials??batch.overrides);
+     batch.consumptionBasis=actualMaterials(batch.materials,input.type==='ISSUE_SEGMENT'?batch.overrides:input.materials??batch.overrides,{allowPending:input.type==='ISSUE_SEGMENT'});
+    }
+    if(input.type==='ISSUE_SEGMENT'){
+     if(!['DRAFT','PART_MATERIAL_ISSUED'].includes(batch.status))fail('All materials have already been issued.','CONFLICT');
+     const segments=batchSegments(batch,productionItems(state)),segment=text(input.segment,'Segment',150),done=new Set(batch.issuedSegments||[]);
+     if(!Object.values(segments).includes(segment))fail('Select a segment from this batch.');if(done.has(segment))fail('This segment has already been issued.','CONFLICT');
+     const selected=batch.consumptionBasis.filter(r=>segments[r.key]===segment),issued=actualMaterials(selected,input.materials??selected.map(r=>({key:r.key,qty:r.qty}))).map(r=>({...r,issueDate:date,segment}));
+     if(date<(batch.lastIssueDate||batch.date))fail('Segment issue cannot precede the latest issue date.');
+     next.stock=stockAfter(state,issued,-1,date,batch.reference);movements=issued.map(r=>({...r,delta:-r.qty}));
+     const prior=structuredClone(batch);batch.issueSegments=segments;batch.issuedSegments=[...done,segment];batch.issued=[...(batch.issued||[]),...issued];batch.consumptionBasis=batch.consumptionBasis.map(r=>issued.find(i=>i.key===r.key)||r);
+     batch.issueDate??=date;batch.lastIssueDate=date;batch.issuedBy=person(actor);batch.status='PART_MATERIAL_ISSUED';batch.consumedQuantity=0;
+     if(batch.issuedSegments.length===new Set(Object.values(segments)).size){
+      if(prior.issued?.length)validation(stagedIssue)(next,prior,-1);batch.status='MATERIAL_ISSUED';batch.fullMaterialIssue=true;this.consumed(next,batch,1,batch.quantity);batch.consumedQuantity=batch.quantity;
+     }else validation(stagedIssue)(next,{...batch,issued},1);
+     result.segment=segment;
     }
     if(input.type==='ISSUE_MATERIAL'){
      const issued=batch.consumptionBasis;next.stock=stockAfter(state,issued,-1,date,batch.reference);movements=issued.map(r=>({...r,delta:-r.qty}));batch.issued=issued;batch.issueDate=date;batch.issuedBy=person(actor);batch.status='MATERIAL_ISSUED';batch.fullMaterialIssue=true;this.consumed(next,batch,1,batch.quantity);batch.consumedQuantity=batch.quantity;
     }
     if(input.type==='COMPLETE_BATCH'){
-     if(date<(batch.completedDate||batch.issueDate||batch.date))fail('Completion cannot precede the latest posted stage.');
+     if(date<(batch.completedDate||batch.lastIssueDate||batch.issueDate||batch.date))fail('Completion cannot precede the latest posted stage.');
      // Existing issued batches retain the original whole-batch deduction. Direct
      // completions deduct only this tranche; cumulative rounding preserves totals.
      const fullIssue=batch.fullMaterialIssue===true||(!batch.consumptionBasis&&batch.status==='MATERIAL_ISSUED');if(fullIssue)batch.fullMaterialIssue=true;

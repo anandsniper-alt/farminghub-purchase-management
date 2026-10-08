@@ -542,3 +542,6 @@ MODULE-SPECIFIC RULE: LAE Import RO costing archive. Preserve exact identifiers 
 ### Production audit - 2026-10-07
 
 MODULE-SPECIFIC Production audit repair (DEC-111/114, WF-111): material previews must match model/count and preserve same-selection entries. Use exact serial detail, chronological serial movements, filtered stock exports and stable receipt identities after uncertain responses. Known production validation is actionable; unexpected storage faults stay server errors. No master BOM edits or new staff grants.
+# Stores issue — module-specific rule (DEC-117 / WF-112)
+
+Stores issues individual segments with batch-specific actual quantities. Freeze material identity and segment membership at first issue; do not modify master BOM quantities. Completion after a segment issue requires every segment to be issued and must never deduct issued stock again. Reflect partially issued items in remaining monthly MRP demand, and retain exact issue/reversal history. Missing quantities stay pending. [Contract](STORES_MATERIAL_ISSUE.md).

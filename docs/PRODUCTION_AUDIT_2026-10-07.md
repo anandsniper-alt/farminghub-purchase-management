@@ -1,6 +1,6 @@
 # Production workflow audit - 7 October 2026
 
-Status: locally verified candidate. Publication verification is recorded below when complete.
+Status: fixes published and independently verified live on 7 October 2026. Temporary demos are complete; physical mobile-device QA remains outstanding as described below.
 
 The audit covers Production & Stock only. Staff BOM/syntax edits and pending corrections are protected. No live production demo, BOM edit, stock posting, account grant or reset is part of this audit. Browser demos use a separate synthetic SQLite database; its write wrapper rejects every non-production mutation.
 
@@ -44,3 +44,11 @@ Exact serial detail uses the existing primary-key index, independent of catalogu
 Defective-material/scrap disposition remains a separate unconfirmed business policy. Pending BOM quantities stay pending and require explicit batch consumption. No rates or substitute BOM values are invented.
 
 Private evidence: ignored test-output/production-audit-20261007 (test logs, recovery receipts, screenshots and isolated helper). Fresh running-source recovery ZIP passed server/member SHA, CRC, SQLite integrity/FKs and running/candidate/extracted all-table restore checks; canonical copy retained with all prior archives.
+
+## Publication verification
+
+Live runtime and remote main: `52dc76e63dbdfeabfb2a8f5b2e3680e55347f4eb`. Hosted quality run `37662630422` succeeded. Coolify deployment `cvubt4ynw6figxtu7z4qfk3j` completed its rolling update at 17:56:52 UTC, with the first health check healthy. The public health response confirms the intended release; seven authenticated served assets match committed bytes exactly.
+
+Main, Implements, technical BOM/review, production stock/register state and account identities match the immediate predeployment capture exactly. All 187 models were preserved; no reset events were added. No live demo transaction or BOM correction was posted. Read-only live dashboard and empty production-entry checks passed with no browser warnings/errors. Screenshot: `test-output/production-audit-20261007/live-production.png`; private receipts: `live-verified.json` and `final.json`.
+
+Recovery archive `FH_Purchase_Recovery_2026-10-07T17-34-31-791646Z_8add5b717fa4.zip` is retained in canonical backups with all 13 archives. Its SHA-256 is `bdf9683c5e82f18aa9098a273f229bf955044b96f75784138587ac3eaa315420`. The final candidate and exact running source each restore all 20 tables without changing recorded data.

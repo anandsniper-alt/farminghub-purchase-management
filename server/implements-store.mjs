@@ -5,7 +5,7 @@ import {validateSalesState,netMargin} from '../shared/implements/sales-pricing.m
 import {calculateModelCost} from '../shared/implements/costing.mjs';
 import {RuleError,scopeAllowed,canCreate} from '../shared/domain.mjs';
 import {BOM_SCOPE,canApproveBom,assertTechnicalOnly} from '../shared/bom-management.mjs';
-import {PRODUCTION_SCOPE,canWriteProduction,assertInventoryOnly,same,validateConsumed} from '../shared/production.mjs';
+import {PRODUCTION_SCOPE,canWriteProduction,assertInventoryOnly,same,validateConsumed,validateMaterialIssued} from '../shared/production.mjs';
 
 export const IMPLEMENTS_SCOPE='IMPLEMENTS_DOMESTIC';
 const digest=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
@@ -51,8 +51,8 @@ export class ImplementsStore{
    if(receipt){if(receipt.digest!==requestDigest||receipt.access!==access)fail('Request ID or account access changed. Reload before continuing.','CONFLICT');if(!transactionOpen)this.db.exec('COMMIT');return previous;}
    if(previous.revision!==input.expectedRevision)fail('Another user saved this Implements workspace. Your entries are still on screen. Download your entries if needed, then reload and review the current values before saving.','CONFLICT');
    const next=validate(input.state),initial=!this.db.prepare('SELECT id FROM implements_workspace WHERE id=1').get();
-   if(inventory){if(initial)fail('Initialize the reviewed Implements workspace first.');try{assertInventoryOnly(previous,next);validateConsumed(next);}catch(e){fail(e.message);}}
-   else if(!same(previous.productionConsumed,next.productionConsumed))fail('Production consumption is controlled by the production ledger.');
+   if(inventory){if(initial)fail('Initialize the reviewed Implements workspace first.');try{assertInventoryOnly(previous,next);validateConsumed(next);validateMaterialIssued(next);}catch(e){fail(e.message);}}
+   else if(!same(previous.productionConsumed,next.productionConsumed)||!same(previous.productionMaterialIssued,next.productionMaterialIssued))fail('Production consumption is controlled by the production ledger.');
    if(technical){if(initial)fail('Initialize the Implements workspace before technical review.');try{assertTechnicalOnly(previous,next);}catch(error){fail(error.message);}}
    if(initial&&(next.procurement?.events?.length||next.procurement?.quotes?.length))fail('Initialize the workspace before recording procurement history.');
    if(initial&&actor.role!=='ADMIN')fail('An administrator must import the reviewed workspace first.','FORBIDDEN');

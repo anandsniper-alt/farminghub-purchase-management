@@ -847,3 +847,6 @@ The main1861 and Implements17 whole states remain exactly equal to pre-release:1
 ### Production audit - 2026-10-07
 
 WF-111 Production audit candidate: production-only preview/serial/consumption-display/date/export/retry/error-recovery fixes implemented. Nineteen production/retry tests and full397 regressions passed; isolated synthetic browser flows verified. True mobile viewport verification unavailable in the current browser; no mobile pass claimed. Publication status follows the audit report. No live BOM or production writes performed.
+# Stores candidate — 2026-10-08 (DEC-117 / WF-112)
+
+Production now has a daily segment pick list, separate segment posting, staged MRP credits and dated issue reporting. Existing cost-free access, master BOMs and direct completion are preserved. Locally verified405 regressions,27 production/retry checks, review build and isolated browser flows including narrow-screen shortages. No live demonstrations. Publication verification is recorded separately in [Stores contract](STORES_MATERIAL_ISSUE.md).

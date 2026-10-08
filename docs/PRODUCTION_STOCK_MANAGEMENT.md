@@ -60,3 +60,6 @@ The main1861 and Implements17 whole states remain exactly equal to pre-release:1
 ### Production audit - 2026-10-07
 
 Audit update - 2026-10-07 / WF-111: preview quantities are bound to model/count; same-selection preview preserves actual entries. Exact serial detail is separate from paged search. Stage/serial posting dates cannot precede the latest relevant movement. Partial detail displays cumulative issued quantities; further completion reviews the locked full basis. Stock CSV respects filters. Refresh retains entries and uncertain saves retain their receipt identity. Known validation is visible and actionable. See PRODUCTION_AUDIT_2026-10-07.md for temporary demos and verification limits.
+# 2026-10-08 — Separate stores segment issue
+
+DEC-117 / WF-112 extends the issue stage with a daily pick list and separate segment posting. Once any segment is posted, all segments must be issued before partial/full completion; completion deducts no stock again. Staged item credits reduce monthly MRP demand until final issue converts them to existing model consumption. Direct completion and whole-batch issue remain available for drafts. No master BOM or costs are changed. This supersedes the earlier whole-batch-only description for this path. [Detailed stores contract](STORES_MATERIAL_ISSUE.md).

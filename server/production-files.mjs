@@ -6,6 +6,7 @@ export const productionAssets=new Map([
  ['/production/',{file:join(root,'web/production/index.html'),type:'text/html; charset=utf-8'}],
  ['/production/index.html',{file:join(root,'web/production/index.html'),type:'text/html; charset=utf-8'}],
  ['/production/app.mjs',{file:join(root,'web/production/app.mjs'),type:'text/javascript; charset=utf-8'}],
+ ['/production/picking-view.mjs',{file:join(root,'web/production/picking-view.mjs'),type:'text/javascript; charset=utf-8'}],
  ['/production/pending-command.mjs',{file:join(root,'web/production/pending-command.mjs'),type:'text/javascript; charset=utf-8'}],
  ['/production/style.css',bomAssets.get('/bom/style.css')],
  ['/production/production.css',{file:join(root,'web/production/style.css'),type:'text/css; charset=utf-8'}]
