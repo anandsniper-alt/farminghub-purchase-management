@@ -1,5 +1,15 @@
 # RO costings module
 
+## Concise RO detail — 2026-10-08
+
+User-confirmed presentation update under DEC-119 / WF-114: the default RO view shows item details, overall before-GST costing and an expense/component table. Show the amount in INR, its contribution to INR per USD and its percentage of the selected total. Keep the basis/status short and visible. Full AI/Suresh worksheet rows, source notes, earlier versions, invoices and actual-cost records remain in collapsed workings; essential document links remain directly accessible. Do not repeat explanatory paragraphs on the main screen.
+
+Component presentation must use the same selected actual/reference basis as the displayed total, exclude GST and subtotal rows, and avoid double-counting shared expenses. Missing amounts remain pending. A pooled rate without an allocated RO total does not authorize an invented component allocation. A component table that does not reconcile must show that limitation, even when the price reference itself is accepted. This is a display projection; saved values, item prices, currencies, permissions, revisions and source history are unchanged.
+
+Reuse existing Minimal tokens, semantic tables, native disclosures and protected document previews (UI-03/05/06/10/12; HIG web adaptations). Detail work remains bounded to the opened RO; no new list-wide requests or dependencies. Current, 10x and 100x catalogue growth retains existing pagination and per-record bounds. Verification and publication are recorded separately below.
+
+Local verification: 433 native tests passed; the eight new component tests cover tax/subtotal exclusion, actual precedence, missing amounts, joint invoices, pooled rates and component reconciliation. A read-only audit of all 295 source records confirmed unchanged source/actual/item calculations and 266 reconciled component views; incomplete references retain pending allocation. The expanded worksheet/UI suite also passed its ten focused cases. Server/standalone browser verification and the separate release receipt record the final presentation and production state.
+
 2026-10-02 · DEC-106 / WF-100 · Published and verified at https://purchase.dvjassociates.com/#/ro-costings. See RO_COSTINGS_RELEASE.md.
 
 Open **Order Management → LAE Import → RO costings**. This is an RO document archive and cost capture module. It does not import FTWZ/Tally stock, post accounting entries, replace order arrival costing, or apply stock holding interest/rent/revised duty.

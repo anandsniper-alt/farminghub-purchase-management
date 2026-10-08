@@ -1085,3 +1085,5 @@ Website publication is explicitly authorized, but requires current access and th
 
 
 **2026-10-08 — WF-114 item detail follow-up (DEC-119):** RO costings → select exact RO → Received Cost item lines and before-GST unit/line costs → actual and selected AI/Suresh component workings → important documents/private preview. Item purchase-reference status and conversion status remain separate; known listed-line subtotals are not full reconciled RO costs. Source and correction details expand per item. Anonymous access, currency gaps and stale edits remain blocked. Implemented/local verified; deployment is a separate gate.
+
+**2026-10-08 — WF-114 concise view (DEC-119):** Select RO → concise overall cost and status → item quantities/unit prices/landed amounts → expense components with INR, INR per USD and total contribution → supporting documents. Open Workings & records only for source notes, full AI/Suresh cells and previous records. Edit/upload/export controls retain their existing guards. Missing values and unreconciled or unallocated costs remain visible as short statuses. No production data refresh is part of this presentation change.

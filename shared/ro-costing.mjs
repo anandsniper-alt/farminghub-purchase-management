@@ -115,3 +115,77 @@ export function calculateRoCosting(input){
  const faceUsd=usd.length&&validInvoices?usd.reduce((n,i)=>n+toMinor(i.face??i.goods??0),0)/100:null;
  return {goodsUsd,faceUsd,enteredTotal,rate,status:rate===null?'Pending':'Complete',pending,sureshRate:a.sureshRate,differencePercent:rate!==null&&a.sureshRate>0?(rate/a.sureshRate-1)*100:null};
 }
+
+// Display adapters accept only named net INR components, never a raw-cell sum.
+// Unknown labels, source totals, GST, FX and per-item values cannot become expenses.
+const RO_DISPLAY_COMPONENTS=[
+ ['supplier','Supplier value',['Supplier INR worksheet basis','Supplier goods INR proxy','Supplier goods inr']],
+ ['invoiceExtras','Invoice extras',['Supplier invoice extra inr']],
+ ['bank','Bank charges',['Bank charges']],
+ ['bcd','BCD',['BCD']],['sws','SWS',['SWS']],
+ ['freight','Ocean freight',['Freight before GST','Ocean freight before GST','Ocean freight']],
+ ['insurance','Insurance',['Insurance','Insurance and stamp','Net insurance plus stamp']],
+ ['clearance','Clearance',['Clearance','Clearance estimate']],
+ ['miscellaneous','Miscellaneous',['Miscellaneous','Miscellaneous including delivery order','Misc estimate including do and amendment']],
+ ['inland','Inland freight',['Inland transport','Inland freight estimate','Inland estimate']],
+ ['liner','Liner charges',['Liner charge','Liner before GST','Liner proforma net']],
+ ['packing','Packing',['Explicit packing cost']],
+ ['storage','Storage / demurrage',['Additional storage net once']],
+ ['other','Other expenses',['Other known net expenses']],
+];
+const roDisplayLabel=value=>String(value).trim().replace(/\s+/g,' ').toLowerCase();
+const roDisplayNear=(a,b)=>Number.isFinite(a)&&Number.isFinite(b)&&Math.abs(a-b)<=0.01;
+
+/** Read-only presentation of one chosen costing basis. Never fills stored actuals. */
+export function calculateRoCostDisplay(input){
+ const record=validateRoRecord(input),actual=calculateRoCosting(record),comparison=record.worksheetComparison;
+ const actualComplete=actual.rate!==null,reference=!actualComplete&&comparison&&comparison.status!=='Pending';
+ const usableReference=reference&&['Historical reference','Provisional reference'].includes(comparison.status);
+ const actualKnown=RO_ACTUAL_FIELDS.some(key=>record.actuals[key]!==null);
+ const goodsUsd=reference?comparison.ai.goodsUsd:actual.goodsUsd;
+ const totalInr=actualComplete?actual.enteredTotal:reference?comparison.ai.totalInr:null;
+ const result={basis:actualComplete?'Actual':reference?'Worksheet AI':actualKnown?'Known actuals':'Pending',status:actualComplete?'Verified actual':reference?comparison.status:'Pending',goodsUsd,totalInr,aiRate:actualComplete?actual.rate:usableReference?comparison.ai.rate:null,sureshRate:actualComplete?actual.sureshRate??comparison?.suresh.rate??null:comparison?.suresh.rate??actual.sureshRate,components:[],expensesInr:null,knownExpensesInr:null,knownTotalInr:null,breakdownComplete:false,reconciled:false,unallocatedInr:null,pendingComponents:[],selectedWorkingIds:reference?[...comparison.selectedWorkingIds]:[],totalKind:actualComplete||usableReference&&totalInr!==null?'Total cost':'Known subtotal'};
+ let components=[],ambiguous=false;
+ if(actualComplete||!reference&&actualKnown){
+  const names={supplierInr:['supplier','Supplier payment'],bankNet:['bank','Bank charges'],forwarderNet:['forwarder','Forwarder expenses'],otherNet:['other','Other expenses'],bcd:['bcd','BCD'],sws:['sws','SWS']};
+  components=RO_ACTUAL_FIELDS.map(key=>({key:names[key][0],label:names[key][1],inr:record.actuals[key]}));
+ }else if(reference&&totalInr!==null){
+  // A pooled rate with no allocated total has no defensible RO component split.
+  const selected=comparison.workings.filter(w=>comparison.selectedWorkingIds.includes(w.id)&&(w.ai.totalInr!==null||w.ai.rows.length));
+  const identities=selected.map(w=>[roDisplayLabel(w.supplier),roDisplayLabel(w.invoice)].join('\u0000'));
+  const aligned=selected.length>0&&new Set(identities).size===identities.length&&selected.every(w=>w.ai.totalInr!==null)&&roDisplayNear(selected.reduce((n,w)=>n+w.ai.totalInr,0),totalInr)&&
+   (goodsUsd===null||selected.every(w=>w.ai.goodsUsd!==null)&&roDisplayNear(selected.reduce((n,w)=>n+w.ai.goodsUsd,0),goodsUsd));
+  if(aligned){
+   const fields=new Map(RO_DISPLAY_COMPONENTS.flatMap(([key,label,aliases])=>aliases.map(alias=>[roDisplayLabel(alias),{key,label}]))),groups=new Map();
+   for(const working of selected){
+    const once=new Map();
+    for(const row of working.ai.rows){
+     const field=fields.get(roDisplayLabel(row.label));if(!field||row.unit!=='INR')continue;
+     const previous=once.get(field.key),value=typeof row.value==='number'&&row.value>=0?row.value:null;
+     // Repeated aliases may be a repeated raw cell or a second amount: do not guess.
+     if(previous){previous.inr=null;ambiguous=true;}else once.set(field.key,{...field,inr:value});
+    }
+    // Offsetting gaps in separate invoices must not cancel into a complete split.
+    if(!roDisplayNear([...once.values()].reduce((n,row)=>n+(row.inr??0),0),working.ai.totalInr))ambiguous=true;
+    for(const entry of once.values()){
+     const previous=groups.get(entry.key);
+     if(previous)previous.inr=previous.inr===null||entry.inr===null?null:previous.inr+entry.inr;
+     else groups.set(entry.key,{...entry});
+    }
+   }
+   components=RO_DISPLAY_COMPONENTS.filter(([key])=>groups.has(key)).map(([key])=>groups.get(key));
+  }else ambiguous=true;
+ }
+ const sum=rows=>rows.reduce((n,row)=>n+(row.inr??0),0),known=sum(components),supplier=components.find(row=>row.key==='supplier');
+ result.knownTotalInr=totalInr??(components.length?known:null);
+ result.unallocatedInr=totalInr===null?null:roDisplayNear(totalInr,known)?0:totalInr-known;
+ result.reconciled=totalInr!==null&&result.unallocatedInr===0&&!ambiguous&&components.length>0;
+ result.pendingComponents=components.filter(row=>row.inr===null).map(row=>row.label);
+ if(ambiguous||reference&&!components.length)result.pendingComponents.push('Component allocation');
+ result.breakdownComplete=result.reconciled&&result.pendingComponents.length===0;
+ const expenseRows=components.filter(row=>row.key!=='supplier');
+ result.knownExpensesInr=expenseRows.length?sum(expenseRows):null;
+ result.expensesInr=result.breakdownComplete&&supplier&&supplier.inr!==null?result.knownExpensesInr:null;
+ result.components=components.map(row=>({...row,perUsd:row.inr!==null&&goodsUsd>0?row.inr/goodsUsd:null,sharePercent:row.inr!==null&&totalInr>0?row.inr/totalInr*100:null}));
+ return result;
+}

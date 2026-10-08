@@ -98,6 +98,12 @@ test('standalone archive pagination stays local and legacy imports retain compar
  const saved=JSON.parse(localStorage.getItem('synthetic:ro-costings:admin'))[record.ro];assert.equal(saved.revision,2);assert.deepEqual(saved.record.worksheetComparison,record.worksheetComparison);
 });
 
+for(const sandbox of [false,true])test(`compact detail keeps unpriced item subtotals pending and records collapsed (${sandbox?'standalone':'server'})`,async()=>{
+ const record=validateRoRecord({...fixture(),actuals:{},purchaseItems:{version:1,basis:'Synthetic reference',reviewedOn:'2026-10-08',rows:[{id:'pending-line',supplier:'Synthetic supplier',invoice:'SYNTHETIC-CI',itemCode:'GJ-X',description:'Synthetic item',quantity:4,unit:'pcs',currency:'UNKNOWN',unitPrice:null,usdUnitPrice:null,status:'Pending',source:{file:'synthetic.xlsx',row:'2'}}]}});
+ const {host}=hostFor(record,sandbox),ui=createRoCostingUI(host);await ui.action('ro-refresh',{});const html=ui.page(),visibleMarkup=html.split('id="ro-workings"')[0];
+ assert.match(visibleMarkup,/Synthetic supplier/);assert.match(visibleMarkup,/Cost breakup/);assert.match(visibleMarkup,/Contribution/);assert.match(visibleMarkup,/Listed items · known subtotal<\/span><strong>Pending/);assert.doesNotMatch(visibleMarkup,/Source formula|Customs FX|Worksheet AI workings/);assert.match(html,/<details class="panel ro-records" id="ro-workings"><summary>Workings &amp; records/);
+});
+
 test('exact combined RO identifiers retain interior spaces through expenses, persistence and routing',async()=>{
  const ro='SYNTHETIC-A - SYNTHETIC-B',input={...fixture(),ro,expenses:[{document_no:'SYNTHETIC-EXPENSE',ros:[ro]}]},record=validateRoRecord(input);
  assert.equal(record.ro,ro);assert.deepEqual(record.expenses[0].ros,[ro]);
