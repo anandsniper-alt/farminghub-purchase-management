@@ -850,3 +850,19 @@ WF-111 Production audit candidate: production-only preview/serial/consumption-di
 # Stores candidate — 2026-10-08 (DEC-117 / WF-112)
 
 Production now has a daily segment pick list, separate segment posting, staged MRP credits and dated issue reporting. Existing cost-free access, master BOMs and direct completion are preserved. Locally verified405 regressions,27 production/retry checks, review build and isolated browser flows including narrow-screen shortages. No live demonstrations. Publication verification is recorded separately in [Stores contract](STORES_MATERIAL_ISSUE.md).
+## User-access presentation candidate — 2026-10-08
+
+DEC-118/WF-113 aligns the shared Settings/VMS user-access matrix and account dialogs using the adopted HIG and UI rulebooks. Existing roles, scopes, credentials and account workflows retain their behavior. Read-only synthetic desktop/390px phone and standalone checks passed with20 focused native tests; publication pending separate recovery/CI/live verification. [Contract](USER_ACCESS_LAYOUT.md).
+
+
+
+
+**2026-10-08 local RO candidate — DEC-119 / WF-114:** Separate worksheet AI/Suresh comparison, protected essential Drive references/source library, safe bounded imports and on-demand embedded previews extend the existing RO module. Existing actual records and later main features remain intact. Local scoped native/build/server-review browser checks passed; no live publication or import claimed. See RO_WORKSHEET_COMPARISON.md.
+
+
+### RO Received Cost item references — 2026-10-08 local candidate
+DEC-119 / WF-114 follow-up implements protected per-RO purchase item lines, before-GST derived unit/line prices, separate source/conversion statuses, lower cost workings and existing supporting document links. 25 focused native tests and server/standalone browser checks passed, including mobile widths and preserved actuals. No private dataset is bundled and no production publication is implied. See RO_COSTINGS.md for the bounded schema and cost-precedence contract.
+
+**2026-10-08 RO publication verified:** Release `7407f46afeca0e17dc7e3c94a1166c9b23f6bb62` passed hosted CI, live health and served-asset checks. All 295 exact RO records, 1,068 purchase item lines and 592 private Drive associations were read back against the approved data; 473 existing local attachments and main/Implements/BOM/production/accounts were preserved. The live RO register and item view were inspected, and an authorized private commercial-invoice preview displayed inside the page. Source and recovery evidence remains private. This supersedes the preceding RO candidate-only status; missing item details and actual inputs retain their pending status.
+
+**2026-10-08 concise RO view:** User requests a shorter default screen with item details, costs, expenses and component contributions, without explanatory paragraphs. Saved source/workings remain available on demand. See RO_COSTINGS.md; the subsequent UI release requires its own tests and recovery/live-preservation verification.

@@ -27,3 +27,6 @@ This is adoption of a design reference, not an audit result, completed redesign 
 
 ## Permanent implementation checklist — DEC-101
 Use [UI_UX_RULEBOOK.md](standards/UI_UX_RULEBOOK.md) with this reference for every new module and UI change. It contains the approved web rules, GSAP lifecycle contract, lessons and evidence checklist. Source HIG text remains unchanged.
+## User-management application — 2026-10-08
+
+DEC-118/WF-113 applies R021/R024/R025/R027/R081/R105/R135 and UI-01–UI-12 to the existing shared user-access matrix: clear priority, aligned growing rows, centred targets, readable wrapping and named internal scrolling. Account dialogs fit above the guide dock. No native Apple visual assets or business-policy changes. [Verification and boundaries](USER_ACCESS_LAYOUT.md).
