@@ -1193,3 +1193,8 @@ Reuse the existing user-access table and account dialogs. Put user access first 
 2026-10-09 | User requests outside plan entry/view with Purchase Manager/Admin approval. MODULE-SPECIFIC; WF-117. Reuse authentication, model syntax, monthly MRP and transactional purchasing store. Add a cost-free Monthly Planner role and own draft/submission portal with manager queue. Approval replaces only the submitted month; pending requests remain outside MRP. Baseline/version guards, append-only receipts and atomic apply preserve concurrent changes and other business data.
 
 Alternative full purchasing access or immediate submission-to-MRP would violate the requested boundary. Two additive SQLite tables, no new dependency, public access, live account grants or BOM/cost changes. Design/scale/verification in [contract](IMPLEMENTS_MONTHLY_PLANNING.md). All 441 regressions and isolated browser/standalone checks passed against current live-source ancestry. Publication is a separate gate.
+
+
+## DEC-123 — Accept the actual BL loading date
+
+2026-10-09. Confirmed directly by the user in local and cloud chats. LAE Import final BL date is the loading/document date, independent of the recorded vessel-departure date. It may be earlier. Require a valid non-future date, evidence and existing permissions; keep the loaded-on-vessel recording gate and reasoned replacement history. Credit due dates continue to derive from this BL date. Do not migrate or automatically correct existing dates. Shared domain validation is authoritative in server and standalone builds. No schema change, new data growth or additional per-record work at current/10x/100x volume. Implemented locally; release verification is separate.

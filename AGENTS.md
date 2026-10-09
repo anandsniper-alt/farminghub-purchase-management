@@ -24,3 +24,7 @@ For UI work, read [docs/APPLE_HIG_RULEBOOK.md](docs/APPLE_HIG_RULEBOOK.md) and [
 
 ## Permanent UI and release lessons
 Before any new module or UI change, read [docs/standards/UI_UX_RULEBOOK.md](docs/standards/UI_UX_RULEBOOK.md) (DEC-101 / WF-095), alongside the existing product and brand authorities. Apply its reusable UI-01–UI-12 rules, GSAP lifecycle/reduced-motion contract and change-review checklist. Revalidate dated evidence; do not treat prior test counts as a current pass.
+
+
+## Cloud coordination — user instruction 2026-10-09
+Before new work, fetch and compare current GitHub changes and read relevant accessible Codex cloud chats. Preserve dirty work and reconcile overlapping changes. Distinguish decisions, implementation, tests and live verification. Archive final learnings with source provenance on the user device using its PMS/CLOUD_WORK_SYNC.md procedure when available. Never claim unpushed inaccessible cloud files were backed up. Daily reviews identify improvements; they do not themselves authorize production writes or deployment.

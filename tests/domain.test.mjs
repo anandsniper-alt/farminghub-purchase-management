@@ -137,6 +137,30 @@ test('no separate pre-dispatch QC gate remains in the current shipping workflow'
 test('loaded-on-vessel is blocked by missing commercial invoice / packing list, not pre-dispatch QC',()=>{const f=fixture(),id=f.draft();f.issue(id);f.produce(id);const sid=f.shipment(id);f.bookRelease(id,sid);rejects(f,'DISPATCH_SHIPMENT',{orderId:id,shipmentId:sid,date:TODAY,vessel:'TEST VESSEL',voyage:'V001',remarks:'Dispatch'},/documents/i);f.ready(id,sid);f.dispatch(id,sid);assert.ok(f.get(id).shipments.find(s=>s.id===sid).actualDeparture);});
 test('before-shipment payment is checked only against the allocated shipment obligation',()=>{const f=fixture(),id=f.draft();f.issue(id);f.produce(id);const sid=f.shipment(id,40);f.ready(id,sid);f.dispatch(id,sid);assert.equal(shipmentTotals(f.get(id)).departed,40);assert.equal(financials(f.state,f.get(id)).reported,300000);assert.equal(orderStatus(f.get(id)),'IN_TRANSIT');});
 test('final BL date derives the shipment credit due date without changing its original trigger',()=>{const f=fixture(),id=f.draft({paymentTerms:TERMS.find(t=>t.id==='30-70-bl60')});f.issue(id);f.produce(id);const sid=f.shipment(id);f.ready(id,sid);f.dispatch(id,sid);f.run('RECORD_BL',{orderId:id,shipmentId:sid,number:'FINAL-1',date:TODAY,fileId:f.file([id])});assert.equal(paymentSchedule(f.state,f.get(id)).find(m=>m.trigger==='BL').due,'2026-11-10');});
+
+test('BL loading date may precede recorded departure; credit follows the document date and corrections retain history',()=>{
+ const f=fixture('2026-09-28'),id=f.draft({paymentTerms:TERMS.find(t=>t.id==='30-70-bl60')});f.issue(id);f.produce(id);const sid=f.shipment(id);f.ready(id,sid);
+ f.run('DISPATCH_SHIPMENT',{orderId:id,shipmentId:sid,date:'2026-09-28',vessel:'TEST VESSEL',voyage:'V001',reason:'Shipping / forwarder',remarks:'Departure recorded later than the BL loading date.'});
+ const before=structuredClone(f.get(id).shipments.find(s=>s.id===sid));
+ f.run('RECORD_BL',{orderId:id,shipmentId:sid,number:'LOADING-BL',date:'2026-09-03',fileId:f.file([id])});
+ assert.equal(f.get(id).shipments.find(s=>s.id===sid).blDate,'2026-09-03');
+ assert.equal(f.get(id).shipments.find(s=>s.id===sid).actualDeparture,before.actualDeparture);
+ assert.equal(paymentSchedule(f.state,f.get(id)).find(m=>m.trigger==='BL').due,'2026-11-02');
+ rejects(f,'RECORD_BL',{orderId:id,shipmentId:sid,number:'LOADING-BL',date:'2026-09-04',fileId:f.file([id])},/correction/i);
+ f.run('RECORD_BL',{orderId:id,shipmentId:sid,number:'LOADING-BL',date:'2026-09-04',fileId:f.file([id]),remarks:'Corrected against the original loading document.'});
+ const event=f.state.events.filter(e=>e.action==='BL_RECORDED').at(-1);
+ assert.equal(event.oldValue.date,'2026-09-03');assert.equal(event.newValue.date,'2026-09-04');
+ assert.equal(paymentSchedule(f.state,f.get(id)).find(m=>m.trigger==='BL').due,'2026-11-03');
+});
+
+test('BL loading date still requires a valid non-future date, evidence and authorized access',()=>{
+ const f=fixture(),id=f.draft();f.issue(id);f.produce(id);const sid=f.shipment(id);f.ready(id,sid);f.dispatch(id,sid);
+ const p={orderId:id,shipmentId:sid,number:'LOADING-BL',date:'2026-09-03',fileId:f.file([id])};
+ for(const date of ['', 'not-a-date', '2026-02-30'])rejects(f,'RECORD_BL',{...p,date},/date|invalid/i);
+ rejects(f,'RECORD_BL',{...p,date:'2026-09-12'},/future/i);
+ rejects(f,'RECORD_BL',{...p,fileId:undefined},/evidence/i);
+ rejects(f,'RECORD_BL',p,/Only the assigned Purchase Executive or Purchase Manager/i,f.role('VIEWER'));
+});
 test('port arrival closes physical workflow but not the unpaid financial balance',()=>{const f=fixture(),id=f.draft({paymentTerms:TERMS.find(t=>t.id==='credit60')});f.issue(id);f.produce(id);const sid=f.shipment(id);f.ready(id,sid);f.dispatch(id,sid);f.postVessel(id,sid);f.run('ARRIVE_SHIPMENT',{orderId:id,shipmentId:sid,date:TODAY,remarks:'Port event captured'});assert.equal(orderStatus(f.get(id)),'PORT_ARRIVED');assert.equal(financials(f.state,f.get(id)).status,'UNPAID');assert.ok(f.get(id).operationalClosedAt);});
 test('future actual departure / arrival dates cannot fake a completed milestone',()=>{const f=fixture(),id=f.draft();f.issue(id);f.produce(id);const sid=f.shipment(id);f.ready(id,sid);rejects(f,'DISPATCH_SHIPMENT',{orderId:id,shipmentId:sid,date:'2026-10-01',vessel:'TEST VESSEL',voyage:'V001',remarks:'Future dispatch'},/future/);});
 test('new artwork revision requires renewed supplier artwork confirmation before vessel loading',()=>{const f=fixture(),id=f.draft();f.issue(id);f.produce(id);const sid=f.shipment(id);f.ready(id,sid);f.run('SUBMIT_ARTWORK',{orderId:id,fileId:f.file([id]),remarks:'Revised carton.'});f.run('APPROVE_ARTWORK',{orderId:id},f.role('PRODUCT_MANAGER'));assert.equal(f.get(id).artwork.supplierConfirmed,null);rejects(f,'DISPATCH_SHIPMENT',{orderId:id,shipmentId:sid,date:TODAY,vessel:'TEST VESSEL',voyage:'V001',remarks:'Dispatch'},/artwork/i);f.run('CONFIRM_ARTWORK',{orderId:id,fileId:f.file([id]),remarks:'Supplier accepted revised artwork.'});f.dispatch(id,sid);assert.ok(f.get(id).shipments[0].actualDeparture);});

@@ -548,3 +548,8 @@ Stores issues individual segments with batch-specific actual quantities. Freeze 
 
 
 **MODULE-SPECIFIC RULE - Monthly plan entry (DEC-122 / WF-117):** Monthly Planner enters/views own cost-free plans. Draft/pending quantities remain outside purchasing/MRP. Purchase Manager/Admin with Implements purchasing access approves/returns. Approval replaces one month atomically with baseline/version/retry protection; never edits BOMs, costs, stock or production. Mistaken extra scopes must not expose commercial data to Planner. [Contract](IMPLEMENTS_MONTHLY_PLANNING.md).
+
+
+## BL loading date — DEC-123 (2026-10-09)
+
+MODULE-SPECIFIC RULE. LAE Import final BL date is the loading/document date, independent of the recorded vessel-departure date. It may be earlier. Require a valid non-future date, evidence and existing permissions; keep the loaded-on-vessel recording gate and reasoned replacement history. Credit due dates continue to derive from this BL date. Do not migrate or automatically correct existing dates. Supersedes the former minimum-departure-date comparison only.

@@ -1099,3 +1099,8 @@ Website publication is explicitly authorized, but requires current access and th
 # WF-117 - External monthly plan entry
 
 2026-10-09 | DEC-122 | Implements. Monthly Planner -> select month -> model quantities filtered by SKU/series/search -> draft/submit -> own status/history. Purchase Manager/Admin -> pending queue -> compare -> approve/return with reason. Approval replaces that month in purchasing/MRP once; pending requests leave demand unchanged. Returned plans can be resubmitted; changed monthly baselines require review. Existing manager planning retained. No live accounts, demo records, BOM, price or stock edits. All 441 regressions, isolated desktop/phone and standalone checks passed; publication pending. [Contract](IMPLEMENTS_MONTHLY_PLANNING.md).
+
+
+## WF-118 — BL loading date independent of departure (DEC-123)
+
+2026-10-09. After vessel confirmation, record final BL number, actual loading date and evidence. Earlier document dates no longer fail the departure comparison. Existing BL corrections require a reason and retain the previous/new dates in audit history; credit follow-up uses the corrected document date. No existing record is automatically changed.

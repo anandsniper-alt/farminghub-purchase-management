@@ -732,3 +732,8 @@ MODULE / reporting. A footer must aggregate the entire filtered result, not the 
 ## Planning approval - 2026-10-09 (DEC-122 / WF-117)
 
 Separate requested quantities from approved material demand. Protect financial data with explicit server projections and restricted-role bootstrap, not only hidden controls. Compare the selected month baseline instead of rejecting unrelated business revisions; commit approval and purchasing update together. Retain hidden filtered quantities and stable retry identities. Verify latest live-source ancestry to preserve newer shared UI changes.
+
+
+## 2026-10-09 — Document date versus workflow date (DEC-123)
+
+MODULE-SPECIFIC, LAE Import: LAE Import final BL date is the loading/document date, independent of the recorded vessel-departure date. It may be earlier. Require a valid non-future date, evidence and existing permissions; keep the loaded-on-vessel recording gate and reasoned replacement history. Credit due dates continue to derive from this BL date. Do not migrate or automatically correct existing dates. Discovered from PO-11; a date-order validator was blocking the actual loading document date. Applies to final BL capture, not other logistics chronological checks.
