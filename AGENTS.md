@@ -24,3 +24,16 @@ For UI work, read [docs/APPLE_HIG_RULEBOOK.md](docs/APPLE_HIG_RULEBOOK.md) and [
 
 ## Permanent UI and release lessons
 Before any new module or UI change, read [docs/standards/UI_UX_RULEBOOK.md](docs/standards/UI_UX_RULEBOOK.md) (DEC-101 / WF-095), alongside the existing product and brand authorities. Apply its reusable UI-01–UI-12 rules, GSAP lifecycle/reduced-motion contract and change-review checklist. Revalidate dated evidence; do not treat prior test counts as a current pass.
+
+## Global owner policy — quality-first reasoning ceiling (2026-10-09)
+
+Applies to all Codex tasks in this repository, alongside and without replacing the existing project-specific instructions.
+
+- **Non-negotiable:** Never compromise correctness, result quality, completeness, data integrity, security, production reliability, or necessary verification for speed, token savings, or cost. Optimize waste, not analytical rigor or validation.
+- For numerical, financial, operational, forecasting, or data analytics work: inspect source quality and scope; check missing/duplicate/outlier records and aggregation logic; reconcile critical totals and formulas; distinguish fact, estimate and assumption; assess uncertainty where material; independently verify consequential results. Never fabricate calculations or claim checks that were not run.
+- For engineering: investigate root cause and affected dependencies; preserve existing behavior and project-specific rules; implement secure, maintainable changes; test relevant edge cases, regressions, integrations and permissions; explicitly state unverified work and remaining risks.
+- Select the least expensive *adequate* available model/effort, but escalate as needed for accuracy and completeness. Preferred task routing **only if those aliases exist in the active Codex environment**: Luna for simple work, Terra for standard work, Sol for advanced work, Astra for high-complexity/critical work. These names are not an instruction to invent model IDs or switch models using unsupported mechanisms.
+- **Hard approval policy:** Astra **Extra High (`xhigh`) is the default maximum permitted reasoning effort**. Do **not** automatically use `max` on any model. If `max` seems justified, first explain why `xhigh` is insufficient, the unusual complexity, prior attempts (if any), expected benefit, added resource impact (without invented numbers), and alternatives. **Explicit user approval is required before requesting `max`.** If unsupported, say so. High task quality alone does not constitute approval.
+- An `AGENTS.md` policy does **not** itself configure or enforce the active model or reasoning effort. Confirm actual model IDs, available effort values and effective config before claiming enforcement; do not edit a global Codex installation merely by changing this repository file.
+- Before reporting completion, verify requirements coverage, critical calculations, relevant tests and diff; distinguish implemented, tested, proposed and unavailable. Disclose blockers and limitations.
+
