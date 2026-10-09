@@ -206,3 +206,8 @@ Publication is authorized but remains pending network/secure-binding activation 
 
 
 **2026-10-08 RO local candidate — DEC-119 / WF-114:** October 4 comparison/private-link code is merged into main52dc76e ancestry, with one on-demand inline Drive preview and exact-host CSP. All newer main changes retained; duplicate transfer documentation IDs reconciled without deleting histories.20 targeted native tests, standalone build and authenticated/review synthetic browser flows passed. Actual Google permission/rendering, production backup/deployment and complete RO import remain pending. See ../RO_WORKSHEET_COMPARISON.md.
+
+
+## Monthly plan entry candidate - 2026-10-09
+
+DEC-121 / WF-116: separate `/planning/`, planning-only role, own drafts/submissions and Purchase Manager/Admin queue implemented. Approval alone applies selected-month quantities to purchasing/MRP. Current live 9722da5 ancestry, all 441 regressions, isolated desktop/phone and standalone checks passed. Two empty planning tables additive; no live users/plans/BOM/cost/stock writes. Publication pending recovery/CI/deployment/readback. [Contract](../IMPLEMENTS_MONTHLY_PLANNING.md).

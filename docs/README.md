@@ -63,3 +63,5 @@ Read [UI and change rulebook](standards/UI_UX_RULEBOOK.md) before future modules
 - [Implements suppliers and pictured orders](IMPLEMENTS_SUPPLIERS.md) — DEC-113 / WF-107; supplier contacts, vendor item codes, cost-free identification images and immutable pictured PO exports.
 
 - [Implements procurement lifecycle and price analysis](IMPLEMENTS_PROCUREMENT_LIFECYCLE.md): DEC-114 / WF-108, acknowledgment without GRN, pipeline, quotes and partial completion.
+
+- [Monthly plan entry and approval](IMPLEMENTS_MONTHLY_PLANNING.md): DEC-121 / WF-116; cost-free Planner and approved MRP quantities.

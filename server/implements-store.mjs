@@ -6,6 +6,7 @@ import {calculateModelCost} from '../shared/implements/costing.mjs';
 import {RuleError,scopeAllowed,canCreate} from '../shared/domain.mjs';
 import {BOM_SCOPE,canApproveBom,assertTechnicalOnly} from '../shared/bom-management.mjs';
 import {PRODUCTION_SCOPE,canWriteProduction,assertInventoryOnly,same,validateConsumed,validateMaterialIssued} from '../shared/production.mjs';
+import {canApprovePlan,assertPlanningOnly} from '../shared/implements/planning.mjs';
 
 export const IMPLEMENTS_SCOPE='IMPLEMENTS_DOMESTIC';
 const digest=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
@@ -37,11 +38,12 @@ export class ImplementsStore{
  CREATE TRIGGER IF NOT EXISTS implements_audit_no_delete BEFORE DELETE ON implements_events BEGIN SELECT RAISE(ABORT,'Implements audit is append-only'); END;
  `);}
  read(){const row=this.db.prepare('SELECT payload FROM implements_workspace WHERE id=1').get();return row?JSON.parse(row.payload):ensureMonthly(blankState({version:'implements-online-v1',models:[],parts:[],suppliers:[]}));}
- save(input,actorId,{technical=false,inventory=false,transactionOpen=false}={}){
+ save(input,actorId,{technical=false,inventory=false,planning=false,transactionOpen=false}={}){
   if(!transactionOpen)this.db.exec('BEGIN IMMEDIATE');
   try{
    const actor=this.store.read().users.find(u=>u.id===actorId);
-   if(inventory){if(!scopeAllowed(actor,PRODUCTION_SCOPE)||!canWriteProduction(actor))fail('Production entry access is required.','FORBIDDEN');}
+   if(planning){if(!canApprovePlan(actor))fail('Purchase Manager or Administrator approval is required.','FORBIDDEN');}
+   else if(inventory){if(!scopeAllowed(actor,PRODUCTION_SCOPE)||!canWriteProduction(actor))fail('Production entry access is required.','FORBIDDEN');}
    else if(technical){if(!scopeAllowed(actor,BOM_SCOPE)||!canApproveBom(actor))fail('BOM approval access is required.','FORBIDDEN');}
    else {assertImplementsAccess(actor);if(!canWriteImplements(actor))fail('Purchase editing access is required.','FORBIDDEN');}
    if(!Number.isSafeInteger(input?.expectedRevision)||!/^[-\w]{12,120}$/.test(input?.requestId||''))fail('Expected revision and a valid request ID are required.');
@@ -51,6 +53,7 @@ export class ImplementsStore{
    if(receipt){if(receipt.digest!==requestDigest||receipt.access!==access)fail('Request ID or account access changed. Reload before continuing.','CONFLICT');if(!transactionOpen)this.db.exec('COMMIT');return previous;}
    if(previous.revision!==input.expectedRevision)fail('Another user saved this Implements workspace. Your entries are still on screen. Download your entries if needed, then reload and review the current values before saving.','CONFLICT');
    const next=validate(input.state),initial=!this.db.prepare('SELECT id FROM implements_workspace WHERE id=1').get();
+   if(planning){if(initial)fail('Initialize the reviewed Implements workspace first.');assertPlanningOnly(previous,next);}
    if(inventory){if(initial)fail('Initialize the reviewed Implements workspace first.');try{assertInventoryOnly(previous,next);validateConsumed(next);validateMaterialIssued(next);}catch(e){fail(e.message);}}
    else if(!same(previous.productionConsumed,next.productionConsumed)||!same(previous.productionMaterialIssued,next.productionMaterialIssued))fail('Production consumption is controlled by the production ledger.');
    if(technical){if(initial)fail('Initialize the Implements workspace before technical review.');try{assertTechnicalOnly(previous,next);}catch(error){fail(error.message);}}

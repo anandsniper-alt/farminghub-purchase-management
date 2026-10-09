@@ -16,9 +16,9 @@ export const SCHEMA_VERSION=7;
 export const MAX_UPLOAD_BYTES=50*1024*1024;
 export const UPLOAD_EXTENSIONS=['pdf','png','jpg','jpeg','webp','txt','docx','xlsx','csv','eml'];
 export const personalPreferences=user=>({showPageGuides:user?.preferences?.showPageGuides===true});
-export const USER_ROLES=['ADMIN','MANAGER','EXECUTIVE','PRODUCT_MANAGER','VIEWER','BOM_REVIEWER','PRODUCTION_OPERATOR'];
-export const SCOPES=['LAE_IMPORT','LAE_DOMESTIC','UTILITY_DOMESTIC','IMPLEMENTS_DOMESTIC','BOM_MANAGEMENT','PRODUCTION_MANAGEMENT'];
-export const SCOPE_LABELS={LAE_IMPORT:'LAE · Import',LAE_DOMESTIC:'LAE · Domestic',UTILITY_DOMESTIC:'Utility · Domestic',IMPLEMENTS_DOMESTIC:'Implements · Domestic',BOM_MANAGEMENT:'Production · BOM & Syntax (no costs)',PRODUCTION_MANAGEMENT:'Production · Stock & serials (no costs)'};
+export const USER_ROLES=['ADMIN','MANAGER','EXECUTIVE','PRODUCT_MANAGER','VIEWER','BOM_REVIEWER','PRODUCTION_OPERATOR','PLAN_OPERATOR'];
+export const SCOPES=['LAE_IMPORT','LAE_DOMESTIC','UTILITY_DOMESTIC','IMPLEMENTS_DOMESTIC','BOM_MANAGEMENT','PRODUCTION_MANAGEMENT','IMPLEMENTS_PLANNING'];
+export const SCOPE_LABELS={LAE_IMPORT:'LAE · Import',LAE_DOMESTIC:'LAE · Domestic',UTILITY_DOMESTIC:'Utility · Domestic',IMPLEMENTS_DOMESTIC:'Implements · Domestic',BOM_MANAGEMENT:'Production · BOM & Syntax (no costs)',PRODUCTION_MANAGEMENT:'Production · Stock & serials (no costs)',IMPLEMENTS_PLANNING:'Implements · Monthly plan entry (no costs)'};
 export const REASONS=['Supplier production','Supplier documentation','Internal purchase','Artwork confirmation','Specification confirmation','Payment processing','Shipping / forwarder','Customs / clearance','Late sales requirement','Other'];
 export const TERMS=[
  {
@@ -249,7 +249,7 @@ export function convertMinor(amount,rate){const n=Number((BigInt(amount)*BigInt(
 export const major=n=>(Number(n||0)/100).toFixed(2);
 export const formatMoney=(n,c='USD')=>new Intl.NumberFormat('en-IN',{style:'currency',currency:c,maximumFractionDigits:2}).format(Number(n||0)/100);
 export const orderTotal=o=>o.lines.reduce((n,l)=>n+l.quantity*l.unitPriceMinor,0);
-export function scopeAllowed(u,scope){return !!u&&u.active!==false&&(u.role==='ADMIN'||(u.role!=='BOM_REVIEWER'||scope==='BOM_MANAGEMENT')&&(u.role!=='PRODUCTION_OPERATOR'||['BOM_MANAGEMENT','PRODUCTION_MANAGEMENT'].includes(scope))&&u.scopes?.includes(scope));}
+export function scopeAllowed(u,scope){return !!u&&u.active!==false&&(u.role==='ADMIN'||(u.role!=='BOM_REVIEWER'||scope==='BOM_MANAGEMENT')&&(u.role!=='PRODUCTION_OPERATOR'||['BOM_MANAGEMENT','PRODUCTION_MANAGEMENT'].includes(scope))&&(u.role!=='PLAN_OPERATOR'||scope==='IMPLEMENTS_PLANNING')&&u.scopes?.includes(scope));}
 export const canApprove=(u,scope='LAE_IMPORT')=>scopeAllowed(u,scope)&&['ADMIN','MANAGER'].includes(u.role);
 export const canCreate=(u,scope='LAE_IMPORT')=>scopeAllowed(u,scope)&&['ADMIN','MANAGER','EXECUTIVE'].includes(u.role);
 export const canProductApprove=u=>scopeAllowed(u,'LAE_IMPORT')&&['ADMIN','PRODUCT_MANAGER'].includes(u.role);
