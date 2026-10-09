@@ -64,4 +64,6 @@ Read [UI and change rulebook](standards/UI_UX_RULEBOOK.md) before future modules
 
 - [Implements procurement lifecycle and price analysis](IMPLEMENTS_PROCUREMENT_LIFECYCLE.md): DEC-114 / WF-108, acknowledgment without GRN, pipeline, quotes and partial completion.
 
-- [Monthly plan entry and approval](IMPLEMENTS_MONTHLY_PLANNING.md): DEC-121 / WF-116; cost-free Planner and approved MRP quantities.
+- [LAE Landing Prices](LANDING_PRICES.md): filtered RO purchase item register, quantity-weighted averages, historical source identity and release boundary (DEC-121 / WF-116).
+
+- [Monthly plan entry and approval](IMPLEMENTS_MONTHLY_PLANNING.md): DEC-122 / WF-117; cost-free Planner and approved MRP quantities.

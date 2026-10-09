@@ -1,6 +1,6 @@
 # Implements monthly plan entry and approval
 
-2026-10-09 | DEC-121 / WF-116 | Implemented and locally verified. Publication pending recovery and authenticated deployment.
+2026-10-09 | DEC-122 / WF-117 | Implemented and locally verified. Publication pending recovery and authenticated deployment.
 
 ## Operating flow
 
@@ -30,3 +30,6 @@ Integrated onto current production source 9722da5. All 441 regressions passed. I
 ## Release preparation - 2026-10-09
 
 Fresh 762,036,224-byte production SQLite snapshot downloaded and matched its server SHA-256. Exact running 9722da5 source (216 runtime files), all 22 original-table payloads, integrity/foreign keys, original/candidate startup, ZIP CRC/member hashes and extracted restore passed. Candidate adds only two empty planning tables. Verified recovery retained privately in the workspace backup folder; no older archive deleted. No live business writes or staff grants. Publication is blocked pending valid Coolify credentials; prior release scripts exist, but their temporary host key is absent from original and relocated paths.
+
+
+Concurrent publication: preserved the newly published c09b8df LAE landing-price register during integration. Planner records use DEC-122/WF-117 to avoid colliding with its DEC-121/WF-116. The verified recovery above is dated against 9722da5; obtain a fresh matching-source recovery again before eventual live deployment.

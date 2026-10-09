@@ -725,7 +725,10 @@ Content-driven widths can let long permission headings squeeze identity and acco
 
 **2026-10-08 — Concise RO presentation (DEC-119):** Show the useful numbers first: item quantities/prices, selected total and cost components. Source traceability does not require displaying every note and worksheet cell by default; retain them behind Workings & records. Component contribution is measured against the same supported total and goods-USD denominator. Never sum all numeric worksheet rows, mix subtotals with components, infer an exact-RO allocation from a pooled rate, or show unknown costs as zero. Keep short pending/reference statuses visible. This is a module presentation rule, not a change to saved costing or source evidence.
 
+## 2026-10-09 — Filtered purchase averages and historical identity (DEC-121)
+MODULE / reporting. A footer must aggregate the entire filtered result, not the displayed page. Effective INR per USD is paired INR value divided by paired USD value; a quantity-average of conversion rates is wrong when USD prices differ. Keep missing-cost denominators visible and separate PCS from SETS. Historical purchase brand and item inward date can differ from the present master or RO header: use exact source-hash/row/identity evidence and optional line fields, never infer a historical brand from a code prefix. Preserve user-approved master-code corrections when enriching other source columns. A bounded response still needs revision-based projection invalidation and a scale review. Applies to purchase-reference reporting, not current-stock weighting, inventory valuation or sale-set motor additions.
 
-## Planning approval - 2026-10-09 (DEC-121 / WF-116)
+
+## Planning approval - 2026-10-09 (DEC-122 / WF-117)
 
 Separate requested quantities from approved material demand. Protect financial data with explicit server projections and restricted-role bootstrap, not only hidden controls. Compare the selected month baseline instead of rejecting unrelated business revisions; commit approval and purchasing update together. Retain hidden filtered quantities and stable retry identities. Verify latest live-source ancestry to preserve newer shared UI changes.

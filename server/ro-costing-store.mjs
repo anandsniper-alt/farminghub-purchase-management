@@ -2,6 +2,7 @@ import {createHash,randomUUID} from 'node:crypto';
 import {RuleError,MAX_UPLOAD_BYTES,UPLOAD_EXTENSIONS} from '../shared/domain.mjs';
 import {assertRoCostAccess,roCode,validateRoRecord,calculateRoCosting,worksheetComparisonSummary} from '../shared/ro-costing.mjs';
 import {importantRoDocuments,forwardingAgentDocument,validateRoDriveUrl,RO_ESSENTIAL_DOCUMENT_KINDS} from '../shared/ro-documents.mjs';
+import {landingItemMasterIndex,projectLandingPriceRows,queryLandingPrices,validateLandingPriceQuery} from '../shared/landing-prices.mjs';
 
 const roDigest=value=>createHash('sha256').update(value).digest('hex');
 export class RoCostingStore{
@@ -34,6 +35,21 @@ export class RoCostingStore{
  UNION ALL SELECT ro,id,name,kind,kind,0,sha256,bytes,at,'google-drive',drive_url FROM ro_drive_documents;
  `);}
  actor(id,write=false){const actor=this.store.read().users.find(u=>u.id===id);assertRoCostAccess(actor,write);return actor;}
+ landingPricesExport(actorId,query={}){return this.landingPrices(actorId,query,{exportAll:true});}
+ landingPrices(actorId,query={},options={}){
+  this.actor(actorId);validateLandingPriceQuery(query);
+  const workspaceRevision=this.store.revision();
+  if(!this.landingCache||this.landingCache.workspaceRevision!==workspaceRevision)this.landingCache={workspaceRevision,masterIndex:landingItemMasterIndex(this.store.read()),records:new Map()};
+  const cache=this.landingCache,identities=this.db.prepare('SELECT ro,revision FROM ro_costings ORDER BY ro COLLATE NOCASE').all(),current=new Set(),rows=[];
+  let rosWithItems=0;
+  for(const identity of identities){
+   current.add(identity.ro);let item=cache.records.get(identity.ro);
+   if(!item||item.revision!==identity.revision){const record=JSON.parse(this.db.prepare('SELECT payload FROM ro_costings WHERE ro=?').get(identity.ro).payload);item={revision:identity.revision,rows:projectLandingPriceRows(record,cache.masterIndex)};cache.records.set(identity.ro,item);}
+   if(item.rows.length)rosWithItems++;rows.push(...item.rows);
+  }
+  for(const ro of cache.records.keys())if(!current.has(ro))cache.records.delete(ro);
+  return queryLandingPrices(rows,query,{totalRos:identities.length,rosWithItems,rosWithoutItems:identities.length-rosWithItems},options);
+ }
  list(actorId,{q='',status='',offset=0,limit=50}={}){
   this.actor(actorId);if(typeof q!=='string'||q.length>200||!['','Pending','Complete'].includes(status)||!Number.isSafeInteger(offset)||offset<0||!Number.isSafeInteger(limit)||limit<1||limit>50)throw new RuleError('Invalid RO list filter.');
   const query='%'+q.replace(/[\\%_]/g,'\\$&')+'%',where="(ro LIKE ? ESCAPE '\\' OR supplier LIKE ? ESCAPE '\\') AND (?='' OR status=?)",args=[query,query,status,status];
