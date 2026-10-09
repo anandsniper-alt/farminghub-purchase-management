@@ -1,5 +1,42 @@
 /* Approved minimal presentation. Approved brand assets and colour/font tokens are inherited. */
 :root{--preview-strip:0px}
+/* Read-only LAE process map: native buttons, progressive detail and bounded 2D scrolling. */
+.lae-flow{display:grid;gap:20px;min-width:0}
+.lae-flow .panel{min-width:0;margin:0}
+.lae-flow p,.lae-flow li{line-height:1.65}
+.lae-flow h2{font-size:18px;line-height:1.4;margin:0 0 10px}
+.lae-flow h3{font-size:14px;line-height:1.5;margin:20px 0 8px}
+.lae-flow ul,.lae-flow ol{padding-left:22px;margin:10px 0 18px}
+.lae-flow li+li{margin-top:7px}
+.flow-phase-nav{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.flow-phase-nav .button{min-height:44px}
+.flow-workspace{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,340px);gap:20px;align-items:start}
+.lae-flow-viewport{max-width:100%;overflow:auto;overscroll-behavior:contain;padding:16px 8px;background:var(--bg);border-radius:12px;margin-top:12px}
+.lae-flow-canvas{position:relative;isolation:isolate}
+.lae-flow-canvas svg{position:absolute;inset:0;pointer-events:none}
+.flow-edge{fill:none;stroke:#657a63;stroke-width:2}
+.flow-edge.dependency{stroke-dasharray:6 5}.flow-edge.exception{stroke:#9a641e;stroke-dasharray:3 5}.flow-edge.related{stroke:var(--fh-green);stroke-width:3}
+.lae-flow-bubble{position:absolute;display:flex;flex-direction:column;justify-content:center;gap:6px;padding:12px 18px;border:1.5px solid #9eae9a;border-radius:28px;background:var(--white);color:var(--fh-green);text-align:left;font:inherit;cursor:pointer;box-shadow:0 3px 0 #20432108}
+.lae-flow-bubble strong{font-size:15px;line-height:1.35}
+.lae-flow-bubble span{font-size:11px;line-height:1.4;color:#4a614b}
+.lae-flow-bubble .flow-step{font-size:10px;letter-spacing:.025em}
+.lae-flow-bubble:hover{border-color:var(--fh-green);background:#f5f8ed}
+.lae-flow-bubble.selected{background:#eaf0ce;border:2px solid var(--fh-green)}
+.lae-flow-bubble.external{border-style:dashed;background:#f3f5f7}
+.lae-flow-bubble.exception{border-color:#a27236;background:#fff9ec}
+.lae-flow-bubble.local{border-color:#637953}
+.lae-flow :focus-visible{outline:3px solid #6b8629;outline-offset:3px}
+.lae-flow-detail .panel-body{padding:22px}.lae-flow-detail{position:sticky;top:90px;max-height:calc(100vh - 110px);overflow:auto}
+.lae-flow-detail .eyebrow{font-size:10px;color:#526750;line-height:1.5;margin-bottom:10px}
+.flow-connections{list-style:none;padding:0!important}.flow-connections li{display:grid;gap:5px}.flow-connections span{font-size:11px;color:#53664f}
+.flow-connections .button{white-space:normal;text-align:left;justify-content:flex-start;min-height:44px}
+.flow-finding,.flow-boundary,.flow-audit-entry details{margin-top:18px}.lae-flow summary{cursor:pointer;font-weight:600;line-height:1.5;padding:10px 0}.flow-boundary>summary{padding:18px 22px}
+.flow-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:20px}.flow-list .button{border-radius:22px;min-height:60px;white-space:normal;text-align:left}
+.flow-example-grid{display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:16px;margin:20px 0}.flow-example-grid>div{border:1px solid var(--line);border-radius:16px;padding:18px;background:var(--bg)}
+.flow-counts{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:18px 0}.flow-counts>div{display:grid;gap:8px;padding:14px;background:var(--bg);border:1px solid var(--line);border-radius:12px}.flow-counts b{font-size:24px}.flow-counts span{font-size:11px;line-height:1.4}
+.flow-audit-entry{padding:18px 0 24px;border-top:1px solid var(--line)}.flow-audit-entry h3{margin:0}.lae-flow .mono{overflow-wrap:anywhere;white-space:normal}
+@media(max-width:1250px){.flow-workspace{grid-template-columns:minmax(0,1fr)}.lae-flow-detail{position:static;max-height:none}}
+@media(max-width:740px){.lae-flow .panel-body{padding:16px}.flow-counts{grid-template-columns:repeat(2,minmax(0,1fr))}.flow-example-grid,.flow-list{grid-template-columns:1fr}.flow-phase-nav .button{flex:1 1 145px}.lae-flow-viewport{padding:8px 0}}
 /* Two-module workspace: one contextual navigation surface at a time. */
 .module-sidebar .brand-home{border:0;background:none;width:100%;cursor:pointer}
 .module-sidebar .module-switcher{padding:14px 8px 0}
