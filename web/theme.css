@@ -235,7 +235,7 @@ body[data-preview-theme=minimal] .scope-card.active{flex:0 1 260px;padding:12px 
   body[data-preview-theme=minimal] .content{padding:20px 16px 128px}
   body[data-preview-theme=minimal] :is(.button,.button.small,.icon-button,.tab,.segmented button){min-height:44px}
   body[data-preview-theme=minimal] .icon-button{min-width:44px}
-  body[data-preview-theme=minimal] :is(.field input,.field select,.field textarea,.filters input,.filters select){font-size:16px;min-height:44px}
+  body[data-preview-theme=minimal] :is(.field input,.field select,.field textarea,.filters input,.filters select),body[data-preview-theme=minimal] .po-entry-modal .po-item-sheet :is(input,select){font-size:16px;min-height:44px}
   body[data-preview-theme=minimal] .filters{width:100%}
   body[data-preview-theme=minimal] .filters :is(input,select){flex:1 1 150px;min-width:0}
   body[data-preview-theme=minimal] .modal-backdrop{padding:8px}
