@@ -63,7 +63,7 @@ test('planner HTTP access, CSRF, authentication and commercial denial remain ser
  try{assert.equal((await call('/api/planning/workspace')).status,401);const l=await call('/api/login',{email:'planner@example.test',password:'Isolated-planning-password'});cookie=l.cookie;
  const boot=await call('/api/bootstrap');assert.equal(boot.value.state.users.length,1);assert.equal(boot.value.state.users[0].id,'planner');assert.equal(boot.value.state.orders.length,0);for(const [key,value] of Object.entries(boot.value.state))if(Array.isArray(value)&&key!=='users')assert.equal(value.length,0,key+' must not expose seeded master data');
  const view=await call('/api/planning/workspace');assert.equal(view.status,200);assert.equal(view.value.canApprove,false);assert.equal((await call('/planning/')).status,200);
- for(const path of ['/implements/','/api/implements/workspace','/bom/','/api/bom-management/workspace','/production/','/api/production/workspace','/api/ro-costings'])assert.equal((await call(path)).status,403,path);
+ for(const path of ['/implements/','/api/implements/workspace','/bom/','/api/bom-management/workspace','/production/','/api/production/workspace','/api/ro-costings','/api/landing-prices','/api/landing-prices/export.xlsx','/api/landing-prices/export.pdf'])assert.equal((await call(path)).status,403,path);
  const input={type:'SUBMIT',month:'2026-11',plan:{'S2.V12':4},note:'Monthly plan',requestId:randomUUID(),expectedVersion:0};assert.equal((await call('/api/planning/commands',input)).status,403);csrf=view.value.csrf;assert.equal((await call('/api/planning/commands',input)).status,200);
  }finally{await new Promise(r=>server.close(r));f.close();}
 });

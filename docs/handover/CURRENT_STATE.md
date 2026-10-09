@@ -215,3 +215,8 @@ Publication is authorized but remains pending network/secure-binding activation 
 ## Monthly plan entry candidate - 2026-10-09
 
 DEC-122 / WF-117: separate `/planning/`, planning-only role, own drafts/submissions and Purchase Manager/Admin queue implemented. Approval alone applies selected-month quantities to purchasing/MRP. Current live 9722da5 ancestry, all 441 regressions, isolated desktop/phone and standalone checks passed. Two empty planning tables additive; no live users/plans/BOM/cost/stock writes. Publication pending recovery/CI/deployment/readback. [Contract](../IMPLEMENTS_MONTHLY_PLANNING.md).
+
+
+## Final integrated verification - 2026-10-09
+
+After preserving live c09b8df, all 458 native tests passed with no skips (bundled Python configured for existing exports). Final build and standalone phone navigation passed; seven isolated browser checks passed without runtime errors, including both lost save responses and manual retry. All seeded master/price arrays are excluded from Planner bootstrap, and the new LAE price report/exports are denied to Planner. Draft PR #1 retains the tested implementation without changing main or live. Deployment remains pending valid Coolify access and a refreshed matching-source recovery.

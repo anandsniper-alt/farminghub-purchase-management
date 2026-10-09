@@ -33,3 +33,8 @@ Fresh 762,036,224-byte production SQLite snapshot downloaded and matched its ser
 
 
 Concurrent publication: preserved the newly published c09b8df LAE landing-price register during integration. Planner records use DEC-122/WF-117 to avoid colliding with its DEC-121/WF-116. The verified recovery above is dated against 9722da5; obtain a fresh matching-source recovery again before eventual live deployment.
+
+
+## Final integrated verification - 2026-10-09
+
+After preserving live c09b8df, all 458 native tests passed with no skips (bundled Python configured for existing exports). Final build and standalone phone navigation passed; seven isolated browser checks passed without runtime errors, including both lost save responses and manual retry. All seeded master/price arrays are excluded from Planner bootstrap, and the new LAE price report/exports are denied to Planner. Draft PR #1 retains the tested implementation without changing main or live. Deployment remains pending valid Coolify access and a refreshed matching-source recovery.
