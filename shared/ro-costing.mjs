@@ -57,7 +57,7 @@ export function validateRoPurchaseItems(input,comparison){
   const source=worksheetObject(r.source||{}),file=roText(source.file,300),sha256=roText(source.sha256,64);
   if(/[\\/\x00-\x1f]/.test(file)||/^[A-Za-z]:/.test(file))roFail('Purchase source must be a file basename, without local paths.');
   if(sha256&&!/^[a-f0-9]{64}$/i.test(sha256))roFail('Invalid purchase source checksum.');
-  return {id,supplier:roText(r.supplier,300),invoice:roText(r.invoice,200),itemCode:roText(r.itemCode,200),masterCode:roText(r.masterCode,200),masterCodeRaw:roText(r.masterCodeRaw,200),description:roText(r.description,1000),model:roText(r.model,300),productGroup:roText(r.productGroup,300),quantity,unit:roText(r.unit,40),currency,unitPrice,usdUnitPrice,usdBasis,status,workingId,source:{file,sheet:roText(source.sheet,200),row:roText(source.row,200),sha256},flags:worksheetList(r.flags,20,'item flags').map(flag=>roText(flag,1000))};
+  return {id,supplier:roText(r.supplier,300),invoice:roText(r.invoice,200),itemCode:roText(r.itemCode,200),masterCode:roText(r.masterCode,200),masterCodeRaw:roText(r.masterCodeRaw,200),description:roText(r.description,1000),model:roText(r.model,300),productGroup:roText(r.productGroup,300),quantity,unit:roText(r.unit,40),currency,unitPrice,usdUnitPrice,usdBasis,status,workingId,source:{file,sheet:roText(source.sheet,200),row:roText(source.row,200),sha256},flags:worksheetList(r.flags,20,'item flags').map(flag=>roText(flag,1000)),...(Object.hasOwn(r,'inwardDate')?{inwardDate:roDate(r.inwardDate)}:{}),...(Object.hasOwn(r,'brand')?{brand:roText(r.brand,300)}:{})};
  });
  return {version:1,basis:roText(v.basis,4000),reviewedOn:roDate(v.reviewedOn),rows};
 }
