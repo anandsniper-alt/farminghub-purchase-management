@@ -50,7 +50,7 @@ test('protected Drive references and source library retain local evidence, actua
  const call=async(path,{actor,body,headers={},key}={})=>{const res=await fetch(base+'/api/ro-costings/'+path,{method:body?'POST':'GET',headers:{Origin:base,'Content-Type':'application/json',...(actor?{Cookie:actor.cookie,'X-CSRF-Token':actor.csrf}:{}),...(key?{'Idempotency-Key':key}:{}),...headers},body:body?JSON.stringify(body):undefined});return {status:res.status,data:await res.json()};};
  const login=async id=>{const r=await fetch(base+'/api/login',{method:'POST',headers:{Origin:base,'Content-Type':'application/json'},body:JSON.stringify({email:id+'@example.test',password:'Synthetic-test-only-password'})}),cookie=r.headers.get('set-cookie').split(';')[0],b=await fetch(base+'/api/bootstrap',{headers:{Cookie:cookie}});return {cookie,csrf:(await b.json()).csrf};};
  try{
-  const csp=(await fetch(base+'/')).headers.get('content-security-policy');assert.ok(csp.split(';').map(v=>v.trim()).includes("frame-src 'self' https://drive.google.com"));assert.ok(!csp.includes('https://*.google.com'));
+  const csp=(await fetch(base+'/')).headers.get('content-security-policy');assert.ok(csp.split(';').map(v=>v.trim()).includes("frame-src 'self' blob: https://drive.google.com"));assert.ok(!csp.includes('https://*.google.com'));
   const admin=await login('admin'),viewer=await login('viewer'),doc={ro:'5589 - 5595',name:'synthetic.pdf',kind:'Commercial invoice',driveUrl:url,sha256:'a'.repeat(64),bytes:123,reason:'Synthetic verified private source'};
   assert.equal((await call('drive-documents',{body:doc})).status,401);
   assert.equal((await call('drive-documents',{actor:viewer,body:doc})).status,403);
