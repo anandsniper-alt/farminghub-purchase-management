@@ -737,3 +737,9 @@ Separate requested quantities from approved material demand. Protect financial d
 ## 2026-10-09 — Document date versus workflow date (DEC-123)
 
 MODULE-SPECIFIC, LAE Import: LAE Import final BL date is the loading/document date, independent of the recorded vessel-departure date. It may be earlier. Require a valid non-future date, evidence and existing permissions; keep the loaded-on-vessel recording gate and reasoned replacement history. Credit due dates continue to derive from this BL date. Do not migrate or automatically correct existing dates. Discovered from PO-11; a date-order validator was blocking the actual loading document date. Applies to final BL capture, not other logistics chronological checks.
+
+
+## Connected loading and existing-data preservation — 2026-10-11
+- A new workflow view can read the same original shipments instead of copying them into a second ledger. Keep source identifiers and derive stages from recorded dates/milestones; do not infer completion from notes or matching forwarding-agent text.
+- Audit every dispatcher layer when reusing a prefix. The old ro-loading name collided with the RO costing action, modal and submit handlers. Loading RO assignment now uses loading-ro and has a browser-verified handoff.
+- Progressive selection should preserve quantity edits, protect removal, and make the ordinary single-order case simple while deriving combined mode from actual selected lines. Record historical completion truthfully rather than backfilling missing gates.

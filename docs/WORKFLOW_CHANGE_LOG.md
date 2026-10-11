@@ -1104,3 +1104,7 @@ Website publication is explicitly authorized, but requires current access and th
 ## WF-118 — BL loading date independent of departure (DEC-123)
 
 2026-10-09. After vessel confirmation, record final BL number, actual loading date and evidence. Earlier document dates no longer fail the departure comparison. Existing BL corrections require a reason and retain the previous/new dates in audit history; credit follow-up uses the corrected document date. No existing record is automatically changed.
+
+
+## WF-123 — Select, plan and continue existing loading records (DEC-128)
+2026-10-11. Loading → New loading plan → suppliers → only their eligible POs → tick items and quantities → save → Open flow → assign/combine RO → current booking, tracking, documents, arrival and costing controls. Back/search retain selections; removing a selected supplier/PO requires an explicit draft-removal choice. Single-order, multi-order and multi-supplier modes are derived automatically. Historical shipments appear immediately by recorded stage with links to original items, PI/payments and history. Existing reservations and completed states are not recreated. RO assignment keeps the original plan detail link usable. Loading workflow actions use the loading namespace, avoiding interception by RO costing.
