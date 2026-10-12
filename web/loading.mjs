@@ -1,6 +1,8 @@
 import {loadingSelectionPayload} from '../shared/loading-workspace.mjs';
 import {loadingPickerMarkup,mountLoadingPicker} from './loading-picker.mjs';
 import {createLoadingWorkspaceUI} from './loading-workspace.mjs';
+import {createContainerPlanner} from './container-planner.mjs';
+import {loadingWorkspace} from '../shared/loading-workspace.mjs';
 import {pendingLoadingRows} from '../shared/shipping.mjs';
 
 export function createLoadingUI(host){
@@ -19,7 +21,8 @@ export function createLoadingUI(host){
  }
  let picker=null,pickerSources=new Map();
  const workspace=createLoadingWorkspaceUI(host);
- function page(){return workspace.page(pendingPage());}
+ const containerPlanner=createContainerPlanner(host);
+ function page(){if(context().ui.loading3d){let key='';try{key=decodeURIComponent(context().ui.orderId||'');}catch{}const group=loadingWorkspace(visibleOrders()).find(g=>g.key===key);if(group)return containerPlanner.page(group);}return workspace.page(pendingPage());}
  function planForm(){return loadingPickerMarkup();}
  function mount(){if(context().ui.modal!=='loading-plan')return;const rows=eligible(),poList=orders(rows);pickerSources=new Map();const model={supplierNames:Object.fromEntries(poList.map(o=>[o.vendorId,vendorName(o.vendorId)])),orders:poList.map((o,i)=>({id:'po-'+i,number:o.number,pi:o.pi?.number||'',supplier:o.vendorId,lines:rows.filter(r=>r.o.id===o.id).map(({l,unallocated},j)=>{const id='line-'+i+'-'+j;pickerSources.set(id,{orderId:o.id,lineId:l.id});return {id,code:l.code,name:l.description||l.name||l.code,brand:l.brandPrefix||l.code?.split('-')[0]||'',available:unallocated};})}))};
  const routeFields='<div class="gap"></div><div class="form-grid three">'+field('etd','Planned ETD',isoDay(),'date',{required:true})+field('eta','Planned ETA',addDays(isoDay(),30),'date',{required:true})+field('containerType','Container type','40HC','select',{options:['20GP','40GP','40HC','LCL']})+field('origin','Origin','','text',{required:true})+field('destination','Destination','','text',{required:true})+'</div>'+field('remarks','Loading instructions / reason','','textarea',{required:true,full:true})+note('Only orders with an approved PI and bulk production started can be selected. Existing reservations are excluded.','blue');
@@ -38,5 +41,5 @@ export function createLoadingUI(host){
  }
  function change(el){if(workspace.change(el))return true;if(el.matches('[data-loading-pick]')){const input=el.closest('tr').querySelector('[data-loading-quantity]');input.disabled=!el.checked;input.required=el.checked;if(el.checked&&!input.value)input.value=input.max;sync(el);return true;}if(el.matches('[data-loading-mode],[data-loading-plan-vendor],[data-loading-plan-order],[data-loading-vendor],[data-loading-order],[data-loading-status],[data-loading-search]')){sync(el);return true;}return false;}
  function action(a,d){if(a==='loading-plan'||a==='loading-ro'){host.showDialog(a,d);return true;}return workspace.action(a,d);}
- return {page,planForm,roForm,payload,change,mount,action};
+ return {page,planForm,roForm,payload,change,mount,action,afterRender:()=>containerPlanner.mount(),unmount:()=>containerPlanner.unmount(),allowRoute:hash=>containerPlanner.allowRoute(hash)};
 }

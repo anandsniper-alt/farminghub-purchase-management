@@ -86,7 +86,16 @@ export function calculateMRP(state,month=state.activeMonth){
  const report=calculatePlan({...state,plan:remaining(plans[month],month),productionPickCredits:state.productionMaterialIssued?.[month],stock,adjustments:month===state.activeMonth?state.adjustments:state.monthlyAdjustments[month]||{}});
  return {...report,issues:[...report.issues,...priorIssues],month,stockAllocation:'Earliest planned month first; only existing stock carries forward',rows:report.rows.map(row=>({...row,originalStock:state.stock[row.key]?.qty??0,stockUsedEarlier:used[row.key]||0,closingStock:round(Math.max(0,row.stock-row.demand),3)}))};
 }
-export function pricePercent(value,label){if(value==null||value==='')return null;if(typeof value==='boolean')throw Error(label+' must be numeric.');const raw=typeof value==='string'?value.trim().replace(/%$/,''):value,percent=typeof raw==='number'&&raw<=1?raw*100:raw;return round(number(percent,label,{max:100}),6);}
+export function pricePercent(value,label){
+ if(value==null||value==='')return null;
+ if(typeof value==='boolean')throw Error(label+' must be numeric.');
+ const raw=typeof value==='string'?value.trim():value;
+ if(typeof raw==='string'&&raw.startsWith('Ambiguous Excel percentage format;'))throw Error(label+' has an ambiguous Excel percentage format. Enter an explicit value with %, such as 1% or 100%.');
+ if(typeof raw==='string'&&raw.endsWith('%'))return round(number(raw.slice(0,-1).trim(),label,{max:100}),6);
+ const n=number(raw,label,{max:100});
+ if(n>0&&n<=1)throw Error(label+' is ambiguous between '+n+'% and '+(n*100)+'%. Enter an explicit value with %, such as 1% or 100%.');
+ return round(n,6);
+}
 export function previewPrices(state,rows,codeColumn,rateColumn,{headerRow=0,unitColumn=-1,supplier='',supplierColumn=-1,gstColumn=-1,transportColumn=-1}={}){
  const index=codeIndex(state),seen=new Map(),matched=[],errors=[];
  if(codeColumn===rateColumn||[codeColumn,rateColumn].includes(unitColumn))throw Error('Choose separate item code, price and unit columns.');
@@ -138,9 +147,10 @@ export function previewStock(state,rows,codeColumn,qtyColumn,headerRow=0){
 export function applyStock(state,preview,asOf,filename){
  if(!preview.matched.length)throw Error('No matched stock rows to import.');
  validDate(asOf,'Stock date');
+ for(const r of preview.matched){const latest=state.stock[r.key]?.asOf;if(latest&&asOf<latest)throw Error(`Stock count for ${r.code} is dated ${asOf}, before its latest posting on ${latest}. Use a current count date or reconcile the later movement first.`);}
  // Merge only the explicitly previewed matches; absent codes retain their stock.
  for(const r of preview.matched)state.stock[r.key]={qty:r.qty,asOf,source:filename};
- state.stockAsOf=asOf;
+ state.stockAsOf=[state.stockAsOf||'',asOf].sort().at(-1);
 }
 export function copyBom(state,targetId,sourceId){
  if(targetId===sourceId)throw Error('Choose a different source model.');
@@ -168,7 +178,7 @@ export function createOrders(state,selectedKeys,{date,delivery='',notes='',quant
  const report=calculateMRP(state),selected=new Set(selectedKeys),rows=report.rows.filter(r=>selected.has(r.key)&&r.orderQty>0);
  if(!rows.length)throw Error('Select at least one item with a purchase quantity.');
  if(!/^\d{4}-\d{2}-\d{2}$/.test(date))throw Error('Enter a valid PO date.');
- validDate(date,'PO date');if(delivery){validDate(delivery,'Delivery date');if(delivery<date)throw Error('Delivery date cannot be before the PO date.');}
+ validDate(date,'PO date');if(date>new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Calcutta',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date()))throw Error('PO date cannot be in the future. Choose today or an earlier date before saving.');if(delivery){validDate(delivery,'Delivery date');if(delivery<date)throw Error('Delivery date cannot be before the PO date.');}
  for(const row of rows){if(!row.supplier||!state.suppliers.some(s=>s.id===row.supplier))throw Error(`Assign a supplier for ${row.code||row.name}.`);if(!quantityOnly&&row.amount==null)throw Error(`Price or weight pending for ${row.code||row.name}. Use a quantity-only PO or complete the value.`);}
  const groups=new Map();for(const row of rows){if(state.suppliers.find(s=>s.id===row.supplier)?.active===false)throw Error('Choose an active supplier for '+row.name);if(!groups.has(row.supplier))groups.set(row.supplier,[]);const saved=clone(row);saved.supplierPartCode=supplierPartCode(state,row.key,row.supplier);saved.image=itemImage(state,row.partId,row.name);saved.children=saved.children.map(c=>({...c,supplierPartCode:supplierPartCode(state,c.partId,row.supplier),image:itemImage(state,c.partId,c.name)}));groups.get(row.supplier).push(saved);}
  let n=Math.max(state.orders.length,...state.orders.map(po=>Number(String(po.id).match(/^FH-IMP-PO-(\d+)$/)?.[1]||0)));

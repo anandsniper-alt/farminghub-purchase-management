@@ -1,4 +1,6 @@
-import {chromium} from '../../ui-tools/node_modules/playwright/index.mjs';
+import {pathToFileURL} from 'node:url';
+import {resolve} from 'node:path';
+const {chromium}=await import(pathToFileURL(resolve(process.env.FH_PLAYWRIGHT_MODULE||'../../ui-tools/node_modules/playwright/index.mjs')).href);
 import assert from 'node:assert/strict';
 import {mkdtempSync,readFileSync,writeFileSync,mkdirSync} from 'node:fs';
 import {tmpdir} from 'node:os';import {join} from 'node:path';import {createServer} from 'node:http';
@@ -9,8 +11,8 @@ for(const u of state.users)if(!u.scopes.includes('LAE_DOMESTIC'))u.scopes.push('
 const store=new Store(join(mkdtempSync(join(tmpdir(),'fh-hig-')),'qa.sqlite'),state);store.addAccount('u-manager','preview@example.test','isolated-hig-testing-123');
 const server=makeServer(store),review=createServer((req,res)=>{res.setHeader('Content-Type','text/html');res.end(readFileSync('Farming_Hub_Purchase_Management_Clean_Review.html'));});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));await new Promise(r=>review.listen(0,'127.0.0.1',r));
-const dir='test-output/hig-review';mkdirSync(dir,{recursive:true});let browser;const report=[];
-try{browser=await chromium.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});
+const dir=process.env.FH_HIG_OUTPUT_ROOT||'test-output/hig-review';mkdirSync(dir,{recursive:true});let browser;const report=[];
+try{browser=await chromium.launch({executablePath:process.env.FH_BROWSER_PATH||'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});
  for(const [mode,srv]of [['server',server],['review',review]]){
   const page=await browser.newPage({viewport:{width:1440,height:1000}}),errors=[],checks=[];page.on('pageerror',e=>errors.push(e.message));page.setDefaultTimeout(15000);
   if(mode==='review')await page.addInitScript(s=>{localStorage.setItem('fh-purchase-alpha15-clean-schema7',JSON.stringify(s));localStorage.setItem('fh-purchase-alpha15-clean-schema7-user','u-manager');},state);

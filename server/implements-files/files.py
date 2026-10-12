@@ -1,7 +1,32 @@
-import sys,json,base64,io,csv,zipfile
+import sys,json,base64,io,csv,zipfile,re
+from decimal import Decimal
 from pathlib import Path
 from xml.sax.saxutils import escape
 ROOT=Path(__file__).resolve().parent
+
+def percent_format(fmt,value):
+    # Excel selects positive, negative and zero sections separately. A mixed or
+    # conditional format must not turn a plain numeric 1 into an apparent 100%.
+    sections=[];section='';quoted=False;escaped=False
+    for char in fmt:
+        if escaped:section+=char;escaped=False;continue
+        if char=='\\':section+=char;escaped=True;continue
+        if char=='"':quoted=not quoted;section+=char;continue
+        if char==';' and not quoted:sections.append(section);section='';continue
+        section+=char
+    sections.append(section)
+    def has_percent(part):
+        quoted=False;escaped=False
+        for char in part:
+            if escaped:escaped=False;continue
+            if char in ('\\','_','*'):escaped=True;continue
+            if char=='"':quoted=not quoted;continue
+            if char=='%' and not quoted:return True
+        return False
+    if any(re.search(r'\[[^]]*[<>=][^]]*\]',part) for part in sections):
+        return None if any(has_percent(part) for part in sections) else False
+    active=sections[2] if value==0 and len(sections)>2 else sections[1] if value<0 and len(sections)>1 else sections[0]
+    return has_percent(active)
 
 def stock(data):
     name=str(data.get('name','')).lower()
@@ -24,9 +49,21 @@ def stock(data):
     for s in wb:
         if (s.max_row or 0)>20001 or (s.max_column or 0)>200: raise ValueError(f'{s.title}: limit is 20,000 rows and 200 columns.')
         rows=[]
-        for index,row in enumerate(s.iter_rows(values_only=True)):
+        for index,row in enumerate(s.iter_rows()):
             if index>=20001 or len(row)>200: raise ValueError(f'{s.title}: limit is 20,000 rows and 200 columns.')
-            rows.append([v if isinstance(v,(str,int,float,bool)) or v is None else str(v) for v in row])
+            values=[]
+            for cell in row:
+                v=cell.value
+                # A formatted percentage has explicit units; preserve them for the
+                # import preview instead of losing the format with values_only.
+                if isinstance(v,(int,float)) and not isinstance(v,bool):
+                    formatted=percent_format(cell.number_format,v)
+                    if formatted is None:v='Ambiguous Excel percentage format; enter an explicit percentage'
+                    elif formatted:
+                        pct=Decimal(str(v))*100
+                        v=format(pct.normalize(),'f')+'%'
+                values.append(v if isinstance(v,(str,int,float,bool)) or v is None else str(v))
+            rows.append(values)
         sheets.append({'name':s.title,'rows':rows})
     wb.close()
     return {'sheets':sheets}

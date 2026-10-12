@@ -1,4 +1,4 @@
-import {orderTotal,paymentTermsSummary,paymentSchedule,issueReadiness,approvedSpec,formatMoney} from '../shared/domain.mjs';
+import {orderTotal,paymentTermsSummary,paymentSchedule,issueReadiness,amendmentReadiness,approvedSpec,formatMoney} from '../shared/domain.mjs';
 
 export const REVIEW_ACTIONS=Object.freeze({
  'submit-po':['SUBMIT_ORDER','Review and submit purchase order','Submit for approval'],
@@ -18,12 +18,12 @@ export function approvalReviewCommand(d,form){
  if(!entry)throw new Error('Unknown approval review.');
  if(!form.has('reviewConfirmed'))throw new Error('Review the details and confirm before continuing.');
  let type=entry[0],payload={orderId:d.id};
- if(['approve-po','approve-pi'].includes(d.approvalAction)){
+ if(['approve-po','approve-pi','approve-amendment'].includes(d.approvalAction)){
   if(!['APPROVE','RETURN'].includes(form.get('decision')))throw new Error('Choose approve or return for correction.');
   if(form.get('decision')==='RETURN'){
    const remarks=String(form.get('remarks')||'').trim();
    if(!remarks)throw new Error('Enter a reason for returning this document.');
-   type=d.approvalAction==='approve-po'?'RETURN_ORDER':'RETURN_PI';payload.remarks=remarks;
+   type=({'approve-po':'RETURN_ORDER','approve-pi':'RETURN_PI','approve-amendment':'RETURN_AMENDMENT'})[d.approvalAction];payload.remarks=remarks;
   }
  }
  if(type==='AUTHORIZE_PAYMENT')Object.assign(payload,{termIndex:Number(d.term),shipmentId:d.shipment||null});
@@ -39,7 +39,7 @@ export function approvalReviewModal(state,d,{esc,kv,field,checkbox,note,button})
  const files=x=>[...new Set([...(x?.fileIds||[]),x?.fileId].filter(Boolean))].map(id=>{const f=state.files.find(x=>x.id===id);return f?button('Preview '+f.name,'preview-review-file',{file:id},'small')+button('Download','file',{file:id},'small ghost'):note('Evidence file unavailable.','warn');}).join('');
  const terms=t=>{const summary=paymentTermsSummary(t);return `<h3>Payment terms</h3>${t?.name&&t.name!==summary?`<p>${esc(t.name)}</p>`:''}<p>${esc(summary)}</p>`;};
  const lines=(rows,currency)=>`<div class="table-wrap" role="region" aria-label="Order items for review" tabindex="0"><table><thead><tr><th>Item / category</th><th>Brand / specification</th><th>Quantity</th><th>Unit price</th><th>Amount</th></tr></thead><tbody>${rows.map(l=>{const b=state.bases.find(x=>x.id===l.baseId),spec=approvedSpec(state,l.baseId,l.specId);return `<tr><td><b>${esc(l.code)}</b><div>${esc(l.name)}</div><small>${esc(b?.category||'Uncategorised')}</small></td><td>${esc(l.brand)}<div>${esc(spec?.version||'PLM unavailable')}</div></td><td>${l.quantity}</td><td>${formatMoney(l.unitPriceMinor,currency)}</td><td>${formatMoney(l.quantity*l.unitPriceMinor,currency)}</td></tr>`;}).join('')}</tbody></table></div>`;
- let body='';
+ let body='',approvalBlocked=false;
  if(o){
   const v=state.vendors.find(x=>x.id===o.vendorId);
   body=`<div class="kv-grid">${kv('Supplier',esc(v?.name||''))}${kv('PO / revision',esc(o.number)+' / '+o.revision)}${kv('Purchase owner',esc(state.users.find(x=>x.id===o.buyerId)?.name||''))}${kv('Order total',formatMoney(orderTotal(o),o.currency))}${kv('Required India-port date',esc(o.requestedPortDate||'Not entered'))}${kv('Supplier production days',esc(o.productionDays))}${kv('Total planned days to India port',esc(o.planningTat||'Not entered'))}${kv('Route',esc(state.routes.find(x=>x.id===o.routeId)?.name||'Not selected'))}${kv('Payment method / trade term',esc(o.paymentMethod)+' / '+esc(o.incoterm||''))}${kv('Planning basis',esc(o.planningMode||'Previously recorded total'))}${kv('Planning override reason',esc(o.planningOverrideReason||'None'))}${kv('Production override reason',esc(o.productionOverrideReason||'None'))}${kv('Cost centre / warehouse',esc(o.costCenter||'Not set')+' / '+esc(o.warehouse||'Not set'))}${kv('Channel / demand reference',esc(o.channel||'Not set')+' / '+esc(o.demandReference||'Not set'))}</div>${terms(o.paymentTerms)}${lines(o.lines,o.currency)}<h3>Commercial remarks</h3><p class="spec-text">${esc(o.notes||'None')}</p>`;
@@ -54,7 +54,9 @@ export function approvalReviewModal(state,d,{esc,kv,field,checkbox,note,button})
   }
   if(d.approvalAction==='approve-amendment'){
    const a=o.amendment;if(!a)throw new Error('No revision is pending.');
-   body+=`<h3>Proposed revision</h3><p>${esc(a.reason)}</p>${lines(a.lines,o.currency)}${terms(a.paymentTerms)}${note('Approval issues a new revision and requires renewed supplier acknowledgement and PI verification.','warn')}`;
+   body+=`<h3>Proposed revision</h3><p>${esc(a.reason)}</p>${lines(a.lines,o.currency)}${terms(a.paymentTerms)}<h3>Proposed technical and brand requirements</h3>${a.lines.map(l=>{const current=o.lines.find(x=>x.id===l.id),spec=approvedSpec(state,l.baseId,l.specId);return `<details open><summary>${esc(l.code)} — proposed requirements</summary><h4>Current brand / artwork requirements</h4><pre class="spec-text">${esc(current?.artworkNotes||'No additional brand requirements.')}</pre><h4>Proposed brand / artwork requirements</h4><pre class="spec-text">${esc(l.artworkNotes||'No additional brand requirements.')}</pre><h4>Proposed technical specification · ${esc(spec?.version||'PLM unavailable')}</h4><pre class="spec-text">${esc(spec?.description||'No approved PLM specification. This remains a visible warning.')}</pre><dl>${Object.entries(spec?.fieldValues||{}).map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl>${files(spec)}</details>`;}).join('')}${note('Approval issues a new revision and requires renewed supplier acknowledgement and PI verification.','warn')}`;
+   const gaps=[...amendmentReadiness(state,o,a),...issueReadiness(state,{...o,lines:a.lines,priceConversion:a.priceConversion??o.priceConversion,paymentTerms:a.paymentTerms})];
+   if(gaps.length){approvalBlocked=true;body+=note('Approval is blocked by the current order state: '+gaps.map(esc).join('; ')+'. Return this proposal for correction to prepare a new revision.','warn');}
   }
   if(d.approvalAction==='authorize-payment'){
    const m=paymentSchedule(state,o).find(x=>x.index===Number(d.term)&&(x.shipmentId||'')===(d.shipment||''));if(!m)throw new Error('Payment milestone is no longer available.');
@@ -70,8 +72,8 @@ export function approvalReviewModal(state,d,{esc,kv,field,checkbox,note,button})
   body=`<h3>${esc(item.code)} · ${esc(item.name)}</h3><p>${esc(item.brand)}</p><pre class="spec-text">${esc(a===item?item.artworkNotes||Object.entries(item.brandDelta||{}).map(([k,v])=>k+': '+v).join('\n'):a.description||a.remarks||'No additional remarks recorded.')}</pre>${files(a)}`;
  }else throw new Error('Review record unavailable. Close and refresh.');
  body+='<div id="approval-document-preview" aria-live="polite"></div><div class="gap"></div>';
- const choose=['approve-po','approve-pi'].includes(d.approvalAction);
- if(choose)body+=field('decision','Decision','','select',{required:true,options:[{value:'',label:'Select a decision'},{value:'APPROVE',label:entry[2]},{value:'RETURN',label:'Return for correction'}]})+field('remarks','Reason if returning for correction','','textarea');
+ const choose=['approve-po','approve-pi','approve-amendment'].includes(d.approvalAction);
+ if(choose)body+=field('decision','Decision','','select',{required:true,options:[{value:'',label:'Select a decision'},...(!approvalBlocked?[{value:'APPROVE',label:entry[2]}]:[]),{value:'RETURN',label:'Return for correction'}]})+field('remarks','Reason if returning for correction','','textarea');
  body+=checkbox('reviewConfirmed','I have reviewed these details and the supporting documents.');
  return {title:entry[1],sub:o?.number||base?.code||item?.code,body,wide:true,submit:choose?'Confirm decision':entry[2]};
 }

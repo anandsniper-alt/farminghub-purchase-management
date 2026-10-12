@@ -1117,3 +1117,31 @@ Website publication is explicitly authorized, but requires current access and th
 ## Removal of trial pages - 2026-10-12
 User requested removal of both Alagesh and Sample module trials. Restored the prior application navigation and removed both display-only routes. Supersedes DEC-131 / WF-126 and the sample module trial. Nine navigation tests and the standalone review build passed. User explicitly waived backup for this small trial cleanup. Publication is pending live verification.
 
+
+
+## WF-127 — Recoverable purchasing, payment and stock corrections (DEC-132)
+
+2026-10-12, local candidate. An amendment approver sees current/proposed requirements and can return a proposal that no longer fits reservations, dispatch or payments. Against-BL payments wait for the final BL record. After all original payments have supplier receipts, an authorized manager can settle a measured shortfall with a reason and bounded amount. Existing bank records remain visible.
+
+Stock entry distinguishes physical total from additional delivery and previews the resulting balance. Earlier postings cannot silently replace later stock. A manager must explicitly reconcile a delivery against a recorded physical count, with a reason; PO receipt corrections retain the original acknowledgment. Supplier changes protect entered quantities/rates; production completion previews the selected quantity's actual deductions. Monthly plan drafts have a clear submit-for-approval action.
+
+When a purchase save response is uncertain, the screen checks the stable request receipt before retrying. Wrong-account sign-in does not replace the current session. User creation recovers the original committed account. Test records stay visible in history but are excluded from business totals; this does not renumber or remove transactions. Local and live status are maintained in [audit repairs](AUDIT_REPAIRS_2026-10-12.md).
+
+
+## Recovered loading-planner decisions — publication continuation, 2026-10-12
+
+The following previously private candidate records retain their original IDs and authorization boundaries. The later publish-all instruction under DEC-133 supersedes their no-deployment boundary for the integrated, verified application code.
+
+## WF-124 — Review container space before loading (DEC-129)
+2026-10-11. Loading → saved plan/RO → 3D load planner → choose equipment → review outer package dimensions and packing rules → calculate → compare sizes → inspect remaining units and package sequence → save browser draft or download layout → return to the current loading flow. Changes to a scenario do not load goods, reserve extra quantity, reassign a PO, alter a booking or update an item master. Missing quantities and physical inputs must remain visible. Actual loading continues through the existing domain commands.
+
+
+## WF-125 — Import and review packing lists (DEC-130)
+2026-10-12. Loading → saved plan → 3D load planner → Import packing list → choose XLSX/CSV or historical library → review sheet/columns, units and source → choose original PO item → select records → acknowledge packing and explain different mappings → apply scenario details → confirm weights/stacking → calculate → save browser draft. An original PDF may select its extracted historical rows after the library is loaded. Unknown PDF layouts require verified template rows. Original PO quantities, reservations, payments and shipment status do not change.
+
+
+## WF-128 — Whole-form Product group and verified publication (DEC-133)
+
+Create/edit PO → choose supplier → Order details Product group (All product groups by default) → filter catalogue and new item choices → retain entered mixed-category lines → save all original selected values. Search combines with the filter; reset broadens choices; supplier-change cancellation preserves the draft. This extends per-item categories, not the order's commercial classification.
+
+Publication combines audited workflow repairs and the bounded planner/import screens. Fresh matching-source recovery and isolated restore precede publication; actual protected data refresh follows verified code and guarded APIs. See [publication record](PUBLICATION_2026-10-12.md).

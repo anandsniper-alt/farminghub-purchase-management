@@ -4,16 +4,17 @@ export const procurementState=s=>s.procurement||{events:[],quotes:[]};
 export function orderProgress(s,id,today=new Date().toISOString().slice(0,10)){
  const po=s.orders.find(p=>p.id===id);if(!po)throw Error('Purchase order not found.');
  const events=procurementState(s).events.filter(e=>e.poId===id);let status='DRAFT',delivery=po.delivery||'',acknowledged={};
- for(const e of events){if(e.type==='APPROVE')status='APPROVED';if(e.type==='ISSUE')status='ISSUED';if(e.type==='SCHEDULE')delivery=e.delivery;if(e.type==='CANCEL')status='CANCELLED';if(e.type==='CLOSE')status='CLOSED';if(e.type==='ACKNOWLEDGE'){for(const l of e.lines)acknowledged[l.key]=round((acknowledged[l.key]||0)+l.qty,3);status='PART_DELIVERED';}}
+ for(const e of events){if(e.type==='APPROVE')status='APPROVED';if(e.type==='ISSUE')status='ISSUED';if(e.type==='SCHEDULE')delivery=e.delivery;if(e.type==='CANCEL')status='CANCELLED';if(e.type==='CLOSE')status='CLOSED';if(e.type==='ACKNOWLEDGE'){for(const l of e.lines)acknowledged[l.key]=round((acknowledged[l.key]||0)+l.qty,3);status='PART_DELIVERED';}if(e.type==='CORRECT_ACKNOWLEDGMENT')for(const l of e.deltas)acknowledged[l.key]=round((acknowledged[l.key]||0)+l.delta,3);}
  const lines=po.lines.map(l=>({...l,acknowledged:acknowledged[l.key]||0,outstanding:round(l.orderQty-(acknowledged[l.key]||0),3)}));
- if(status==='PART_DELIVERED'&&lines.every(l=>l.outstanding===0))status='DELIVERED';
+ if(status==='PART_DELIVERED'&&lines.every(l=>l.acknowledged===0))status='ISSUED';
+ else if(status==='PART_DELIVERED'&&lines.every(l=>l.outstanding===0))status='DELIVERED';
  const open=['ISSUED','PART_DELIVERED'].includes(status);return {po,status,delivery,lines,events,overdue:open&&!!delivery&&delivery<today};
 }
 export function applyOrderEvent(s,input,{actor={id:'review',name:'Reviewer',role:'ADMIN'},at=new Date().toISOString()}={}){
  const x=procurementState(s);if(x.events.length>=10000)throw Error('PO history limit reached. Contact the administrator.');
  if(x.events.some(e=>e.id===input.id))throw Error('Acknowledgment/action identity already exists.');
  const p=orderProgress(s,input.poId),manager=['ADMIN','MANAGER'].includes(actor.role),type=input.type;
- if(['APPROVE','CANCEL','CLOSE'].includes(type)&&!manager)throw Error('A manager must approve, cancel or close a PO.');
+ if(['APPROVE','CANCEL','CLOSE','CORRECT_ACKNOWLEDGMENT'].includes(type)&&!manager)throw Error('A manager must approve, cancel, close or correct a PO acknowledgment.');
  const e={id:text(input.id,'Action identity',120),poId:p.po.id,type,date:validDate(input.date),reason:text(input.reason,'Reason'),at,by:{id:actor.id,name:actor.name,role:actor.role}};
  if(e.date<p.po.date||e.date>new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Calcutta',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(at)))throw Error('Posting date must be between the PO date and today.');
  if(p.events.length&&e.date<p.events.at(-1).date)throw Error('Posting date cannot precede the last PO action.');
@@ -22,10 +23,29 @@ export function applyOrderEvent(s,input,{actor={id:'review',name:'Reviewer',role
  else if(type==='SCHEDULE'){if(!['APPROVED','ISSUED','PART_DELIVERED'].includes(p.status))throw Error('This PO cannot be rescheduled.');e.delivery=validDate(input.delivery);if(e.delivery<e.date)throw Error('Expected delivery cannot precede posting.');}
  else if(type==='ACKNOWLEDGE'){
   if(!['ISSUED','PART_DELIVERED'].includes(p.status))throw Error('Issue the PO before acknowledging delivery.');e.reference=text(input.reference,'Delivery acknowledgment reference',120);
+  if(input.stockNotIncludedInCount!==undefined&&typeof input.stockNotIncludedInCount!=='boolean')throw Error('Stock count reconciliation choice must be explicit.');
+  if(input.stockAlreadyReconciled!==undefined&&typeof input.stockAlreadyReconciled!=='boolean')throw Error('Stock reconciliation choice must be explicit.');
+  if(input.stockNotIncludedInCount&&input.stockAlreadyReconciled)throw Error('Choose one stock count reconciliation outcome for this delivery.');
+  if(input.stockNotIncludedInCount||input.stockAlreadyReconciled){if(!manager)throw Error('A manager must confirm how the delivery relates to the physical count.');if(input.stockNotIncludedInCount)e.stockNotIncludedInCount=true;if(input.stockAlreadyReconciled)e.stockAlreadyReconciled=true;e.reconciliationReason=text(input.reconciliationReason,'Stock count reconciliation reason');}
+  else if(input.reconciliationReason)throw Error('A reconciliation reason requires stock count reconciliation.');
   if(x.events.some(v=>v.type==='ACKNOWLEDGE'&&v.poId===e.poId&&v.reference===e.reference))throw Error('This delivery reference has already been acknowledged for this PO.');
   if(!Array.isArray(input.lines)||!input.lines.length||input.lines.length>1000)throw Error('Enter delivered quantities.');const keys=new Set();
   e.lines=input.lines.map(l=>{const row=p.lines.find(r=>r.key===l.key);if(!row||keys.has(l.key))throw Error('Unknown or duplicate delivery item.');keys.add(l.key);const qty=quantity(l.qty,'Delivered quantity',row);if(qty<=0||qty>row.outstanding)throw Error('Delivered quantity must be positive and no greater than the outstanding quantity.');return {key:l.key,qty};});
-  for(const l of e.lines){const before=s.stock[l.key]?.qty||0;s.stock[l.key]={...(s.stock[l.key]||{}),qty:number(round(before+l.qty,3),'Stock balance'),asOf:e.date,source:'PO acknowledgment: '+e.poId+' / '+e.reference};}s.stockAsOf=e.date;
+  if(!e.stockAlreadyReconciled){for(const l of e.lines){const prior=s.stock[l.key],before=prior?.qty||0;if(prior?.asOf&&e.date<prior.asOf)throw Error(`Delivery dated ${e.date} precedes the latest stock posting for ${l.key} on ${prior.asOf}. Reconcile the newer physical count before acknowledging this delivery.`);s.stock[l.key]={...prior,qty:number(round(before+l.qty,3),'Stock balance'),asOf:e.date,source:'PO acknowledgment: '+e.poId+' / '+e.reference};}s.stockAsOf=[s.stockAsOf||'',e.date].sort().at(-1);}
+ }else if(type==='CORRECT_ACKNOWLEDGMENT'){
+  const basis=p.events.find(v=>v.id===input.correctionOf&&['ACKNOWLEDGE','CORRECT_ACKNOWLEDGMENT'].includes(v.type));
+  if(!basis)throw Error('Choose an acknowledgment or its latest correction on this PO.');
+  if(p.events.some(v=>v.type==='CORRECT_ACKNOWLEDGMENT'&&v.correctionOf===basis.id))throw Error('This receipt has a newer correction. Reload and correct the latest effective receipt.');
+  let original=basis;const byId=new Map(p.events.map(v=>[v.id,v])),seenChain=new Set();
+  while(original.type==='CORRECT_ACKNOWLEDGMENT'){if(seenChain.has(original.id))throw Error('Receipt correction history is invalid. Reload and review.');seenChain.add(original.id);original=byId.get(original.correctionOf);if(!original)throw Error('Receipt correction history is incomplete. Reload and review.');}
+  if(original.type!=='ACKNOWLEDGE')throw Error('Receipt correction history is invalid. Reload and review.');
+  if(!Array.isArray(input.lines)||input.lines.length!==basis.lines.length)throw Error('Enter a corrected quantity for every item in the latest receipt.');
+  const basisByKey=new Map(basis.lines.map(l=>[l.key,l])),seen=new Set();e.lines=input.lines.map(l=>{if(!basisByKey.has(l.key)||seen.has(l.key))throw Error('Correction items must match the latest receipt exactly.');seen.add(l.key);const row=p.lines.find(v=>v.key===l.key),qty=quantity(l.qty,'Corrected delivered quantity',row);const delta=round(qty-basisByKey.get(l.key).qty,3);if(qty<0||round(row.acknowledged+delta,3)<0||round(row.acknowledged+delta,3)>row.orderQty)throw Error('Corrected quantity must leave total delivery between zero and the PO quantity.');return {key:l.key,qty};});
+  e.deltas=e.lines.map(l=>({key:l.key,delta:round(l.qty-basisByKey.get(l.key).qty,3)}));if(e.deltas.every(l=>l.delta===0))throw Error('Enter a quantity different from the latest receipt.');
+  if(input.stockAlreadyReconciled!==undefined&&typeof input.stockAlreadyReconciled!=='boolean')throw Error('Stock reconciliation choice must be explicit.');
+  e.correctionOf=basis.id;e.reference=original.reference;e.stockAlreadyReconciled=input.stockAlreadyReconciled===true;
+  if(basis.stockAlreadyReconciled&&!e.stockAlreadyReconciled)throw Error('The latest receipt was already reconciled to a physical count. Correct its PO quantity without changing that counted stock.');
+  if(!e.stockAlreadyReconciled){for(const l of e.deltas){const prior=s.stock[l.key],before=prior?.qty||0;if(prior?.asOf&&e.date<prior.asOf)throw Error(`Correction dated ${e.date} precedes the latest stock posting for ${l.key} on ${prior.asOf}. Reconcile the newer movement first.`);const after=round(before+l.delta,3);if(after<0)throw Error('Correction would make stock negative. Record a current physical count and review the intervening use before correcting this acknowledgment.');s.stock[l.key]={...prior,qty:number(after,'Stock balance'),asOf:e.date,source:'PO acknowledgment correction: '+e.poId+' / '+e.reference};}s.stockAsOf=[s.stockAsOf||'',e.date].sort().at(-1);}
  }else if(type==='CANCEL'){if(['CLOSED','CANCELLED','DELIVERED'].includes(p.status)||p.lines.some(l=>l.acknowledged>0))throw Error('Delivered POs cannot be cancelled. Close a partially delivered PO with a reason.');}
  else if(type==='CLOSE'){if(!['DELIVERED','PART_DELIVERED'].includes(p.status))throw Error('Only delivered or partially delivered POs can be closed.');}
  else throw Error('Unknown PO action.');
@@ -52,6 +72,6 @@ export function validateProcurementTransition(before,after,actor){
  if(next.events.length-old.events.length>1||next.quotes.length-old.quotes.length>1)throw Error('Save one procurement action at a time.');
  for(const entry of [...next.events.slice(old.events.length),...next.quotes.slice(old.quotes.length)])if(!Number.isFinite(Date.parse(entry.at))||Math.abs(Date.now()-Date.parse(entry.at))>300000)throw Error('Action timestamp expired. Reload before saving.');
  const replay=clone(before);for(const q of next.quotes.slice(old.quotes.length)){const expected=addSupplierQuote(replay,q,{at:q.at,by:{id:actor.id,name:actor.name,role:actor.role}});if(JSON.stringify(expected)!==JSON.stringify(q))throw Error('Quotation values or actor do not reconcile.');}
- for(const e of next.events.slice(old.events.length)){const expected=applyOrderEvent(replay,e,{actor,at:e.at});if(JSON.stringify(expected)!==JSON.stringify(e))throw Error('PO action values or actor do not reconcile.');if(e.type==='ACKNOWLEDGE'&&(JSON.stringify(replay.stock)!==JSON.stringify(after.stock)||replay.stockAsOf!==after.stockAsOf))throw Error('Acknowledgment stock must match delivered quantities exactly.');}
+ for(const e of next.events.slice(old.events.length)){const expected=applyOrderEvent(replay,e,{actor,at:e.at});if(JSON.stringify(expected)!==JSON.stringify(e))throw Error('PO action values or actor do not reconcile.');if(['ACKNOWLEDGE','CORRECT_ACKNOWLEDGMENT'].includes(e.type)&&(JSON.stringify(replay.stock)!==JSON.stringify(after.stock)||replay.stockAsOf!==after.stockAsOf))throw Error('Acknowledgment stock must match delivered quantities exactly.');}
  return after;
 }

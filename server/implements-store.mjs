@@ -1,6 +1,6 @@
 import {validateProcurementTransition} from '../shared/implements/procurement.mjs';
 import {createHash} from 'node:crypto';
-import {blankState,validateState,ensureMonthly,createOrders} from '../shared/implements/domain.mjs';
+import {blankState,validateState,ensureMonthly,createOrders,validDate} from '../shared/implements/domain.mjs';
 import {validateSalesState,netMargin} from '../shared/implements/sales-pricing.mjs';
 import {calculateModelCost} from '../shared/implements/costing.mjs';
 import {RuleError,scopeAllowed,canCreate} from '../shared/domain.mjs';
@@ -59,8 +59,47 @@ export class ImplementsStore{
    if(technical){if(initial)fail('Initialize the Implements workspace before technical review.');try{assertTechnicalOnly(previous,next);}catch(error){fail(error.message);}}
    if(initial&&(next.procurement?.events?.length||next.procurement?.quotes?.length))fail('Initialize the workspace before recording procurement history.');
    if(initial&&actor.role!=='ADMIN')fail('An administrator must import the reviewed workspace first.','FORBIDDEN');
+   const correction=(next.procurement?.events||[]).slice(previous.procurement?.events?.length||0).find(e=>e.type==='CORRECT_ACKNOWLEDGMENT');
    if(!initial){
     try{validateProcurementTransition(previous,next,actor);}catch(e){fail(e.message);}
+    const acknowledgment=(next.procurement?.events||[]).slice(previous.procurement?.events?.length||0).find(e=>e.type==='ACKNOWLEDGE');
+    if(acknowledgment){
+     const ledgerExists=!!this.db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='production_stock_movements'").get();
+     for(const line of acknowledgment.lines){
+      const count=ledgerExists?this.db.prepare("SELECT payload FROM production_stock_movements WHERE item_key=? AND json_extract(payload,'$.type') IN ('ADJUST_STOCK','PURCHASE_STOCK_UPDATE') AND json_extract(payload,'$.date')>=? ORDER BY sequence DESC LIMIT 1").get(line.key,acknowledgment.date):null;
+      const posted=count?JSON.parse(count.payload):null;
+      if(acknowledgment.stockAlreadyReconciled){if(!posted)fail(`No physical count on or after ${acknowledgment.date} was found for ${line.key}. Record and review a current count before marking this delivery already included.`);continue;}
+      if(posted?.date>acknowledgment.date)fail(`Delivery dated ${acknowledgment.date} precedes a physical count for ${line.key} on ${posted.date}. Reconcile that later count before acknowledging this delivery.`);
+      if(posted?.date===acknowledgment.date&&!acknowledgment.stockNotIncludedInCount)fail(`A physical count for ${line.key} was saved on ${posted.date}. It may already include this delivery. A manager must review the count and confirm with a reason if the delivery arrived afterward.`);
+      if(acknowledgment.stockNotIncludedInCount&&!posted)fail(`No same-day physical count was found for ${line.key}. Remove the count reconciliation confirmation and acknowledge the delivery normally.`);
+     }
+    }
+    if(correction){
+     const events=previous.procurement?.events||[],byId=new Map(events.map(e=>[e.id,e])),basis=byId.get(correction.correctionOf);
+     if(!basis||!['ACKNOWLEDGE','CORRECT_ACKNOWLEDGMENT'].includes(basis.type))fail('Latest receipt is missing. Reload and review.');
+     const chain=[],seenChain=new Set();let entry=basis;while(entry){if(seenChain.has(entry.id))fail('Receipt correction history is invalid. Reload and review.');seenChain.add(entry.id);chain.push(entry);if(entry.type==='ACKNOWLEDGE')break;entry=byId.get(entry.correctionOf);}
+     const original=chain.at(-1);if(original?.type!=='ACKNOWLEDGE')fail('Receipt correction history is incomplete. Reload and review.');
+     const ledgerExists=!!this.db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='production_stock_movements'").get();
+     for(const line of correction.deltas.filter(l=>l.delta!==0)){
+      // Locate the last stock-changing event for this item, skipping earlier
+      // zero-delta corrections; a count for one line never covers another.
+      let lastMovement=null;if(ledgerExists)for(const prior of chain){lastMovement=this.db.prepare("SELECT sequence FROM production_stock_movements WHERE item_key=? AND json_extract(payload,'$.eventId')=? AND json_extract(payload,'$.delta')!=0 ORDER BY sequence DESC LIMIT 1").get(line.key,prior.id);if(lastMovement)break;}
+      const count=!ledgerExists?null:lastMovement?this.db.prepare("SELECT payload FROM production_stock_movements WHERE item_key=? AND sequence>? AND json_extract(payload,'$.type') IN ('ADJUST_STOCK','PURCHASE_STOCK_UPDATE') ORDER BY sequence DESC LIMIT 1").get(line.key,lastMovement.sequence):original.stockAlreadyReconciled?this.db.prepare("SELECT payload FROM production_stock_movements WHERE item_key=? AND json_extract(payload,'$.type') IN ('ADJUST_STOCK','PURCHASE_STOCK_UPDATE') AND json_extract(payload,'$.date')>=? ORDER BY sequence DESC LIMIT 1").get(line.key,original.date):this.db.prepare("SELECT payload FROM production_stock_movements WHERE item_key=? AND json_extract(payload,'$.type') IN ('ADJUST_STOCK','PURCHASE_STOCK_UPDATE') AND json_extract(payload,'$.at')>? ORDER BY sequence DESC LIMIT 1").get(line.key,original.at);
+      if(correction.stockAlreadyReconciled&&!count)fail(`No later saved physical count was found for ${line.key}. Leave stock reconciliation unchecked so this correction adjusts stock, or save a reviewed current count first.`);
+      if(!correction.stockAlreadyReconciled&&count){const posted=JSON.parse(count.payload);fail(`A physical count for ${line.key} was saved on ${posted.date} after the latest stock-changing receipt. Review that count and mark stock already reconciled when correcting the PO so stock is not adjusted twice.`);}
+     }
+    }
+    for(const key of Object.keys(previous.stock||{}))if(!Object.hasOwn(next.stock,key))fail(`Existing stock item ${key} cannot be removed. Record a current physical count to reconcile its balance.`);
+    const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Calcutta',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+    const stockLedgerExists=!!this.db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='production_stock_movements'").get();
+    for(const [key,entry] of Object.entries(next.stock||{})){const prior=previous.stock?.[key];if(equal(prior,entry))continue;
+     // Older workspaces may introduce a previously absent undated balance. Keep
+     // that one-time import compatible; its ledger entry receives today's date.
+     if(!entry.asOf&&prior===undefined)continue;
+     try{validDate(entry.asOf,'Stock posting date');}catch{fail(`Stock posting for ${key} needs a valid calendar date.`);}if(entry.asOf>today)fail(`Stock posting for ${key} cannot be future-dated.`);
+     const latest=stockLedgerExists?this.db.prepare("SELECT max(json_extract(payload,'$.date')) date FROM production_stock_movements WHERE item_key=?").get(key)?.date:null;
+     const watermark=[prior?.asOf||'',latest||''].sort().at(-1);if(watermark&&entry.asOf<watermark)fail(`Stock posting for ${key} cannot precede its latest posting on ${watermark}. Use a current count date or reconcile the intervening movement.`);
+    }
     prefix(previous.orders,next.orders,'Purchase order');prefix(previous.priceImports,next.priceImports,'Price import');prefix(previous.supplierHistory,next.supplierHistory||[],'Supplier');
     prefix(previous.sales?.lists,next.sales?.lists||[],'Sales price list');prefix(previous.sales?.activationHistory,next.sales?.activationHistory||[],'Current price list');
     for(const key of ['models','parts','suppliers'])for(const old of previous[key]){
@@ -85,9 +124,13 @@ export class ImplementsStore{
    }
    const at=new Date().toISOString();next.revision=previous.revision+1;
    if(!inventory&&this.db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='production_stock_movements'").get())for(const key of new Set([...Object.keys(previous.stock||{}),...Object.keys(next.stock||{})])){
-    const before=previous.stock[key]?.qty??null,after=next.stock[key]?.qty??null;if(before===after)continue;
-    this.db.prepare('INSERT INTO production_stock_movements(item_key,payload) VALUES(?,?)').run(key,JSON.stringify({key,before,after,delta:(after||0)-(before||0),type:(next.procurement?.events||[]).slice(previous.procurement?.events?.length||0).some(e=>e.type==='ACKNOWLEDGE'&&e.lines.some(l=>l.key===key))?'PO_ACKNOWLEDGMENT':'PURCHASE_STOCK_UPDATE',reference:(next.procurement?.events||[]).slice(previous.procurement?.events?.length||0).find(e=>e.type==='ACKNOWLEDGE'&&e.lines.some(l=>l.key===key))?.poId||'Implements revision '+next.revision,date:at.slice(0,10),at,by:{id:actor.id,name:actor.name},reason:'Stock updated through purchasing; source audit retained in purchasing.'}));
+    const before=previous.stock[key]?.qty??null,after=next.stock[key]?.qty??null;if(equal(previous.stock[key],next.stock[key]))continue;
+    const poEvent=(next.procurement?.events||[]).slice(previous.procurement?.events?.length||0).find(e=>['ACKNOWLEDGE','CORRECT_ACKNOWLEDGMENT'].includes(e.type)&&e.lines.some(l=>l.key===key));
+    this.db.prepare('INSERT INTO production_stock_movements(item_key,payload) VALUES(?,?)').run(key,JSON.stringify({key,before,after,delta:(after||0)-(before||0),type:poEvent?.type==='ACKNOWLEDGE'?'PO_ACKNOWLEDGMENT':poEvent?.type==='CORRECT_ACKNOWLEDGMENT'?'PO_ACKNOWLEDGMENT_CORRECTION':'PURCHASE_STOCK_UPDATE',reference:poEvent?.poId||'Implements revision '+next.revision,eventId:poEvent?.id||null,date:next.stock[key]?.asOf||at.slice(0,10),at,by:{id:actor.id,name:actor.name},reason:poEvent?.reason||'Stock updated through purchasing; source audit retained in purchasing.',...(poEvent?.correctionOf?{correctionOf:poEvent.correctionOf}:{})}));
    }
+   if(correction?.stockAlreadyReconciled&&this.db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='production_stock_movements'").get())for(const line of correction.deltas.filter(l=>l.delta!==0))this.db.prepare('INSERT INTO production_stock_movements(item_key,payload) VALUES(?,?)').run(line.key,JSON.stringify({key:line.key,before:previous.stock[line.key]?.qty??0,after:next.stock[line.key]?.qty??0,delta:0,poDelta:line.delta,type:'PO_ACKNOWLEDGMENT_CORRECTION',reference:correction.poId,eventId:correction.id,correctionOf:correction.correctionOf,date:correction.date,at,by:{id:actor.id,name:actor.name},reason:correction.reason,stockAlreadyReconciled:true}));
+   const acknowledgment=(next.procurement?.events||[]).slice(previous.procurement?.events?.length||0).find(e=>e.type==='ACKNOWLEDGE');
+   if(acknowledgment?.stockAlreadyReconciled&&this.db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='production_stock_movements'").get())for(const line of acknowledgment.lines)this.db.prepare('INSERT INTO production_stock_movements(item_key,payload) VALUES(?,?)').run(line.key,JSON.stringify({key:line.key,before:previous.stock[line.key]?.qty??0,after:next.stock[line.key]?.qty??0,delta:0,poQty:line.qty,type:'PO_ACKNOWLEDGMENT',reference:acknowledgment.reference,poId:acknowledgment.poId,eventId:acknowledgment.id,date:acknowledgment.date,at,by:{id:actor.id,name:actor.name},reason:acknowledgment.reason,reconciliationReason:acknowledgment.reconciliationReason,stockAlreadyReconciled:true}));
    next.audit=[...(initial?next.audit:previous.audit),{at,message:input.message,actorId:actor.id,actorName:actor.name,revision:next.revision}];
    this.db.prepare('INSERT INTO implements_events VALUES(?,?,?,?,?,?,?,?,?,?)').run(next.revision,actor.id,at,input.message,JSON.stringify(changes(previous,next)),digest(previous),digest(next),input.requestId,requestDigest,access);
    this.db.prepare('INSERT INTO implements_workspace VALUES(1,?,?) ON CONFLICT(id) DO UPDATE SET revision=excluded.revision,payload=excluded.payload').run(next.revision,JSON.stringify(next));

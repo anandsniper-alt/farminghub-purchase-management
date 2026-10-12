@@ -1,5 +1,9 @@
 # Current product baseline
 
+> **2026-10-12 publication continuation:** User authorized publication of all pending updates. See [integrated scope and live verification](PUBLICATION_2026-10-12.md). Release/data status is recorded there; earlier candidate and historical release statements remain dated evidence.
+
+> **2026-10-12 local candidate:** Audit repairs under DEC-132 / WF-127 implement the final-BL-before-payment policy, explicit test-data classification, approval/stock correctness and recoverable saves. See [repair coverage and verification](AUDIT_REPAIRS_2026-10-12.md). These local changes are not a new live release and do not publish the pending 3D planner, ERP connector or other deferred modules.
+
 > **2026-09-26 reading guide:** this file preserves dated product/release history. Use [Current state](handover/CURRENT_STATE.md) for today's source audit and module classifications, and [the knowledge index](README.md) for ownership. Earlier “live/current/candidate” statements describe their stated dates; latest recorded release is DEC-080/WF-074, not a fresh live check in this audit.
 
 Published 2026-09-12: payment-reference application commit **8c2e303df7765430fb247ee57c56cd9f0ad3c331** is live at https://purchase.dvjassociates.com. Coolify deployment **4n8iiclyxsmdrk1n8ctn4zct** finished; health HTTP 200. Nineteen signed-in live checks passed, including Indian-bank label, optional BOC column/field, mobile modal heading and persistent guide. All three changed runtime assets match the committed build. Business-record, user and approval-control hashes/revision match the pre-release baseline; no live payment or receipt was created. Evidence: ignored test-output/payment-rates-live-report.json and payment-rates-live-mobile.png. DEC-027/028 and WF-021/022 are now published; this supersedes their earlier local-only release notes.

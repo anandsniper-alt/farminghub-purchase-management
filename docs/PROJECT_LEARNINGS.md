@@ -750,3 +750,19 @@ When two chats target the same live application, coordinate one release after ex
 
 2026-10-12: Alagesh and Sample module were temporary live trials; user requested removing both. Existing division/module navigation restored. Keep trial publication and removal status distinct from verified live deployment.
 
+
+
+## 2026-10-12 — Audit repairs (DEC-132 / WF-127)
+
+- Recheck business constraints at approval time, not only when a proposal is prepared. Include shipment reservations, departed lines, payment allocation redistribution and the current supplier document.
+- A count that confirms the existing quantity is still an authoritative count event. Date checks must cover imports, manual posting and crafted save paths; removing a stock row must not reset its chronology.
+- Do not infer delivery membership from a date alone. Require explicit manager reconciliation against recorded counts, retain business date and recording timestamp, and preserve original receipt/correction history.
+- An uncertain HTTP response is not proof of failure. Retain a stable request ID, query its receipt, bound waiting, and keep current-user identity and unsaved form ownership together.
+- Exclude test allocations at allocation level when a remittance includes both real and test records. Deletion and test classification have different financial meanings.
+- Cache read responses only with current authorization and database-generation invalidation. Validate cached edit handles before reuse; a bounded context may be evicted before the response cache expires. Capacity claims require current representative measurements.
+
+## 2026-10-12 — Publication integration
+
+- Treat the original stable item identity as authoritative for packing dimensions. A missing or blank identity must remain pending; a reused catalogue code is not evidence of the same physical item.
+- Bound actual decompressed bytes before retaining file contents, including aggregate work across entries. Test the real reader as well as metadata checks.
+- A product-group choice filter must preserve already selected mixed-group lines, quantities, rates and totals when new choices are narrowed.

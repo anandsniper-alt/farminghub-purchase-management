@@ -10,10 +10,12 @@ const hasDialogChanges=()=>dialogOpen&&(dialogDirty||formSnapshot()!==dialogSnap
 const visible=el=>el.getClientRects().length&&!el.closest('[inert]');
 const focusables=box=>[...box.querySelectorAll('button:not(:disabled),input:not(:disabled):not([type=hidden]),select:not(:disabled),textarea:not(:disabled),a[href],summary,[tabindex="0"]')].filter(visible);
 function labelRegions(root){
+  const assigned=new Set(),prefix='fh-field-'+(root.matches('.modal')?'dialog':'page')+'-';
  for(const [i,field] of [...root.querySelectorAll('.field')].entries()){
   const control=field.querySelector('input,select,textarea'),caption=field.querySelector('label,span');
   if(!control)continue;
-  if(!control.id)control.id='fh-field-'+(root.matches('.modal')?'dialog':'page')+'-'+i;
+   if(!control.id||assigned.has(control.id)||document.querySelectorAll('[id="'+CSS.escape(control.id)+'"]').length>1){let candidate=i;while(assigned.has(prefix+candidate)||document.getElementById(prefix+candidate))candidate++;control.id=prefix+candidate;}
+   assigned.add(control.id);
   if(caption?.tagName==='LABEL')caption.htmlFor=control.id;
   else if(caption&&!control.getAttribute('aria-label')){caption.id=control.id+'-label';control.setAttribute('aria-labelledby',caption.id);}
   const hint=field.querySelector('small');if(hint){hint.id=control.id+'-hint';control.setAttribute('aria-describedby',hint.id);}

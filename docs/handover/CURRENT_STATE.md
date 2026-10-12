@@ -1,5 +1,9 @@
 # Current state — engineering handover
 
+> **2026-10-12 publication continuation:** User authorized publication of all pending updates. See [integrated scope and live verification](../PUBLICATION_2026-10-12.md). Release/data status is recorded there; earlier candidate and historical release statements remain dated evidence.
+
+> **2026-10-12 audit-repair candidate:** [DEC-132 / WF-127 repair report](../AUDIT_REPAIRS_2026-10-12.md) records the current local workflow fixes, confirmed BL/test-data policies, validation and remaining capacity/transport limits. Base source is `0e3e147b1f2fb06ebc56d920c08f66fc830b464a`. No publication or live sample classification is claimed. Earlier dated release/audit statements below remain historical.
+
 **2026-10-08 subsequent user change (DEC-120/WF-115):** mascot launcher/tour disabled globally in the local candidate. UI-09 updated; this supersedes the visible-mascot requirement and the earlier clearance screenshot in the alignment audit. Six module shells, five standalone roles and mobile BOM footer verified; build/startup check passed. Not published.
 
 **2026-10-08 local UI update:** an isolated candidate based on `f20e75d` repairs version-log wrapping, Implements phone/tablet navigation, BOM mobile controls and shared dialog/mascot clearance. See [alignment audit](../UI_ALIGNMENT_AUDIT_2026-10-08.md) for 118 route/viewport checks, standalone verification, 24 passing server tests and explicit limits. Not published; older module classifications below remain historical.

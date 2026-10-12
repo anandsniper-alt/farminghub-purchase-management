@@ -23,7 +23,7 @@ test('review bundle contains its local ESM dependencies and compiles without sym
  const dir=mkdtempSync(join(tmpdir(),'fh-review-contract-'));
  try{const path=join(dir,'bundle.mjs');writeFileSync(path,REVIEW_MODULES.map(p=>stripReviewModule(readFileSync(join(root,p),'utf8'))).join('\n'));execFileSync(process.execPath,['--check',path],{stdio:'pipe'});}finally{rmSync(dir,{recursive:true,force:true});}
 });
-test('every review source is also served as the matching native module',async()=>{
+test('runtime review sources match native modules while private seed sources are not public',async()=>{
  const server=makeServer({});await new Promise(r=>server.listen(0,'127.0.0.1',r));
- try{const origin='http://127.0.0.1:'+server.address().port;for(const file of REVIEW_MODULES){const response=await fetch(origin+'/'+file.replace(/^web\//,''));assert.equal(response.status,200,file);assert.equal(await response.text(),readFileSync(join(root,file),'utf8'),file);}}finally{await new Promise(r=>server.close(r));}
+ try{const origin='http://127.0.0.1:'+server.address().port;for(const file of REVIEW_MODULES){const response=await fetch(origin+'/'+file.replace(/^web\//,''));if(['shared/clean-seed.mjs','shared/final-master-data.mjs'].includes(file)){assert.equal(response.status,404,file);continue;}assert.equal(response.status,200,file);assert.equal(await response.text(),readFileSync(join(root,file),'utf8'),file);}}finally{await new Promise(r=>server.close(r));}
 });

@@ -11,7 +11,7 @@ export function loadingStage(s){
 }
 export function loadingWorkspace(orders){
  const groups=new Map();
- for(const o of orders.filter(o=>!o.deletedAt&&o.scope==='LAE_IMPORT'))for(const s of o.shipments||[]){
+ for(const o of orders.filter(o=>!o.deletedAt&&!o.testData&&o.scope==='LAE_IMPORT'))for(const s of o.shipments||[]){
   // A text reference is not proof that independent historic records belong together.
   const key=s.roGroupId?'ro:'+s.roGroupId:s.loadingPlanId?'plan:'+s.loadingPlanId:'shipment:'+o.id+':'+s.id;
   if(!groups.has(key))groups.set(key,{key,members:[]});

@@ -1216,3 +1216,32 @@ Release exception: user explicitly waived the fresh backup for this small trial 
 ## Removal of trial pages - 2026-10-12
 User requested removal of both Alagesh and Sample module trials. Restored the prior application navigation and removed both display-only routes. Supersedes DEC-131 / WF-126 and the sample module trial. Nine navigation tests and the standalone review build passed. User explicitly waived backup for this small trial cleanup. Publication is pending live verification.
 
+
+
+## DEC-132 — Workflow audit repairs and confirmed payment/test-data policies
+
+2026-10-12. MODULE-SPECIFIC business rules; shared security, recovery and design preservation. **Implemented candidate; publication pending.** The user requested repair of the comprehensive audit for up to ten desktop/laptop users, then explicitly required a recorded final BL before against-BL payment and classification/exclusion of sample PO FH-LAE-I-PO-37 while preserving history and number continuity.
+
+Revalidate current shipment/payment constraints at amendment approval; require the matching approved current PI at dispatch; preserve revocation history; allow a separately authorized, capped residual supplier settlement after all original obligations are reported and acknowledged. Record corrections through append-only events. Chronology and physical-count reconciliation apply across PO receipts, manual receipts and count imports. Test classification excludes only marked records from business aggregates; deleted legitimate obligations remain reportable. Mixed remittances keep their complete original record with business/test portions distinguished.
+
+Alternatives rejected: changing original bank values to hide a shortfall, resetting a number sequence, assuming that a physical count included or excluded a delivery, and clearing a draft after uncertain network success. Server roles, current-state validation, request receipts and existing shared dialogs remain authoritative. HTTP is retained as explicitly requested; no encrypted-management transport claim is made. Full aggregate persistence remains a documented growth limitation despite bounded read optimizations. Detail, evidence and release boundary: [audit repairs](AUDIT_REPAIRS_2026-10-12.md), WF-127. No new schema migration, dependency, pending product module or live-data rewrite is part of this decision.
+
+
+## Recovered loading-planner decisions — publication continuation, 2026-10-12
+
+The following previously private candidate records retain their original IDs and authorization boundaries. The later publish-all instruction under DEC-133 supersedes their no-deployment boundary for the integrated, verified application code.
+
+## DEC-129 — Container space planning on each existing loading plan
+2026-10-11 · MODULE-SPECIFIC · CONFIRMED request to build a 3D loading screen with selectable containers, entered dimensions and a future item-master connection. Add a read-only scenario layer on the original plan/RO identities. Keep the current domain as the only reservation and shipment authority. No production publication or master-data migration is part of this build request.
+Use bounded deterministic packing and a local orthographic canvas renderer; avoid new framework/CDN dependencies. Preserve missing inputs, unplaced quantities and physical assumptions. Local per-user browser drafts and exports are explicitly separate from shared operational records. The item-master schema remains a coordination dependency; use one typed adapter, not duplicate master fields. Scope, limits, units, alternatives and UI contracts are in [Container planner](CONTAINER_PLANNER.md). Detailed validation evidence remains private on this device.
+
+
+## DEC-130 — Reviewed packing evidence for loading scenarios
+2026-10-12 · MODULE-SPECIFIC · CONFIRMED user request to import packing lists and find the other PMS chat's files. Extend DEC-129 with a local preview, Excel/CSV mapping, historical JSON adapter and hash-matched original PDFs. Keep variants separate, require an explicit target and confirmation, reason mismatched mappings, and preserve source provenance. CBM never establishes box geometry; multipart averages cannot enter the single-package solver. Reset imported stacking conservatively. No operational quantity/master update, source-file publication or deployment is authorized. Reuse JSZip and shared pure validation rather than adding a remote extraction service. See [contract](CONTAINER_PLANNER.md). Bounded 2,000-row parsing/25-row preview and per-plan solver limits constrain work at current/10x/100x scale. Native, isolated importer and standalone validation evidence stays private locally.
+
+
+## DEC-133 — Publish the audited candidate and recovered loading work
+
+2026-10-12. CONFIRMED user instruction: publish all pending updates. Integrate DEC-132 repairs and recovered DEC-129/130 on current main without replacing newer runtime files. Add the explicitly requested whole-form Product group dropdown under Order details, default All product groups; use existing supplier categories to filter choices while retaining mixed selected lines. Keep per-item categories. No persisted single-group policy or financial restriction is introduced.
+
+Alternatives rejected: discarding entered lines when a filter changes; copying the old candidate over current audited source; fabricating missing packing dimensions; enabling an unspecified ERP connection. Root cause and preservation checks govern integration. Private refreshes use existing revision/idempotency APIs after recovery verification. Existing deployment authorization is explicit; no additional cloud coordination is required. Read [publication scope and verification](PUBLICATION_2026-10-12.md). Pending third-party configuration remains explicit; no connection success is implied.

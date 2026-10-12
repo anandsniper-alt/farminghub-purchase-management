@@ -18,7 +18,7 @@ export class BomManagementStore{
  CREATE TRIGGER IF NOT EXISTS bom_review_no_update BEFORE UPDATE ON bom_review_events BEGIN SELECT RAISE(ABORT,'BOM review history is append-only'); END;
  CREATE TRIGGER IF NOT EXISTS bom_review_no_delete BEFORE DELETE ON bom_review_events BEGIN SELECT RAISE(ABORT,'BOM review history is append-only'); END;
  `);}
- actor(id){const actor=this.store.read().users.find(u=>u.id===id);assertBomAccess(actor);return actor;}
+ actor(id){const actor=this.store.userProfile(id);assertBomAccess(actor);return actor;}
  revision(){return this.db.prepare('SELECT coalesce(max(sequence),0) n FROM bom_review_events').get().n;}
  records(){return this.db.prepare('SELECT payload FROM bom_review_records ORDER BY rowid DESC').all().map(row=>JSON.parse(row.payload));}
  reviewPage(actorId,{modelId='',status='',before=null}={}){this.actor(actorId);if(typeof modelId!=='string'||modelId.length>80||!['','PENDING','CHECKED','APPROVED','REJECTED'].includes(status)||(before!==null&&(!Number.isSafeInteger(before)||before<1)))fail('Invalid checking-history filter.');const clauses=[],args=[];if(modelId){clauses.push("json_extract(payload,'$.modelId')=?");args.push(modelId);}if(status){clauses.push("json_extract(payload,'$.status')=?");args.push(status);}const where=clauses.length?' WHERE '+clauses.join(' AND '):'',total=this.db.prepare('SELECT count(*) n FROM bom_review_records'+where).get(...args).n;if(before!==null){clauses.push('rowid<?');args.push(before);}const rows=this.db.prepare('SELECT rowid cursor,payload FROM bom_review_records'+(clauses.length?' WHERE '+clauses.join(' AND '):'')+' ORDER BY rowid DESC LIMIT 101').all(...args),hasMore=rows.length>100;rows.length=Math.min(rows.length,100);return {rows:rows.map(r=>JSON.parse(r.payload)),total,next:hasMore?rows.at(-1).cursor:null,modelId,status};}
@@ -61,9 +61,12 @@ export class BomManagementStore{
      let draft;try{draft=validateTechnicalDraft(record.draft,state);}catch(e){fail(e.message);}
      let updated=target?structuredClone(target):{id:draft.newModelId,name:'',series:'',configuration:'',frame:'',size:'',blades:null,speed:'',bladeOrientation:'',gearboxOrientation:'',salesConfirmed:false,syntaxRow:null,syntaxWeight:null,bomAvailable:false,revision:0,lines:[],fabrication:[],fabricationCode:'',fabricationSupplier:'',notes:'',history:[],costs:{'Gearbox powder coating':null,Assembly:null,'Rack stand':null,'Tools kit':null,'Buffer cost':null}};
      const next=structuredClone(state);if(!target)next.models.push(updated);
-     if(draft.copyFrom){updated=copyBom(next,updated.id,draft.copyFrom);const brands=state.stickerPolicy?.brandBySeries||{},expected=brands[updated.series],brandIds=new Set(Object.values(brands).map(l=>l.partId));if(expected){updated.lines=updated.lines.filter(l=>!brandIds.has(l.partId));updated.lines.push({partId:expected.partId,ppm:expected.ppm});}}
+     if(draft.copyFrom)updated=copyBom(next,updated.id,draft.copyFrom);
      if(draft.syntax)Object.assign(updated,draft.syntax,{name:draft.syntax.series??updated.name});
      if(draft.lines){const old=new Map(updated.lines.map(l=>[l.partId,l]));updated.lines=draft.lines.map(l=>({...old.get(l.partId),...l}));updated.bomAvailable=true;}
+     const brands=state.stickerPolicy?.brandBySeries||{},expected=brands[updated.series],brandIds=new Set(Object.values(brands).map(l=>l.partId));
+     if(draft.copyFrom&&!draft.lines&&expected){updated.lines=updated.lines.filter(l=>!brandIds.has(l.partId));updated.lines.push({partId:expected.partId,ppm:expected.ppm});}
+     if(updated.bomAvailable&&expected){const stickers=updated.lines.filter(l=>brandIds.has(l.partId));if(stickers.length!==1||stickers[0].partId!==expected.partId||stickers[0].ppm!==expected.ppm)fail(`The ${updated.series} BOM must use its ${expected.partId} sticker at ${expected.ppm} per machine. Edit the sticker line and submit a fresh correction before approval.`);}
      if(draft.fabrication){const old=new Map(updated.fabrication.map(l=>[l.partId,l]));updated.fabrication=draft.fabrication.map(l=>({...old.get(l.partId),...l}));}
      updated.revision=(target?.revision||0)+1;updated.history=[...(target?.history||[]),{at,revision:updated.revision,actorId:actor.id,reason:'Production correction approved: '+reason,reviewId:record.id}];
      next.models=next.models.map(m=>m.id===updated.id?updated:m);

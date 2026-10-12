@@ -16,7 +16,7 @@ export class PlanningStore{
  CREATE TABLE IF NOT EXISTS implements_plan_events(sequence INTEGER PRIMARY KEY AUTOINCREMENT,actor_id TEXT NOT NULL,request_id TEXT NOT NULL,digest TEXT NOT NULL,access TEXT NOT NULL,payload TEXT NOT NULL,UNIQUE(actor_id,request_id));
  CREATE TRIGGER IF NOT EXISTS implements_plan_events_no_update BEFORE UPDATE ON implements_plan_events BEGIN SELECT RAISE(ABORT,'Plan history is append-only'); END;
  CREATE TRIGGER IF NOT EXISTS implements_plan_events_no_delete BEFORE DELETE ON implements_plan_events BEGIN SELECT RAISE(ABORT,'Plan history is append-only'); END;`);}
- actor(id){const a=this.store.read().users.find(u=>u.id===id);assertPlanningAccess(a);return a;}
+ actor(id){const a=this.store.userProfile(id);assertPlanningAccess(a);return a;}
  read(id,{month='',status='',before=null}={}){
   const actor=this.actor(id),state=this.source.read(),manager=canApprovePlan(actor);if(month)validMonth(month);if(!['','DRAFT','PENDING','APPROVED','RETURNED'].includes(status))fail('Invalid plan status.');if(before!==null&&(!Number.isSafeInteger(before)||before<1))fail('Invalid page.');
   const clauses=[],args=[];if(!manager){clauses.push("json_extract(payload,'$.owner.id')=?");args.push(id);}if(month){clauses.push("json_extract(payload,'$.month')=?");args.push(month);}if(status){clauses.push("json_extract(payload,'$.status')=?");args.push(status);}

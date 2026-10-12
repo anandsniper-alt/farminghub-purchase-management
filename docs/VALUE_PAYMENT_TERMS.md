@@ -44,3 +44,10 @@ Follow-up display verification: typed PO/print summaries include payment stage a
 
 ## Publication verified — 2026-09-26
 DEC-092/WF-086 is now live in runtime `3ba808f7978be0ce8d3cdc3af84e569cafa294a0`, together with DEC-093 RO loading and payment correction. This supersedes the local-only status above. Existing live agreements and payments were preserved; no sample master entries or automatic term conversions were published. Full release evidence: [RO loading and payment corrections](RO_LOADING_AND_PAYMENT_CORRECTIONS.md).
+
+
+## Confirmed audit policy — 2026-10-12 candidate (DEC-132)
+
+Against-BL authorization and payment recording now require the selected shipment's final BL number and valid BL date. The payment date cannot precede that BL date; the agreed credit due date may still be later. Initial PI advances are unchanged. Historical records are not rewritten.
+
+When all original obligations have been reported and all allocations acknowledged, a user with current payment-authorization access may record a reasoned residual settlement. The amount is capped by both the current order shortfall and selected authorized milestone's realized shortfall, including allocations in the same request. A pending top-up blocks another settlement until its supplier receipt is recorded. Original remitted amounts, realized amounts and exchange-rate evidence remain separate. This is a local candidate rule until released; [verification and limits](AUDIT_REPAIRS_2026-10-12.md).

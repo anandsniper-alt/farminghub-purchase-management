@@ -17,6 +17,12 @@ Audit date 2026-09-26. Status is based on source plus explicitly dated checks, n
 
 No risk above authorizes migration, privilege relaxation, deletions, cloud procurement or deployment. Security failure testing and production infrastructure review remain separate from this local audit.
 
+## 2026-10-12 audit-repair candidate
+
+DEC-132 adds a 64 MiB/32-entry/15-second read-response cache and current-user profile projection shared by module permission checks. Local SQLite changes and external-connection changes invalidate the cache; authorization is checked before reuse, and bootstrap edit handles are checked for expiry/eviction. This reduces repeated reads for the confirmed target of ten desktop/laptop users. Current measurements and limits are in [the repair report](../AUDIT_REPAIRS_2026-10-12.md).
+
+SC-01/02 remain architectural risks: whole-state writes and synchronous serialization still grow with data. The synthetic 1,000/5,000-order fixtures also contain 700 models, 3,000 parts and 21,000 BOM lines; they are growth diagnostics, not a uniform 10x/100x production simulation. They do not certify extended-duration operation, maximum concurrent 50 MiB uploads, replica failover or hosting memory headroom. No database migration, replica change or retention deletion is included.
+
 
 ## 2026-09-26 local mitigation update
 
