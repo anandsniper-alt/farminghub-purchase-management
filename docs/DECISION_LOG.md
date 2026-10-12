@@ -1211,3 +1211,8 @@ Alternative destructive conversion or a second shipment ledger would risk duplic
 
 Release exception: user explicitly waived the fresh backup for this small trial on 12 October 2026. This exception applies only to this trial release. Existing backup policy remains for future releases. Scoped checks and full combined 495-test suite passed; final source and live readback are verified separately.
 
+
+
+## Removal of trial pages - 2026-10-12
+User requested removal of both Alagesh and Sample module trials. Restored the prior application navigation and removed both display-only routes. Supersedes DEC-131 / WF-126 and the sample module trial. Nine navigation tests and the standalone review build passed. User explicitly waived backup for this small trial cleanup. Publication is pending live verification.
+

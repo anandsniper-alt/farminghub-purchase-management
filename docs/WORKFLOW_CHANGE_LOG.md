@@ -1112,3 +1112,8 @@ Website publication is explicitly authorized, but requires current access and th
 2026-10-12. DEC-131. Sign in -> Home -> Alagesh -> repeated Alagesh text -> Home. Fixed display content only. User authorizes live publication together with the other test-module release; publication verification remains pending.
 
 
+
+
+## Removal of trial pages - 2026-10-12
+User requested removal of both Alagesh and Sample module trials. Restored the prior application navigation and removed both display-only routes. Supersedes DEC-131 / WF-126 and the sample module trial. Nine navigation tests and the standalone review build passed. User explicitly waived backup for this small trial cleanup. Publication is pending live verification.
+

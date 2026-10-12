@@ -50,28 +50,16 @@ test('production operators have stock and BOM modules without commercial navigat
 
 test('home separates two divisions, their modules and legacy Implements links',()=>{
  const nav=createNavigation(host({view:'home'}));
- assert.equal((nav.home().match(/class="module-card /g)||[]).length,3);
- assert.match(nav.home(),/href="#\/alagesh"/);
- assert.match(nav.alagesh(),/aria-label="Alagesh test page"/);
- assert.equal((nav.alagesh().match(/<h2>Alagesh<\/h2>/g)||[]).length,12);
+ assert.equal((nav.home().match(/class="module-card /g)||[]).length,2);
  assert.match(nav.home(),/href="#\/division\/lae"/);assert.match(nav.home(),/href="#\/division\/implements"/);
  const lae=nav.divisionHub('lae'),implementsHub=nav.divisionHub('implements');
- assert.equal((lae.match(/class="module-card /g)||[]).length,3);
+ assert.equal((lae.match(/class="module-card /g)||[]).length,2);
  assert.match(lae,/href="#\/order-management"/);assert.match(lae,/href="#\/vms"/);assert.ok(!lae.includes('/bom/'));
- assert.match(lae,/href="#\/sample-module"/);
  assert.equal((implementsHub.match(/class="module-card /g)||[]).length,4);
  for(const url of ['/implements/#/models','/bom/','/production/','/planning/'])assert.ok(implementsHub.includes('href="'+url+'"'));
  const categories=nav.orderHub();assert.ok(!categories.includes('href="#/order-management/implements"'));
  for(const [to,path] of [['division/implements','/#/division/implements'],['division/lae','/#/division/lae'],['implements-purchase','/implements/#/models'],['bom-management','/bom/'],['production-stock','/production/']])assert.equal(globalDestination(to),path);
  assert.match(nav.sidebar(),/<optgroup label="LAE Division">/);assert.match(nav.sidebar(),/<optgroup label="Implements Division">/);
-});
-test('sample module is a labelled read-only LAE route',()=>{
- const nav=createNavigation(host({view:'sample-module'}));
- assert.equal(nav.area(),'sample');
- assert.match(nav.sidebar(),/Sample module/);
- assert.match(nav.sidebar(),/aria-current="page"/);
- assert.match(nav.breadcrumb('Sample module'),/href="#\/division\/lae"/);
- assert.match(nav.sidebar(),/<option value="sample-module">Sample module<\/option>/);
 });
 test('monthly planners see only their cost-free plan entry, even with mistaken commercial or production grants',()=>{
  const nav=createNavigation({...host({view:'home'}),context:()=>({ui:{view:'home'},user:{role:'PLAN_OPERATOR',scopes:['IMPLEMENTS_PLANNING','IMPLEMENTS_DOMESTIC','LAE_IMPORT','BOM_MANAGEMENT','PRODUCTION_MANAGEMENT']}})});

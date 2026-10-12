@@ -747,3 +747,6 @@ MODULE-SPECIFIC, LAE Import: LAE Import final BL date is the loading/document da
 When two chats target the same live application, coordinate one release after explicit user authorization. A display-only test page can reuse the authenticated shell and responsive components without adding a database or command path.
 
 
+
+2026-10-12: Alagesh and Sample module were temporary live trials; user requested removing both. Existing division/module navigation restored. Keep trial publication and removal status distinct from verified live deployment.
+
