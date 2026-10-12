@@ -743,3 +743,7 @@ MODULE-SPECIFIC, LAE Import: LAE Import final BL date is the loading/document da
 - A new workflow view can read the same original shipments instead of copying them into a second ledger. Keep source identifiers and derive stages from recorded dates/milestones; do not infer completion from notes or matching forwarding-agent text.
 - Audit every dispatcher layer when reusing a prefix. The old ro-loading name collided with the RO costing action, modal and submit handlers. Loading RO assignment now uses loading-ro and has a browser-verified handoff.
 - Progressive selection should preserve quantity edits, protect removal, and make the ordinary single-order case simple while deriving combined mode from actual selected lines. Record historical completion truthfully rather than backfilling missing gates.
+`n## Coordinated test-page release — 2026-10-12
+When two chats target the same live application, coordinate one release after explicit user authorization. A display-only test page can reuse the authenticated shell and responsive components without adding a database or command path.
+
+

@@ -41,5 +41,6 @@ export function createNavigation(host){
   if(ui.view!=='home'&&last!==parts.at(-1)[1])parts.push([null,last]);const external=['implements','bom-management','production-stock','monthly-planning'].includes(ui.view);
   return '<div class="breadcrumb">'+parts.map(([to,title],i)=>(i?icon('chevron',11):'')+(to&&i<parts.length-1?'<a href="'+(['implements-purchase','bom-management','production-stock'].includes(to)?moduleDestination(to):(external?'/#/':'#/')+to)+'">'+esc(title)+'</a>':'<b>'+esc(title)+'</b>')).join('')+'</div>';
  }
- return {sidebar,home,divisionHub,orderHub,breadcrumb,area};
+ function alagesh(){return head('Alagesh','Alagesh','Test page',button('Home','nav',{to:'home'},'ghost','arrow'))+'<section class="panel" aria-label="Alagesh test page"><div class="panel-body"><div class="kpi-grid">'+Array.from({length:12},()=>'<div class="kpi"><h2>Alagesh</h2><p>Alagesh · Alagesh · Alagesh</p></div>').join('')+'</div></div></section>';}
+ return {sidebar,home:()=>home()+'<div class="gap"></div><div class="module-cards">'+card('Alagesh','Test page','alagesh','grid')+'</div>',alagesh,divisionHub,orderHub,breadcrumb,area};
 }

@@ -50,7 +50,10 @@ test('production operators have stock and BOM modules without commercial navigat
 
 test('home separates two divisions, their modules and legacy Implements links',()=>{
  const nav=createNavigation(host({view:'home'}));
- assert.equal((nav.home().match(/class="module-card /g)||[]).length,2);
+ assert.equal((nav.home().match(/class="module-card /g)||[]).length,3);
+ assert.match(nav.home(),/href="#\/alagesh"/);
+ assert.match(nav.alagesh(),/aria-label="Alagesh test page"/);
+ assert.equal((nav.alagesh().match(/<h2>Alagesh<\/h2>/g)||[]).length,12);
  assert.match(nav.home(),/href="#\/division\/lae"/);assert.match(nav.home(),/href="#\/division\/implements"/);
  const lae=nav.divisionHub('lae'),implementsHub=nav.divisionHub('implements');
  assert.equal((lae.match(/class="module-card /g)||[]).length,3);

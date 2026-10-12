@@ -1108,3 +1108,7 @@ Website publication is explicitly authorized, but requires current access and th
 
 ## WF-123 — Select, plan and continue existing loading records (DEC-128)
 2026-10-11. Loading → New loading plan → suppliers → only their eligible POs → tick items and quantities → save → Open flow → assign/combine RO → current booking, tracking, documents, arrival and costing controls. Back/search retain selections; removing a selected supplier/PO requires an explicit draft-removal choice. Single-order, multi-order and multi-supplier modes are derived automatically. Historical shipments appear immediately by recorded stage with links to original items, PI/payments and history. Existing reservations and completed states are not recreated. RO assignment keeps the original plan detail link usable. Loading workflow actions use the loading namespace, avoiding interception by RO costing.
+`n## WF-126 — Alagesh test page
+2026-10-12. DEC-131. Sign in -> Home -> Alagesh -> repeated Alagesh text -> Home. Fixed display content only. User authorizes live publication together with the other test-module release; publication verification remains pending.
+
+
