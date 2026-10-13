@@ -91,3 +91,37 @@ test('breadcrumbs connect each module to its parent division',()=>{
  for(const role of ['BOM_REVIEWER','PRODUCTION_OPERATOR','PLAN_OPERATOR'])assert(!navFor({role,scopes:['UTILITY_DOMESTIC']}).home().includes('/price-workings/'));
  assert.equal(globalDestination('price-workings'),'/price-workings/');
  });
+
+test('Thyagu scope combination shows Implements and Utility without LAE entries',()=>{
+ const ui={view:'home'},user={role:'MANAGER',active:true,scopes:['UTILITY_DOMESTIC','IMPLEMENTS_DOMESTIC','BOM_MANAGEMENT','PRODUCTION_MANAGEMENT']};
+ const nav=createNavigation({...host(ui),context:()=>({ui,user})});
+ assert.equal((nav.home().match(/class="module-card /g)||[]).length,2);
+ assert.match(nav.home(),/href="\/price-workings\/"/);assert.match(nav.home(),/href="#\/division\/implements"/);
+ for(const html of [nav.home(),nav.sidebar(),nav.divisionHub('lae'),nav.orderHub()]){
+  for(const forbidden of ['href="#/division/lae"','data-to="division/lae"','value="vms"','href="#/overview"','href="#/domestic/models"'])assert(!html.includes(forbidden),forbidden);
+ }
+ const hub=nav.divisionHub('implements');for(const path of ['/implements/#/models','/bom/','/production/','/planning/'])assert(hub.includes('href="'+path+'"'));
+ for(const view of ['overview','orders','vms','domestic','payments','loading'])assert.equal(nav.canAccessView(view),false,view);
+ assert.equal(nav.canAccessView('price-workings'),true);
+ ui.view='overview';assert.equal(nav.area(),'home');assert(!nav.breadcrumb('Overview').includes('LAE'));assert.match(nav.breadcrumb('Overview'),/Module unavailable/);
+});
+
+test('single-scope LAE accounts see only their assigned category and VMS requires Import',()=>{
+ for(const scope of ['LAE_IMPORT','LAE_DOMESTIC']){
+  const ui={view:'order-management'},user={role:'MANAGER',scopes:[scope]};const nav=createNavigation({...host(ui),context:()=>({ui,user})});
+  const own=scope==='LAE_IMPORT'?'overview':'domestic/models',other=scope==='LAE_IMPORT'?'domestic/models':'overview';
+  assert.match(nav.home(),/href="#\/division\/lae"/);assert(nav.orderHub().includes('href="#/'+own+'"'));assert(!nav.orderHub().includes('href="#/'+other+'"'));
+  assert.equal(nav.sidebar().includes('value="vms"'),scope==='LAE_IMPORT');assert.equal(nav.divisionHub('lae').includes('href="#/vms"'),scope==='LAE_IMPORT');
+  assert(!nav.orderHub().includes('Utility Division'));
+  ui.orderId=scope==='LAE_IMPORT'?'lae-domestic':'lae-import';assert(!nav.orderHub().includes('class="module-card'));assert.equal(nav.canAccessView(),false);
+  ui.view=scope==='LAE_IMPORT'?'domestic':'overview';assert.equal(nav.canAccessView(),false);assert(!nav.sidebar().includes('data-to="'+other+'"'));
+ }
+});
+
+test('technical, unassigned and inactive profiles do not receive LAE or Utility navigation',()=>{
+ for(const user of [{role:'MANAGER',scopes:[]},{role:'MANAGER',active:false,scopes:['LAE_IMPORT','UTILITY_DOMESTIC']},...['BOM_REVIEWER','PRODUCTION_OPERATOR','PLAN_OPERATOR'].map(role=>({role,scopes:['LAE_IMPORT','LAE_DOMESTIC','UTILITY_DOMESTIC']}))]){
+  const ui={view:'order-management'},nav=createNavigation({...host(ui),context:()=>({ui,user})});
+  assert(!nav.home().includes('division/lae'));assert(!nav.home().includes('/price-workings/'));assert(!nav.orderHub().includes('class="module-card'));
+  assert.equal(nav.canAccessView('overview'),false);assert.equal(nav.canAccessView('domestic'),false);assert.equal(nav.canAccessView('vms'),false);
+ }
+});

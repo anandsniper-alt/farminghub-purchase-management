@@ -557,3 +557,7 @@ MODULE-SPECIFIC RULE. LAE Import final BL date is the loading/document date, ind
 
 ## Utility review scope — DEC-134 / WF-129
 MODULE-SPECIFIC. The price-list workspace is a dated, traceable costing review. All items remain visible with evidence/coverage labels. Immutable source costs and separate stock/pipeline/excluded scopes are preserved; remarks are versioned review notes, not rate-edit commands. Existing Utility commercial scope remains authoritative. See [Utility price workings](UTILITY_PRICE_WORKINGS.md).
+
+
+### Assigned navigation boundaries — DEC-135 / WF-130
+GLOBAL RULE. Home cards, division hubs, sidebars, selectors and bookmarked views must follow the same scope rules as the module. Workspace user projections must retain actual navigation scopes, without expanding permissions or copying them into audit actor snapshots. Do not use commercial role alone as LAE authorization.

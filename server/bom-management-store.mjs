@@ -28,7 +28,7 @@ export class BomManagementStore{
   data.models=data.models.map(m=>({...m,fabrication:m.fabrication.map(l=>({...l,image:imageFor(l.partId,l.name),supplierPartCode:(state.supplierItems||[]).find(r=>r.itemKey===l.partId&&r.supplierId===state.models.find(row=>row.id===m.id)?.fabricationSupplier)?.partCode||''}))}));
   const page=this.reviewPage(actorId),pending=this.db.prepare("SELECT count(*) n FROM bom_review_records WHERE json_extract(payload,'$.status')='PENDING'").get().n,checkedModels=[];
   const latest=this.db.prepare("SELECT payload FROM bom_review_records WHERE rowid IN (SELECT max(rowid) FROM bom_review_records WHERE json_extract(payload,'$.kind')='CHECK' GROUP BY json_extract(payload,'$.modelId'))").all().map(r=>JSON.parse(r.payload)),ids=new Set([...latest,...page.rows].map(r=>r.modelId)),hashes=new Map([...ids].map(id=>[id,fingerprint(state,state.models.find(m=>m.id===id))]));for(const r of latest)if(r.baselineSha===hashes.get(r.modelId))checkedModels.push(r.modelId);
-  return {...data,reviewRevision:this.revision(),reviews:page.rows.map(r=>({...r,current:r.baselineSha===hashes.get(r.modelId)})),reviewPage:{...page,rows:undefined},pendingCorrections:pending,checkedModels,user:actorView(actor),canReview:canReviewBom(actor),canApprove:canApproveBom(actor)};
+  return {...data,reviewRevision:this.revision(),reviews:page.rows.map(r=>({...r,current:r.baselineSha===hashes.get(r.modelId)})),reviewPage:{...page,rows:undefined},pendingCorrections:pending,checkedModels,user:{...actorView(actor),scopes:[...(actor.scopes??[])]},canReview:canReviewBom(actor),canApprove:canApproveBom(actor)};
  }
  command(actorId,input){
   this.db.exec('BEGIN IMMEDIATE');

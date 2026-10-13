@@ -770,3 +770,7 @@ When two chats target the same live application, coordinate one release after ex
 
 ## 2026-10-13 — Utility evidence labels and source trace (DEC-134)
 MODULE-SPECIFIC. Approved pooled purchase averages remain estimates even when their method name lacks “estimate.” Carry source review doubts through export. Current cost badges must use the same active-stock/pipeline scope as the displayed average; retain excluded evidence separately. Render structured source filenames/sheet/row rather than generic object text. Scope: Utility review; no repricing or invoice certification is implied.
+
+
+### Test scoped accounts across module transitions — DEC-135
+An administrator-only home review missed commercial users without LAE scope. Module-specific user projections also dropped unrelated authorized module links. Test single-scope commercial roles, the combined Utility/Implements/BOM/Production manager, inactive users, technical roles with accidental commercial scopes, and actual workspace response projections. Distinguish rendering links from granting server access.

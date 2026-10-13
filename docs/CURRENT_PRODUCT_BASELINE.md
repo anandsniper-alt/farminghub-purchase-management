@@ -882,3 +882,7 @@ Loading now uses Supplier → Purchase orders → Items, with editable partial q
 
 ## 2026-10-13 — Utility price workings candidate
 Vendor/category/product filters, item/batch/barcode costing trace and durable review remarks are implemented under `/price-workings/`. Source evidence and final release status: [Utility price workings](UTILITY_PRICE_WORKINGS.md). This entry alone does not assert live publication.
+
+
+### Navigation scope repair — DEC-135 / WF-130
+Candidate: scope-filtered LAE cards/categories/VMS, removal of the obsolete Utility pending category, bookmarked-view guard, and complete navigation scopes in BOM/Production/Planning responses. Existing account grants and module permissions are unchanged. See Utility contract for validation and later production status.

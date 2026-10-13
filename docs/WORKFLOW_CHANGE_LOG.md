@@ -1149,3 +1149,7 @@ Publication combines audited workflow repairs and the bounded planner/import scr
 
 ## WF-129 — Utility item, batch and barcode price review (DEC-134)
 2026-10-13. Home → Price list workings → Utility price → choose supplier/category/product → open item → review dated batch → inspect barcodes and source evidence. Review invoice/CD/before-tax goods/transport/landed cost and stock-plus-pipeline average with coverage. Save item or batch remarks with reviewer/time/version history; concurrent edits require reviewing the latest remark and unsaved text stays protected. Read-only users cannot edit. Dated review evidence does not update inventory or certify pending costs. [Module contract](UTILITY_PRICE_WORKINGS.md).
+
+
+## WF-130 — Consistent assigned modules across home and workspaces (DEC-135)
+2026-10-13. Sign in → see only assigned divisions and modules → switch between authorized workspaces without losing module links. Commercial users without LAE scope do not see LAE/VMS; Import-only and Domestic-only users see their respective categories. Old unauthorized links show Module unavailable. Manager access to monthly planning through Implements purchasing remains the established rule. Account assignments remain unchanged.
