@@ -253,3 +253,11 @@ The fresh downloaded 802,402,304-byte snapshot and matching running source were 
 
 ### Navigation follow-up — DEC-135 / WF-130
 User-reported home mapping defect traced to role-only LAE visibility and truncated module response scopes. Candidate fixes home/hub/sidebar/selector and bookmarked views, with real profile-shape regression coverage. Production verification is recorded after release in UTILITY_PRICE_WORKINGS.md.
+
+
+## Navigation access repair publication verified — 2026-10-13
+DEC-135 / WF-130 is live at runtime `ed81e7ade05dd6bd155af7db677d7b195ad7e46f`; deployment `gawdy8ubhrgnh2sk5azfzlsc` finished and healthy. This supersedes the candidate-only navigation status. Assigned scopes control home cards, LAE categories, VMS, sidebars, module selectors and unavailable bookmarked views. BOM, Production and Planning retain full navigation profiles while server permissions and audit actor snapshots remain unchanged.
+
+The full 589-test suite passed, followed by 18 focused navigation/profile tests after the final header guard. Native and standalone builds passed. Browser review with the affected role/scope combination confirmed two home cards (Implements and Utility), consistent links after BOM/Production/Planning transitions and blocked LAE bookmarks with no misleading LAE controls. This used a synthetic local account matching the live profile, not the staff member's password. Live verification confirmed exact runtime/served assets, complete response scopes, unchanged assigned account grants and six existing business projections (excluding only the corrected top-level response user.scopes fields). Main revision1926/37 and all 3,081 Utility item readbacks, dataset digest and barcode evidence are preserved.
+
+Fresh recovery ZIP/member checksums and original/candidate isolated restores passed before publication; all 32 application tables were preserved. The two newest verified archives remain private in the main checkout's ignored backup directory. No account permissions or business records were changed by this fix. Detailed local receipts and screenshots remain outside tracked source; later documentation-only commits do not replace this runtime.
