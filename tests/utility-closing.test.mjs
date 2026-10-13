@@ -44,6 +44,14 @@ test('closing eligibility, date grouping and partial cost weights preserve the i
  assert.deepEqual(buildUtilityClosing({...data,batches:[...data.batches].reverse()},hash).batches.map(b=>b.id).sort(),model.batches.map(b=>b.id).sort());
 });
 
+test('descriptive opening labels are excluded while repeated and legacy identifiers retain distinct stock positions',()=>{
+ const data=evidence(),opening=data.batches.find(b=>b.id==='opening'),base=opening.barcodes[0];
+ for(const [index,barcode] of ['PRIM','FLOOR','PARIMARY','18 FEET','18FEET 250','50%  5X3','MOTTO','20205','20205'].entries())opening.barcodes.push({...base,id:'label-'+index,recordId:'Utility:label-'+index,barcode,quantity:1,landedValue:40});
+ const car=structuredClone(data.items.find(i=>i.id==='fg'));car.id='car';car.name='CAR COVER';data.items.push(car);data.batches.push({...opening,id:'car-source',itemId:'car',barcodes:[{...base,id:'car-label',barcode:'ALTO 800 OLD COTTON'}]});
+ const model=buildUtilityClosing(data,hash),rows=[...model.rowsByItem.values()].flat();
+ assert.equal(model.meta.exceptions.descriptiveBatchLabel.rows,7);assert.equal(rows.filter(r=>r.barcode==='20205').length,2);assert.ok(rows.filter(r=>r.barcode==='20205').every(r=>r.identifierReview.includes('2 stock positions')));assert.match(rows.find(r=>r.barcode==='MOTTO').identifierReview,/Legacy/);assert.ok(!model.itemsById.has('car'));
+});
+
 test('every closing data column filters and sorts the whole set before bounded pagination',()=>{
  for(const [level,columns] of Object.entries(UTILITY_CLOSING_COLUMNS))for(const column of columns){
   const rows=Array.from({length:113},(_,n)=>({id:String(n).padStart(3,'0'),name:'n',stage:'Rolls',date:'2026-01-01',barcode:'B'+n,[column.key]:column.type==='number'?n:column.type==='date'?'2026-01-'+String(n%28+1).padStart(2,'0'):'Entry '+String(n).padStart(3,'0')}));
