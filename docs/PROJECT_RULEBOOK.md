@@ -561,3 +561,7 @@ MODULE-SPECIFIC. The price-list workspace is a dated, traceable costing review. 
 
 ### Assigned navigation boundaries — DEC-135 / WF-130
 GLOBAL RULE. Home cards, division hubs, sidebars, selectors and bookmarked views must follow the same scope rules as the module. Workspace user projections must retain actual navigation scopes, without expanding permissions or copying them into audit actor snapshots. Do not use commercial role alone as LAE authorization.
+
+
+## Utility module exception and closing-stock contract — 2026-10-13
+MODULE-SPECIFIC, explicit user instruction, DEC-136 / WF-131. Utility uses the confirmed closing-stock drill-down and inherited SKU/date-batch remarks described in [the module contract](UTILITY_PRICE_WORKINGS.md). For authorized changes confined to this module only, release backups and repeated prelaunch test cycles are waived 13–19 October 2026 India time. Resume the existing release rulebook on 20 October. Necessary data reconciliation, authorization/conflict checks and exact live verification remain; unrelated modules and global defaults are unchanged.

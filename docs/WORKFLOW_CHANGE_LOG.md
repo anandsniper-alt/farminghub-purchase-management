@@ -1153,3 +1153,9 @@ Publication combines audited workflow repairs and the bounded planner/import scr
 
 ## WF-130 — Consistent assigned modules across home and workspaces (DEC-135)
 2026-10-13. Sign in → see only assigned divisions and modules → switch between authorized workspaces without losing module links. Commercial users without LAE scope do not see LAE/VMS; Import-only and Domestic-only users see their respective categories. Old unauthorized links show Module unavailable. Manager access to monthly planning through Implements purchasing remains the established rule. Account assignments remain unchanged.
+
+
+## WF-131 — Supplier, SKU, date batch and barcode closing review (DEC-136)
+2026-10-13. Utility closing stock -> choose supplier -> filter/sort any SKU column -> open SKU -> see dated batches and each batch weighted price -> open batch -> inspect positive barcode stock and retained per-record costing. Filters and sort apply to all matching rows across pages. Quantities of different units are not summed together. Pending cost coverage is explicit.
+
+Purchase manager enters a SKU remark applying to its complete closing-stock membership, or a date-batch remark applying only to its members. Batch detail also shows the inherited SKU remark and prior source-batch remarks. Save records exact affected IDs, reviewer, time and revision; conflicts preserve the draft. Later remark assessment occurs only when requested and must record before/after values, evidence, affected records and the initiating remark. Supplier remarks are not added. Publication status and the dated one-week release exception are recorded in the module contract.

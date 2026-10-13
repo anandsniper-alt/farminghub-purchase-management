@@ -45,7 +45,7 @@ export function makeServer(store,{origin=null,secureCookie=false,releaseSha=proc
   if(path==='/api/admin/recovery'&&req.method==='POST'){if(session.user.role!=='ADMIN')throw new RuleError('Administrator access is required.','FORBIDDEN');await downloadRecovery(store,res);return;}
   if(path==='/api/utility-prices'||path.startsWith('/api/utility-prices/')){
    assertUtilityPriceAccess(session.user);const module=getUtilityPrices(),actorId=session.user.id,params=Object.fromEntries(url.searchParams);
-   if(path==='/api/utility-prices/workspace'&&req.method==='GET')return json(res,200,{...module.workspace(actorId),csrf:session.csrf});
+   if(path==='/api/utility-prices/workspace'&&req.method==='GET')return json(res,200,{...module.workspace(actorId,params),csrf:session.csrf});
    if(path==='/api/utility-prices/items'&&req.method==='GET')return json(res,200,module.items(actorId,params));
    if(path==='/api/utility-prices/item'&&req.method==='GET')return json(res,200,module.item(actorId,params));
    if(path==='/api/utility-prices/batch'&&req.method==='GET')return json(res,200,module.batch(actorId,params));

@@ -774,3 +774,7 @@ MODULE-SPECIFIC. Approved pooled purchase averages remain estimates even when th
 
 ### Test scoped accounts across module transitions — DEC-135
 An administrator-only home review missed commercial users without LAE scope. Module-specific user projections also dropped unrelated authorized module links. Test single-scope commercial roles, the combined Utility/Implements/BOM/Production manager, inactive users, technical roles with accidental commercial scopes, and actual workspace response projections. Distinguish rendering links from granting server access.
+
+
+## Closing stock is independent of costing review scope — 2026-10-13
+A positive physical-stock row may still have a deferred/October costing label. Filtering physical closing stock by activeStock alone hid valid roll stock, while purchase-history-only SKUs cluttered the register. Derive stock inclusion from proven source identity, stage, snapshot, positive quantity and identifiable barcode; retain costing scope separately. PRIMARY / PRIMARY Shop are source placeholders, not tracked barcodes. A later report with no later inward date does not prove an EOD transaction cutoff. Do not infer suppliers or purchase dates from averaged/retained prices. Regrouping rate-split batches must preserve original IDs, individual costs and prior remark scope. DEC-136 documents the approved display and source limitations.

@@ -886,3 +886,7 @@ Vendor/category/product filters, item/batch/barcode costing trace and durable re
 
 ### Navigation scope repair — DEC-135 / WF-130
 Candidate: scope-filtered LAE cards/categories/VMS, removal of the obsolete Utility pending category, bookmarked-view guard, and complete navigation scopes in BOM/Production/Planning responses. Existing account grants and module permissions are unchanged. See Utility contract for validation and later production status.
+
+
+## Utility closing-stock candidate — 2026-10-13
+DEC-136 / WF-131 replaces the Utility default view with supplier -> SKU -> dated purchase/inward batch -> positive barcode closing stock, quantity-weighted prices, every-column server filtering/sorting and a full-width screen. SKU/batch remarks retain inherited scope and exact append-only member audit records. Cutoffs, missing-source limits and the module-only 13–19 October backup/repeated-testing exception are defined in [Utility price workings](UTILITY_PRICE_WORKINGS.md). Candidate is not live until publication is separately verified.
