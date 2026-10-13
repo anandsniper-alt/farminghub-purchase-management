@@ -240,3 +240,12 @@ DEC-123/WF-118 permits the actual final BL loading date before recorded vessel d
 
 ## 2026-10-13 — Utility price workings
 DEC-134/WF-129 adds the scoped Utility review workspace. See [module contract and release boundary](../UTILITY_PRICE_WORKINGS.md) for dataset provenance, validation, capacity limits and publication status. Existing pending modules are unchanged.
+
+
+## Utility price publication verified - 2026-10-13
+
+DEC-134 / WF-129 is live at https://purchase.dvjassociates.com/price-workings/, also Home > Price list workings > Utility price. Runtime `44c8d4b1edd478688fa0a0160f910ab91ee95629`; deployment `2ualvkcc2ydf8xxz1glhsjfa` finished and running:healthy. This supersedes candidate-only status for this module. The authenticated import activated the reviewed dataset with 85 supplier groups, 3,081 items, 7,748 batches and 16,120 barcode/source-row traces. Supported, recorded, estimated, provisional and pending evidence remains distinct; dated snapshots are not live inventory.
+
+All 581 native tests passed, with no failures or skips. Isolated desktop/mobile workflows and standalone home navigation were reviewed. Live checks verified the exact runtime and six served assets, anonymous API/asset denial, the canonical dataset digest, read-back of every item, a stock-plus-pipeline average and barcode trace. All six existing business projections match the pre-release baseline; main revision 1926 and 37 orders are preserved. No existing permissions, masters or business transactions were changed. No live review remarks were created for testing.
+
+The fresh downloaded 802,402,304-byte snapshot and matching running source were packaged into a verified 664,281,902-byte private recovery ZIP before publishing. Archive integrity, source/member hashes, isolated original/extracted/candidate restores and preservation of all 23 original tables passed; a complete candidate import also preserved all original tables. The two newest verified release ZIPs remain in the main checkout's ignored backups/releases directory. Detailed evidence remains private outside tracked source. Documentation-only commits after this publication do not replace the verified runtime.
