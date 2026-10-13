@@ -236,3 +236,7 @@ A fresh 776,208,384-byte consistent snapshot of running c09b8df was packaged wit
 
 ## BL loading date — 2026-10-09 local correction
 DEC-123/WF-118 permits the actual final BL loading date before recorded vessel departure. 102 domain/server tests and standalone build/bundle verification passed. Existing values were not edited; publication remains pending. See [BL loading-date change](../BL_LOADING_DATE_CHANGE.md). Cloud/local pre-work coordination and daily local learning backups are now recorded in AGENTS.md and the device PMS/CLOUD_WORK_SYNC.md.
+
+
+## 2026-10-13 — Utility price workings
+DEC-134/WF-129 adds the scoped Utility review workspace. See [module contract and release boundary](../UTILITY_PRICE_WORKINGS.md) for dataset provenance, validation, capacity limits and publication status. Existing pending modules are unchanged.

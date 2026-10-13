@@ -766,3 +766,7 @@ When two chats target the same live application, coordinate one release after ex
 - Treat the original stable item identity as authoritative for packing dimensions. A missing or blank identity must remain pending; a reused catalogue code is not evidence of the same physical item.
 - Bound actual decompressed bytes before retaining file contents, including aggregate work across entries. Test the real reader as well as metadata checks.
 - A product-group choice filter must preserve already selected mixed-group lines, quantities, rates and totals when new choices are narrowed.
+
+
+## 2026-10-13 — Utility evidence labels and source trace (DEC-134)
+MODULE-SPECIFIC. Approved pooled purchase averages remain estimates even when their method name lacks “estimate.” Carry source review doubts through export. Current cost badges must use the same active-stock/pipeline scope as the displayed average; retain excluded evidence separately. Render structured source filenames/sheet/row rather than generic object text. Scope: Utility review; no repricing or invoice certification is implied.

@@ -878,3 +878,7 @@ DEC-119 / WF-114 follow-up implements protected per-RO purchase item lines, befo
 
 ## Connected loading workspace — 2026-10-11
 Loading now uses Supplier → Purchase orders → Items, with editable partial quantities and preserved draft choices. Saved plans and historic shipments appear in one stage-filtered list; Open flow connects the original POs, current shipping controls and existing costing/evidence. Original purchase commitments and financial history remain on their POs. Grouping relies on explicit stored group IDs and performs no data migration. Existing India-port arrivals remain arrivals; the separate proposed FTWZ closure and revised reconciliation model are not activated by this UI change. See DEC-128 / WF-123.
+
+
+## 2026-10-13 — Utility price workings candidate
+Vendor/category/product filters, item/batch/barcode costing trace and durable review remarks are implemented under `/price-workings/`. Source evidence and final release status: [Utility price workings](UTILITY_PRICE_WORKINGS.md). This entry alone does not assert live publication.

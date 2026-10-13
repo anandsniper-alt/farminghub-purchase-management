@@ -48,9 +48,9 @@ test('production operators have stock and BOM modules without commercial navigat
  assert.ok(!make({role:'PRODUCTION_OPERATOR',scopes:['PRODUCTION_MANAGEMENT']}).divisionHub('implements').includes('href="/bom/"'));assert.ok(!make({role:'BOM_REVIEWER',scopes:['BOM_MANAGEMENT','PRODUCTION_MANAGEMENT']}).divisionHub('implements').includes('href="/production/"'));assert.equal(moduleDestination('production-stock'),'/production/');
 });
 
-test('home separates two divisions, their modules and legacy Implements links',()=>{
+test('home preserves two divisions and adds the scoped Utility review workspace',()=>{
  const nav=createNavigation(host({view:'home'}));
- assert.equal((nav.home().match(/class="module-card /g)||[]).length,2);
+ assert.equal((nav.home().match(/class="module-card /g)||[]).length,3);assert.match(nav.home(),/href="\/price-workings\/"/);
  assert.match(nav.home(),/href="#\/division\/lae"/);assert.match(nav.home(),/href="#\/division\/implements"/);
  const lae=nav.divisionHub('lae'),implementsHub=nav.divisionHub('implements');
  assert.equal((lae.match(/class="module-card /g)||[]).length,2);
@@ -81,3 +81,13 @@ test('breadcrumbs connect each module to its parent division',()=>{
  for(const view of ['overview','domestic','vms','order-management'])assert.match(createNavigation(host({view,orderId:'models'})).breadcrumb('Details'),/href="#\/division\/lae"/);
  const nav=createNavigation(host({view:'division',orderId:'implements'}));assert.match(nav.breadcrumb('Roadmap'),/<b>Implements Division<\/b>/);assert.ok(!nav.breadcrumb('Roadmap').includes('Roadmap'));
 });
+
+ test('Utility home and module entry require commercial role and Utility scope',()=>{
+ const navFor=user=>createNavigation({...host({view:'home'}),context:()=>({ui:{view:'home'},user})});
+ for(const role of ['MANAGER','EXECUTIVE','PRODUCT_MANAGER','VIEWER']){
+  const allowed=navFor({role,scopes:['UTILITY_DOMESTIC']});assert.match(allowed.home(),/href="\/price-workings\/"/);assert.match(allowed.sidebar(),/value="price-workings"/);
+  const denied=navFor({role,scopes:['LAE_IMPORT']});assert(!denied.home().includes('/price-workings/'));assert(!denied.sidebar().includes('value="price-workings"'));
+ }
+ for(const role of ['BOM_REVIEWER','PRODUCTION_OPERATOR','PLAN_OPERATOR'])assert(!navFor({role,scopes:['UTILITY_DOMESTIC']}).home().includes('/price-workings/'));
+ assert.equal(globalDestination('price-workings'),'/price-workings/');
+ });

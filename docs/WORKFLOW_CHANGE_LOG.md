@@ -1145,3 +1145,7 @@ The following previously private candidate records retain their original IDs and
 Create/edit PO → choose supplier → Order details Product group (All product groups by default) → filter catalogue and new item choices → retain entered mixed-category lines → save all original selected values. Search combines with the filter; reset broadens choices; supplier-change cancellation preserves the draft. This extends per-item categories, not the order's commercial classification.
 
 Publication combines audited workflow repairs and the bounded planner/import screens. Fresh matching-source recovery and isolated restore precede publication; actual protected data refresh follows verified code and guarded APIs. See [publication record](PUBLICATION_2026-10-12.md).
+
+
+## WF-129 — Utility item, batch and barcode price review (DEC-134)
+2026-10-13. Home → Price list workings → Utility price → choose supplier/category/product → open item → review dated batch → inspect barcodes and source evidence. Review invoice/CD/before-tax goods/transport/landed cost and stock-plus-pipeline average with coverage. Save item or batch remarks with reviewer/time/version history; concurrent edits require reviewing the latest remark and unsaved text stays protected. Read-only users cannot edit. Dated review evidence does not update inventory or certify pending costs. [Module contract](UTILITY_PRICE_WORKINGS.md).

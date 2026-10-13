@@ -553,3 +553,7 @@ Stores issues individual segments with batch-specific actual quantities. Freeze 
 ## BL loading date — DEC-123 (2026-10-09)
 
 MODULE-SPECIFIC RULE. LAE Import final BL date is the loading/document date, independent of the recorded vessel-departure date. It may be earlier. Require a valid non-future date, evidence and existing permissions; keep the loaded-on-vessel recording gate and reasoned replacement history. Credit due dates continue to derive from this BL date. Do not migrate or automatically correct existing dates. Supersedes the former minimum-departure-date comparison only.
+
+
+## Utility review scope — DEC-134 / WF-129
+MODULE-SPECIFIC. The price-list workspace is a dated, traceable costing review. All items remain visible with evidence/coverage labels. Immutable source costs and separate stock/pipeline/excluded scopes are preserved; remarks are versioned review notes, not rate-edit commands. Existing Utility commercial scope remains authoritative. See [Utility price workings](UTILITY_PRICE_WORKINGS.md).
