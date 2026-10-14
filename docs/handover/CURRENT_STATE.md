@@ -272,3 +272,6 @@ Focused local evidence and source-ID/financial reconciliation remain private. No
 
 ## 2026-10-14 analytics workspace
 LAE Sales Analytics empty workspace implemented under DEC-137/WF-132. Source ingestion, main-segment mapping, numerical annual targets and analytics calculations remain pending. No sample data imported. See ../LAE_SALES_ANALYTICS.md; publication evidence is recorded separately.
+
+
+Publication verified on 14 October 2026: the empty workspace is live at `/#/lae-sales-analytics`, runtime `5192c246c4b599c039e655e6c643a8fc8aeb4ed8`. All 597 native tests and exact-commit CI passed. Production health, four served assets, authentication boundary and seven desktop/mobile browser checks passed with no page errors or business-write requests. Main purchasing, Implements, BOM and Production fingerprints are unchanged. The fresh recovery ZIP and isolated running/candidate restores preserved all 34 tables; two verified recovery archives are retained. No analytics data was imported and no schema or data migration was introduced. This supersedes the publication-pending status above.
