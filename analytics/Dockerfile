@@ -1,4 +1,5 @@
 FROM node:24-bookworm-slim
+RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 ARG SOURCE_COMMIT
 ENV NODE_ENV=production HOST=0.0.0.0 PORT=8000 ANALYTICS_DATA_DIR=/app/analytics-data SOURCE_COMMIT=$SOURCE_COMMIT
