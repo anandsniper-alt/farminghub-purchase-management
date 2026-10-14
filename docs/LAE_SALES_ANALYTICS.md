@@ -1,5 +1,17 @@
 # LAE Sales Analytics
 
+## Current contract — 14 October 2026
+
+DEC-138 / WF-133 supersedes the empty-release entry and placement below. Analytics now opens directly from Home at `/lae-analytics/`, with its own application, data volume and `lae-analytics-live` deployment branch. The source and two-computer workflow are documented in [the independent application contract](../analytics/README.md). The old hash URL redirects to the separate module. Purchase/costing retains `main`; analytics-only deployments do not restart it.
+
+The user chose MASTER balances despite identified lookup/formula discrepancies. Import MASTER stock and monthly pipeline only, preserving its reported totals and original rows; do not substitute raw stock sheets. Main segment, annual business plan and sales remain pending. Shared Chennai and unallocated pipeline remain explicit. Ten focused analytics/navigation/identity checks and eight local browser checks passed; live publication is recorded separately. The initial source has 268 unique item codes across 23 product categories. The source workbook remains private and unchanged.
+
+Imports are bounded to 32 MB, 50,000 items and 24 months. Reads aggregate before pagination (maximum 100 groups/items per page). Current 268, 10x 2,680 and 100x 26,800 items fit the count bound; the payload limit may bind first. Projection is linear in selected source rows and parsing is cached by immutable dataset ID; this is not a load-capacity certification. Dataset replacements use an optimistic active-source token and append-only history. Authentication is revalidated on every request. Static assets are a versioned copy within the analytics deployment, with no runtime purchase imports.
+
+The user's module-specific release exception permits focused checks and quick analytics pushes without repeated purchase backup cycles. Existing purchase recovery policy remains in force for unrelated purchase/costing work. Shared host/proxy/authentication failures can still affect both modules; independent releases and data stores do not remove those dependencies.
+
+## Historical empty release
+
 DEC-137 / WF-132. User authorized publishing an empty workspace on 14 October 2026, before adding any data.
 
 Entry: Farming Hub → LAE Division → LAE Sales Analytics (`/#/lae-sales-analytics`). Reuses the authenticated application, shared scope rules and Minimal navigation. Existing LAE Import or Domestic access is required to open the workspace. No account assignments change. Static module source contains configuration and empty presentation only, consistent with the existing application asset contract.

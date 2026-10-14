@@ -6,6 +6,7 @@ permissions:
   contents: read
 jobs:
   verify:
+    if: github.ref != 'refs/heads/lae-analytics-live' && github.base_ref != 'lae-analytics-live'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -19,3 +20,12 @@ jobs:
         env:
           FH_PYTHON: /usr/bin/python3
       - run: node scripts/build.mjs --domestic-preview
+  analytics:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node --test analytics/tests/*.test.mjs

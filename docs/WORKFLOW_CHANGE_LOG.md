@@ -1162,3 +1162,6 @@ Purchase manager enters a SKU remark applying to its complete closing-stock memb
 
 ## WF-132 — LAE Sales Analytics before data import (DEC-137)
 2026-10-14. Home → LAE Division → LAE Sales Analytics → choose cost centre/month → switch Overview, Annual plan & sales, Stock & pipeline, Purchase requirements or Data sources. Every view remains empty until confirmed data ingestion is implemented. No purchase transaction or source-data change is possible in this release.
+
+## WF-133 — Home analytics with independent releases (DEC-138)
+2026-10-14. Home → LAE Sales Analytics → Stock & pipeline → Product category → Engine/specification → Grade → Item code. Choose cost centre and pipeline month, inspect source warehouses and retained discrepancies. MASTER is authoritative for this import; no raw-sheet correction is applied. Purchase/costing uses main; analytics uses lae-analytics-live in a separate checkout on either computer, with fetch-before-edit and normal non-force pushes. Sign-in remains shared. Sales, annual targets and purchase-shortage calculations remain pending.

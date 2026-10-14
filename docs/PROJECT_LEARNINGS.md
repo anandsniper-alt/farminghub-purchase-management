@@ -781,3 +781,6 @@ A positive physical-stock row may still have a deferred/October costing label. F
 
 ## Empty analytics must preserve missing-data meaning — 2026-10-14
 MODULE-SPECIFIC, DEC-137. A published workspace can be intentionally empty. Show unavailable metrics and required sources; do not reinterpret purchase orders as sales or missing forecasts as zero. Keep reporting aggregation separate from item-level purchase shortage calculation. No blanket cross-model stock offset is authorized.
+
+### Independent analytics release boundary — 2026-10-14
+A home card alone does not isolate releases. LAE analytics now has separately deployed source/assets and a separate data volume, with only a versioned identity contract shared. Two computers must use the same designated analytics branch in distinct checkouts and reconcile remote changes before pushing. Keep source-reported totals and discrepancy evidence separate; do not silently repair a user's selected MASTER basis. Focused checks must include identity expiry, source controls, shared-stock double counting and retained item-code identity.
