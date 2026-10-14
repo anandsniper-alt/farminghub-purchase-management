@@ -70,3 +70,5 @@ Read [UI and change rulebook](standards/UI_UX_RULEBOOK.md) before future modules
 
 
 - [Utility price workings](UTILITY_PRICE_WORKINGS.md): DEC-134/WF-129, vendor/item/batch/barcode cost review and remarks.
+
+- [LAE Sales Analytics](LAE_SALES_ANALYTICS.md): empty analytics workspace, confirmed grouping rules and pending source ingestion (DEC-137/WF-132).

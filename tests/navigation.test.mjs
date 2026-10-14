@@ -53,7 +53,7 @@ test('home preserves two divisions and adds the scoped Utility review workspace'
  assert.equal((nav.home().match(/class="module-card /g)||[]).length,3);assert.match(nav.home(),/href="\/price-workings\/"/);
  assert.match(nav.home(),/href="#\/division\/lae"/);assert.match(nav.home(),/href="#\/division\/implements"/);
  const lae=nav.divisionHub('lae'),implementsHub=nav.divisionHub('implements');
- assert.equal((lae.match(/class="module-card /g)||[]).length,2);
+ assert.equal((lae.match(/class="module-card /g)||[]).length,3);assert.match(lae,/href="#\/lae-sales-analytics"/);
  assert.match(lae,/href="#\/order-management"/);assert.match(lae,/href="#\/vms"/);assert.ok(!lae.includes('/bom/'));
  assert.equal((implementsHub.match(/class="module-card /g)||[]).length,4);
  for(const url of ['/implements/#/models','/bom/','/production/','/planning/'])assert.ok(implementsHub.includes('href="'+url+'"'));

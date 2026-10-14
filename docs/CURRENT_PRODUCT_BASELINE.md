@@ -890,3 +890,6 @@ Candidate: scope-filtered LAE cards/categories/VMS, removal of the obsolete Util
 
 ## Utility closing-stock candidate — 2026-10-13
 DEC-136 / WF-131 replaces the Utility default view with supplier -> SKU -> dated purchase/inward batch -> positive barcode closing stock, quantity-weighted prices, every-column server filtering/sorting and a full-width screen. SKU/batch remarks retain inherited scope and exact append-only member audit records. Cutoffs, missing-source limits and the module-only 13–19 October backup/repeated-testing exception are defined in [Utility price workings](UTILITY_PRICE_WORKINGS.md). Candidate is not live until publication is separately verified.
+
+## 2026-10-14 LAE Sales Analytics empty workspace
+DEC-137/WF-132 adds an empty, scope-aware analytics workspace under LAE Division. No business data is loaded and no new API/schema/write flow is introduced. See LAE_SALES_ANALYTICS.md for source boundaries and publication status.

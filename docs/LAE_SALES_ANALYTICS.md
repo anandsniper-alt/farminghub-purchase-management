@@ -1,0 +1,17 @@
+# LAE Sales Analytics
+
+DEC-137 / WF-132. User authorized publishing an empty workspace on 14 October 2026, before adding any data.
+
+Entry: Farming Hub → LAE Division → LAE Sales Analytics (`/#/lae-sales-analytics`). Reuses the authenticated application, shared scope rules and Minimal navigation. Existing LAE Import or Domestic access is required to open the workspace. No account assignments change. Static module source contains configuration and empty presentation only, consistent with the existing application asset contract.
+
+Overview, Annual plan & sales, Stock & pipeline, Purchase requirements and Data sources are navigable. Cost-centre and month selectors update the local view and preserve keyboard focus. Missing metrics display an unavailable dash and the missing source, never a measured zero. No business records, sample values, uploaded spreadsheet rows, product classifications, annual targets or sales are seeded. Data import and calculations remain pending source-format/mapping confirmation, explicitly stated in Data sources. This release adds no analytics API, tables, migrations, exports or purchase commands.
+
+Confirmed cost centres: B2C - TN (Farming Hub), B2B - TN (TNWL), B2B - AP / TS (AP/HYD), B2B - Karnal (North). Chennai is shared warehouse stock counted once. Proposed reporting drill-down: Main segment → Product category → Engine/specification → Grade → Item code/model. Main-segment mapping remains pending. Combine brands in reports while retaining original source identity when data is added. Purchase shortages remain item-code-wise; another model's surplus must not offset them automatically.
+
+Future inputs: approved annual business plan; versioned monthly forecast; dated sales and returns; stock snapshots and transfers; open purchase quantities and arrival dates; reviewed product mapping. Keep gross forecast, sales actuals and remaining demand distinct to avoid deducting sales twice. A stock outflow is not automatically a customer sale. Unknown quantities or costs must remain unavailable. Do not load existing purchase or costing state as substitute analytics data.
+
+Implementation: `web/lae-sales-analytics.mjs`, shared app/navigation, scoped CSS and the standalone review manifest. Fixed-size empty content introduces no data query or new storage at current/10x/100x catalogue scale; the existing application bootstrap cost is unchanged. No capacity certification or future import design is implied. Future data ingestion requires bounded validation, duplicate handling, source provenance, authorization and recalculated reconciliation before it is enabled.
+
+UI rules: UI-01–06 and UI-09–12; HIG R021–032, R067–073 and R135–140. Shared branding/motion and accessible labels/focus are preserved. No dialogs or write flows are added, so no new UI-07/08 behavior is needed. Native Apple assets are not used. Local and live verification are recorded separately; publication is pending until exact served source, health and data preservation are checked.
+
+Local verification: all 597 native tests passed with the documented Python export runtime; review build and source-manifest contract passed. Authenticated local and standalone browser checks passed for all five sections, cost-centre/month filters and focus, module switching, 390 px layout and large text. No page errors or business-write requests occurred. Active-tab contrast measured 11.13:1. Publication remains subject to the recovery and live checks above.

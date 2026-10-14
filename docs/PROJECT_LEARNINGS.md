@@ -778,3 +778,6 @@ An administrator-only home review missed commercial users without LAE scope. Mod
 
 ## Closing stock is independent of costing review scope — 2026-10-13
 A positive physical-stock row may still have a deferred/October costing label. Filtering physical closing stock by activeStock alone hid valid roll stock, while purchase-history-only SKUs cluttered the register. Derive stock inclusion from proven source identity, stage, snapshot, positive quantity and identifiable barcode; retain costing scope separately. PRIMARY / PRIMARY Shop are source placeholders, not tracked barcodes. A later report with no later inward date does not prove an EOD transaction cutoff. Do not infer suppliers or purchase dates from averaged/retained prices. Regrouping rate-split batches must preserve original IDs, individual costs and prior remark scope. DEC-136 documents the approved display and source limitations.
+
+## Empty analytics must preserve missing-data meaning — 2026-10-14
+MODULE-SPECIFIC, DEC-137. A published workspace can be intentionally empty. Show unavailable metrics and required sources; do not reinterpret purchase orders as sales or missing forecasts as zero. Keep reporting aggregation separate from item-level purchase shortage calculation. No blanket cross-model stock offset is authorized.
