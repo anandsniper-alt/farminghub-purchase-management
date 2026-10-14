@@ -1,10 +1,12 @@
 import {createSalesUI} from './sales-ui.mjs';
+import {createPlanningUI} from './planning-ui.mjs';
 /** Read-only analytics views. Private source data is fetched through the scoped API. */
-export const LAE_ANALYTICS_SECTIONS=[['overview','Overview','grid'],['targets','Annual plan & sales','money'],['stock','Stock & pipeline','box'],['purchases','Purchase requirements','orders'],['sources','Data sources','file']];
+export const LAE_ANALYTICS_SECTIONS=[['overview','Purchasing overview','grid'],['purchases','Purchase requirements','orders'],['months','Monthly buying plan','orders'],['plan','ABP & remaining demand','money'],['issues','Gaps & decisions','file'],['targets','Sales history','money'],['stock','Stock & pipeline','box'],['sources','Data sources','file']];
 export const LAE_ANALYTICS_CENTRES=['B2C - TN','B2B - TN','B2B - AP / TS','B2B - Karnal'];
 
 export function createLaeSalesAnalyticsUI({context,esc,head,icon,render,api}){
  const sales=createSalesUI({context,esc,render,api});
+ const planning=createPlanningUI({context,esc,render,api}),planningSections=['overview','purchases','months','plan','issues'];
  const selection={centre:'',month:''};
  const query={category:'',engine:'',grade:'',search:'',level:'category',offset:0};
  let result=null,error='',requestKey='',requestNumber=0,owner='';
@@ -25,12 +27,14 @@ export function createLaeSalesAnalyticsUI({context,esc,head,icon,render,api}){
  function invalidate(focus){result=null;error='';requestKey='';requestNumber++;render();if(focus)globalThis.document?.getElementById(focus)?.focus();}
  const renderResult=()=>{const focus=globalThis.document?.activeElement?.id;render();if(focus?.startsWith('lae-analytics-'))globalThis.document?.getElementById(focus)?.focus();};
  function afterRender(){
+  if(planningSections.includes(context().ui.orderId)&&api&&!context().sandbox){planning.afterRender();return;}
   if(context().ui.orderId==='targets'&&api&&!context().sandbox){sales.afterRender();return;}
   syncOwner();if(!api||context().sandbox||context().ui.view!=='lae-sales-analytics')return;
   const params=new URLSearchParams({...selection,...query}),key=owner+'|'+params;if(requestKey===key)return;requestKey=key;const number=++requestNumber,actor=owner;
   api('/lae-analytics/workspace?'+params).then(data=>{if(number!==requestNumber||actor!==identity())return;result=data;error='';if(context().ui.view==='lae-sales-analytics')renderResult();}).catch(e=>{if(number!==requestNumber||actor!==identity())return;result=null;error=e.message||'Stock data could not be loaded.';if(context().ui.view==='lae-sales-analytics')renderResult();});
  }
  function action(name,data){
+  if(planningSections.includes(context().ui.orderId)&&planning.action(name,data))return true;
   if(context().ui.orderId==='targets'&&sales.action(name,data))return true;
   if(!name.startsWith('lae-analytics-')||context().ui.view!=='lae-sales-analytics')return false;
   if(name==='lae-analytics-drill'){const row=result?.rows[Number(data.index)],levels=['category','engine','grade','item'],index=levels.indexOf(query.level);if(!row||index<0||index>=3)return true;query[query.level]=row.key;query.level=levels[index+1];query.offset=0;}
@@ -49,15 +53,16 @@ export function createLaeSalesAnalyticsUI({context,esc,head,icon,render,api}){
   const active=section(),label=LAE_ANALYTICS_SECTIONS.find(([id])=>id===active)[1];
   const controls='<div class="analytics-filters"><label for="lae-analytics-centre">Cost centre<select id="lae-analytics-centre"><option value="">All cost centres</option>'+LAE_ANALYTICS_CENTRES.map(x=>'<option'+(selection.centre===x?' selected':'')+'>'+esc(x)+'</option>').join('')+'</select></label><label for="lae-analytics-month">Month<input type="month" id="lae-analytics-month" value="'+esc(selection.month)+'"></label><p class="analytics-selection" role="status">'+esc(selection.centre||'All cost centres')+' · '+esc(selection.month||'All months')+' · No data added</p></div>';
   const tabs='<nav class="analytics-tabs" aria-label="Analytics sections">'+LAE_ANALYTICS_SECTIONS.map(([id,title])=>'<a href="#/lae-sales-analytics/'+id+'"'+(id===active?' aria-current="page"':'')+'>'+esc(title)+'</a>').join('')+'</nav>';
+  if(planningSections.includes(active)&&api&&!context().sandbox)return '<div class="lae-analytics">'+head('Farming Hub','LAE Sales Analytics','Purchasing guidance by category, engine / blade, grade and item code.')+tabs+planning.page()+'</div>';
   if(active==='targets'&&api&&!context().sandbox)return '<div class="lae-analytics">'+head('Farming Hub','LAE Sales Analytics','Monthly sales by engine, blade specification and grade.')+tabs+sales.page()+'</div>';
   let content;
   if(active==='overview')content='<div class="analytics-metrics">'+metrics.map(([title,source])=>'<article class="panel analytics-metric"><h2>'+esc(title)+'</h2><strong aria-label="Not available">—</strong><p>Awaiting '+esc(source.toLowerCase())+'</p></article>').join('')+'</div><section class="panel">'+empty('Your analytics workspace is ready','Add the business plan, forecast, sales, stock and pipeline data to begin the analysis.')+'</section><section class="panel analytics-rules"><h2>Reporting structure</h2><p>Main segment → Product category → Engine / blade / specification → Grade → Item code / model</p><p>Reports combine brands. Purchase requirements remain separate for each item code.</p><p>Chennai is a shared warehouse. Its stock is counted once across the four cost centres.</p></section>';
   else if(active==='sources')content='<section class="panel analytics-rules"><h2>No data has been added</h2><p>This release provides the workspace structure. Data import and calculations will be enabled when the source formats and mappings are confirmed.</p></section><div class="analytics-sources">'+sources.map(([title,detail])=>'<article class="panel analytics-source"><span class="badge">Awaiting data</span><h2>'+esc(title)+'</h2><p>'+esc(detail)+'</p></article>').join('')+'</div>';
-  else content='<section class="panel analytics-register"><h2>'+esc(label)+'</h2><div class="analytics-table" role="region" aria-label="'+esc(label)+' register" tabindex="0"><table><thead><tr>'+columns[active].map(x=>'<th scope="col">'+esc(x)+'</th>').join('')+'</tr></thead><tbody><tr><td colspan="'+columns[active].length+'">No data added for this view.</td></tr></tbody></table></div>'+empty(active==='targets'?'Targets and sales are awaiting data':active==='stock'?'Stock and pipeline are awaiting data':'Purchase quantities are not yet available',active==='purchases'?'Requirements will be calculated for each item code using demand, usable stock and pipeline due in the selected period. Surplus on another model will not offset its shortage.':'Choose Data sources to see the inputs needed for this view.')+'</section>';
+  else {const cols=columns[active]||columns.purchases;content='<section class="panel analytics-register"><h2>'+esc(label)+'</h2><div class="analytics-table" role="region" aria-label="'+esc(label)+' register" tabindex="0"><table><thead><tr>'+cols.map(x=>'<th scope="col">'+esc(x)+'</th>').join('')+'</tr></thead><tbody><tr><td colspan="'+cols.length+'">No data added for this view.</td></tr></tbody></table></div>'+empty(active==='targets'?'Targets and sales are awaiting data':active==='stock'?'Stock and pipeline are awaiting data':'Purchase quantities are not yet available',active==='purchases'?'Requirements will be calculated for each item code using demand, usable stock and pipeline due in the selected period. Surplus on another model will not offset its shortage.':'Choose Data sources to see the inputs needed for this view.')+'</section>';}
   if(result?.meta&&result.totals){
    if(active==='stock')content=stockReport();
    else if(active==='overview')content=cards()+'<section class="panel analytics-rules"><h2>Stock and pipeline are ready</h2><p>Explore category, engine/specification, grade and item code. Open Annual plan &amp; sales for monthly comparisons and ABP achievement. Purchase requirements await item-wise target allocation.</p><a class="button" href="#/lae-sales-analytics/stock">Open stock & pipeline</a></section>'+sourceNote();
-   else if(active==='sources')content=sourceNote()+'<section class="panel analytics-rules"><h2>Source coverage</h2><p>Stock, pipeline and product classification are loaded from MASTER. Sales and ABP have their own source reconciliation under Annual plan &amp; sales. Higher-level segment mapping and item-wise target allocation remain pending. This stock import does not calculate purchase shortages.</p><p>Source SHA256: <span class="analytics-hash">'+esc(result.meta.sha256)+'</span></p><p>Imported '+esc(result.importedAt)+'.</p></section>'+exceptions();
+   else if(active==='sources')content=sourceNote()+'<section class="panel analytics-rules"><h2>Source coverage</h2><p>Stock, pipeline and product classification are loaded from MASTER. Sales history retains its original reconciliation. ABP &amp; remaining demand adds provisional B2C and North closure plans. Purchase requirements use the separately imported MASTER monthly forecast; missing allocations and source issues are listed under Gaps &amp; decisions. Higher-level main segments remain unassigned.</p><p>Source SHA256: <span class="analytics-hash">'+esc(result.meta.sha256)+'</span></p><p>Imported '+esc(result.importedAt)+'.</p></section>'+exceptions();
   }
   if(error)content='<section class="panel analytics-rules" role="alert"><h2>Stock data unavailable</h2><p>'+esc(error)+'</p>'+actionButton('Retry','refresh')+'</section>'+(['targets','purchases'].includes(active)?content:'');
   else if(api&&!context().sandbox&&!result&&['overview','stock','sources'].includes(active))content='<section class="panel analytics-rules" role="status">Loading MASTER balances…</section>';
@@ -65,6 +70,7 @@ export function createLaeSalesAnalyticsUI({context,esc,head,icon,render,api}){
   return '<div class="lae-analytics">'+head('Farming Hub','LAE Sales Analytics','Sales performance, stock coverage and purchase requirements.')+tabs+controls.replace('No data added',status).replace('>Month<input','>Pipeline month<input')+content+'</div>';
  }
  function change(el){
+  if(planningSections.includes(context().ui.orderId)&&planning.change(el))return true;
   if(context().ui.orderId==='targets'&&sales.change(el))return true;
   if(context().ui.view!=='lae-sales-analytics')return false;
   if(el.id==='lae-analytics-centre')selection.centre=LAE_ANALYTICS_CENTRES.includes(el.value)?el.value:'';

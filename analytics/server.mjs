@@ -6,9 +6,10 @@ import {join,resolve} from 'node:path';
 import {LaeAnalyticsStore,assertAnalyticsAccess} from './store.mjs';
 import {RuleError} from './access.mjs';
 import {SalesStore} from './sales-store.mjs';
+import {PlanningStore} from './planning-store.mjs';
 
 const root=fileURLToPath(new URL('./web/',import.meta.url)),prefix='/lae-analytics';
-const files={'/':'index.html','/app.mjs':'app.mjs','/sales-ui.mjs':'sales-ui.mjs','/lae-sales-analytics.mjs':'lae-sales-analytics.mjs','/styles.css':'styles.css','/theme.css':'theme.css','/shell.css':'shell.css','/logo.png':'logo.png'};
+const files={'/':'index.html','/app.mjs':'app.mjs','/planning-ui.mjs':'planning-ui.mjs','/sales-ui.mjs':'sales-ui.mjs','/lae-sales-analytics.mjs':'lae-sales-analytics.mjs','/styles.css':'styles.css','/theme.css':'theme.css','/shell.css':'shell.css','/logo.png':'logo.png'};
 const types={html:'text/html; charset=utf-8',mjs:'text/javascript; charset=utf-8',css:'text/css; charset=utf-8',png:'image/png'};
 const json=(res,status,data)=>{res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'private, no-store'});res.end(JSON.stringify(data));};
 async function body(req){let size=0;const chunks=[];for await(const chunk of req){size+=chunk.length;if(size>32*1024*1024)throw new RuleError('Import exceeds 32 MB.','TOO_LARGE');chunks.push(chunk);}try{return JSON.parse(Buffer.concat(chunks));}catch{throw new RuleError('Invalid JSON.');}}
@@ -23,7 +24,7 @@ export async function readIdentity(req,identityOrigin){
  assertAnalyticsAccess(session.user);return session;
 }
 export function makeAnalyticsServer(db,{origin='https://purchase.dvjassociates.com',identityOrigin=origin,releaseSha=process.env.SOURCE_COMMIT||null,authenticate=readIdentity}={}){
- const module=new LaeAnalyticsStore(db),sales=new SalesStore(db,module),server=http.createServer(async(req,res)=>{
+ const module=new LaeAnalyticsStore(db),sales=new SalesStore(db,module),planning=new PlanningStore(db,module,sales),server=http.createServer(async(req,res)=>{
   res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Referrer-Policy','same-origin');res.setHeader('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'");
   try{
    const url=new URL(req.url,'http://localhost');
@@ -35,10 +36,11 @@ export function makeAnalyticsServer(db,{origin='https://purchase.dvjassociates.c
     if(req.method==='GET'&&path==='/api/session')return json(res,200,{user:session.user,csrf:session.csrf});
     if(req.method==='GET'&&path==='/api/lae-analytics/workspace')return json(res,200,module.workspace(session.user,Object.fromEntries(url.searchParams)));
     if(req.method==='GET'&&path==='/api/lae-sales/workspace')return json(res,200,sales.workspace(session.user,Object.fromEntries(url.searchParams)));
-    if(req.method==='POST'&&['/api/lae-analytics/import','/api/lae-sales/import'].includes(path)){
+    if(req.method==='GET'&&path==='/api/lae-planning/workspace')return json(res,200,planning.workspace(session.user,Object.fromEntries(url.searchParams)));
+    if(req.method==='POST'&&['/api/lae-analytics/import','/api/lae-sales/import','/api/lae-planning/import'].includes(path)){
      if(req.headers.origin!==origin||req.headers['x-csrf-token']!==session.csrf)throw new RuleError('Request origin or session token is invalid.','FORBIDDEN');
      if(!/^application\/json(?:;|$)/i.test(req.headers['content-type']||''))throw new RuleError('JSON content type is required.');
-     return json(res,200,(path==='/api/lae-sales/import'?sales:module).import(session.user,await body(req)));
+     return json(res,200,(path==='/api/lae-planning/import'?planning:path==='/api/lae-sales/import'?sales:module).import(session.user,await body(req)));
     }
     return json(res,404,{error:'Analytics route unavailable.'});
    }

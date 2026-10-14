@@ -21,9 +21,9 @@ test('filters remain local, preserve unknown inputs as empty and handle unsuppor
  ui.view='overview';assert.equal(page.change({id:'lae-analytics-centre',value:'B2C - TN'}),false);
 });
 test('late analytics responses cannot replace newer filters or cross account boundaries',async()=>{
- const ui={view:'lae-sales-analytics',orderId:'overview'};let user={id:'first',role:'ADMIN'},requests=[];
+ const ui={view:'lae-sales-analytics',orderId:'stock'};let user={id:'first',role:'ADMIN'},requests=[];
  const page=createLaeSalesAnalyticsUI({...uiHost(ui,user),context:()=>({ui,user,sandbox:false}),render:()=>{},api:()=>new Promise(resolve=>requests.push(resolve))});
- const response=n=>({meta:{fileName:'synthetic.xlsx',periodNote:'Synthetic',sha256:'a'.repeat(64)},sourceItems:1,totals:{stock:{quantity:n,missing:0},shared:{quantity:0,missing:0},pipeline:{quantity:0,missing:0}},exceptions:[]});
+ const response=n=>({meta:{fileName:'synthetic.xlsx',periodNote:'Synthetic',sha256:'a'.repeat(64)},sourceItems:1,rows:[],total:0,nextOffset:null,totals:{stock:{quantity:n,missing:0},shared:{quantity:0,missing:0},pipeline:{quantity:0,missing:0}},exceptions:[]});
  page.page();page.afterRender();page.change({id:'lae-analytics-centre',value:'B2B - TN'});page.afterRender();requests[0](response(99999));await new Promise(r=>setImmediate(r));assert.doesNotMatch(page.page(),/99,999/);requests[1](response(12345));await new Promise(r=>setImmediate(r));assert.match(page.page(),/12,345/);
  user={id:'second',role:'ADMIN'};assert.doesNotMatch(page.page(),/12,345/);page.afterRender();assert.equal(requests.length,3);
 });
