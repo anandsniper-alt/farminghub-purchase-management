@@ -1,0 +1,9 @@
+**
+!analytics/
+!analytics/**
+analytics/tests/
+analytics/README.md
+analytics/**/*.sqlite
+analytics/**/*.sqlite-wal
+analytics/**/*.sqlite-shm
+analytics/**/.env*
