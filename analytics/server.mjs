@@ -7,6 +7,7 @@ import {LaeAnalyticsStore,assertAnalyticsAccess} from './store.mjs';
 import {RuleError} from './access.mjs';
 import {SalesStore} from './sales-store.mjs';
 import {PlanningStore} from './planning-store.mjs';
+import {ReviewStore} from './review-store.mjs';
 
 const root=fileURLToPath(new URL('./web/',import.meta.url)),prefix='/lae-analytics';
 const files={'/':'index.html','/app.mjs':'app.mjs','/planning-ui.mjs':'planning-ui.mjs','/sales-ui.mjs':'sales-ui.mjs','/lae-sales-analytics.mjs':'lae-sales-analytics.mjs','/styles.css':'styles.css','/theme.css':'theme.css','/shell.css':'shell.css','/logo.png':'logo.png'};
@@ -24,7 +25,7 @@ export async function readIdentity(req,identityOrigin){
  assertAnalyticsAccess(session.user);return session;
 }
 export function makeAnalyticsServer(db,{origin='https://purchase.dvjassociates.com',identityOrigin=origin,releaseSha=process.env.SOURCE_COMMIT||null,authenticate=readIdentity}={}){
- const module=new LaeAnalyticsStore(db),sales=new SalesStore(db,module),planning=new PlanningStore(db,module,sales),server=http.createServer(async(req,res)=>{
+ const module=new LaeAnalyticsStore(db),sales=new SalesStore(db,module),planning=new PlanningStore(db,module,sales),review=new ReviewStore(db,module,sales,planning),server=http.createServer(async(req,res)=>{
   res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Referrer-Policy','same-origin');res.setHeader('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'");
   try{
    const url=new URL(req.url,'http://localhost');
@@ -37,6 +38,7 @@ export function makeAnalyticsServer(db,{origin='https://purchase.dvjassociates.c
     if(req.method==='GET'&&path==='/api/lae-analytics/workspace')return json(res,200,module.workspace(session.user,Object.fromEntries(url.searchParams)));
     if(req.method==='GET'&&path==='/api/lae-sales/workspace')return json(res,200,sales.workspace(session.user,Object.fromEntries(url.searchParams)));
     if(req.method==='GET'&&path==='/api/lae-planning/workspace')return json(res,200,planning.workspace(session.user,Object.fromEntries(url.searchParams)));
+    if(req.method==='GET'&&path==='/api/lae-review/workspace')return json(res,200,review.workspace(session.user,Object.fromEntries(url.searchParams)));
     if(req.method==='POST'&&['/api/lae-analytics/import','/api/lae-sales/import','/api/lae-planning/import'].includes(path)){
      if(req.headers.origin!==origin||req.headers['x-csrf-token']!==session.csrf)throw new RuleError('Request origin or session token is invalid.','FORBIDDEN');
      if(!/^application\/json(?:;|$)/i.test(req.headers['content-type']||''))throw new RuleError('JSON content type is required.');

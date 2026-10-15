@@ -1,83 +1,122 @@
-import {createSalesUI} from './sales-ui.mjs';
-import {createPlanningUI} from './planning-ui.mjs';
-/** Read-only analytics views. Private source data is fetched through the scoped API. */
-export const LAE_ANALYTICS_SECTIONS=[['overview','Purchasing overview','grid'],['purchases','Purchase requirements','orders'],['months','Monthly buying plan','orders'],['plan','ABP & remaining demand','money'],['issues','Gaps & decisions','file'],['targets','Sales history','money'],['stock','Stock & pipeline','box'],['sources','Data sources','file']];
-export const LAE_ANALYTICS_CENTRES=['B2C - TN','B2B - TN','B2B - AP / TS','B2B - Karnal'];
+/** Read-only product review and sales filtering; source imports remain unchanged. */
+export const LAE_ANALYTICS_SECTIONS=[['review','Stock & sales review'],['sales','Sales filter']];
+export const LAE_ANALYTICS_CENTRES=['B2B - Karnal','B2B - AP / TS','B2B - TN','B2C - TN'];
+const zones=[['B2B - Karnal','North'],['B2B - AP / TS','AP / Telangana'],['B2B - TN','Tamil Nadu'],['B2C - TN','Farming Hub']];
+const levels=[['category','Category'],['engine','Engine / blade'],['grade','Grade'],['item','SKU / model']];
+const months=[4,5,6,7,8,9,10,11,12,1,2,3];
+const monthName=m=>new Date(Date.UTC(2000,m-1,1)).toLocaleString('en-GB',{month:'short',timeZone:'UTC'});
+const number=v=>v===null||v===undefined?'—':Number(v).toLocaleString('en-IN');
+export const csvCell=value=>{const s=String(value??'');return '"'+(/^[=+\-@\t\r\n]/.test(s)?"'"+s:s).replaceAll('"','""')+'"';};
 
-export function createLaeSalesAnalyticsUI({context,esc,head,icon,render,api}){
- const sales=createSalesUI({context,esc,render,api});
- const planning=createPlanningUI({context,esc,render,api}),planningSections=['overview','purchases','months','plan','issues'];
- const selection={centre:'',month:''};
- const query={category:'',engine:'',grade:'',search:'',level:'category',offset:0};
- let result=null,error='',requestKey='',requestNumber=0,owner='';
- const identity=()=>JSON.stringify([context().user?.id,context().user?.role,context().user?.scopes,context().user?.active]);
- const syncOwner=()=>{const next=identity();if(next!==owner){owner=next;result=null;error='';requestKey='';requestNumber++;Object.assign(query,{category:'',engine:'',grade:'',search:'',level:'category',offset:0});}};
- const format=value=>value===null||value===undefined?'—':Number(value).toLocaleString('en-IN');
- const measure=value=>!value?'—':format(value.quantity)+(value.missing?' + '+value.missing+' unknown':'');
- const actionButton=(label,action,extra='')=>'<button type="button" class="button ghost" data-action="lae-analytics-'+action+'" '+extra+'>'+esc(label)+'</button>';
- const sourceNote=()=>'<section class="panel analytics-rules"><h2>MASTER balances</h2><p>'+esc(result.meta.fileName)+' · '+result.sourceItems+' item codes. Stock cutoff is not confirmed; the stock balance stays fixed when the pipeline month changes.</p><p>Chennai is shared stock, counted once in the all-centre total. For a selected cost centre, Chennai is shown separately and is not allocated to it. Pipeline is shared and unallocated.</p><p>'+esc(result.meta.periodNote)+'</p></section>';
- const exceptions=()=>'<details class="panel analytics-rules"><summary>Source discrepancies — reported balances retained ('+result.exceptions.length+')</summary>'+result.exceptions.map(e=>'<p><b>'+esc(e.item)+'</b> — '+esc(e.detail)+' <span class="muted">'+esc(e.source)+'</span></p>').join('')+'</details>';
- const cards=()=>'<div class="analytics-metrics">'+[['Reported stock',result.totals.stock,selection.centre||'MASTER total; includes shared Chennai'],['Shared Chennai stock',result.totals.shared,selection.centre?'Separate; not allocated to this centre':'Already included in reported stock'],['Pipeline quantity',result.totals.pipeline,(selection.month||'All source months')+' · shared / unallocated']].map(([title,v,note])=>'<article class="panel analytics-metric"><h2>'+title+'</h2><strong>'+measure(v)+'</strong><p>'+esc(note)+'</p></article>').join('')+'</div>';
- function stockReport(){
-  const levels=['category','engine','grade','item'],labels={category:'Product category',engine:'Engine / blade / specification',grade:'Grade',item:'Item code / model'};
-  const crumbs=actionButton('All categories','level','data-level="category"')+['category','engine','grade'].filter(k=>query[k]).map((k,i)=>'<span> / </span>'+actionButton(query[k],'level','data-level="'+levels[i+1]+'"')).join('');
-  const rows=result.rows.map((r,i)=>'<tr><th scope="row">'+(query.level==='item'?esc(r.label)+'<div class="sub">'+esc(r.model)+'</div><details><summary>Source and warehouses</summary><p>'+esc(r.description)+'</p><p>MASTER row '+r.sourceRow+' · Stock CD'+r.sourceRow+' · Pipeline BU'+r.sourceRow+'</p>'+['B2C - TN','B2B - TN','B2B - AP / TS','B2B - Karnal','Shared Chennai'].map((n,j)=>'<p>'+n+': '+format(r.locations[j])+'</p>').join('')+'</details>':actionButton(r.label,'drill','data-index="'+i+'"'))+'</th><td>'+r.items+'</td><td>'+measure(r.stock)+'</td><td>'+measure(r.shared)+'</td><td>'+measure(r.pipeline)+'</td></tr>').join('');
-  return cards()+sourceNote()+'<section class="panel analytics-register"><h2>Stock & pipeline by '+labels[query.level].toLowerCase()+'</h2><div class="analytics-report-tools"><nav aria-label="Stock reporting hierarchy">'+crumbs+'</nav><label for="lae-analytics-search">Find an item or model<input type="search" id="lae-analytics-search" value="'+esc(query.search)+'" maxlength="200" placeholder="Item code, model or category"></label>'+actionButton('Refresh','refresh')+'</div><div class="analytics-table" role="region" aria-label="Stock and pipeline grouped register" tabindex="0"><table><thead><tr><th scope="col">'+labels[query.level]+'</th><th scope="col">Item codes</th><th scope="col">Reported stock</th><th scope="col">Shared Chennai</th><th scope="col">Pipeline (unallocated)</th></tr></thead><tbody>'+rows+(rows?'':'<tr><td colspan="5">No matching items.</td></tr>')+'</tbody></table></div><div class="analytics-report-tools"><span>'+result.total+' groups / items · '+result.totals.items+' item codes in this selection</span>'+(query.offset?actionButton('Previous','page','data-offset="'+Math.max(0,query.offset-50)+'"'):'')+(result.nextOffset!==null?actionButton('Next','page','data-offset="'+result.nextOffset+'"'):'')+'</div></section>'+exceptions();
- }
- function invalidate(focus){result=null;error='';requestKey='';requestNumber++;render();if(focus)globalThis.document?.getElementById(focus)?.focus();}
- const renderResult=()=>{const focus=globalThis.document?.activeElement?.id;render();if(focus?.startsWith('lae-analytics-'))globalThis.document?.getElementById(focus)?.focus();};
- function afterRender(){
-  if(planningSections.includes(context().ui.orderId)&&api&&!context().sandbox){planning.afterRender();return;}
-  if(context().ui.orderId==='targets'&&api&&!context().sandbox){sales.afterRender();return;}
-  syncOwner();if(!api||context().sandbox||context().ui.view!=='lae-sales-analytics')return;
-  const params=new URLSearchParams({...selection,...query}),key=owner+'|'+params;if(requestKey===key)return;requestKey=key;const number=++requestNumber,actor=owner;
-  api('/lae-analytics/workspace?'+params).then(data=>{if(number!==requestNumber||actor!==identity())return;result=data;error='';if(context().ui.view==='lae-sales-analytics')renderResult();}).catch(e=>{if(number!==requestNumber||actor!==identity())return;result=null;error=e.message||'Stock data could not be loaded.';if(context().ui.view==='lae-sales-analytics')renderResult();});
- }
- function action(name,data){
-  if(planningSections.includes(context().ui.orderId)&&planning.action(name,data))return true;
-  if(context().ui.orderId==='targets'&&sales.action(name,data))return true;
-  if(!name.startsWith('lae-analytics-')||context().ui.view!=='lae-sales-analytics')return false;
-  if(name==='lae-analytics-drill'){const row=result?.rows[Number(data.index)],levels=['category','engine','grade','item'],index=levels.indexOf(query.level);if(!row||index<0||index>=3)return true;query[query.level]=row.key;query.level=levels[index+1];query.offset=0;}
-  else if(name==='lae-analytics-level'){const index=['category','engine','grade','item'].indexOf(data.level);if(index<0)return true;query.level=data.level;['category','engine','grade'].slice(index).forEach(k=>query[k]='');query.offset=0;}
-  else if(name==='lae-analytics-page'){const n=Number(data.offset);if(!Number.isSafeInteger(n)||n<0)return true;query.offset=n;}
-  else if(name!=='lae-analytics-refresh')return false;
-  invalidate();return true;
- }
- const metrics=[['Annual target','Annual business plan'],['Net sales','Sales and returns'],['Available stock','Dated stock snapshot'],['Pipeline quantity','Open purchases and arrival dates'],['Purchase requirement','Item-wise demand and supply']];
- const sources=[['Annual business plan','Financial year, cost centre, segment, target quantity and target value.'],['Monthly forecast','Month, cost centre, item code and forecast quantity.'],['Sales','Date, cost centre, item code, quantity, sales value and returns.'],['Stock','Snapshot date, warehouse, item code and available quantity.'],['Pipeline','Purchase reference, item code, pending quantity and expected arrival date.'],['Product classification','Main segment, product category, engine or specification, grade and item code.']];
- const section=()=>LAE_ANALYTICS_SECTIONS.some(([id])=>id===context().ui.orderId)?context().ui.orderId:'overview';
- const empty=(title,body)=>'<div class="analytics-empty">'+icon('box',30)+'<h2>'+esc(title)+'</h2><p>'+esc(body)+'</p><a class="button" href="#/lae-sales-analytics/sources">View required data</a></div>';
- const columns={targets:['Cost centre','Main segment','Product category','Annual target','Monthly forecast','Net sales','Achievement'],stock:['Product category','Engine / blade / specification','Grade','Item code','Warehouse','Available stock','Pipeline','Expected arrival'],purchases:['Product category','Engine / blade / specification','Grade','Item code','Remaining demand','Available supply','Purchase quantity']};
- function page(){
-  syncOwner();
-  const active=section(),label=LAE_ANALYTICS_SECTIONS.find(([id])=>id===active)[1];
-  const controls='<div class="analytics-filters"><label for="lae-analytics-centre">Cost centre<select id="lae-analytics-centre"><option value="">All cost centres</option>'+LAE_ANALYTICS_CENTRES.map(x=>'<option'+(selection.centre===x?' selected':'')+'>'+esc(x)+'</option>').join('')+'</select></label><label for="lae-analytics-month">Month<input type="month" id="lae-analytics-month" value="'+esc(selection.month)+'"></label><p class="analytics-selection" role="status">'+esc(selection.centre||'All cost centres')+' · '+esc(selection.month||'All months')+' · No data added</p></div>';
-  const tabs='<nav class="analytics-tabs" aria-label="Analytics sections">'+LAE_ANALYTICS_SECTIONS.map(([id,title])=>'<a href="#/lae-sales-analytics/'+id+'"'+(id===active?' aria-current="page"':'')+'>'+esc(title)+'</a>').join('')+'</nav>';
-  if(planningSections.includes(active)&&api&&!context().sandbox)return '<div class="lae-analytics">'+head('Farming Hub','LAE Sales Analytics','Purchasing guidance by category, engine / blade, grade and item code.')+tabs+planning.page()+'</div>';
-  if(active==='targets'&&api&&!context().sandbox)return '<div class="lae-analytics">'+head('Farming Hub','LAE Sales Analytics','Monthly sales by engine, blade specification and grade.')+tabs+sales.page()+'</div>';
-  let content;
-  if(active==='overview')content='<div class="analytics-metrics">'+metrics.map(([title,source])=>'<article class="panel analytics-metric"><h2>'+esc(title)+'</h2><strong aria-label="Not available">—</strong><p>Awaiting '+esc(source.toLowerCase())+'</p></article>').join('')+'</div><section class="panel">'+empty('Your analytics workspace is ready','Add the business plan, forecast, sales, stock and pipeline data to begin the analysis.')+'</section><section class="panel analytics-rules"><h2>Reporting structure</h2><p>Main segment → Product category → Engine / blade / specification → Grade → Item code / model</p><p>Reports combine brands. Purchase requirements remain separate for each item code.</p><p>Chennai is a shared warehouse. Its stock is counted once across the four cost centres.</p></section>';
-  else if(active==='sources')content='<section class="panel analytics-rules"><h2>No data has been added</h2><p>This release provides the workspace structure. Data import and calculations will be enabled when the source formats and mappings are confirmed.</p></section><div class="analytics-sources">'+sources.map(([title,detail])=>'<article class="panel analytics-source"><span class="badge">Awaiting data</span><h2>'+esc(title)+'</h2><p>'+esc(detail)+'</p></article>').join('')+'</div>';
-  else {const cols=columns[active]||columns.purchases;content='<section class="panel analytics-register"><h2>'+esc(label)+'</h2><div class="analytics-table" role="region" aria-label="'+esc(label)+' register" tabindex="0"><table><thead><tr>'+cols.map(x=>'<th scope="col">'+esc(x)+'</th>').join('')+'</tr></thead><tbody><tr><td colspan="'+cols.length+'">No data added for this view.</td></tr></tbody></table></div>'+empty(active==='targets'?'Targets and sales are awaiting data':active==='stock'?'Stock and pipeline are awaiting data':'Purchase quantities are not yet available',active==='purchases'?'Requirements will be calculated for each item code using demand, usable stock and pipeline due in the selected period. Surplus on another model will not offset its shortage.':'Choose Data sources to see the inputs needed for this view.')+'</section>';}
-  if(result?.meta&&result.totals){
-   if(active==='stock')content=stockReport();
-   else if(active==='overview')content=cards()+'<section class="panel analytics-rules"><h2>Stock and pipeline are ready</h2><p>Explore category, engine/specification, grade and item code. Open Annual plan &amp; sales for monthly comparisons and ABP achievement. Purchase requirements await item-wise target allocation.</p><a class="button" href="#/lae-sales-analytics/stock">Open stock & pipeline</a></section>'+sourceNote();
-   else if(active==='sources')content=sourceNote()+'<section class="panel analytics-rules"><h2>Source coverage</h2><p>Stock, pipeline and product classification are loaded from MASTER. Sales history retains its original reconciliation. ABP &amp; remaining demand adds provisional B2C and North closure plans. Purchase requirements use the separately imported MASTER monthly forecast; missing allocations and source issues are listed under Gaps &amp; decisions. Higher-level main segments remain unassigned.</p><p>Source SHA256: <span class="analytics-hash">'+esc(result.meta.sha256)+'</span></p><p>Imported '+esc(result.importedAt)+'.</p></section>'+exceptions();
+export function createLaeSalesAnalyticsUI({context,esc,head,render,api}) {
+  const initial=()=>({category:'',engine:'',grade:'',item:'',centre:'',search:'',level:'category',fy:'',period:'quarterly',months:'4,5,6,7,8,9',offset:0,sort:'name'});
+  let focusAfterLoad='';
+  let monthDraft='4,5,6,7,8,9',query=initial(),result=null,error='',owner='',requestKey='',requestNumber=0,exporting=false;
+  const view=()=>context().ui.orderId==='sales'?'sales':'review';
+  const identity=()=>JSON.stringify([context().user?.id,context().user?.role,context().user?.scopes,context().user?.active]);
+  function syncOwner(){const next=identity();if(next!==owner){owner=next;focusAfterLoad='';query=initial();monthDraft=query.months;result=null;error='';requestKey='';requestNumber++;exporting=false;}}
+  const button=(label,action,extra='')=>`<button type="button" class="button ghost" data-action="review-${action}" ${extra}>${esc(label)}</button>`;
+  function measure(m){if(!m||m.quantity===null)return '<span class="review-missing" title="Not supplied for this scope">—</span>';return `<span${m.complete?'':' class="review-partial" title="Recorded quantity only; source coverage or period is incomplete"'}>${number(m.quantity)}${m.complete?'':'<sup>*</sup>'}</span>`;}
+  const periodLabel=p=>p.id==='currentH1'&&result.lastSixMatchesH1?p.label+' · last 6 months':p.label;
+  const visibleBuckets=()=>result.buckets.filter(p=>view()!=='review'||p.id!=='lastSix'||!result.lastSixMatchesH1);
+  function select(name,label,options,empty='All',extra=''){
+    return `<label for="review-${name}">${esc(label)}<select id="review-${name}" ${extra}>${empty!==null?`<option value="">${esc(empty)}</option>`:''}${options.map(o=>{const [v,t]=Array.isArray(o)?o:[o,o];return `<option value="${esc(v)}"${String(query[name])===String(v)?' selected':''}>${esc(t)}</option>`;}).join('')}</select></label>`;
   }
-  if(error)content='<section class="panel analytics-rules" role="alert"><h2>Stock data unavailable</h2><p>'+esc(error)+'</p>'+actionButton('Retry','refresh')+'</section>'+(['targets','purchases'].includes(active)?content:'');
-  else if(api&&!context().sandbox&&!result&&['overview','stock','sources'].includes(active))content='<section class="panel analytics-rules" role="status">Loading MASTER balances…</section>';
-  const status=error?'Data unavailable':result?.meta?'MASTER balances loaded':api&&!context().sandbox&&!result?'Loading data':'No data added';
-  return '<div class="lae-analytics">'+head('Farming Hub','LAE Sales Analytics','Sales performance, stock coverage and purchase requirements.')+tabs+controls.replace('No data added',status).replace('>Month<input','>Pipeline month<input')+content+'</div>';
- }
- function change(el){
-  if(planningSections.includes(context().ui.orderId)&&planning.change(el))return true;
-  if(context().ui.orderId==='targets'&&sales.change(el))return true;
-  if(context().ui.view!=='lae-sales-analytics')return false;
-  if(el.id==='lae-analytics-centre')selection.centre=LAE_ANALYTICS_CENTRES.includes(el.value)?el.value:'';
-  else if(el.id==='lae-analytics-month')selection.month=/^\d{4}-(0[1-9]|1[0-2])$/.test(el.value)?el.value:'';
-  else if(el.id==='lae-analytics-search'){query.search=String(el.value||'').slice(0,200);query.offset=0;}
-  else return false;
-  query.offset=0;invalidate(el.id);return true;
- }
- return {page,change,action,afterRender};
+  function filters(){
+    const o=result.options;
+    let html=`<section class="panel review-filters" aria-label="Product filters">${select('category','Product category',o.categories,'All categories')}${select('engine','Engine / blade',o.engines,'All engines / blades')}${select('grade','Grade',o.grades,'All grades')}${select('item','SKU / model',o.items.map(i=>[i.id,i.label]),'All models')}${select('centre','Sales / plan zone',zones,'All four zones')}${select('level','Group rows by',levels,null)}<label for="review-search">Find item<input type="search" id="review-search" value="${esc(query.search)}" maxlength="200" placeholder="Code or model"></label>${select('sort','Sort by',[['name','Product name'],['stock','Highest stock'],['sales','Highest sales'],['plan','Largest entered plan']],null)}<div class="review-filter-actions">${button('Reset filters','reset')}${button('Refresh','refresh')}</div></section>`;
+    if(view()==='sales')html+=`<section class="panel review-periods" aria-label="Sales period filters">${select('fy','Financial year',result.years,null)}${select('period','Period',[['quarterly','Quarterly · Q1 to Q4'],['half','Half-yearly · H1 and H2'],['Q1','Q1 · Apr–Jun'],['Q2','Q2 · Jul–Sep'],['Q3','Q3 · Oct–Dec'],['Q4','Q4 · Jan–Mar'],['H1','H1 · Apr–Sep'],['H2','H2 · Oct–Mar'],['full','Full financial year'],['custom','Choose months']],null)}${query.period==='custom'?`<fieldset class="review-months"><legend>Select months</legend>${months.map(m=>`<label><input type="checkbox" data-review-month="${m}"${monthDraft.split(',').includes(String(m))?' checked':''}>${monthName(m)}</label>`).join('')}${button('Apply months','months')}</fieldset>`:''}</section>`;
+    return html;
+  }
+  function sourceNotes(){
+    return `<details class="panel review-notes"><summary>Data notes & source checks</summary><p>Stock: ${esc(result.source.stockFile)} · MASTER balances retained. Stock date is ${result.source.stockAsOf?esc(result.source.stockAsOf):'not confirmed'}. Pipeline arrival dates and whether all quantities remain open need confirmation.</p><p>Sales: ${esc(result.source.salesFile)} · through ${esc(result.cutoff)}. H1 = April–September; H2 = October–March. October is partial. Last six months means the last six completed calendar months.</p><p>Prior-year Farming Hub data was not supplied. Prior-year Tamil Nadu contains only Battery Sprayer Spares; its other categories remain unknown. Recorded totals are shown with an asterisk where coverage is incomplete; no missing history is replaced with zero.</p><p>Plans are the quantities entered in MASTER, not ABP-derived allocations. Plan left deducts recorded sales in the same forecast month and item/zone, with a minimum of zero. Blank forecast entries remain blank. Supply above an incomplete plan is a review signal, not a confirmed surplus or purchase approval. No surplus is transferred between item codes.</p><p>Stock and pipeline always refer to all warehouses for the selected products. Chennai is included once. Zone stock is shown separately; pipeline is not allocated to zones. ${result.totals.unmapped} sales item identities in this selection lack MASTER stock/classification matches.</p><p>H1, H2 and full-year columns are overlapping comparisons; do not add those columns together.</p>${result.source.exceptions.map(e=>`<p>${esc(e.item)}: ${esc(e.detail)}</p>`).join('')}${result.source.forecastExceptions.map(e=>`<p>Forecast ${esc(e.cells.join(', '))}: brand inputs total ${number(e.brands.reduce((n,q)=>n+(q??0),0))}; MASTER total ${number(e.cached)} retained.</p>`).join('')}</details>`;
+  }
+  const region=(label,table)=>`<div class="analytics-table review-table" role="region" aria-label="${esc(label)}" tabindex="0">${table}</div>`;
+  function inventoryCards(){return `<div class="analytics-metrics review-metrics">${[['Stock on hand',result.totals.stock],['Pipeline',result.totals.pipeline],['Stock + pipeline',result.totals.supply]].map(([title,m])=>`<article class="panel analytics-metric"><h2>${title}</h2><strong>${measure(m)}</strong><p>All warehouses · selected products</p></article>`).join('')}</div>`;}
+  function reportTable(){
+    const overview=view()==='review',buckets=visibleBuckets(),rowName=levels.find(([v])=>v===query.level)[1];
+    const columns=[rowName,...(overview?['Stock','Pipeline','Stock + pipeline']:[]),...buckets.map(p=>periodLabel(p)+(p.partial?' · partial':'')),...(overview?['Entered plan','Plan left','Supply − plan left']:['Selected total'])];
+    const cells=r=>`${overview?['stock','pipeline','supply'].map(k=>`<td>${measure(r[k])}</td>`).join(''):''}${buckets.map(p=>`<td>${measure(r.sales[p.id])}</td>`).join('')}${overview?`<td>${measure(r.plan)}</td><td>${measure(r.remaining)}</td><td>${r.balance===null?'—':number(r.balance)}</td>`:`<td>${measure(r.totalSales)}</td>`}`;
+    const body=result.rows.map((r,i)=>`<tr><th scope="row">${button(r.label,'drill',`data-index="${i}"`)}${r.model?`<span class="review-sub">${esc(r.model)}</span>`:''}${r.path?`<span class="review-sub">${esc(r.path)}</span>`:''}${overview?`<span class="review-check">${esc(r.check)}</span>`:''}</th>${cells(r)}</tr>`).join('');
+    return `<section class="panel review-register"><div class="review-section-head"><div><h2>${overview?'Stock, sales & entered plan':'Sales quantities'}</h2><p>${result.total} ${query.level==='item'?'models':'groups'} · ${result.totals.items} item identities${query.centre?' · '+esc(zones.find(z=>z[0]===query.centre)[1]):' · all four zones'}</p></div>${button(exporting?'Exporting…':'Export filtered CSV','export',exporting?'disabled':'')}</div>${region(overview?'Product stock sales and plan':'Filtered sales quantities',`<table><thead><tr>${columns.map(c=>`<th scope="col">${esc(c)}</th>`).join('')}</tr></thead><tbody>${body||`<tr><td colspan="${columns.length}">No matching items. Clear a filter to widen the view.</td></tr>`}</tbody><tfoot><tr><th scope="row">Filtered total</th>${cells(result.totals)}</tr></tfoot></table>`)}<div class="review-pagination"><span>${result.total?query.offset+1:0}–${Math.min(query.offset+50,result.total)} of ${result.total}</span>${query.offset?button('Previous','page',`data-offset="${Math.max(0,query.offset-50)}"`):''}${result.nextOffset!==null?button('Next','page',`data-offset="${result.nextOffset}"`):''}</div><p class="review-legend">— not supplied · * partial period or incomplete inputs. ${overview?'Positive supply − plan left means supply above the entered plan; negative means a gap. Blank plans can change this balance.':''}</p></section>`;
+  }
+  function zoneTable(){
+    const overview=view()==='review',buckets=visibleBuckets();
+    const rows=result.zones.map(z=>`<tr${query.centre===z.centre?' class="review-selected"':''}><th scope="row">${esc(z.label)}</th>${overview?`<td>${measure(z.stock)}</td>`:''}${buckets.map(p=>`<td>${measure(z.sales[p.id])}</td>`).join('')}${overview?`<td>${measure(z.plan)}</td><td>${measure(z.remaining)}</td>`:`<td>${measure(z.totalSales)}</td>`}</tr>`).join('');
+    return `<section class="panel review-register"><h2>Who sold it? Four-zone split</h2><p>Same product filters · all four zones shown for comparison${overview?' · shared Chennai stock '+number(result.sharedStock.quantity)+' is additional to zone balances':''}.</p>${region('Four zone sales and plan',`<table><thead><tr><th scope="col">Zone</th>${overview?'<th scope="col">Zone stock</th>':''}${buckets.map(p=>`<th scope="col">${esc(periodLabel(p))}${p.partial?' · partial':''}</th>`).join('')}${overview?'<th scope="col">Entered plan</th><th scope="col">Plan left</th>':'<th scope="col">Selected total</th>'}</tr></thead><tbody>${rows}</tbody></table>`)}</section>`;
+  }
+  function forecastTable(){
+    if(!result.forecastMonths.length)return '<section class="panel"><p>Forecast data has not been supplied.</p></section>';
+    const rows=result.forecastMonths.map(m=>`<tr><th scope="row">${esc(m.month)}</th>${m.zones.map(z=>`<td>${measure(z)}<span class="review-sub">${z.entered} entries${z.blank?' · '+z.blank+' blank':''}</span></td>`).join('')}</tr>`).join('');
+    return `<details class="panel review-register"><summary>Check the entered monthly plan by zone</summary><p>Original MASTER forecast quantities for the selected products. No ABP reallocation or invented February/March quantities.</p>${region('Original forecast by month and zone',`<table><thead><tr><th scope="col">Month</th>${zones.map(z=>`<th scope="col">${z[1]}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table>`)}</details>`;
+  }
+  function page(){
+    syncOwner();if(result&&result.view&&result.view!==view()){result=null;requestKey='';}
+    const tabs=`<nav class="analytics-tabs" aria-label="Analytics sections">${LAE_ANALYTICS_SECTIONS.map(([id,title])=>`<a href="#/lae-sales-analytics/${id}"${view()===id?' aria-current="page"':''}>${title}</a>`).join('')}</nav>`;
+    const heading=head('LAE Sales Analytics',view()==='review'?'Stock, sales & plan':'Filter sales quantities',view()==='review'?'Category → Engine / blade → Grade → SKU / model':'Compare quantities by item, zone, quarter, half-year or selected months.');
+    if(error)return `<div class="review-report">${heading}${tabs}<section class="panel" role="alert"><h2>Report unavailable</h2><p>${esc(error)}</p>${button('Retry','refresh')}</section></div>`;
+    if(!result)return `<div class="review-report">${heading}${tabs}<section class="panel" role="status">${api?'Loading stock, sales and plan…':'No data available.'}</section></div>`;
+    if(!result.ready)return `<div class="review-report">${heading}${tabs}<section class="panel"><h2>Awaiting data</h2><p>MASTER stock and sales imports are required. Existing source data is preserved.</p></section></div>`;
+    return `<div class="review-report">${heading}${tabs}<p class="review-asof">Sales through ${esc(result.cutoff)} · H1 Apr–Sep · H2 Oct–Mar · stock date unconfirmed</p>${filters()}${view()==='review'?inventoryCards():''}${query.centre&&view()==='review'?'<p class="review-scope">Sales and plan are filtered to the selected zone. Stock and pipeline stay consolidated; a zone purchase balance is not calculated without supply allocation.</p>':''}${reportTable()}${zoneTable()}${view()==='review'?forecastTable():''}${sourceNotes()}</div>`;
+  }
+  function invalidate(focus){focusAfterLoad=focus||'';result=null;error='';requestKey='';requestNumber++;render();if(focus)globalThis.document?.getElementById(focus)?.focus();}
+  function afterRender(){
+    syncOwner();if(!api||context().sandbox||context().ui.view!=='lae-sales-analytics')return;
+    const params=new URLSearchParams({...query,view:view()}),k=owner+'|'+params;
+    if(requestKey===k)return;requestKey=k;const number=++requestNumber,actor=owner;
+    api('/lae-review/workspace?'+params).then(data=>{
+      if(number!==requestNumber||actor!==identity())return;
+      result=data;if(data.fy&&!query.fy)query.fy=data.fy;
+      requestKey=owner+'|'+new URLSearchParams({...query,view:view()});
+      const focus=focusAfterLoad||globalThis.document?.activeElement?.id;focusAfterLoad='';render();if(focus?.startsWith('review-'))globalThis.document?.getElementById(focus)?.focus();
+    }).catch(e=>{if(number!==requestNumber||actor!==identity())return;error=e.message||'Report could not be loaded.';render();});
+  }
+  async function exportRows(){
+    const actor=owner,request=requestNumber,selectedView=view(),params=new URLSearchParams({...query,view:selectedView,export:'1',offset:'0'});
+    exporting=true;render();
+    try {
+      const data=await api('/lae-review/workspace?'+params);
+      if(actor!==identity()||request!==requestNumber)return;
+      const overview=selectedView==='review',buckets=data.buckets.filter(p=>!overview||p.id!=='lastSix'||!data.lastSixMatchesH1);
+      const headings=['Category','Engine / blade','Grade','Item / group','Model',...(overview?['Stock','Pipeline','Stock + pipeline']:[]),...buckets.map(p=>p.label),...(overview?['Entered plan','Plan left','Supply minus plan left','Review']:['Selected sales total']),'Coverage note','Sales cutoff','Stock cutoff','Sales / plan zone','Supply scope'];
+      const value=m=>m?.quantity===null?'':m?.quantity??'';
+      const lines=data.rows.map(r=>{
+        const ms=[...(overview?[r.stock,r.pipeline,r.supply]:[]),...buckets.map(p=>r.sales[p.id]),...(overview?[r.plan,r.remaining]:[r.totalSales])];
+        return [r.category,data.level==='category'?data.filters.engine:r.engine,['category','engine'].includes(data.level)?data.filters.grade:r.grade,r.label,r.model,...(overview?[value(r.stock),value(r.pipeline),value(r.supply)]:[]),...buckets.map(p=>value(r.sales[p.id])),...(overview?[value(r.plan),value(r.remaining),r.balance??'',r.check]:[value(r.totalSales)]),ms.every(m=>m.complete)?'Complete':'Partial / missing inputs; blank does not mean zero',data.cutoff,data.source.stockAsOf||'Unconfirmed',data.centre||'All four zones','All warehouses; not allocated to zone'];
+      });
+      const csv='\uFEFF'+[headings,...lines].map(row=>row.map(csvCell).join(',')).join('\r\n');
+      const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download=`LAE-${selectedView}-${data.fy}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+    }catch(e){error=e.message||'Export failed.';}finally{exporting=false;render();}
+  }
+  function action(name,data={}){
+    if(!name.startsWith('review-')||context().ui.view!=='lae-sales-analytics')return false;
+    if(name==='review-export'){if(result?.ready&&!exporting)void exportRows();return true;}
+    if(name==='review-drill'){
+      const row=result?.rows[Number(data.index)];if(!row)return true;
+      if(query.level==='item'){query.item=row.item;}
+      else {const i=levels.findIndex(([v])=>v===query.level);for(const [k] of levels.slice(0,i+1))query[k]=row[k];query.level=levels[i+1][0];query.item='';}
+      query.offset=0;
+    }else if(name==='review-reset'){query=initial();monthDraft=query.months;}
+    else if(name==='review-page'){const offset=Number(data.offset);if(!Number.isSafeInteger(offset)||offset<0)return true;query.offset=offset;}
+    else if(name==='review-months'){if(!monthDraft){error='Choose at least one month.';render();return true;}query.months=monthDraft;query.offset=0;}
+    else if(name!=='review-refresh')return false;
+    invalidate();return true;
+  }
+  function change(el){
+    if(context().ui.view!=='lae-sales-analytics')return false;
+    if(el.dataset?.reviewMonth){const selected=new Set(monthDraft.split(',').filter(Boolean));el.checked?selected.add(el.dataset.reviewMonth):selected.delete(el.dataset.reviewMonth);monthDraft=months.filter(m=>selected.has(String(m))).join(',');return true;}
+    if(!el.id?.startsWith('review-'))return false;
+    const name=el.id.slice(7);if(!Object.hasOwn(query,name)||name==='offset')return false;
+    const value=String(el.value||'').slice(0,1000);
+    if(name==='level'&&!levels.some(([v])=>v===value)||name==='centre'&&value&&!LAE_ANALYTICS_CENTRES.includes(value))return true;
+    query[name]=value;query.offset=0;
+    if(name==='category'){query.engine='';query.grade='';query.item='';}
+    if(name==='engine'){query.grade='';query.item='';}
+    if(name==='grade')query.item='';
+    if(name==='item'&&value)query.level='item';
+    if(name==='period'&&value==='custom'&&!query.months)query.months='4,5,6,7,8,9';
+    if(name==='period')monthDraft=query.months;
+    invalidate(el.id);return true;
+  }
+  return {page,afterRender,action,change};
 }
