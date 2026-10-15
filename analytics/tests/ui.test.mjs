@@ -8,6 +8,7 @@ test('replacement navigation has only two views and never treats purchase record
   const ui={view:'lae-sales-analytics',orderId:'review'},page=createLaeSalesAnalyticsUI(host(()=>({ui,user:{id:'a'},state:{orders:[{code:'PRIVATE',quantity:987654}]}})));
   assert.match(page.page(),/Stock, sales & plan/);assert.match(page.page(),/No data available/);assert.doesNotMatch(page.page(),/PRIVATE|987654|Monthly buying plan|Purchasing overview/);
   ui.orderId='sales';assert.match(page.page(),/Filter sales quantities/);
+  assert.equal(csvCell(-5),'"-5"');assert.equal(csvCell('  =1+1'),'"\'  =1+1"');
   assert.equal(csvCell('=1+1'),'"\'=1+1"');assert.equal(csvCell('safe "quote"'),'"safe ""quote"""');
 });
 test('late responses cannot overwrite a newer filter or cross account boundaries',async()=>{

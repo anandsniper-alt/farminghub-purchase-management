@@ -6,7 +6,7 @@ const levels=[['category','Category'],['engine','Engine / blade'],['grade','Grad
 const months=[4,5,6,7,8,9,10,11,12,1,2,3];
 const monthName=m=>new Date(Date.UTC(2000,m-1,1)).toLocaleString('en-GB',{month:'short',timeZone:'UTC'});
 const number=v=>v===null||v===undefined?'—':Number(v).toLocaleString('en-IN');
-export const csvCell=value=>{const s=String(value??'');return '"'+(/^[=+\-@\t\r\n]/.test(s)?"'"+s:s).replaceAll('"','""')+'"';};
+export const csvCell=value=>{const s=String(value??'');const numeric=typeof value==='number'&&Number.isFinite(value);return '"'+(!numeric&&(/^[\t\r\n]/.test(s)||/^\s*[=+\-@]/.test(s))?"'"+s:s).replaceAll('"','""')+'"';};
 
 export function createLaeSalesAnalyticsUI({context,esc,head,render,api}) {
   const initial=()=>({category:'',engine:'',grade:'',item:'',centre:'',search:'',level:'category',fy:'',period:'quarterly',months:'4,5,6,7,8,9',offset:0,sort:'name'});
