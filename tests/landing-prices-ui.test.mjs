@@ -50,3 +50,11 @@ test('download uses the complete selected query and standalone never contacts th
 test('an inflight landing read cannot render private results after sign out',async()=>{
  const {host,context}=hostFor([fixture()]);let resolveRequest,renders=0;host.api=()=>new Promise(resolve=>{resolveRequest=resolve;});host.render=()=>{renders++;};const ui=createLandingPricesUI(host),pending=ui.action('landing-refresh',{});context.user=null;resolveRequest(queryLandingPrices(projectLandingPriceRows(fixture())));await pending;assert.equal(renders,0);
 });
+
+test('RMB evidence stays separate from USD/INR and escaped in both landing views',async()=>{
+ for(const sandbox of [false,true]){
+  const record=fixture();record.purchaseItems.rows[0].purchaseFx={rmbUnitPrice:140,rmbPerUsd:7,date:'2026-09-01',proformaDate:'2026-09-01',basis:'Proforma',status:'Documented',source:'<script>rate</script>',rmbSource:'PI original RMB140'};
+  const {host}=hostFor([record],sandbox),ui=createLandingPricesUI(host);await ui.action('landing-refresh',{});const html=ui.page();
+  assert.match(html,/Original RMB \/ unit/);assert.match(html,/RMB \/ USD/);assert.match(html,/140\.00/);assert.match(html,/Proforma/);assert.match(html,/&lt;script&gt;rate&lt;\/script&gt;/);assert.doesNotMatch(html,/<script>rate/);assert.match(html,/Conversion checked/);
+ }
+});

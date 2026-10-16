@@ -7,8 +7,8 @@ import textwrap
 from urllib.parse import quote
 from xml.sax.saxutils import escape
 
-COLUMNS = [('ro','RO #'),('inwardDate','Inward date'),('vendorName','Vendor name'),('itemName','Item name'),('masterCode','Master code'),('brandCode','Brand code'),('brand','Brand'),('usdUnit','USD / unit'),('aiInrPerUsd','AI INR / USD'),('inrUnitBeforeGst','INR / unit before GST'),('quantity','Qty'),('unit','Unit'),('status','Costing status'),('invoice','Supplier invoice')]
-FILTER_LABELS = {'q':'Search','year':'Inward year','month':'Inward month','supplier':'Supplier','product':'Product group','masterCode':'Master code','brand':'Brand','unit':'Unit','status':'Costing status'}
+COLUMNS = [('ro','RO #'),('inwardDate','Inward date'),('vendorName','Vendor name'),('itemName','Item name'),('masterCode','Master code'),('brandCode','Brand code'),('brand','Brand'),('usdUnit','USD / unit'),('aiInrPerUsd','AI INR / USD'),('inrUnitBeforeGst','INR / unit before GST'),('quantity','Qty'),('unit','Unit'),('status','Costing status'),('invoice','Supplier invoice'),('rmbUnit','Original RMB / unit'),('rmbPerUsd','RMB / USD'),('fxDate','Exchange date'),('fxBasis','Date basis'),('fxStatus','Exchange evidence'),('fxReview','Currency review'),('fxDetail','Review details'),('rmbSource','RMB source'),('fxSource','Exchange source'),('rmbEquivalentUnit','Calculated RMB equivalent'),('fxSeverity','Review severity'),('previousRo','Previous comparable RO'),('previousUsdUnit','Previous USD / unit'),('previousRmbUnit','Previous original RMB / unit'),('usdChangePercent','USD change %'),('rmbChangePercent','RMB change %'),('conversionDifferencePercent','Conversion difference %')]
+FILTER_LABELS = {'q':'Search','year':'Inward year','month':'Inward month','supplier':'Supplier','product':'Product group','masterCode':'Master code','brand':'Brand','unit':'Unit','status':'Costing status','fxReview':'Currency review'}
 SUMMARY_COLUMNS = [('totalUnit','Unit'),('rowCount','Rows'),('totalQuantity','Purchase qty'),('pairedQuantity','Costed qty'),('pendingQuantity','Pending qty'),('avgUsd','Avg USD / unit'),('effectiveInrPerUsd','INR / USD'),('avgInr','Avg INR / unit'),('totalInr','Costed total INR')]
 def filter_text(data):
     filters=data.get('filters',{})
@@ -26,7 +26,7 @@ def excel(data):
     wb=Workbook();ws=wb.active;ws.title='Landing Prices';ws.sheet_view.showGridLines=False
     wb.calculation=CalcProperties(fullCalcOnLoad=True)
     green='204321'; light='EDF4E8';n=len(COLUMNS)
-    widths=[14,17,39,49,18,22,19,17,18,22,14,12,25,31]
+    widths=[14,17,39,49,18,22,19,17,18,22,14,12,25,31,20,20,18,24,24,28,60,60,60,24,18,24,22,26,20,20,24]
     def literal(cell,value):
         cell.value=value
         if isinstance(value,str):cell.data_type='s'
@@ -42,18 +42,18 @@ def excel(data):
         for col,(key,_) in enumerate(COLUMNS,1):
             value=row.get(key)
             if value is None or value=='':value='Pending'
-            if key=='inwardDate' and value!='Pending':value=dt.date.fromisoformat(value)
+            if key in ('inwardDate','fxDate') and value!='Pending':value=dt.date.fromisoformat(value)
             cell=ws.cell(index,col);literal(cell,value);cell.font=Font(name='Calibri',size=11,color='203723')
-            if key=='inwardDate' and value!='Pending':cell.number_format='dd-mmm-yyyy'
-            elif key=='aiInrPerUsd' and isinstance(value,(int,float)):cell.number_format='#,##0.0000'
-            elif key in ('usdUnit','inrUnitBeforeGst') and isinstance(value,(int,float)):cell.number_format='#,##0.00'
+            if key in ('inwardDate','fxDate') and value!='Pending':cell.number_format='dd-mmm-yyyy'
+            elif key in ('aiInrPerUsd','rmbPerUsd') and isinstance(value,(int,float)):cell.number_format='#,##0.0000'
+            elif key in ('usdUnit','inrUnitBeforeGst','rmbUnit','rmbEquivalentUnit','previousUsdUnit','previousRmbUnit','usdChangePercent','rmbChangePercent','conversionDifferencePercent') and isinstance(value,(int,float)):cell.number_format='#,##0.00'
             elif key=='quantity' and isinstance(value,(int,float)):cell.number_format='#,##0.##'
             if key=='ro':cell.hyperlink='https://purchase.dvjassociates.com/#/ro-costings/'+quote(str(value),safe='');cell.font=Font(color=green,underline='single')
         lines=max(sum(max(1,len(textwrap.wrap(part,width=max(1,int(widths[col-1])-2),break_long_words=True,break_on_hyphens=False))) for part in str(ws.cell(index,col).value or '').split('\n')) for col in range(1,n+1))
         ws.row_dimensions[index].height=min(409,max(32,15*lines+8))
     end=header+len(data['rows'])
     if data['rows']:
-        table=Table(displayName='LandingPrices',ref=f'A{header}:N{end}');table.tableStyleInfo=TableStyleInfo(name='TableStyleMedium4',showRowStripes=True);ws.add_table(table)
+        table=Table(displayName='LandingPrices',ref=f'A{header}:{get_column_letter(n)}{end}');table.tableStyleInfo=TableStyleInfo(name='TableStyleMedium4',showRowStripes=True);ws.add_table(table)
     else:literal(ws.cell(header+1,1),'No matching purchase lines')
     footer=max(end,header+1)+3
     ws.merge_cells(start_row=footer,start_column=1,end_row=footer,end_column=n);ws.cell(footer,1,'WEIGHTED AVERAGES - ALL SELECTED ROWS').font=Font(bold=True,color=green,size=13)
@@ -89,13 +89,13 @@ def pdf(data):
     p=lambda value,style=normal:Paragraph(escape(str(value if value not in (None,'') else 'Pending')).replace('\n','<br/>'),style)
     fmt=lambda value,d=2: 'Pending' if value is None else f'{value:,.{d}f}'
     flow=[Paragraph('Farming Hub | LAE Landing Prices',ParagraphStyle('title',parent=normal,fontSize=19,leading=24)),Spacer(1,5),p('Before GST | '+generated(data)),p(filter_text(data)),p(f'{len(data["rows"]):,} selected purchase lines'),Spacer(1,12)]
-    labels=['RO #','Inward date','Vendor / invoice','Item name','Master code','Brand code','Brand','USD / unit','AI INR / USD','INR / unit before GST','Qty / unit']
+    labels=['RO #','Inward date','Vendor / invoice','Item name','Master code','Brand code','Brand','RMB / USD unit prices','AI INR / USD','INR / unit before GST','Qty / unit']
     widths=[49,69,168,223,68,86,76,73,82,99,65]
     rows=[[p(label,header) for label in labels]]
     for row in data['rows']:
         date=dt.date.fromisoformat(row['inwardDate']).strftime('%d %b %Y') if row.get('inwardDate') else 'Pending'
         code=escape(row['ro']);url='https://purchase.dvjassociates.com/#/ro-costings/'+quote(row['ro'],safe='')
-        rows.append([Paragraph(f'<link href="{escape(url)}" color="#204321"><u>{code}</u></link>',normal),p(date),p(row['vendorName']+'\n'+row.get('invoice','')),p(row['itemName']),p(row['masterCode']),p(row['brandCode']),p(row['brand']),p(fmt(row['usdUnit']),right),p(fmt(row['aiInrPerUsd'],4),right),p(fmt(row['inrUnitBeforeGst'])+'\n'+row['status'],right),p(fmt(row['quantity'],0 if row['quantity'] is not None and float(row['quantity']).is_integer() else 2)+' '+row.get('unit',''),right)])
+        rows.append([Paragraph(f'<link href="{escape(url)}" color="#204321"><u>{code}</u></link>',normal),p(date),p(row['vendorName']+'\n'+row.get('invoice','')),p(row['itemName']+'\n'+row.get('fxReview','')+'\n'+row.get('fxDetail','')),p(row['masterCode']),p(row['brandCode']),p(row['brand']),p('USD '+fmt(row['usdUnit'])+'\nRMB '+fmt(row.get('rmbUnit'))+'\nRMB equivalent '+fmt(row.get('rmbEquivalentUnit'))+'\nFX '+fmt(row.get('rmbPerUsd'),4)+'\n'+row.get('fxDate','')+' '+row.get('fxBasis','')+'\n'+row.get('fxStatus',''),right),p(fmt(row['aiInrPerUsd'],4),right),p(fmt(row['inrUnitBeforeGst'])+'\n'+row['status'],right),p(fmt(row['quantity'],0 if row['quantity'] is not None and float(row['quantity']).is_integer() else 2)+' '+row.get('unit',''),right)])
     table=LongTable(rows,colWidths=widths,repeatRows=1,hAlign='LEFT');table.setStyle(TableStyle([('BACKGROUND',(0,0),(-1,0),green),('VALIGN',(0,0),(-1,-1),'TOP'),('ROWBACKGROUNDS',(0,1),(-1,-1),[colors.white,colors.HexColor('#F6F8F3')]),('LINEBELOW',(0,0),(-1,0),.6,green),('BOTTOMPADDING',(0,0),(-1,-1),7),('TOPPADDING',(0,0),(-1,-1),7)]));flow.append(table)
     if not data['rows']:flow.append(p('No matching purchase lines.'))
     summary=[[p(label,header) for _,label in SUMMARY_COLUMNS]]

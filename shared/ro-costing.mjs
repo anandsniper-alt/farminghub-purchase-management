@@ -44,6 +44,21 @@ export function worksheetComparisonSummary(record){
  const v=record.worksheetComparison;if(!v)return null;
  return {status:v.status,basis:v.basis,reviewedOn:v.reviewedOn,aiRate:v.ai.rate,sureshRate:v.suresh.rate};
 }
+// Purchase currency evidence is independent of FTWZ's reporting currency and landed INR/USD.
+export function validatePurchaseFx(input){
+ const v=worksheetObject(input),basis=roText(v.basis,40),status=roText(v.status,40);
+ if(!['Commercial invoice','Proforma','Supplier agreement','Historical worksheet','Pending'].includes(basis))roFail('Choose the purchase-specific exchange basis.');
+ if(!['Documented','Historical reference','Reference only','Pending'].includes(status))roFail('Choose the exchange evidence status.');
+ const rmbUnitPrice=worksheetNumber(v.rmbUnitPrice),rmbPerUsd=worksheetNumber(v.rmbPerUsd,{rate:true}),date=roDate(v.date),invoiceDate=roDate(v.invoiceDate),proformaDate=roDate(v.proformaDate);
+ const source=roText(v.source,2000),rmbSource=roText(v.rmbSource,2000),modelIdentity=roText(v.modelIdentity,300),evidenceIssue=roText(v.evidenceIssue,60),issueDetail=roText(v.issueDetail,2000);
+ if(!['','Document currency conflict','Line identity pending','Unit mismatch','Agreement conflict','Settlement rate pending','Invoice scope change'].includes(evidenceIssue))roFail('Choose a supported currency evidence issue.');
+ if(evidenceIssue&&!issueDetail.trim())roFail('Currency evidence issues need an explanation and source.');
+ if(rmbUnitPrice!==null&&!rmbSource.trim())roFail('RMB unit price needs its original document reference.');
+ if(rmbPerUsd!==null&&!source.trim())roFail('RMB per USD needs an exchange-rate source.');
+ if(status==='Documented'&&(!date||rmbPerUsd===null||basis==='Pending'))roFail('Documented exchange needs a rate, date and basis.');
+ if(date&&basis==='Commercial invoice'&&invoiceDate&&date!==invoiceDate||date&&basis==='Proforma'&&proformaDate&&date!==proformaDate)roFail('Exchange date must match its selected document date.');
+ return {rmbUnitPrice,rmbPerUsd,date,invoiceDate,proformaDate,basis,status,source,rmbSource,modelIdentity,evidenceIssue,issueDetail};
+}
 export function validateRoPurchaseItems(input,comparison){
  const v=worksheetObject(input);if(v.version!==1)roFail('Unsupported purchase item reference version.');
  const ids=new Set(),rows=worksheetList(v.rows,500,'purchase items').map(input=>{
@@ -57,7 +72,7 @@ export function validateRoPurchaseItems(input,comparison){
   const source=worksheetObject(r.source||{}),file=roText(source.file,300),sha256=roText(source.sha256,64);
   if(/[\\/\x00-\x1f]/.test(file)||/^[A-Za-z]:/.test(file))roFail('Purchase source must be a file basename, without local paths.');
   if(sha256&&!/^[a-f0-9]{64}$/i.test(sha256))roFail('Invalid purchase source checksum.');
-  return {id,supplier:roText(r.supplier,300),invoice:roText(r.invoice,200),itemCode:roText(r.itemCode,200),masterCode:roText(r.masterCode,200),masterCodeRaw:roText(r.masterCodeRaw,200),description:roText(r.description,1000),model:roText(r.model,300),productGroup:roText(r.productGroup,300),quantity,unit:roText(r.unit,40),currency,unitPrice,usdUnitPrice,usdBasis,status,workingId,source:{file,sheet:roText(source.sheet,200),row:roText(source.row,200),sha256},flags:worksheetList(r.flags,20,'item flags').map(flag=>roText(flag,1000)),...(Object.hasOwn(r,'inwardDate')?{inwardDate:roDate(r.inwardDate)}:{}),...(Object.hasOwn(r,'brand')?{brand:roText(r.brand,300)}:{})};
+  return {id,supplier:roText(r.supplier,300),invoice:roText(r.invoice,200),itemCode:roText(r.itemCode,200),masterCode:roText(r.masterCode,200),masterCodeRaw:roText(r.masterCodeRaw,200),description:roText(r.description,1000),model:roText(r.model,300),productGroup:roText(r.productGroup,300),quantity,unit:roText(r.unit,40),currency,unitPrice,usdUnitPrice,usdBasis,status,workingId,source:{file,sheet:roText(source.sheet,200),row:roText(source.row,200),sha256},flags:worksheetList(r.flags,20,'item flags').map(flag=>roText(flag,1000)),...(Object.hasOwn(r,'inwardDate')?{inwardDate:roDate(r.inwardDate)}:{}),...(Object.hasOwn(r,'brand')?{brand:roText(r.brand,300)}:{}),...(r.purchaseFx!=null?{purchaseFx:validatePurchaseFx(r.purchaseFx)}:{})};
  });
  return {version:1,basis:roText(v.basis,4000),reviewedOn:roDate(v.reviewedOn),rows};
 }

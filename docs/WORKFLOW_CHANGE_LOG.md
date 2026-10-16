@@ -1165,3 +1165,7 @@ Purchase manager enters a SKU remark applying to its complete closing-stock memb
 
 ## WF-133 — Home analytics with independent releases (DEC-138)
 2026-10-14. Home → LAE Sales Analytics → Stock & pipeline → Product category → Engine/specification → Grade → Item code. Choose cost centre and pipeline month, inspect source warehouses and retained discrepancies. MASTER is authoritative for this import; no raw-sheet correction is applied. Purchase/costing uses main; analytics uses lae-analytics-live in a separate checkout on either computer, with fetch-before-edit and normal non-force pushes. Sign-in remains shared. Sales, annual targets and purchase-shortage calculations remain pending.
+
+
+## WF-134 — Review RMB, USD and landing cost independently (DEC-139)
+2026-10-16. LAE Purchase → Landing Prices → filter purchase items → inspect original RMB, RMB/USD, date basis and source → review changes of at least 1% and unresolved evidence → follow the RO to original documents. Compare exact supported model/configuration lots; do not remap a barcode or overwrite a price from this view. Export the selected screen with statuses and before/after comparison fields. Pending settlement, unit, document-currency and invoice-scope issues remain explicit. Existing weighted cost footer and all actual/AI/Suresh values retain their previous semantics.
