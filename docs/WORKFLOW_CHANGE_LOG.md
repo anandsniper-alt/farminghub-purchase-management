@@ -1173,3 +1173,7 @@ Purchase manager enters a SKU remark applying to its complete closing-stock memb
 
 ## WF-135 — Model to warehouse and barcode stock costs (DEC-140)
 2026-10-17. LAE Division → Current stock costing → select model or search code/barcode → filter warehouse, group, brand, unit, RO and cost status → inspect total closing stock and original/revised weighted averages → open model batches and their RO/cost evidence. Exports contain all selected records across pages. Source stock and cost calculation dates remain visible. Missing original or revised prices retain pending coverage; quantity-only goods and negative adjustments retain their source quantities. A separate snapshot activation changes only this module and preserves all previous versions.
+
+
+## WF-136 — See which import ROs make up model stock (DEC-141)
+2026-10-17. Open a stock model → see Import batches (ROs) count and expanded Stock by import RO table → inspect each RO quantity and averages → open its RO costing record. Barcode rows show the mapped purchase RO beside the barcode. Warehouse/model filters and exports use the same selected stock; missing or multiple candidates remain RO pending and are excluded from the confirmed count.

@@ -28,3 +28,10 @@ The current-scale workload is tens of thousands of rows. Do not claim support fo
 Verify source workbook and manifest hashes, every imported identity/quantity, original and revised cached batch prices, independent model totals, missing-cost coverage, negative/quantity-only handling, filters and exports. Exercise authentication, role/scope denial, CSRF, optimistic concurrency, replay, immutable history and primary-workspace preservation. Check both the native screen and standalone review build; the latter deliberately contains no private stock snapshot.
 
 Release requires the project's recovery and live verification gates. After activation, read back stock controls, selected model/warehouse results, export row counts and the untouched purchase/RO records. Retain dated source and publication receipts privately on the device.
+
+
+## Import RO visibility — DEC-141 / WF-136
+
+The model summary and model list include Import batches (ROs). Count distinct exact, unambiguous assigned ROs on positive-quantity source rows across all selected records, before pagination. Duplicate supplier invoices, warehouses, brands and units within an RO count once. Missing/compound assignments, zero-quantity and negative-only rows add no batch. Show pending-RO positive quantities separately by unit. Price-reference ROs never supply ownership. Preserve existing original/assigned/reference evidence and all financial math.
+
+Show a purchase RO link beside each barcode and in an adjacent column; unresolved raw source strings remain inspectable without creating invalid RO links. A compact Stock by import RO table opens automatically for a selected master code, grouping quantities and existing cost averages by RO and unit. Exports include the selected distinct count, model RO lists, assignment status and a separate Excel Import batches sheet. These are read-only projections with no new schema or data import.

@@ -22,6 +22,16 @@ test('approved rent exclusion remains distinct and source scope cannot be fabric
  const r=row('1',1,100,110,{rentInrUnit:0,interestInrUnit:10,rentExcluded:true});const d=ready([r]);assert.equal(queryLaeStock(d.rows).summary.rentExcludedQuantity,1);assert.match(queryLaeStock(d.rows).rows[0].status,/rent excluded/);
  assert.throws(()=>ready([{...r,rentInrUnit:5,revisedInrUnit:115}]),/excluded rent/);assert.throws(()=>ready([{...r,sourceRow:0}]),/Unique/);assert.throws(()=>assertLaeStockAccess({role:'VENDOR',scopes:[]}),/required/);assert.throws(()=>assertLaeStockAccess({role:'BUYER',scopes:['LAE_IMPORT']},true),/administrator/);
 });
+test('import batches count distinct assigned ROs across all selected positive stock and preserve pending ownership',()=>{
+ const data=ready([row('1',10),row('2',20,100,120,{warehouse:'HYD'}),row('3',4,100,120,{unit:'nos'}),row('4',5,100,120,{assignedRo:'1232-A'}),row('5',8,100,120,{assignedRo:'1232; 1232-A',priceRo:'5555'}),row('6',7,100,120,{assignedRo:'',originalRo:'7777',priceRo:'6666'}),row('7',-2,100,120,{assignedRo:'9999'}),row('8',0,100,120,{assignedRo:'8888'})]);
+ const before=structuredClone(data),report=queryLaeStock(data.rows,{view:'models',pageSize:1}),s=report.summary;
+ assert.equal(s.importBatchCount,2);assert.deepEqual(s.importRos,['1232','1232-A']);assert.equal(s.roPendingQuantity,15);assert.equal(s.roPendingRows,2);
+ assert.equal(s.byUnit.find(x=>x.unit==='pcs').importBatchCount,2);assert.equal(s.byUnit.find(x=>x.unit==='nos').importBatchCount,1);assert.equal(report.importBatches.find(x=>x.ro==='1232'&&x.unit==='pcs').netQuantity,30);
+ assert.equal(report.importBatches.some(x=>x.ro==='9999'||x.ro==='8888'),false);assert.equal(report.importBatches.find(x=>!x.ro).netQuantity,15);
+ const batches=queryLaeStock(data.rows,{},null,{exportAll:true});assert.equal(batches.rows.find(x=>x.id==='5').purchaseRo,'');assert.equal(batches.rows.find(x=>x.id==='6').purchaseRo,'');assert.equal(batches.rows.find(x=>x.id==='4').purchaseRo,'1232-A');
+ assert.equal(queryLaeStock(data.rows,{warehouse:'HYD'}).summary.importBatchCount,1);assert.equal(queryLaeStock(data.rows,{ro:'6666'}).summary.importBatchCount,0);
+ assert.equal(queryLaeStock(data.rows,{q:'no match'}).summary.importBatchCount,0);assert.deepEqual(data,before);
+});
 test('stock import is atomic, idempotent, revision-guarded, immutable and does not change purchase workspace',()=>{
  const dir=mkdtempSync(join(tmpdir(),'lae-stock-test-')),state=emptyState(),store=new Store(join(dir,'synthetic.sqlite'),state),module=new LaeStockStore(store);try{
   const before=store.read(),payload={snapshot:dataset([row('1'),row('2')]),expectedRevision:0,reason:'Synthetic import'},key=randomUUID();const first=module.import('admin',payload,key);assert.equal(first.rows,2);assert.deepEqual(module.import('admin',payload,key),first);assert.equal(module.read('admin').snapshot.revision,1);assert.deepEqual(store.read(),before);

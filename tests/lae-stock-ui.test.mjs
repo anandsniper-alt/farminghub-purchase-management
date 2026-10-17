@@ -12,6 +12,12 @@ test('stock form and selects apply model/warehouse scope and reset pagination',a
  const old=globalThis.FormData,{host}=hostFor(),ui=createLaeStockCostingUI(host),form={id:'stock-cost-filter',values:{q:'Cutter',masterCode:'CC1',warehouse:'SASTHA'}};globalThis.FormData=class{constructor(f){this.values=f.values;}get(k){return this.values[k]||'';}};
  try{await ui.formSubmit({target:form});await ui.action('stock-cost-refresh',{});assert.match(location.hash,/warehouse=SASTHA/);assert.match(ui.page(),/20 priced/);form.values.warehouse='HYD';await ui.change({name:'warehouse',tagName:'SELECT',form,closest:()=>form});assert.match(location.hash,/warehouse=HYD/);assert.match(location.hash,/page=1/);}finally{globalThis.FormData=old;}
 });
+test('RO count uses the whole selected stock and purchase RO is visible beside each barcode',async()=>{
+ const {host}=hostFor(),ui=createLaeStockCostingUI(host);location.hash='#/current-stock-costing?masterCode=CC1&pageSize=1';await ui.action('stock-cost-refresh',{});const html=ui.page();
+ assert.match(html,/Import batches \(ROs\)<\/span><strong>1<\/strong>/);assert.match(html,/Stock by import RO · 1 import batches/);assert.match(html,/Purchase RO: <a href="#\/ro-costings\/1232">1232<\/a>/);assert.match(html,/Purchase RO#/);
+ assert(html.indexOf('data-field="assignedRo"')<html.indexOf('data-field="warehouse"'));assert.match(html,/30<\/td>/);
+ await ui.action('stock-cost-view',{view:'models'});await ui.action('stock-cost-refresh',{});assert.match(ui.page(),/data-field="importBatchCount"/);
+});
 test('denied, sandbox and signed-out stock screens cannot read or leak private results',async()=>{
  const {host,context,calls}=hostFor();context.user={role:'VENDOR',scopes:[]};assert.match(createLaeStockCostingUI(host).page(),/required/);assert.equal(calls.length,0);const sandbox=hostFor(true),ui=createLaeStockCostingUI(sandbox.host);await ui.action('stock-cost-refresh',{});assert.equal(sandbox.calls.length,0);assert.match(ui.page(),/does not contain private stock data/);
  const live=hostFor();let resolve,renders=0;live.host.api=()=>new Promise(r=>resolve=r);live.host.render=()=>renders++;const pending=createLaeStockCostingUI(live.host).action('stock-cost-refresh',{});live.context.user=null;resolve(queryLaeStock(fixture().rows));await pending;assert.equal(renders,0);

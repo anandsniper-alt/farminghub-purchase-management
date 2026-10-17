@@ -900,3 +900,7 @@ Publication verified on 14 October 2026: the empty workspace is live at `/#/lae-
 
 ## 2026-10-17 — Current stock costing candidate
 DEC-140/WF-135 adds a protected LAE model/warehouse/barcode view with original purchased landing cost, revised interest/rent/duty components, weighted averages and filtered Excel/PDF downloads. Approved dated source snapshots are immutable and imported separately from purchase/RO records. The standalone review is empty by design. See [module contract](LAE_CURRENT_STOCK_COSTING.md) for financial semantics, access and scale limits. Local source reconciliation and 615 native tests passed; production release and source import must be verified separately.
+
+
+## 2026-10-17 — Import RO summary candidate
+DEC-141/WF-136 adds purchase RO beside barcodes, distinct import-batch counts in selected/model summaries, a per-RO stock breakdown and matching Excel/PDF summaries. The original stock module was verified live at 286156bb4dd9eca68c6bc8be422566191831767e. This extension changes derived presentation only; publication is verified separately.

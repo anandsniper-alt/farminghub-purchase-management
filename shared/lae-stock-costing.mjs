@@ -9,7 +9,7 @@ const stockDate=v=>{const s=stockText(v,10),time=Date.parse(s+'T00:00:00Z');if(s
 const stockNumericKeys=['quantity','usdUnit','originalInrUnit','revisedInrUnit','interestInrUnit','rentInrUnit','dutyInrUnit','recordedValue','motorUsdUnit','motorOriginalInrUnit','saleSetOriginalInrUnit'];
 const stockStringKeys=['id','sourceSheet','batch','masterCode','brandCode','itemName','productGroup','brand','warehouse','unit','grade','colour','assignedRo','originalRo','priceRo','invoice','supplier','calcId','baseStatus','revisedStatus'];
 const stockNoteKeys=['matchBasis','costBasis','validationConcerns','sourceEvidence','terms','paymentDateBasis','rentBasis','dutyBasis'];
-const stockSortKeys=[...stockStringKeys,...stockNumericKeys,'inwardDate','importDate','originalRate','revisedRate','changePercent','netQuantity','originalAverage','revisedAverage','averageUsd','originalPendingQuantity','revisedPendingQuantity'];
+const stockSortKeys=[...stockStringKeys,...stockNumericKeys,'inwardDate','importDate','originalRate','revisedRate','changePercent','netQuantity','originalAverage','revisedAverage','averageUsd','originalPendingQuantity','revisedPendingQuantity','importBatchCount'];
 const stockNorm=v=>String(v??'').trim().toLocaleLowerCase('en');
 const stockCollator=new Intl.Collator('en',{numeric:true,sensitivity:'base'});
 export function assertLaeStockAccess(actor,write=false){if(!actor||actor.active===false||!scopeAllowed(actor,'LAE_IMPORT')||(write&&actor.role!=='ADMIN'))throw new RuleError('LAE Import '+(write?'administrator':'access')+' is required.','FORBIDDEN');}
@@ -39,10 +39,13 @@ export function validateLaeStockQuery(input={}){
  q.page=Number(q.page||1);q.pageSize=Number(q.pageSize||50);if(!Number.isSafeInteger(q.page)||q.page<1||!Number.isSafeInteger(q.pageSize)||q.pageSize<1||q.pageSize>200)stockFail('Invalid stock page.');return q;
 }
 export function projectLaeStockRow(row){
- const r={...row};r.originalRate=r.usdUnit>0&&r.originalInrUnit!==null?r.originalInrUnit/r.usdUnit:null;r.revisedRate=r.usdUnit>0&&r.revisedInrUnit!==null?r.revisedInrUnit/r.usdUnit:null;
+ const r={...row};r.purchaseRo=singleStockRo(r.assignedRo);r.roAssignmentStatus=r.purchaseRo?'Assigned':r.assignedRo?'Multiple / unresolved ROs':'RO pending';r.originalRate=r.usdUnit>0&&r.originalInrUnit!==null?r.originalInrUnit/r.usdUnit:null;r.revisedRate=r.usdUnit>0&&r.revisedInrUnit!==null?r.revisedInrUnit/r.usdUnit:null;
  r.changePercent=r.originalInrUnit>0&&r.revisedInrUnit!==null?(r.revisedInrUnit/r.originalInrUnit-1)*100:null;
  r.status=r.quantityOnly?'Quantity only':r.revisedInrUnit!==null?(r.rentExcluded?'Revised · rent excluded':'Revised cost available'):r.originalInrUnit!==null?'Revised cost pending':'Original cost pending';return r;
 }
+// Count the approved physical-lot assignment only. A price-reference RO is not ownership.
+function singleStockRo(value){const text=String(value||'').trim();return /^\d+[A-Za-z0-9._/-]*$/.test(text)?text:'';}
+function stockRoSummary(rows){const ros=new Set();let roPendingQuantity=0,roPendingRows=0;for(const r of rows){if(r.quantity<=0)continue;const ro=singleStockRo(r.assignedRo);if(ro)ros.add(ro);else{roPendingQuantity+=r.quantity;roPendingRows++;}}const importRos=[...ros].sort(stockCollator.compare);return {importBatchCount:importRos.length,importRos,roPendingQuantity,roPendingRows};}
 function stockOneUnitSummary(rows){
  const s={rows:rows.length,unit:rows[0]?.unit||'',netQuantity:0,positiveQuantity:0,negativeQuantity:0,quantityOnlyQuantity:0,costBearingQuantity:0,originalPricedQuantity:0,revisedPricedQuantity:0,originalValue:0,revisedValue:0,pairedUsdQuantity:0,pairedUsdValue:0,pairedOriginalValue:0,pairedRevisedUsdQuantity:0,pairedRevisedUsdValue:0,pairedRevisedValue:0,comparisonQuantity:0,comparisonOriginalValue:0,comparisonRevisedValue:0,rentExcludedQuantity:0};
  for(const r of rows){const q=Math.max(r.quantity,0);s.netQuantity+=r.quantity;s.positiveQuantity+=q;s.negativeQuantity+=Math.min(r.quantity,0);if(r.quantityOnly){s.quantityOnlyQuantity+=q;continue;}s.costBearingQuantity+=q;
@@ -52,21 +55,23 @@ function stockOneUnitSummary(rows){
   if(r.originalInrUnit!==null&&r.revisedInrUnit!==null){s.comparisonQuantity+=q;s.comparisonOriginalValue+=q*r.originalInrUnit;s.comparisonRevisedValue+=q*r.revisedInrUnit;}if(r.rentExcluded)s.rentExcludedQuantity+=q;
  }
  const avg=(value,q)=>q>0?value/q:null;s.originalAverage=avg(s.originalValue,s.originalPricedQuantity);s.revisedAverage=avg(s.revisedValue,s.revisedPricedQuantity);s.averageUsd=avg(s.pairedUsdValue,s.pairedUsdQuantity);s.originalRate=avg(s.pairedOriginalValue,s.pairedUsdValue);s.revisedRate=avg(s.pairedRevisedValue,s.pairedRevisedUsdValue);
- s.originalPendingQuantity=s.costBearingQuantity-s.originalPricedQuantity;s.revisedPendingQuantity=s.costBearingQuantity-s.revisedPricedQuantity;s.comparisonOriginalAverage=avg(s.comparisonOriginalValue,s.comparisonQuantity);s.comparisonRevisedAverage=avg(s.comparisonRevisedValue,s.comparisonQuantity);s.changePercent=s.comparisonOriginalValue>0?(s.comparisonRevisedValue/s.comparisonOriginalValue-1)*100:null;return s;
+ s.originalPendingQuantity=s.costBearingQuantity-s.originalPricedQuantity;s.revisedPendingQuantity=s.costBearingQuantity-s.revisedPricedQuantity;s.comparisonOriginalAverage=avg(s.comparisonOriginalValue,s.comparisonQuantity);s.comparisonRevisedAverage=avg(s.comparisonRevisedValue,s.comparisonQuantity);s.changePercent=s.comparisonOriginalValue>0?(s.comparisonRevisedValue/s.comparisonOriginalValue-1)*100:null;return {...s,...stockRoSummary(rows)};
 }
 export function summarizeLaeStock(rows){
  const units=new Map();for(const r of rows){if(!units.has(r.unit))units.set(r.unit,[]);units.get(r.unit).push(r);}const byUnit=[...units.values()].map(stockOneUnitSummary),mixedUnits=byUnit.length>1;
- return {rows:rows.length,mixedUnits,byUnit,...(!mixedUnits?byUnit[0]||stockOneUnitSummary([]):{})};
+ return {rows:rows.length,mixedUnits,byUnit,...(!mixedUnits?byUnit[0]||stockOneUnitSummary([]):stockRoSummary(rows))};
 }
 export function queryLaeStock(rows,input={},snapshot=null,{exportAll=false}={}){
  const q=validateLaeStockQuery(input),all=rows.map(projectLaeStockRow),facet=(key)=>[...new Set(all.map(r=>r[key]).filter(Boolean))].sort(stockCollator.compare);
  const facets=Object.fromEntries(['masterCode','productGroup','warehouse','brand','unit','status'].map(k=>[k,facet(k)])),tokens=stockNorm(q.q).split(/\s+/).filter(Boolean);
  const filtered=all.filter(r=>['masterCode','productGroup','warehouse','brand','unit','status'].every(k=>!q[k]||stockNorm(r[k])===stockNorm(q[k]))&&(!q.ro||[r.assignedRo,r.originalRo,r.priceRo].some(v=>stockNorm(v)===stockNorm(q.ro)))&&tokens.every(t=>stockNorm([r.batch,r.masterCode,r.brandCode,r.itemName,r.productGroup,r.warehouse,r.assignedRo,r.priceRo,r.invoice,r.supplier].join(' ')).includes(t)));
- const summary=summarizeLaeStock(filtered),warehouseMap=new Map(),models=new Map();
+ const summary=summarizeLaeStock(filtered),warehouseMap=new Map(),models=new Map(),roMap=new Map();
  for(const r of filtered){const wk=JSON.stringify([r.warehouse,r.unit]),mk=JSON.stringify([r.productGroup,r.masterCode||r.brandCode||r.itemName,r.unit]);if(!warehouseMap.has(wk))warehouseMap.set(wk,[]);warehouseMap.get(wk).push(r);if(!models.has(mk))models.set(mk,[]);models.get(mk).push(r);}
  const warehouses=[...warehouseMap.values()].map(rs=>({warehouse:rs[0].warehouse,...stockOneUnitSummary(rs)}));
+ for(const r of filtered){const key=JSON.stringify([r.purchaseRo,r.unit]);if(!roMap.has(key))roMap.set(key,[]);roMap.get(key).push(r);}
+ const importBatches=[...roMap.values()].map(rs=>({ro:rs[0].purchaseRo,...stockOneUnitSummary(rs)})).filter(r=>r.positiveQuantity>0).sort((a,b)=>a.ro&&b.ro?stockCollator.compare(a.ro,b.ro)||stockCollator.compare(a.unit,b.unit):a.ro?-1:b.ro?1:stockCollator.compare(a.unit,b.unit));
  const modelRows=[...models.entries()].map(([id,rs])=>({id,masterCode:rs[0].masterCode,itemName:rs[0].itemName,productGroup:rs[0].productGroup,brand:[...new Set(rs.map(r=>r.brand).filter(Boolean))].join(', '),warehouse:[...new Set(rs.map(r=>r.warehouse).filter(Boolean))].join(', '),...stockOneUnitSummary(rs)}));
  const result=q.view==='models'?modelRows:filtered;result.sort((a,b)=>{const x=a[q.sort],y=b[q.sort];if(x==null&&y!=null)return 1;if(y==null&&x!=null)return -1;const order=typeof x==='number'&&typeof y==='number'?x-y:stockCollator.compare(String(x??''),String(y??''));return (q.direction==='desc'?-order:order)||stockCollator.compare(a.id,b.id);});
  const total=result.length,totalPages=Math.max(1,Math.ceil(total/q.pageSize)),page=Math.min(q.page,totalPages),start=(page-1)*q.pageSize;
- return {snapshot,rows:exportAll?result:result.slice(start,start+q.pageSize),summary,warehouses,facets,filters:q,pagination:{total,totalPages,page,pageSize:q.pageSize,from:total?(exportAll?1:start+1):0,to:exportAll?total:Math.min(start+q.pageSize,total)},coverage:{sourceRows:rows.length,selectedSourceRows:filtered.length,models:modelRows.length}};
+ return {snapshot,rows:exportAll?result:result.slice(start,start+q.pageSize),summary,warehouses,importBatches,facets,filters:q,pagination:{total,totalPages,page,pageSize:q.pageSize,from:total?(exportAll?1:start+1):0,to:exportAll?total:Math.min(start+q.pageSize,total)},coverage:{sourceRows:rows.length,selectedSourceRows:filtered.length,models:modelRows.length}};
 }

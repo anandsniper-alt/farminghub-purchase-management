@@ -788,3 +788,7 @@ A home card alone does not isolate releases. LAE analytics now has separately de
 
 ## Dated stock coverage and matched cost comparisons — 2026-10-17
 MODULE-SPECIFIC, DEC-140. Original-cost and revised-cost populations can differ. Show both priced and pending quantities and calculate percentage change only on identical priced stock. Negative source adjustments affect net stock but are not positive price weights; differing units never share an average. Preserve physical inventory valuation separately from historical machine-plus-motor sale-set references. An approved unavailable-rent exclusion must remain visible beside its zero applied component, including exports. Import the approved reference by exact source identity and reconcile every row against the source workbook; model-code similarity is insufficient to transfer old purchase prices. Keep original, assigned and price-reference ROs distinct.
+
+
+## Import-batch count is distinct RO ownership — 2026-10-17
+An import batch is one exact assigned RO in positive closing stock, not a barcode count or number of supplier invoices. Count across the full filtered selection and deduplicate across brands, warehouses and units; never sum per-unit distinct counts. Keep unresolved compound assignments and price-reference ROs out of the ownership count. Preserve negative source adjustments in quantities while excluding negative-only rows from the count.
