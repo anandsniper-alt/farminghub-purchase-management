@@ -3,21 +3,147 @@ import {RuleError,scopeAllowed,canCreate,toMinor} from './domain.mjs';
 export const RO_COST_SCOPE='LAE_IMPORT';
 export const RO_ACTUAL_FIELDS=['supplierInr','bankNet','forwarderNet','otherNet','bcd','sws'];
 
-// Filters compare recorded names only. Different spellings remain separate until
-// a source-backed supplier identity mapping is explicitly approved.
+// Read-only filter identity. Punctuation/conjunction formatting does not create
+// another option; shortened or different names need an explicit evidence mapping.
+// This never changes vendor IDs, retained invoice labels, or financial records.
 export function roSupplierNameKey(value){
- return String(value||'').normalize('NFKC').trim().replace(/\s+/g,' ').toUpperCase();
+ return String(value||'').normalize('NFKC').toUpperCase().replace(/[.,]/g,' ').replace(/&/g,' AND ').trim().replace(/\s+/g,' ');
+}
+const roSupplierLabel=value=>String(value||'').normalize('NFKC').trim().replace(/\s+/g,' ').replace(/\s*&\s*/g,' & ');
+// Exact aliases reviewed against supplier documents; the RO 5260 name was
+// confirmed by the user. Never infer identity from a prefix or a shared RO.
+const RO_SUPPLIER_ALIAS_GROUPS=[
+ [
+  "CHONGQING SENCI WUGU AGRICULTURAL MACHINERY IMPORT&EXPORT CO LTD",
+  "CHONGQING SENCI WUGU AGRICULTURAL MACHINERY IMPOR",
+  "CHONGQING SENCI WUGU AGRICULTURAL MACHINERY IMPORT",
+  "CHONGQING SENCI WUGU AGRICULTURAL MACHINERY",
+  "CHONGQING SENCI WUGU AGRICULTURAL MACHINERY IMPORT & EXPORT CO LTD",
+  "CHONGQING SENCI WUGU AGRICULTURAL MACHINERY IMPORT&EXPORT CO.,LTD",
+  "Chongqing Senci — booking identity"
+ ],
+ [
+  "CHONGQING HAOFA MACHINERY MANUFACTURING COMPANY LTD",
+  "CHONGQING HAOFA MACHINERY MANUFACTURING COMPANY LI",
+  "CHONGQING HAOFA MACHINERY MANUFACTURINGCOMPANY",
+  "Chongqing Haofa Machinery Manufacturing Company Limited"
+ ],
+ [
+  "HUNAN DONGFANGHONG ELECTROMECHANICAL MANUFACTURING CO LTD",
+  "HUNAN DONGFANGHONG ELECTROMECHANICAL MANUFACTU",
+  "HUNAN DONGFANGHONG ELECTROMECHANICAL MANUFACTUR",
+  "HUNAN DONGFANGHONG ELECTROMECHANICAL MANUFACTURIN",
+  "HUNAN DONGFANGHONG ELECTROMECHANICAL",
+  "DONGFANGHONG ELECTROMECHANICAL",
+  "Hunan Dongfanghong — booking identity",
+  "HUNAN DONGFANGHONG ELECTROMECHANICAL MANUFACTURING"
+ ],
+ [
+  "SICHUAN XUDONG MACHINERY MANUFACTURE CO LTD",
+  "Sichuan Xudong Machinery Manufacture",
+  "Sichuan Xudong — booking identity"
+ ],
+ [
+  "LINYI FENGRUI PLANT PROTECTION ELECTRONIC EQUIPMENT CO LTD",
+  "FENGRUI PLANT PROTECTION ELECTRONIC EQUIPMEN",
+  "LINYI FENGRUI PLANT PROTECTION ELECTRONIC EQUIPMEN",
+  "Linyi Fengrui Plant Protection Electronic Equipment"
+ ],
+ [
+  "YONGKANG ZHANLI MACHINERY CO LTD",
+  "ZHANLI",
+  "Yongkang Zhanli"
+ ],
+ [
+  "ZHEJIANG JIARUI MACHINERY CO LTD",
+  "ZHEJIANG JIARUI MACHINERY",
+  "JR",
+  "JiaRui - JR",
+  "Zhejiang Jiarui",
+  "ZheJiang JiaRui Machinery Co., Lt"
+ ],
+ [
+  "TAIZHOU QINGFENG MACHINERY CO LTD",
+  "QINGFENG",
+  "TAIZHOU QINGFENG MACHINERY CO.,LTDUIPMEN"
+ ],
+ [
+  "TAIZHOU HAODING IMPORT&EXPORT CO.,LTD",
+  "HAODING",
+  "TAIZHOU HAODING IMPORT&EXPORTCO.,LTD",
+  "Taizhou Haoding — booking identity"
+ ],
+ [
+  "ZHEJIANG OUSEN MACHINERY CO LTD",
+  "ZHEJIANG OUSEN MACHINERY",
+  "OUSEN"
+ ],
+ [
+  "SHUANGFENG XIANGDONG MACHINERY MANUFACTURING CO LTD",
+  "SHUANGFENG XIANGDONG MACHINERY MANUFACTURING CO",
+  "SHUANGFENG XIANGDONG"
+ ],
+ [
+  "CHONGQING BAINUODA IMPORT AND EXPORT TRADING CO., LTD.",
+  "CHONGQING BAINUODA IMPORT ANDEXPORT TRADING CO LTD"
+ ],
+ [
+  "TAIZHOU FOURNINE IMPORT AND EXPORT CO., LTD",
+  "TAIZHOU FOURNINE"
+ ],
+ [
+  "CHONGQING YAOHU POWER MACHINE CO LTD",
+  "YAOHU"
+ ],
+ [
+  "Chongqing Weiwang Machinery Manufacturing Co., Ltd",
+  "Chongqing Weiwang — booking identity"
+ ],
+ [
+  "TAIZHOU DOMIRO AGRICULTURAL MACHINERY CO., LTD",
+  "TAIZHOU DOMIRO"
+ ],
+ [
+  "CHONGQING BASEWIN MACHINERY MANUFACTURING CO., LTD.",
+  "CHONGQING BASEWIN"
+ ],
+ [
+  "CHONGQING HUA TIAN HAO LI MACHINERY LLC",
+  "CHONGQING HUA TIAN (LUNA HUANG)"
+ ],
+ [
+  "TAIZHOU MENGHUA MACHINERY CO.,LTD",
+  "MENGHUA"
+ ],
+ [
+  "CHONGQING TENGLONG SHINES ELECTROMECHANICS CO.,LTD.",
+  "CHONGQING TANG SIMON"
+ ],
+ [
+  "ZHEJIANG WENXIN MECHANICAL & ELECTRICAL CO.,LTD",
+  "ZHEJIANG WENXIN MECHANICAL ELECTRICAL CO",
+  "WENXIN"
+ ]
+];
+const roSupplierAliases=new Map();
+for(const [canonical,...aliases] of RO_SUPPLIER_ALIAS_GROUPS){
+ const key=roSupplierNameKey(canonical),label=roSupplierLabel(canonical);
+ for(const name of [canonical,...aliases]){
+  const alias=roSupplierNameKey(name),previous=roSupplierAliases.get(alias);
+  if(previous&&previous.key!==key)throw new Error("Conflicting RO supplier alias: "+name);
+  roSupplierAliases.set(alias,{key,label});
+ }
 }
 export function createRoSupplierDirectory(vendors=[]){
  const master=new Map();
  for(const v of vendors.filter(v=>v.kind==='SUPPLIER'&&v.scopes?.includes('LAE_IMPORT'))){
-  const key=roSupplierNameKey(v.name);if(key&&!master.has(key))master.set(key,String(v.name).trim());
+  const key=roSupplierNameKey(v.name),label=roSupplierLabel(v.name);if(key&&(!master.has(key)||label.localeCompare(master.get(key))<0))master.set(key,label);
  }
  const resolve=value=>{
   const found=new Map();
   for(const part of String(value||'').split(/\s+\/\s+|;/)){
-   const raw=part.replace(/\s+/g,' ').trim(),key=roSupplierNameKey(raw);
-   if(key&&!found.has(key))found.set(key,{key,label:master.get(key)||raw});
+   const raw=roSupplierLabel(part),rawKey=roSupplierNameKey(raw),verified=roSupplierAliases.get(rawKey),key=verified?.key||rawKey;
+   if(key&&!found.has(key))found.set(key,{key,label:verified?.label||master.get(key)||raw});
   }
   return [...found.values()];
  };
@@ -28,7 +154,7 @@ export function createRoSupplierDirectory(vendors=[]){
  };
  const options=values=>{
   const found=new Map();
-  for(const value of values)for(const supplier of resolve(value))if(!found.has(supplier.key))found.set(supplier.key,supplier.label);
+  for(const value of values)for(const supplier of resolve(value))if(!found.has(supplier.key)||supplier.label.localeCompare(found.get(supplier.key))<0)found.set(supplier.key,supplier.label);
   return [...found.values()].sort((a,b)=>a.localeCompare(b)).map(label=>({value:label,label}));
  };
  return {resolve,matches,options};
