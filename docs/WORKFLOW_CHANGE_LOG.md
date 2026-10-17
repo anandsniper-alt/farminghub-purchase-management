@@ -1181,3 +1181,7 @@ Purchase manager enters a SKU remark applying to its complete closing-stock memb
 
 ## WF-137 — Product aging to model stock (DEC-142)
 2026-10-17. LAE Division → Stock Aging → filter product/warehouse/brand/unit or search model → select an age-bucket quantity → inspect matching models and warehouse quantities in a popup → Close/Escape returns to the selected bucket. Import age defaults to the dated stock source; warehouse inward age is selectable. Date pending remains a visible column and supports the same drilldown.
+
+
+## WF-138 — Purchase corrections and explicit invoice settlement (DEC-143)
+2026-10-17. Create/edit PO → choose Tamil Nadu, Andhra Pradesh and/or Haryana → allocate each item quantity exactly → review and save. Item/category changes retain entered text, focus and scroll. Print from the selected issued revision. Supplier/shipping and payment progress remain separately visible. A normal commercial-invoice upload keeps existing payment terms; users explicitly opt in to CI settlement. Reconfirm an unchanged approved CI after a nonfinancial amendment and current PI reapproval without rewriting actual remittances. View evidence through bounded on-demand previews or download the original. Loading reports remain planning suggestions. Arrival costing displays bank/supplier-cost and GST/BOE differences for evidence review, and can export saved workings to Excel. Exact supplier/RO filters run before count/pagination. Preserve current live account, order, attachment, approval, stock, costing and numbering history.

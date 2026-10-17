@@ -6,6 +6,7 @@ import {fileURLToPath} from 'node:url';
 import {tmpdir} from 'node:os';
 import {execFileSync} from 'node:child_process';
 import {REVIEW_MODULES,stripReviewModule} from '../scripts/review-sources.mjs';
+import {reviewBundle} from '../scripts/review-bundle.mjs';
 import {makeServer} from '../server/index.mjs';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 test('review build succeeds in a fresh checkout without an output directory',()=>{
@@ -19,11 +20,12 @@ test('review build succeeds in a fresh checkout without an output directory',()=
 });
 test('review bundle contains its local ESM dependencies and compiles without symbol collisions',()=>{
  assert.equal(new Set(REVIEW_MODULES).size,REVIEW_MODULES.length);
- for(const file of REVIEW_MODULES){const source=readFileSync(join(root,file),'utf8');for(const match of source.split('\n').filter(line=>/^import\s/.test(line)).join('\n').matchAll(/\bfrom\s+['"]([^'"]+)['"]/g)){const dependency=relative(root,resolve(root,dirname(file),match[1])).replaceAll('\\','/');assert.ok(REVIEW_MODULES.includes(dependency),file+' requires '+dependency);}}
+ const bundle=reviewBundle(REVIEW_MODULES,p=>readFileSync(join(root,p),'utf8'));
+ for(const file of bundle.modules){const source=readFileSync(join(root,file),'utf8');for(const match of source.split('\n').filter(line=>/^import\s/.test(line)).join('\n').matchAll(/\bfrom\s+['"]([^'"]+)['"]/g)){const dependency=relative(root,resolve(root,dirname(file),match[1])).replaceAll('\\','/');if(dependency.endsWith('.json')){assert.ok(bundle.code.includes(readFileSync(join(root,dependency),'utf8')));continue;}assert.ok(bundle.modules.includes(dependency),file+' requires '+dependency);}}
  const dir=mkdtempSync(join(tmpdir(),'fh-review-contract-'));
- try{const path=join(dir,'bundle.mjs');writeFileSync(path,REVIEW_MODULES.map(p=>stripReviewModule(readFileSync(join(root,p),'utf8'))).join('\n'));execFileSync(process.execPath,['--check',path],{stdio:'pipe'});}finally{rmSync(dir,{recursive:true,force:true});}
+ try{const path=join(dir,'bundle.mjs');writeFileSync(path,bundle.code);execFileSync(process.execPath,['--check',path],{stdio:'pipe'});}finally{rmSync(dir,{recursive:true,force:true});}
 });
 test('runtime review sources match native modules while private seed sources are not public',async()=>{
  const server=makeServer({});await new Promise(r=>server.listen(0,'127.0.0.1',r));
- try{const origin='http://127.0.0.1:'+server.address().port;for(const file of REVIEW_MODULES){const response=await fetch(origin+'/'+file.replace(/^web\//,''));if(['shared/clean-seed.mjs','shared/final-master-data.mjs'].includes(file)){assert.equal(response.status,404,file);continue;}assert.equal(response.status,200,file);assert.equal(await response.text(),readFileSync(join(root,file),'utf8'),file);}}finally{await new Promise(r=>server.close(r));}
+ try{const origin='http://127.0.0.1:'+server.address().port;for(const file of reviewBundle(REVIEW_MODULES,p=>readFileSync(join(root,p),'utf8')).modules){const response=await fetch(origin+'/'+file.replace(/^web\//,''));if(['shared/clean-seed.mjs','shared/final-master-data.mjs'].includes(file)){assert.equal(response.status,404,file);continue;}assert.equal(response.status,200,file);assert.equal(await response.text(),readFileSync(join(root,file),'utf8'),file);}}finally{await new Promise(r=>server.close(r));}
 });

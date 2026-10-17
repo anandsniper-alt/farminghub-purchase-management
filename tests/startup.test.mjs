@@ -12,7 +12,7 @@ test('browser startup module graph is served without authentication', async () =
     visited.add(path);
     const response = await fetch(origin + path);
     assert.equal(response.status, 200, path);
-    assert.match(response.headers.get('content-type'), /javascript/, path);
+    assert.match(response.headers.get('content-type'), path.endsWith('.json')?/json/:/javascript/, path);
     const source = await response.text();
     for (const match of source.matchAll(/^import\s+[^;\n]*?\bfrom\s*['"]([^'"]+)['"]/gm)) {
       await visit(new URL(match[1], origin + path).pathname);

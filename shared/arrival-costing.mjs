@@ -1,7 +1,26 @@
+import {createRoSupplierDirectory} from './ro-costing.mjs';
 /** Invoice costing after port arrival. Monetary amounts are integer minor units. */
-import {ensure,text,toMinor,toRate,dateValid,documentReferenceKey,proportionalSlices,canEdit,canPerformApproval} from './domain.mjs';
+import {scopeAllowed,ensure,text,toMinor,toRate,dateValid,documentReferenceKey,proportionalSlices,canEdit,canPerformApproval} from './domain.mjs';
 
 export const ARRIVAL_COST_FIELDS=[['supplierPayment','Supplier payment'],['bcd','BCD'],['sws','SWS'],['oceanFreight','Ocean freight'],['insurance','Insurance'],['clearance','Clearance'],['miscellaneous','Miscellaneous'],['inlandFreight','Inland freight'],['linerCharges','Liner charges']];
+// Review context only: invoices and bank records have different allocation scopes.
+// This never changes entered amounts or adds a finalization requirement.
+export function arrivalCostReconciliation(state,o,c){
+ const amounts=(o.arrivalCostings||[]).map(x=>x.costs?.supplierPayment),known=amounts.filter(Number.isSafeInteger);
+ const total=known.length?known.reduce((sum,value)=>sum+value,0):null,supplierCostMinor=Number.isSafeInteger(total)?total:null;
+ const payments=(state.payments||[]).filter(p=>p.status!=='VOID'&&(p.allocations||[]).some(a=>a.orderId===o.id));
+ let bankPrincipalMinor=payments.length?0:null;
+ for(const p of payments){
+  const weights=p.allocations.map(a=>a.remitMinor);
+  if(!Number.isSafeInteger(p.inrMinor)||p.inrMinor<0||weights.some(n=>!Number.isSafeInteger(n)||n<0)||!weights.some(n=>n>0)||!Number.isSafeInteger(weights.reduce((a,b)=>a+b,0))){bankPrincipalMinor=null;break;}
+  const slices=proportionalSlices(p.inrMinor,weights);
+  bankPrincipalMinor+=p.allocations.reduce((sum,a,index)=>sum+(a.orderId===o.id?slices[index]:0),0);
+ }
+ if(!Number.isSafeInteger(bankPrincipalMinor))bankPrincipalMinor=null;
+ const supplierDifferenceMinor=supplierCostMinor!==null&&bankPrincipalMinor!==null?supplierCostMinor-bankPrincipalMinor:null;
+ const gstDifferenceMinor=Number.isSafeInteger(c.gstMinor)&&Number.isSafeInteger(c.boeTotals?.gst)?c.gstMinor-c.boeTotals.gst:null;
+ return {supplierCostMinor,bankPrincipalMinor,supplierDifferenceMinor,supplierCostIncomplete:known.length!==amounts.length,gstDifferenceMinor};
+}
 export function arrivalInvoiceOptions(o,sid){const seen=new Set();return (o.documents||[]).filter(d=>d.type==='COMMERCIAL_INVOICE'&&d.shipmentId===sid&&text(d.invoiceNumber)).filter(d=>{const key=documentReferenceKey(d.invoiceNumber);if(seen.has(key))return false;seen.add(key);return true;});}
 const acSafe=n=>{ensure(Number.isSafeInteger(n)&&n>=0,'Cost or quantity exceeds the supported precision.');return n;};
 const acSum=xs=>xs.reduce((a,b)=>acSafe(a+b),0);
@@ -49,7 +68,40 @@ export function applyArrivalCosting(state,type,p,ctx,o,{event,attach}){
  }
  ensure(canPerformApproval(user,type,o.scope,now,state,o),'An allowed costing approver is required.','FORBIDDEN');ensure(old,'Costing record not found.');
  if(type==='FINALIZE_ARRIVAL_COSTING'){
+  const settlements=(o.commercialInvoices||[]).filter(c=>c.status!=='CANCELLED'&&c.shipmentId===old.shipmentId&&documentReferenceKey(c.number)===documentReferenceKey(old.invoiceNumber));
+  ensure(settlements.every(c=>c.amountMinor===old.declaredInvoiceMinor),'Arrival invoice amount differs from the active CI settlement. Reconcile the invoice amount before finalizing.');
   ensure(old.status==='PROVISIONAL','Only a provisional costing can be finalized.');const calc=acValidate(state,o,old,true);ensure(!calc.missing.length,'Enter actual amounts (or confirmed zero) for: '+calc.missing.join(', '));ensure(calc.totalMinor>0&&old.costs.supplierPayment>0,'Confirm the actual supplier payment amount.');ensure(old.gstMinor!==null&&Object.values(old.boeTotals).every(v=>v!==null),'Confirm GST and all Bill of Entry totals, including zero where applicable.');ensure(old.supportFileIds.length,'Attach the payment and expense supporting evidence.');acEvidence(state,o,old.boeFileIds,'the inward Bill of Entry');acEvidence(state,o,old.supportFileIds,'cost/payment evidence');ensure(p.confirmActuals===true,'Confirm that all amounts are actual, complete and allocated only once to this invoice.');ensure(old.allocationNote,'Explain the payment/expense allocation basis before finalizing.');const previous=structuredClone(old);old.status='FINAL';old.actualsConfirmed=true;old.finalizedAt=now;old.finalizedBy=user.name;old.calculation=calc;old.revision++;if(arrivalCostingStatus(o).complete)o.costingCompletedAt=now;event('ARRIVAL_COSTING_FINALIZED','Actual invoice landed cost finalized; GST excluded and evidence retained.',previous,old);return {id:old.id};
  }
  ensure(type==='REOPEN_ARRIVAL_COSTING'&&old.status==='FINAL','Select a finalized costing to reopen.');ensure(text(p.reason)&&text(p.reason).length<=2000,'Enter the reason for reopening.');const previous=structuredClone(old),{history,...snapshot}=previous;old.history.push({...snapshot,reopenedAt:now,reopenedBy:user.name,reopenReason:text(p.reason)});old.status='PROVISIONAL';old.actualsConfirmed=false;old.revision++;delete old.finalizedAt;delete old.finalizedBy;delete o.costingCompletedAt;event('ARRIVAL_COSTING_REOPENED','Final costing reopened for a documented correction.',previous,{id:old.id,reason:text(p.reason)});return {id:old.id};
+}
+
+
+// A read-only view of finalized PO invoices. Never copy these amounts into
+// ro_costings: that would create a second, independently editable financial record.
+export function finalizedPoCostings(state,actor,{q='',status='',ro=null,supplier:filterSupplier='',roNumber=''}={}){
+ if(!state||!scopeAllowed(actor,'LAE_IMPORT')||status==='Pending')return [];
+ const query=String(q).trim().toLowerCase(),rows=[],directory=createRoSupplierDirectory(state.vendors||[]);
+ for(const order of state.orders||[]){
+  if(order.scope!=='LAE_IMPORT'||order.deletedAt||order.testData)continue;
+  const supplier=(state.vendors||[]).find(v=>v.id===order.vendorId)?.name||'';
+  if(!directory.matches({supplier},filterSupplier))continue;
+  for(const costing of order.arrivalCostings||[]){
+   if(costing.status!=='FINAL')continue;
+   const shipment=(order.shipments||[]).find(s=>s.id===costing.shipmentId);
+   if(!shipment||shipment.status==='CANCELLED'||!shipment.actualArrival)continue;
+   const reference=String(costing.roReference||'').trim();
+   if(roNumber&&!reference.toLowerCase().includes(roNumber.trim().toLowerCase()))continue;
+   // Match only an explicit saved reference; a forwarder reference is not an RO.
+   if(ro!==null&&reference!==ro)continue;
+   if(query&&![reference,order.number,supplier,costing.invoiceNumber,costing.boeNumber,shipment.number].some(v=>String(v||'').toLowerCase().includes(query)))continue;
+   const calculation=costing.calculation;
+   rows.push({orderId:order.id,orderNumber:order.number,costingId:costing.id,
+    roReference:reference,supplier,shipmentNumber:shipment.number,invoiceNumber:costing.invoiceNumber,
+    boeNumber:costing.boeNumber,boeDate:costing.boeDate,finalizedAt:costing.finalizedAt,
+    invoiceUsdMinor:calculation?.invoiceUsdMinor??null,totalMinor:calculation?.totalMinor??null,
+    costPerUsd:calculation?.costPerUsd??null,gstMinor:costing.gstMinor??null,
+    href:'#/order/'+encodeURIComponent(order.id)+'?tab=costing&costing='+encodeURIComponent(costing.id)});
+  }
+ }
+ return rows.sort((a,b)=>String(b.finalizedAt||'').localeCompare(String(a.finalizedAt||''))||a.orderNumber.localeCompare(b.orderNumber)||a.costingId.localeCompare(b.costingId));
 }

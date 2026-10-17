@@ -2,6 +2,37 @@ import {RuleError,scopeAllowed,canCreate,toMinor} from './domain.mjs';
 
 export const RO_COST_SCOPE='LAE_IMPORT';
 export const RO_ACTUAL_FIELDS=['supplierInr','bankNet','forwarderNet','otherNet','bcd','sws'];
+
+// Filters compare recorded names only. Different spellings remain separate until
+// a source-backed supplier identity mapping is explicitly approved.
+export function roSupplierNameKey(value){
+ return String(value||'').normalize('NFKC').trim().replace(/\s+/g,' ').toUpperCase();
+}
+export function createRoSupplierDirectory(vendors=[]){
+ const master=new Map();
+ for(const v of vendors.filter(v=>v.kind==='SUPPLIER'&&v.scopes?.includes('LAE_IMPORT'))){
+  const key=roSupplierNameKey(v.name);if(key&&!master.has(key))master.set(key,String(v.name).trim());
+ }
+ const resolve=value=>{
+  const found=new Map();
+  for(const part of String(value||'').split(/\s+\/\s+|;/)){
+   const raw=part.replace(/\s+/g,' ').trim(),key=roSupplierNameKey(raw);
+   if(key&&!found.has(key))found.set(key,{key,label:master.get(key)||raw});
+  }
+  return [...found.values()];
+ };
+ const names=record=>[record.supplier,...(record.invoices||[]).map(i=>i.supplier)];
+ const matches=(record,selected)=>{
+  if(!selected)return true;const wanted=new Set(resolve(selected).map(s=>s.key));
+  return names(record).some(name=>resolve(name).some(s=>wanted.has(s.key)));
+ };
+ const options=values=>{
+  const found=new Map();
+  for(const value of values)for(const supplier of resolve(value))if(!found.has(supplier.key))found.set(supplier.key,supplier.label);
+  return [...found.values()].sort((a,b)=>a.localeCompare(b)).map(label=>({value:label,label}));
+ };
+ return {resolve,matches,options};
+}
 const roFail=(message,code)=>{throw new RuleError(message,code);};
 export const canWriteRoCosting=actor=>canCreate(actor,RO_COST_SCOPE);
 export function assertRoCostAccess(actor,write=false){if(!scopeAllowed(actor,RO_COST_SCOPE)||write&&!canWriteRoCosting(actor))roFail('LAE Import '+(write?'cost editing':'access')+' is required.','FORBIDDEN');}

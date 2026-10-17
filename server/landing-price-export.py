@@ -1,11 +1,20 @@
+from pathlib import Path
+import json
+COMPANY = json.loads((Path(__file__).resolve().parent / '../shared/company-profile.json').read_text(encoding='utf-8'))
+def company_lines():
+    return [COMPANY['name']]
+
 """Filtered, before-GST purchase register using the existing application export runtime."""
 import datetime as dt
 import io
 import json
+import os
 import sys
 import textwrap
 from urllib.parse import quote
 from xml.sax.saxutils import escape
+
+APP_ORIGIN = os.environ.get('FH_ORIGIN', 'https://purchase.dvjassociates.com').rstrip('/')
 
 COLUMNS = [('ro','RO #'),('inwardDate','Inward date'),('vendorName','Vendor name'),('itemName','Item name'),('masterCode','Master code'),('brandCode','Brand code'),('brand','Brand'),('usdUnit','USD / unit'),('aiInrPerUsd','AI INR / USD'),('inrUnitBeforeGst','INR / unit before GST'),('quantity','Qty'),('unit','Unit'),('status','Costing status'),('invoice','Supplier invoice'),('rmbUnit','Original RMB / unit'),('rmbPerUsd','RMB / USD'),('fxDate','Exchange date'),('fxBasis','Date basis'),('fxStatus','Exchange evidence'),('fxReview','Currency review'),('fxDetail','Review details'),('rmbSource','RMB source'),('fxSource','Exchange source'),('rmbEquivalentUnit','Calculated RMB equivalent'),('fxSeverity','Review severity'),('previousRo','Previous comparable RO'),('previousUsdUnit','Previous USD / unit'),('previousRmbUnit','Previous original RMB / unit'),('usdChangePercent','USD change %'),('rmbChangePercent','RMB change %'),('conversionDifferencePercent','Conversion difference %')]
 FILTER_LABELS = {'q':'Search','year':'Inward year','month':'Inward month','supplier':'Supplier','product':'Product group','masterCode':'Master code','brand':'Brand','unit':'Unit','status':'Costing status','fxReview':'Currency review'}
@@ -48,7 +57,7 @@ def excel(data):
             elif key in ('aiInrPerUsd','rmbPerUsd') and isinstance(value,(int,float)):cell.number_format='#,##0.0000'
             elif key in ('usdUnit','inrUnitBeforeGst','rmbUnit','rmbEquivalentUnit','previousUsdUnit','previousRmbUnit','usdChangePercent','rmbChangePercent','conversionDifferencePercent') and isinstance(value,(int,float)):cell.number_format='#,##0.00'
             elif key=='quantity' and isinstance(value,(int,float)):cell.number_format='#,##0.##'
-            if key=='ro':cell.hyperlink='https://purchase.dvjassociates.com/#/ro-costings/'+quote(str(value),safe='');cell.font=Font(color=green,underline='single')
+            if key=='ro':cell.hyperlink=APP_ORIGIN+'/#/ro-costings/'+quote(str(value),safe='');cell.font=Font(color=green,underline='single')
         lines=max(sum(max(1,len(textwrap.wrap(part,width=max(1,int(widths[col-1])-2),break_long_words=True,break_on_hyphens=False))) for part in str(ws.cell(index,col).value or '').split('\n')) for col in range(1,n+1))
         ws.row_dimensions[index].height=min(409,max(32,15*lines+8))
     end=header+len(data['rows'])
@@ -83,7 +92,7 @@ def pdf(data):
     for path in ['/usr/share/fonts/truetype/dejavu/dejavusans.ttf','/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',r'C:\Windows\Fonts\arial.ttf']:
         if Path(path).exists():pdfmetrics.registerFont(TTFont('LandingSans',path));font='LandingSans';break
     green=colors.HexColor('#204321');light=colors.HexColor('#EDF4E8');stream=io.BytesIO();size=landscape(A3)
-    doc=SimpleDocTemplate(stream,pagesize=size,leftMargin=28,rightMargin=28,topMargin=28,bottomMargin=34,title='LAE Landing Prices',author='Farming Hub')
+    doc=SimpleDocTemplate(stream,pagesize=size,leftMargin=28,rightMargin=28,topMargin=52,bottomMargin=34,title='LAE Landing Prices',author='Farming Hub')
     normal=ParagraphStyle('normal',fontName=font,fontSize=8,leading=11,textColor=green,wordWrap='CJK');small=ParagraphStyle('small',parent=normal,fontSize=7,leading=9);right=ParagraphStyle('right',parent=normal,alignment=TA_RIGHT)
     header=ParagraphStyle('header',parent=normal,textColor=colors.white,fontSize=8,leading=11)
     p=lambda value,style=normal:Paragraph(escape(str(value if value not in (None,'') else 'Pending')).replace('\n','<br/>'),style)
@@ -94,7 +103,7 @@ def pdf(data):
     rows=[[p(label,header) for label in labels]]
     for row in data['rows']:
         date=dt.date.fromisoformat(row['inwardDate']).strftime('%d %b %Y') if row.get('inwardDate') else 'Pending'
-        code=escape(row['ro']);url='https://purchase.dvjassociates.com/#/ro-costings/'+quote(row['ro'],safe='')
+        code=escape(row['ro']);url=APP_ORIGIN+'/#/ro-costings/'+quote(row['ro'],safe='')
         rows.append([Paragraph(f'<link href="{escape(url)}" color="#204321"><u>{code}</u></link>',normal),p(date),p(row['vendorName']+'\n'+row.get('invoice','')),p(row['itemName']+'\n'+row.get('fxReview','')+'\n'+row.get('fxDetail','')),p(row['masterCode']),p(row['brandCode']),p(row['brand']),p('USD '+fmt(row['usdUnit'])+'\nRMB '+fmt(row.get('rmbUnit'))+'\nRMB equivalent '+fmt(row.get('rmbEquivalentUnit'))+'\nFX '+fmt(row.get('rmbPerUsd'),4)+'\n'+row.get('fxDate','')+' '+row.get('fxBasis','')+'\n'+row.get('fxStatus',''),right),p(fmt(row['aiInrPerUsd'],4),right),p(fmt(row['inrUnitBeforeGst'])+'\n'+row['status'],right),p(fmt(row['quantity'],0 if row['quantity'] is not None and float(row['quantity']).is_integer() else 2)+' '+row.get('unit',''),right)])
     table=LongTable(rows,colWidths=widths,repeatRows=1,hAlign='LEFT');table.setStyle(TableStyle([('BACKGROUND',(0,0),(-1,0),green),('VALIGN',(0,0),(-1,-1),'TOP'),('ROWBACKGROUNDS',(0,1),(-1,-1),[colors.white,colors.HexColor('#F6F8F3')]),('LINEBELOW',(0,0),(-1,0),.6,green),('BOTTOMPADDING',(0,0),(-1,-1),7),('TOPPADDING',(0,0),(-1,-1),7)]));flow.append(table)
     if not data['rows']:flow.append(p('No matching purchase lines.'))
@@ -103,6 +112,12 @@ def pdf(data):
     footer=Table(summary,colWidths=[70,60,100,100,100,115,115,130,160]);footer.setStyle(TableStyle([('BACKGROUND',(0,0),(-1,0),green),('BACKGROUND',(0,1),(-1,-1),light),('VALIGN',(0,0),(-1,-1),'TOP'),('BOTTOMPADDING',(0,0),(-1,-1),9),('TOPPADDING',(0,0),(-1,-1),9)]))
     flow.append(KeepTogether([Spacer(1,16),p('WEIGHTED AVERAGES - ALL SELECTED ROWS'),Spacer(1,6),footer,Spacer(1,7),p('Positive quantities with both USD and supported INR costs. Conversion = paired INR value / paired USD value. Missing costs excluded; pieces and sets separate.',small)]))
     def page(canvas,document):
+        canvas.saveState()
+        canvas.setFillColor(green)
+        for i,line in enumerate(company_lines()):
+            canvas.setFont(font,9 if i==0 else 8)
+            canvas.drawString(28,size[1]-26-i*11,line)
+        canvas.restoreState()
         canvas.setFont(font,8);canvas.setFillColor(green);canvas.drawString(28,18,'Farming Hub | Before GST | Filtered purchase-price snapshot');canvas.drawRightString(size[0]-28,18,f'Page {document.page}')
     doc.build(flow,onFirstPage=page,onLaterPages=page);return stream.getvalue()
 if __name__=='__main__':

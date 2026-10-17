@@ -1,10 +1,11 @@
 /** Small orthographic 3D renderer. No remote scripts, continuous animation or WebGL requirement. */
 export function mountContainerScene(canvas,onSelect){
- const ctx=canvas.getContext('2d');let result=null,yaw=-0.68,pitch=0.55,zoom=1,limit=Infinity,selected='',drag=null,polygons=[];
+ let result=null,yaw=-0.68,pitch=0.55,zoom=1,limit=Infinity,selected='',drag=null,polygons=[];
  const palette=['#54875c','#c7a15b','#648aa0','#a6786d','#8086b0','#75a69a','#ae9270','#969b53'];
  const rotate=([x,y,z])=>{const a=x*Math.cos(yaw)-z*Math.sin(yaw),b=x*Math.sin(yaw)+z*Math.cos(yaw);return [a,b*Math.sin(pitch)-y*Math.cos(pitch),b*Math.cos(pitch)+y*Math.sin(pitch)];};
- function draw(){
-  if(!ctx||!result)return;const rect=canvas.getBoundingClientRect(),w=Math.max(1,rect.width),h=Math.max(1,rect.height),dpr=Math.min(2,devicePixelRatio||1);canvas.width=w*dpr;canvas.height=h*dpr;ctx.scale(dpr,dpr);ctx.clearRect(0,0,w,h);ctx.fillStyle='#f4f6f0';ctx.fillRect(0,0,w,h);
+ function draw(options={}){
+  const target=options.target||canvas,ctx=target.getContext('2d');
+  if(!ctx||!result)return;const rect=options.size||canvas.getBoundingClientRect(),w=Math.max(1,rect.width),h=Math.max(1,rect.height),dpr=options.target?1:Math.min(2,devicePixelRatio||1);target.width=w*dpr;target.height=h*dpr;ctx.scale(dpr,dpr);ctx.clearRect(0,0,w,h);ctx.fillStyle='#f4f6f0';ctx.fillRect(0,0,w,h);
   const c=result.container,raw=([x,y,z])=>rotate([x-c.length/2,y-c.height/2,z-c.width/2]),corners=[[0,0,0],[c.length,0,0],[c.length,0,c.width],[0,0,c.width],[0,c.height,0],[c.length,c.height,0],[c.length,c.height,c.width],[0,c.height,c.width]],rot=corners.map(raw),xs=rot.map(v=>v[0]),ys=rot.map(v=>v[1]),scale=Math.min((w-60)/(Math.max(...xs)-Math.min(...xs)),(h-74)/(Math.max(...ys)-Math.min(...ys)))*zoom;
   const project=p=>{const v=raw(p);return [w/2+v[0]*scale,h/2+v[1]*scale,v[2]];};
   const polygon=(points,fill,stroke='#fff',lineWidth=1)=>{ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.closePath();if(fill){ctx.fillStyle=fill;ctx.fill();}ctx.strokeStyle=stroke;ctx.lineWidth=lineWidth;ctx.stroke();};
@@ -26,5 +27,11 @@ export function mountContainerScene(canvas,onSelect){
  const key=e=>{if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','+','-','Home'].includes(e.key))return;e.preventDefault();if(e.key==='ArrowLeft')yaw-=.15;if(e.key==='ArrowRight')yaw+=.15;if(e.key==='ArrowUp')pitch=Math.min(1.5,pitch+.12);if(e.key==='ArrowDown')pitch=Math.max(.12,pitch-.12);if(e.key==='+')zoom=Math.min(2,zoom+.1);if(e.key==='-')zoom=Math.max(.5,zoom-.1);if(e.key==='Home'){yaw=-.68;pitch=.55;zoom=1;}draw();};
  canvas.addEventListener('pointerdown',down);canvas.addEventListener('pointermove',move);canvas.addEventListener('pointerup',up);canvas.addEventListener('pointercancel',()=>{drag=null;});canvas.addEventListener('keydown',key);
  const observer=new ResizeObserver(draw);observer.observe(canvas);
- return {clear:()=>{if(result){result={...result,boxes:[]};draw();}},set:r=>{result=r;draw();},select:id=>{selected=id;draw();},limit:n=>{limit=n;draw();},view:v=>{if(v==='top'){yaw=0;pitch=Math.PI/2;}else if(v==='side'){yaw=0;pitch=0;}else if(v==='door'){yaw=Math.PI/2;pitch=0;}else{yaw=-.68;pitch=.55;}zoom=1;draw();},zoom:n=>{zoom=Math.max(.5,Math.min(2,zoom+n));draw();},destroy:()=>{observer.disconnect();canvas.removeEventListener('pointerdown',down);canvas.removeEventListener('pointermove',move);canvas.removeEventListener('pointerup',up);canvas.removeEventListener('keydown',key);result=null;polygons=[];}};
+ function snapshot(){
+  if(!result)throw Error('Calculate the layout before downloading.');
+  const saved={yaw,pitch,zoom,limit,selected,polygons};
+  try{yaw=-.68;pitch=.55;zoom=1;limit=Infinity;selected='';const target=document.createElement('canvas');draw({target,size:{width:1600,height:680}});return target.toDataURL('image/jpeg',.95);}
+  finally{({yaw,pitch,zoom,limit,selected,polygons}=saved);}
+ }
+ return {snapshot,clear:()=>{if(result){result={...result,boxes:[]};draw();}},set:r=>{result=r;draw();},select:id=>{selected=id;draw();},limit:n=>{limit=n;draw();},view:v=>{if(v==='top'){yaw=0;pitch=Math.PI/2;}else if(v==='side'){yaw=0;pitch=0;}else if(v==='door'){yaw=Math.PI/2;pitch=0;}else{yaw=-.68;pitch=.55;}zoom=1;draw();},zoom:n=>{zoom=Math.max(.5,Math.min(2,zoom+n));draw();},destroy:()=>{observer.disconnect();canvas.removeEventListener('pointerdown',down);canvas.removeEventListener('pointermove',move);canvas.removeEventListener('pointerup',up);canvas.removeEventListener('keydown',key);result=null;polygons=[];}};
 }

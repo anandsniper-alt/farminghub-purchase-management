@@ -1,6 +1,6 @@
 import {createHash,randomUUID} from 'node:crypto';
 import {RuleError,MAX_UPLOAD_BYTES,UPLOAD_EXTENSIONS} from '../shared/domain.mjs';
-import {assertRoCostAccess,roCode,validateRoRecord,calculateRoCosting,worksheetComparisonSummary} from '../shared/ro-costing.mjs';
+import {createRoSupplierDirectory,assertRoCostAccess,roCode,validateRoRecord,calculateRoCosting,worksheetComparisonSummary} from '../shared/ro-costing.mjs';
 import {importantRoDocuments,forwardingAgentDocument,validateRoDriveUrl,RO_ESSENTIAL_DOCUMENT_KINDS} from '../shared/ro-documents.mjs';
 import {landingItemMasterIndex,projectLandingPriceRows,queryLandingPrices,validateLandingPriceQuery} from '../shared/landing-prices.mjs';
 
@@ -58,12 +58,18 @@ export class RoCostingStore{
   for(const ro of cache.records.keys())if(!current.has(ro))cache.records.delete(ro);
   return queryLandingPrices(rows,query,{totalRos:identities.length,rosWithItems,rosWithoutItems:identities.length-rosWithItems},options);
  }
- list(actorId,{q='',status='',offset=0,limit=50}={}){
-  this.actor(actorId);if(typeof q!=='string'||q.length>200||!['','Pending','Complete'].includes(status)||!Number.isSafeInteger(offset)||offset<0||!Number.isSafeInteger(limit)||limit<1||limit>50)throw new RuleError('Invalid RO list filter.');
-  const query='%'+q.replace(/[\\%_]/g,'\\$&')+'%',where="(ro LIKE ? ESCAPE '\\' OR supplier LIKE ? ESCAPE '\\') AND (?='' OR status=?)",args=[query,query,status,status];
+ list(actorId,{q='',status='',supplier='',roNumber='',offset=0,limit=50}={}){
+  this.actor(actorId);if(typeof q!=='string'||q.length>200||typeof supplier!=='string'||supplier.length>300||typeof roNumber!=='string'||roNumber.length>120||!['','Pending','Complete'].includes(status)||!Number.isSafeInteger(offset)||offset<0||!Number.isSafeInteger(limit)||limit<1||limit>50)throw new RuleError('Invalid RO list filter.');
+  const contains=value=>'%'+value.trim().replace(/[\\%_]/g,'\\$&')+'%';
+  const directory=createRoSupplierDirectory(this.store.read().vendors||[]);
+  const identities=this.db.prepare("SELECT ro,supplier FROM ro_costings UNION SELECT r.ro,json_extract(i.value,'$.supplier') supplier FROM ro_costings r,json_each(r.payload,'$.invoices') i WHERE json_type(i.value,'$.supplier')='text'").all();
+  const matches=[...new Set(identities.filter(r=>directory.matches(r,supplier)).map(r=>r.ro))];
+  const supplierClause=!supplier.trim()?'1':matches.length?'ro IN ('+matches.map(()=>'?').join(',')+')':'0';
+  const query=contains(q),where="(ro LIKE ? ESCAPE '\\' OR supplier LIKE ? ESCAPE '\\') AND (?='' OR status=?) AND ro LIKE ? ESCAPE '\\' AND "+supplierClause,args=[query,query,status,status,contains(roNumber),...(supplier.trim()?matches:[])];
   const total=this.db.prepare('SELECT count(*) n FROM ro_costings WHERE '+where).get(...args).n;
   const rows=this.db.prepare('SELECT ro,revision,payload,updated_at FROM ro_costings WHERE '+where+' ORDER BY ro COLLATE NOCASE LIMIT ? OFFSET ?').all(...args,limit,offset).map(r=>{const record=JSON.parse(r.payload),cost=calculateRoCosting(record),important=this.important(r.ro,record);return {ro:r.ro,revision:r.revision,supplier:record.supplier,invoices:record.invoices.map(i=>i.invoice),inwardDate:record.inwardDate,boeDate:record.boeDate,updatedAt:r.updated_at,...cost,worksheetComparison:worksheetComparisonSummary(record),documents:important.commercialInvoices.length+important.inwardBoe.length+important.importerCopies.length};});
-  return {rows,total,offset,limit,sourceLibrary:this.sourceLibrary(actorId)};
+  const suppliers=directory.options(identities.map(r=>r.supplier)).map(s=>s.label);
+  return {rows,total,offset,limit,suppliers,sourceLibrary:this.sourceLibrary(actorId)};
  }
  detail(actorId,ro){this.actor(actorId);const row=this.db.prepare('SELECT * FROM ro_costings WHERE ro=?').get(roCode(ro));if(!row)throw new RuleError('RO costing not found.','NOT_FOUND');const record=JSON.parse(row.payload);return {record,revision:row.revision,cost:calculateRoCosting(record),sourceLibrary:this.sourceLibrary(actorId),importantDocuments:this.important(ro,record),documents:this.documents(actorId,ro),history:this.db.prepare('SELECT revision,actor_id,at,reason FROM ro_costing_events WHERE ro=? ORDER BY revision DESC LIMIT 50').all(ro)};}
  important(ro,record){const importantFiles=this.db.prepare("SELECT * FROM ro_document_metadata WHERE ro=? AND (kind LIKE 'Commercial invoice%' OR kind LIKE 'Forwarding agent %' OR kind IN ('Inward BOE','Assessed BOE','Importer copy')) ORDER BY id LIMIT 100").all(ro);return importantRoDocuments(record,importantFiles);}

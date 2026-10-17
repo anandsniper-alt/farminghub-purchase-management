@@ -275,3 +275,7 @@ LAE Sales Analytics empty workspace implemented under DEC-137/WF-132. Source ing
 
 
 Publication verified on 14 October 2026: the empty workspace is live at `/#/lae-sales-analytics`, runtime `5192c246c4b599c039e655e6c643a8fc8aeb4ed8`. All 597 native tests and exact-commit CI passed. Production health, four served assets, authentication boundary and seven desktop/mobile browser checks passed with no page errors or business-write requests. Main purchasing, Implements, BOM and Production fingerprints are unchanged. The fresh recovery ZIP and isolated running/candidate restores preserved all 34 tables; two verified recovery archives are retained. No analytics data was imported and no schema or data migration was introduced. This supersedes the publication-pending status above.
+
+
+## 2026-10-17 — Reviewed correction integration candidate
+DEC-143/WF-138 integrates approved local software corrections onto current live stock-aging source. Test POs and all related data remain excluded. Existing live stock/RO/FX data and separate analytics source stay intact. Remaining release gates: final exact-commit regression/CI, authenticated and standalone browser checks, fresh backup/candidate restore, healthy runtime and read-only data preservation. No deployment is implied by this candidate entry.

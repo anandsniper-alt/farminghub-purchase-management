@@ -1,3 +1,9 @@
+from pathlib import Path
+import json
+COMPANY = json.loads((Path(__file__).resolve().parent / '../../shared/company-profile.json').read_text(encoding='utf-8'))
+def company_lines():
+    return [COMPANY['name']]
+
 import sys,json,base64,io,csv,zipfile,re
 from decimal import Decimal
 from pathlib import Path
@@ -87,7 +93,7 @@ def pdf(po):
             if decoded.width*decoded.height>40000000:raise ValueError('Image is too large.')
             data=io.BytesIO();decoded.convert('RGB').save(data,format='PNG');width,height=decoded.size
         scale=min(52/width,52/height);return Image(io.BytesIO(data.getvalue()),width=width*scale,height=height*scale)
-    doc=SimpleDocTemplate(out,pagesize=landscape(A4),leftMargin=32,rightMargin=32,topMargin=30,bottomMargin=38)
+    doc=SimpleDocTemplate(out,pagesize=landscape(A4),leftMargin=32,rightMargin=32,topMargin=52,bottomMargin=38)
     logo=ROOT/'../../web/assets/farming-hub-logo.png'
     from PIL import Image as PillowImage
     with PillowImage.open(logo) as dimensions:iw,ih=dimensions.size
@@ -127,6 +133,12 @@ def pdf(po):
         t=Table(children,colWidths=[90,390,70,110,118],repeatRows=1)
         t.setStyle(TableStyle([('BACKGROUND',(0,0),(-1,0),colors.HexColor('#204321')),('ROWBACKGROUNDS',(0,1),(-1,-1),[colors.white,colors.HexColor('#f7f8f1')]),('FONTSIZE',(0,1),(-1,-1),8),('VALIGN',(0,0),(-1,-1),'TOP'),('TOPPADDING',(0,0),(-1,-1),6),('BOTTOMPADDING',(0,0),(-1,-1),6)]));story.append(t)
     def footer(canvas,document):
+        canvas.saveState()
+        canvas.setFillColor(colors.HexColor('#203e32'))
+        for i,line in enumerate(company_lines()):
+            canvas.setFont('Helvetica-Bold' if i==0 else 'Helvetica',9 if i==0 else 8)
+            canvas.drawString(32,landscape(A4)[1]-26-i*11,line)
+        canvas.restoreState()
         canvas.setFont('Helvetica',8);canvas.setFillColor(colors.HexColor('#52664f'));canvas.drawString(32,20,po['id']+' | '+po.get('lifecycleStatus','DRAFT').replace('_',' '));canvas.drawRightString(810,20,f'Page {document.page}')
     doc.build(story,onFirstPage=footer,onLaterPages=footer)
     return out.getvalue()

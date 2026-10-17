@@ -1,4 +1,5 @@
 import {REVIEW_MODULES,stripReviewModule} from './review-sources.mjs';
+import {reviewBundle} from './review-bundle.mjs';
 import {GUIDE_POSES} from '../web/guide-poses.mjs';
 import {readFileSync,writeFileSync,copyFileSync,mkdirSync} from 'node:fs';
 import {resolve,dirname,join} from 'node:path';
@@ -9,7 +10,7 @@ import {readdirSync} from 'node:fs';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..'),read=p=>readFileSync(join(root,p),'utf8');
 if(JSON.parse(read('package.json')).version!==APP_VERSION)throw new Error('package.json and shared APP_VERSION must match before issuing a build.');
 const strip=stripReviewModule;
-const js=REVIEW_MODULES.map(p=>'\n// '+p+'\n'+strip(read(p))).join('\n');
+const js=reviewBundle(REVIEW_MODULES,read).code;
 const safe=s=>s.replace(/<\/script/gi,'<\\/script');
 const domesticImages=Object.fromEntries(readdirSync(join(root,'web/assets/domestic-bom')).filter(n=>n.endsWith('.png')).map(n=>[n,'data:image/png;base64,'+readFileSync(join(root,'web/assets/domestic-bom',n)).toString('base64')]));
 const domesticPreview=process.argv.includes('--domestic-preview');
