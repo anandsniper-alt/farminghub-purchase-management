@@ -784,3 +784,7 @@ MODULE-SPECIFIC, DEC-137. A published workspace can be intentionally empty. Show
 
 ### Independent analytics release boundary — 2026-10-14
 A home card alone does not isolate releases. LAE analytics now has separately deployed source/assets and a separate data volume, with only a versioned identity contract shared. Two computers must use the same designated analytics branch in distinct checkouts and reconcile remote changes before pushing. Keep source-reported totals and discrepancy evidence separate; do not silently repair a user's selected MASTER basis. Focused checks must include identity expiry, source controls, shared-stock double counting and retained item-code identity.
+
+
+## Dated stock coverage and matched cost comparisons — 2026-10-17
+MODULE-SPECIFIC, DEC-140. Original-cost and revised-cost populations can differ. Show both priced and pending quantities and calculate percentage change only on identical priced stock. Negative source adjustments affect net stock but are not positive price weights; differing units never share an average. Preserve physical inventory valuation separately from historical machine-plus-motor sale-set references. An approved unavailable-rent exclusion must remain visible beside its zero applied component, including exports. Import the approved reference by exact source identity and reconcile every row against the source workbook; model-code similarity is insufficient to transfer old purchase prices. Keep original, assigned and price-reference ROs distinct.

@@ -896,3 +896,7 @@ DEC-137/WF-132 adds an empty, scope-aware analytics workspace under LAE Division
 
 
 Publication verified on 14 October 2026: the empty workspace is live at `/#/lae-sales-analytics`, runtime `5192c246c4b599c039e655e6c643a8fc8aeb4ed8`. All 597 native tests and exact-commit CI passed. Production health, four served assets, authentication boundary and seven desktop/mobile browser checks passed with no page errors or business-write requests. Main purchasing, Implements, BOM and Production fingerprints are unchanged. The fresh recovery ZIP and isolated running/candidate restores preserved all 34 tables; two verified recovery archives are retained. No analytics data was imported and no schema or data migration was introduced. This supersedes the publication-pending status above.
+
+
+## 2026-10-17 — Current stock costing candidate
+DEC-140/WF-135 adds a protected LAE model/warehouse/barcode view with original purchased landing cost, revised interest/rent/duty components, weighted averages and filtered Excel/PDF downloads. Approved dated source snapshots are immutable and imported separately from purchase/RO records. The standalone review is empty by design. See [module contract](LAE_CURRENT_STOCK_COSTING.md) for financial semantics, access and scale limits. Local source reconciliation and 615 native tests passed; production release and source import must be verified separately.

@@ -1169,3 +1169,7 @@ Purchase manager enters a SKU remark applying to its complete closing-stock memb
 
 ## WF-134 — Review RMB, USD and landing cost independently (DEC-139)
 2026-10-16. LAE Purchase → Landing Prices → filter purchase items → inspect original RMB, RMB/USD, date basis and source → review changes of at least 1% and unresolved evidence → follow the RO to original documents. Compare exact supported model/configuration lots; do not remap a barcode or overwrite a price from this view. Export the selected screen with statuses and before/after comparison fields. Pending settlement, unit, document-currency and invoice-scope issues remain explicit. Existing weighted cost footer and all actual/AI/Suresh values retain their previous semantics.
+
+
+## WF-135 — Model to warehouse and barcode stock costs (DEC-140)
+2026-10-17. LAE Division → Current stock costing → select model or search code/barcode → filter warehouse, group, brand, unit, RO and cost status → inspect total closing stock and original/revised weighted averages → open model batches and their RO/cost evidence. Exports contain all selected records across pages. Source stock and cost calculation dates remain visible. Missing original or revised prices retain pending coverage; quantity-only goods and negative adjustments retain their source quantities. A separate snapshot activation changes only this module and preserves all previous versions.
