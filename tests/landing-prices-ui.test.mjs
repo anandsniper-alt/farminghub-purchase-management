@@ -58,3 +58,14 @@ test('RMB evidence stays separate from USD/INR and escaped in both landing views
   assert.match(html,/Original RMB \/ unit/);assert.match(html,/RMB \/ USD/);assert.match(html,/140\.00/);assert.match(html,/Proforma/);assert.match(html,/&lt;script&gt;rate&lt;\/script&gt;/);assert.doesNotMatch(html,/<script>rate/);assert.match(html,/Conversion checked/);
  }
 });
+
+test('currency review selection reaches the query for apply and immediate select changes',async()=>{
+ const original=globalThis.FormData;const {host}=hostFor([fixture()]),ui=createLandingPricesUI(host);
+ const form={id:'landing-price-filter',values:{q:'PW8',fxReview:'Original currency pending'}};
+ globalThis.FormData=class{constructor(f){this.values=f.values;}get(key){return this.values[key]||'';}};
+ try{
+  assert.equal(await ui.formSubmit({target:form}),true);assert.equal(new URLSearchParams(location.hash.split('?')[1]).get('fxReview'),'Original currency pending');
+  form.values.fxReview='Within 1%';assert.equal(await ui.change({tagName:'SELECT',name:'fxReview',form,closest:()=>form}),true);
+  assert.equal(new URLSearchParams(location.hash.split('?')[1]).get('fxReview'),'Within 1%');assert.match(location.hash,/page=1/);
+ }finally{globalThis.FormData=original;}
+});
