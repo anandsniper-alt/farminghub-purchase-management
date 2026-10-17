@@ -904,3 +904,9 @@ DEC-140/WF-135 adds a protected LAE model/warehouse/barcode view with original p
 
 ## 2026-10-17 — Import RO summary candidate
 DEC-141/WF-136 adds purchase RO beside barcodes, distinct import-batch counts in selected/model summaries, a per-RO stock breakdown and matching Excel/PDF summaries. The original stock module was verified live at 286156bb4dd9eca68c6bc8be422566191831767e. This extension changes derived presentation only; publication is verified separately.
+
+
+## 2026-10-17 — Stock Aging candidate
+DEC-142/WF-137 adds a scoped, read-only product aging table and model popup under LAE Division. The current stock snapshot and original financial fields remain unchanged. Inclusive day bands and pending-date coverage use [the aging contract](LAE_STOCK_AGING.md). Implementation, local verification and production publication are separate gates; the previously verified stock release is c0726d6be4c75be5724ca51cc66a80ffdf1f791a.
+
+Local verification: 624 native tests passed, followed by the affected date-lookup checks for unsupported legacy RO identities. The review build and concatenated JavaScript syntax pass. Desktop/mobile native UI and popup Escape/focus return were checked. Independent calendar-day and decimal-quantity reconciliation covers all 16,187 source rows and all model/bucket totals. At the 2026-09-30 snapshot, import aging has 50 date-pending rows / 4,947 net pcs; exact purchase inward dates support 115 otherwise undated source rows. These are dated source findings, not proof of future inventory or publication.

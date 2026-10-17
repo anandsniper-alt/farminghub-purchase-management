@@ -35,6 +35,14 @@ export class RoCostingStore{
  UNION ALL SELECT ro,id,name,kind,kind,0,sha256,bytes,at,'google-drive',drive_url FROM ro_drive_documents;
  `);}
  actor(id,write=false){const actor=this.store.read().users.find(u=>u.id===id);assertRoCostAccess(actor,write);return actor;}
+ stockAgingDates(actorId,requestedRos){
+  this.actor(actorId);if(!Array.isArray(requestedRos)||requestedRos.length>50000)throw new RuleError('Invalid stock RO date scope.');
+  // Legacy stock identities unsupported by the RO register remain date-pending.
+  const ros=[...new Set(requestedRos.flatMap(value=>{try{return [roCode(value)];}catch{return [];}}))],dates=[];
+  for(let offset=0;offset<ros.length;offset+=250){const chunk=ros.slice(offset,offset+250),records=this.db.prepare('SELECT ro,payload FROM ro_costings WHERE ro IN ('+chunk.map(()=>'?').join(',')+')').all(...chunk);
+   for(const stored of records){const record=JSON.parse(stored.payload);for(const item of record.purchaseItems?.rows||[])dates.push({ro:stored.ro,invoice:item.invoice,brandCode:item.itemCode,unit:item.unit,inwardDate:item.inwardDate||record.inwardDate||''});}
+  }return dates;
+ }
  landingPricesExport(actorId,query={}){return this.landingPrices(actorId,query,{exportAll:true});}
  landingPrices(actorId,query={},options={}){
   this.actor(actorId);validateLandingPriceQuery(query);

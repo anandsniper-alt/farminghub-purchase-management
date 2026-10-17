@@ -1177,3 +1177,7 @@ Purchase manager enters a SKU remark applying to its complete closing-stock memb
 
 ## WF-136 — See which import ROs make up model stock (DEC-141)
 2026-10-17. Open a stock model → see Import batches (ROs) count and expanded Stock by import RO table → inspect each RO quantity and averages → open its RO costing record. Barcode rows show the mapped purchase RO beside the barcode. Warehouse/model filters and exports use the same selected stock; missing or multiple candidates remain RO pending and are excluded from the confirmed count.
+
+
+## WF-137 — Product aging to model stock (DEC-142)
+2026-10-17. LAE Division → Stock Aging → filter product/warehouse/brand/unit or search model → select an age-bucket quantity → inspect matching models and warehouse quantities in a popup → Close/Escape returns to the selected bucket. Import age defaults to the dated stock source; warehouse inward age is selectable. Date pending remains a visible column and supports the same drilldown.

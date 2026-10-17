@@ -792,3 +792,7 @@ MODULE-SPECIFIC, DEC-140. Original-cost and revised-cost populations can differ.
 
 ## Import-batch count is distinct RO ownership — 2026-10-17
 An import batch is one exact assigned RO in positive closing stock, not a barcode count or number of supplier invoices. Count across the full filtered selection and deduplicate across brands, warehouses and units; never sum per-unit distinct counts. Keep unresolved compound assignments and price-reference ROs out of the ownership count. Preserve negative source adjustments in quantities while excluding negative-only rows from the count.
+
+
+## Stock aging must retain dated scope and unknown dates — 2026-10-17
+Aging a fixed stock snapshot later does not refresh inventory. Use whole calendar days and non-overlapping inclusive bands. Every signed row belongs to one bucket; keep missing/future dates pending and mixed units separate. Purchase date enrichment must require exact assigned RO, invoice, item and unit with consistent dates; a price-reference RO or similar model is insufficient. Retrieve only required purchase date evidence, without recalculating purchase prices. Product and popup model totals must reconcile to the same filtered source.

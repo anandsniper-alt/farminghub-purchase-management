@@ -1,4 +1,5 @@
 import {createHash,randomUUID} from 'node:crypto';
+import {queryLaeStockAging} from '../shared/lae-stock-aging.mjs';
 import {RuleError} from '../shared/domain.mjs';
 import {assertLaeStockAccess,validateLaeStockSnapshot,queryLaeStock} from '../shared/lae-stock-costing.mjs';
 
@@ -21,6 +22,7 @@ export class LaeStockStore{
   if(this.cache?.revision!==active.revision){const data=this.db.prepare('SELECT * FROM lae_stock_snapshots WHERE id=?').get(active.snapshot_id);this.cache={revision:active.revision,snapshot:{...JSON.parse(data.metadata),id:data.id,revision:active.revision,importedAt:data.created_at},rows:this.db.prepare('SELECT payload FROM lae_stock_rows WHERE snapshot_id=? ORDER BY source_id').all(data.id).map(r=>JSON.parse(r.payload))};}
   return queryLaeStock(this.cache.rows,query,this.cache.snapshot,options);
  }
+ aging(actorId,query={},purchaseDates=()=>[]){const report=this.read(actorId,{}, {exportAll:true}),ros=[...new Set(report.rows.filter(r=>!r.importDate&&/^\d+[A-Za-z0-9._/-]*$/.test(r.assignedRo||'')).map(r=>r.assignedRo))];return queryLaeStockAging(report.rows,query,report.snapshot,query.basis==='warehouse'?[]:purchaseDates(ros));}
  import(actorId,input,requestId){
   const actor=this.actor(actorId,true);if(!Number.isSafeInteger(input?.expectedRevision)||input.expectedRevision<0||typeof input.reason!=='string'||!input.reason.trim()||input.reason.length>2000)throw new RuleError('Provide a current stock revision and import reason.');
   const snapshot=validateLaeStockSnapshot(input.snapshot),contentHash=createHash('sha256').update(JSON.stringify(snapshot)).digest('hex');this.db.exec('BEGIN IMMEDIATE');
