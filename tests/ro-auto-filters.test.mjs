@@ -32,6 +32,20 @@ test('automatic filters debounce typing, preserve focus, cancel reset and ignore
   // A response arriving during further typing must not replace the draft value.
   values.roNumber='1234';ui.input(controls.roNumber);await finish();
   assert.equal(fields.findLast(f=>f.name==='roNumber').value,'1234');assert.ok(focusCount>0);
+  const nextCallback=[...timers.values()][0];timers.clear();nextCallback();await tick();await finish('1234');
+  assert.match(html,/>1234</);assert.equal(fields.findLast(f=>f.name==='roNumber').value,'');
+  // A cleared entry is not a cleared result filter when changing a dropdown.
+  values.roNumber='';values.status='Pending';await ui.change(controls.status);await tick();await finish('1234');
+  const retained=new URL('http://local'+requests.at(-1)).searchParams;
+  assert.equal(retained.get('roNumber'),'1234');assert.equal(retained.get('supplier'),'Supplier A');assert.equal(retained.get('status'),'Pending');
+  // Entering the same number again clears without issuing a duplicate request.
+  values.roNumber='1234';const beforeRepeat=requests.length;await ui.formSubmit({target:form});assert.equal(requests.length,beforeRepeat);
+  assert.equal(fields.findLast(f=>f.name==='roNumber').value,'');
+  // The next search replaces the result scope and starts from page one.
+  values.roNumber='5678';await ui.formSubmit({target:form});await tick();await finish('5678');
+  assert.equal(new URL('http://local'+requests.at(-1)).searchParams.get('roNumber'),'5678');
+  assert.equal(new URL('http://local'+requests.at(-1)).searchParams.get('offset'),'0');assert.match(html,/>5678</);
+  assert.equal(fields.findLast(f=>f.name==='roNumber').value,'');
   await ui.action('ro-reset-filters',{});assert.equal(timers.size,0);await tick();await finish();
   assert.equal(new URL('http://local'+requests.at(-1)).searchParams.get('roNumber'),'');
   assert.equal(fields.findLast(f=>f.name==='roNumber').value,'');

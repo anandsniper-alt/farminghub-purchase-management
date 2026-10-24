@@ -20,14 +20,15 @@ export function createRoCostingUI(host){
    if(sandbox){const rows=localRead();if(ui.orderId){const r=rows[ui.orderId];if(!r)throw Error('RO costing not found in this isolated review.');const files=window.FH_RO_REVIEW_DOCUMENTS?.[r.record.ro]||[];cache={...r,cost:calculateRoCosting(r.record),importantDocuments:importantRoDocuments(r.record,files),documents:{rows:files.slice(0,100),total:files.length,offset:0},history:r.history||[]};}else{const found=Object.values(rows).filter(r=>(!q||(r.record.ro+' '+r.record.supplier).toLowerCase().includes(q.toLowerCase()))&&createRoSupplierDirectory(context().state?.vendors||[]).matches(r.record,supplier)&&(!roNumber||r.record.ro.toLowerCase().includes(roNumber.toLowerCase()))&&(!status||calculateRoCosting(r.record).status===status)).sort((a,b)=>a.record.ro.localeCompare(b.record.ro,undefined,{numeric:true}));cache={suppliers:createRoSupplierDirectory(context().state?.vendors||[]).options(Object.values(rows).flatMap(r=>[r.record.supplier,...r.record.invoices.map(i=>i.supplier)])).map(s=>s.label),total:found.length,rows:found.slice(offset,offset+50).map(r=>({ro:r.record.ro,supplier:r.record.supplier,revision:r.revision,invoices:r.record.invoices.map(i=>i.invoice),inwardDate:r.record.inwardDate,boeDate:r.record.boeDate,documents:importantDocumentCount(r.record,window.FH_RO_REVIEW_DOCUMENTS?.[r.record.ro]||[]),...calculateRoCosting(r.record),worksheetComparison:worksheetComparisonSummary(r.record)}))};}}
    else cache=await api('/ro-costings'+(ui.orderId?'/record?ro='+encodeURIComponent(ui.orderId):'?q='+encodeURIComponent(q)+'&status='+status+'&supplier='+encodeURIComponent(supplier)+'&roNumber='+encodeURIComponent(roNumber)+'&offset='+offset));
    if(sandbox)cache.sourceLibrary=window.FH_RO_SOURCE_LIBRARY||null;
-   if(expected!==key()){cache=null;cacheKey='';}else{cacheKey=expected;supplierChoices=cache?.suppliers||supplierChoices;}
+   if(expected!==key()){cache=null;cacheKey='';}else{cacheKey=expected;supplierChoices=cache?.suppliers||supplierChoices;if(!ui.orderId&&roNumber&&roDraft.trim()===roNumber&&!filterTimer)roDraft='';}
   }catch(e){cache=null;error=e.message;cacheKey=expected;}finally{loading=false;if(context().ui.view==='ro-costings')renderFiltered();}
  }
  function working(c){return `<div class="arrival-results"><div><span>Goods invoice USD</span><strong>$${fmt(c.goodsUsd)}</strong></div><div><span>Entered actual costs before GST</span><strong>₹${fmt(c.enteredTotal)}</strong></div><div><span>Verified actual AI INR / USD</span><strong>${fmt(c.rate)}</strong></div><div><span>Suresh rate in actual record</span><strong>${fmt(c.sureshRate)}</strong></div></div>`;}
  function page(){
   const {user,ui,sandbox}=context();try{assertRoCostAccess(user);}catch(e){return head('LAE Import','RO costings','')+note(esc(e.message),'warn');}
   if(cacheKey!==key()&&!loading){cache=null;queueMicrotask(()=>load());}
-  const title=head('LAE Import','RO costings','Before-GST purchase costing',button('Refresh','ro-refresh',{},'ghost'));
+  const navigation=ui.orderId?'<a class="button ghost" href="#/ro-costings">← Back to RO list</a>':'';
+  const title=head('LAE Import','RO costings','Before-GST purchase costing',navigation+button('Refresh','ro-refresh',{},'ghost'));
   if(loading||cacheKey!==key())return title+(ui.orderId?'':filterPanel())+'<div role="status" aria-live="polite">'+note('Updating RO costings…')+'</div>';
   if(error)return title+(ui.orderId?'':filterPanel())+note(esc(error),'warn')+button('Try again','ro-refresh',{},'primary');
   const write=canWriteRoCosting(user),review=(sandbox?note('Isolated browser review. These records do not update the website. Evidence uploads are available on the authenticated server.'):'')+sourceLibraryPanel(cache.sourceLibrary);
@@ -40,20 +41,20 @@ export function createRoCostingUI(host){
   render();
   if(keep){const input=doc.querySelector('#ro-filter')?.elements.namedItem(keep.name);input?.focus({preventScroll:true});if(typeof keep.start==='number'&&input?.setSelectionRange)input.setSelectionRange(keep.start,keep.end);}
  }
- function applyFilters(form){
+ function applyFilters(form,preserveRo=false){
   clearTimeout(filterTimer);filterTimer=null;
-  const f=Object.fromEntries(new FormData(form)),nextSupplier=String(f.supplier||'').trim(),nextStatus=f.status||'',nextRo=String(f.roNumber||'').trim();
+  const f=Object.fromEntries(new FormData(form)),nextSupplier=String(f.supplier||'').trim(),nextStatus=f.status||'',nextRo=String(f.roNumber||'').trim()||(preserveRo?roNumber:'');
   roDraft=String(f.roNumber||'');
-  if(supplier===nextSupplier&&status===nextStatus&&roNumber===nextRo)return;
+  if(supplier===nextSupplier&&status===nextStatus&&roNumber===nextRo){if(roNumber&&cacheKey===key()&&!loading&&!error){roDraft='';renderFiltered();}return;}
   q='';supplier=nextSupplier;status=nextStatus;roNumber=nextRo;offset=0;poOffset=0;cacheKey='';renderFiltered();
  }
  function input(el){
   const form=el.closest?.('#ro-filter');if(!form||el.name!=='roNumber')return false;
   roDraft=el.value;clearTimeout(filterTimer);const actor=context().user.id;
-  filterTimer=setTimeout(()=>{filterTimer=null;const {ui,user}=context();if(ui.view==='ro-costings'&&!ui.orderId&&user.id===actor){const current=globalThis.document?.querySelector('#ro-filter');if(current)applyFilters(current);}else roDraft=roNumber;},350);
+  filterTimer=setTimeout(()=>{filterTimer=null;const {ui,user}=context();if(ui.view==='ro-costings'&&!ui.orderId&&user.id===actor){const current=globalThis.document?.querySelector('#ro-filter');if(current)applyFilters(current);}},350);
   return true;
  }
- function filterPanel(){return `<section class="panel"><div class="panel-body"><form id="ro-filter" class="toolbar">${field('supplier','Supplier',supplier,'select',{options:[{value:'',label:'All suppliers'},...supplierOptions()],hint:'Includes verified name variants. Shared ROs appear for each supplier.'})}${field('roNumber','RO number',roDraft,'text',{attrs:'maxlength="120"',hint:'Results update after you pause typing.'})}${field('status','Actual costing status',status,'select',{options:[{value:'',label:'All'},'Pending','Complete']})}${button('Reset filters','ro-reset-filters',{},'ghost')}</form></div></section><div class="gap"></div>`;}
+ function filterPanel(){return `<section class="panel"><div class="panel-body"><form id="ro-filter" class="toolbar">${field('supplier','Supplier',supplier,'select',{options:[{value:'',label:'All suppliers'},...supplierOptions()],hint:'Includes verified name variants. Shared ROs appear for each supplier.'})}${field('roNumber','RO number',roDraft,'text',{attrs:'maxlength="120"',hint:roNumber?'RO filter: '+esc(roNumber)+'. Enter another RO to replace these results.':'Results update after you pause typing; the search box then clears.'})}${field('status','Actual costing status',status,'select',{options:[{value:'',label:'All'},'Pending','Complete']})}${button('Reset filters','ro-reset-filters',{},'ghost')}</form></div></section><div class="gap"></div>`;}
  function supplierOptions(){
   const {state,user}=context();
   return createRoSupplierDirectory(state?.vendors||[]).options([...supplierChoices,...finalizedPoCostings(state,user).map(r=>r.supplier),supplier]);
@@ -160,6 +161,6 @@ export function createRoCostingUI(host){
   return true;
  }
  async function formSubmit(event){if(event.target.id!=='ro-filter')return false;applyFilters(event.target);return true;}
- async function change(el){const form=el.closest?.('#ro-filter');if(form){if(el.name!=='roNumber')applyFilters(form);return true;}if(context().ui.modal!=='ro-import'||el.name!=='file')return false;importRows=null;document.getElementById('ro-import-preview').textContent='';const file=el.files[0];if(!file)return true;if(file.size>5e6)throw Error('Prepared import maximum is 5 MB.');const input=JSON.parse(await file.text());if(!Array.isArray(input.records)||!input.records.length||input.records.length>30)throw Error('Import 1–30 prepared RO records at a time.');importRows=input.records.map(e=>({record:validateRoRecord(e.record),expectedRevision:e.expectedRevision}));document.getElementById('ro-import-preview').textContent='Review '+importRows.length+' ROs: '+importRows.map(e=>e.record.ro).join(', ')+'. Existing RO versions require matching revisions.';return true;}
+ async function change(el){const form=el.closest?.('#ro-filter');if(form){if(el.name!=='roNumber')applyFilters(form,true);return true;}if(context().ui.modal!=='ro-import'||el.name!=='file')return false;importRows=null;document.getElementById('ro-import-preview').textContent='';const file=el.files[0];if(!file)return true;if(file.size>5e6)throw Error('Prepared import maximum is 5 MB.');const input=JSON.parse(await file.text());if(!Array.isArray(input.records)||!input.records.length||input.records.length>30)throw Error('Import 1–30 prepared RO records at a time.');importRows=input.records.map(e=>({record:validateRoRecord(e.record),expectedRevision:e.expectedRevision}));document.getElementById('ro-import-preview').textContent='Review '+importRows.length+' ROs: '+importRows.map(e=>e.record.ro).join(', ')+'. Existing RO versions require matching revisions.';return true;}
  return {page,modal,submit,action,formSubmit,change,input};
 }

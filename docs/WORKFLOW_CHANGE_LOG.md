@@ -1224,3 +1224,11 @@ User approved this supplier cleanup for live on 2026-10-17. Full local regressio
 
 
 **Payment planner publication verified - 2026-10-24 (DEC-145 through DEC-150 / WF-140 through WF-145):** Live runtime `f0c1f91d7161804e69b35285cda8ce919a5cd339` is healthy. Payments > Payment planner includes weekly outstanding by default, optional Month summary, immediate selected-month checkboxes, USD/estimated INR, and Excel/PDF downloads with consistent dates and all PDF supplier columns together. The proposed Overview card is excluded; existing Overview code is unchanged. No demo records, dates or exchange rates were imported. Fresh full recovery ZIP, original/candidate isolated restores, 811 native tests, 7 analytics tests and exact-commit hosted CI passed. Live browser/download checks and 21 report comparisons passed. All 37 protected business tables remain exactly unchanged at workspace revision 1970; only sessions changed. This supersedes local-only and publication-pending status for the planner. Private backup and detailed verification receipts remain local.
+
+
+## WF-146 - Return from RO details and choose another RO (DEC-151)
+2026-10-24. Local candidate. From RO details select Back to RO list to retain the previous filters. Select Choose another RO above a searched list to clear the number and type the next one immediately. Supplier/status remain selected; Reset filters still clears all filters. No need to leave for LAE Division. No live changes.
+
+
+## WF-147 - Type the next RO directly (DEC-152; supersedes WF-146 repeat search)
+2026-10-24. Enter an RO number. After results load, the entry box clears automatically and the active RO number remains in helper text. Type the next number directly; no Choose another RO click is required. Back to RO list remains on detail pages. Local demo only.

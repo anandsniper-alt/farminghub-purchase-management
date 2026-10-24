@@ -1332,3 +1332,11 @@ Reuse shared branded tables, controls, focus restoration and audited dialogs (UI
 
 
 **Payment planner publication verified - 2026-10-24 (DEC-145 through DEC-150 / WF-140 through WF-145):** Live runtime `f0c1f91d7161804e69b35285cda8ce919a5cd339` is healthy. Payments > Payment planner includes weekly outstanding by default, optional Month summary, immediate selected-month checkboxes, USD/estimated INR, and Excel/PDF downloads with consistent dates and all PDF supplier columns together. The proposed Overview card is excluded; existing Overview code is unchanged. No demo records, dates or exchange rates were imported. Fresh full recovery ZIP, original/candidate isolated restores, 811 native tests, 7 analytics tests and exact-commit hosted CI passed. Live browser/download checks and 21 report comparisons passed. All 37 protected business tables remain exactly unchanged at workspace revision 1970; only sessions changed. This supersedes local-only and publication-pending status for the planner. Private backup and detailed verification receipts remain local.
+
+
+## DEC-151 - RO list return and repeat search
+2026-10-24. MODULE-SPECIFIC local candidate. Add an explicit Back to RO list link to detail headers, including loading and missing-record states. In a filtered list, Choose another RO clears only the RO search, resets both result paginations, cancels pending typing and focuses the RO field; supplier and status remain selected. Reuse existing branded controls and route. UI-03/04/06 and accessible native link/button semantics apply. No business writes, dependencies or additional requests per normal navigation; existing pagination bounds are preserved. Live publication is pending.
+
+
+## DEC-152 - Empty RO entry after showing results (supersedes DEC-151 repeat-search control)
+2026-10-24. User clarification: clear the RO number input automatically once its list request succeeds, while retaining the applied RO filter and displayed results. Show the applied number in helper text. New input replaces the scope; a newer draft is never erased by an older response. Supplier/status changes and pagination retain the applied number. Failed requests retain the entry. Remove Choose another RO; retain Back to RO list and Reset filters. Local candidate only, with no data writes or additional dependencies.

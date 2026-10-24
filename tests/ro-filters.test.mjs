@@ -5,6 +5,14 @@ import {RoCostingStore} from '../server/ro-costing-store.mjs';
 import {finalizedPoCostings} from '../shared/arrival-costing.mjs';
 import {createRoCostingUI} from '../web/ro-costing.mjs';
 
+test('RO detail offers a list return even when loading or the record is missing',async()=>{
+ const ctx={user:{id:'m',role:'MANAGER',scopes:['LAE_IMPORT']},state:{orders:[]},ui:{view:'ro-costings',orderId:'missing'},sandbox:false};
+ const ui=createRoCostingUI({context:()=>ctx,api:async()=>{throw Error('RO not found');},esc:v=>String(v??''),field:()=>'',button:label=>label,head:(_area,_title,_sub,actions)=>actions,ph:()=>'',note:v=>v,badge:v=>v,render:()=>{}});
+ assert.match(ui.page(),/href="#\/ro-costings">← Back to RO list/);
+ await new Promise(resolve=>setImmediate(resolve));
+ const failed=ui.page();assert.match(failed,/RO not found/);assert.match(failed,/Back to RO list/);
+});
+
 function storeFixture(){
  const db=new DatabaseSync(':memory:');
  db.exec('CREATE TABLE ro_costings(ro TEXT,revision INTEGER,payload TEXT,updated_at TEXT,supplier TEXT,status TEXT)');
