@@ -939,3 +939,7 @@ Payment-planner local follow-up (DEC-149/WF-144): month checkboxes now update we
 
 
 **Payment planner publication verified - 2026-10-24 (DEC-145 through DEC-150 / WF-140 through WF-145):** Live runtime `f0c1f91d7161804e69b35285cda8ce919a5cd339` is healthy. Payments > Payment planner includes weekly outstanding by default, optional Month summary, immediate selected-month checkboxes, USD/estimated INR, and Excel/PDF downloads with consistent dates and all PDF supplier columns together. The proposed Overview card is excluded; existing Overview code is unchanged. No demo records, dates or exchange rates were imported. Fresh full recovery ZIP, original/candidate isolated restores, 811 native tests, 7 analytics tests and exact-commit hosted CI passed. Live browser/download checks and 21 report comparisons passed. All 37 protected business tables remain exactly unchanged at workspace revision 1970; only sessions changed. This supersedes local-only and publication-pending status for the planner. Private backup and detailed verification receipts remain local.
+
+
+### Fabrication weight-only local candidate — 2026-10-24
+DEC-153 / WF-148: fabricated component details use final uploaded combined kg per machine without a required piece quantity. Current weights, purchased PPM, subassembly inventory counts and approval workflow are preserved. Publication is not implied by this candidate note.

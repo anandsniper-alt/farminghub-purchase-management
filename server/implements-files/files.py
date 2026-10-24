@@ -128,9 +128,9 @@ def pdf(po):
     for l in po['lines']:
         if not l.get('fabricated'):continue
         story.extend([Spacer(1,18),p(l['name']+' - component schedule','Heading3')])
-        children=[[p('Code / drawing','WhiteCell'),p('Fabricated component','WhiteCell'),p('PPM (pcs)','WhiteCell'),p('kg / machine','WhiteCell'),p('Order weight kg','WhiteCell')]]
-        for c in l.get('children',[]):children.append([p(c.get('code') or c.get('drawingCode') or 'Pending'),[product_image(c),p(c['name']+'\nSupplier part code: '+(c.get('supplierPartCode') or 'Pending'))],n(c.get('ppm')) if c.get('ppm') is not None else 'Pending',n(c.get('weight')) if c.get('weight') is not None else 'Pending',n(c['weight']*l['orderQty']) if c.get('weight') is not None else 'Pending'])
-        t=Table(children,colWidths=[90,390,70,110,118],repeatRows=1)
+        children=[[p('Code / drawing','WhiteCell'),p('Fabricated component','WhiteCell'),p('kg / machine','WhiteCell'),p('Order weight kg','WhiteCell')]]
+        for c in l.get('children',[]):children.append([p(c.get('code') or c.get('drawingCode') or 'Pending'),[product_image(c),p(c['name']+'\nSupplier part code: '+(c.get('supplierPartCode') or 'Pending'))],n(c.get('weight')) if c.get('weight') is not None else 'Pending',n(c['weight']*l['orderQty']) if c.get('weight') is not None else 'Pending'])
+        t=Table(children,colWidths=[90,460,110,118],repeatRows=1)
         t.setStyle(TableStyle([('BACKGROUND',(0,0),(-1,0),colors.HexColor('#204321')),('ROWBACKGROUNDS',(0,1),(-1,-1),[colors.white,colors.HexColor('#f7f8f1')]),('FONTSIZE',(0,1),(-1,-1),8),('VALIGN',(0,0),(-1,-1),'TOP'),('TOPPADDING',(0,0),(-1,-1),6),('BOTTOMPADDING',(0,0),(-1,-1),6)]));story.append(t)
     def footer(canvas,document):
         canvas.saveState()

@@ -1235,3 +1235,7 @@ User approved this supplier cleanup for live on 2026-10-17. Full local regressio
 
 
 **RO navigation publication verified - 2026-10-24 (DEC-151/152, WF-146/147):** Runtime `171b73b26578e952a983bf21b42b92ff877ed9e6` is live after verified full recovery backup and original/candidate isolated restores. The RO search entry clears when results load while retaining the applied number, and detail pages provide Back to RO list. No Choose another RO step is required. Local 812 application tests, 7 analytics tests and exact-commit hosted CI passed. Live browser checks verified RO 1093, repeat search to 1000, return navigation, retained status scope and reset. Served RO source matches the release; all 37 protected business tables remain exactly unchanged at revision 1970 (sessions only changed). No demo records or Overview changes were published. Supersedes local-candidate status above. Private backup and verification evidence remain local.
+
+
+## WF-148 — Review fabricated components by combined weight (DEC-153)
+2026-10-24. Open a model fabrication schedule and review/edit combined kg per machine. A piece count is not required. Vendor PDF/Excel component schedules and technical BOM downloads use these same weights. Missing chargeable weight remains pending; input shaft shield retains its confirmed exclusion. Purchased components continue to use PPM. Existing technical corrections still require the established approval workflow.

@@ -811,3 +811,7 @@ Use exact reviewed aliases for truncated and booking names; retain source labels
 
 ### Supplier payment grid — DEC-146 / WF-141
 2026-10-24. User-approved local presentation: weekly rows and supplier columns with a Month summary button. Aggregate over the complete dated population before detail pagination. Paginate supplier columns independently, name all-supplier totals clearly, and preserve the selected supplier in a capped dropdown. Reuse allocated monthly paise instead of independently rounding each cell. Keep explicit date ranges because the fourth monthly bucket can contain more than seven days. Presentation changes do not authorize live financial writes.
+
+
+### Fabrication quantity basis — DEC-153 / WF-148
+The combined weight of a complete per-machine fabrication set already represents its material requirement. Missing or historical piece PPM must not create fabrication issues or multiply that weight. Preserve legacy metadata for history/compatibility while removing piece controls from active views. A legacy zero piece value must not silently make a missing chargeable weight complete. Keep purchased-piece components distinct from the fabricated schedule.

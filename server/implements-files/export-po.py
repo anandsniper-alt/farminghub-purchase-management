@@ -40,31 +40,31 @@ for rownum,line in enumerate(po['lines'],12):
  else:ws.cell(rownum,photo_col,'Photo pending')
 for cell in ws[11]:cell.fill=PatternFill('solid',fgColor='204321');cell.font=Font(color='FFFFFF',bold=True);cell.alignment=Alignment(wrap_text=True)
 ws.auto_filter.ref=f'A11:{get_column_letter(photo_col)}{11+len(po["lines"])}';ws.print_title_rows='11:11';ws.sheet_properties.pageSetUpPr.fitToPage=True;ws.page_setup.orientation='landscape';ws.page_setup.fitToWidth=1;ws.page_setup.fitToHeight=0
-fab=wb.create_sheet('Fabrication');fab.append(['Subassembly','Drawing / code','Component','PPM pcs','kg per machine','Ordered pcs','Order kg'])
+fab=wb.create_sheet('Fabrication');fab.append(['Subassembly','Drawing / code','Component','kg per machine','Ordered subassemblies','Order kg'])
 for line in po['lines']:
  if line.get('fabricated'):
-  for child in line.get('children',[]):fab.append([line['name'],child.get('code') or child.get('drawingCode'),child['name'],child.get('ppm'),child.get('weight'),line['orderQty'],None if child.get('weight') is None else child['weight']*line['orderQty']])
+  for child in line.get('children',[]):fab.append([line['name'],child.get('code') or child.get('drawingCode'),child['name'],child.get('weight'),line['orderQty'],None if child.get('weight') is None else child['weight']*line['orderQty']])
 for row in fab:
  for c in row:
   if isinstance(c.value,str):c.data_type='s'
-for i,width in enumerate([32,24,48,16,20,18,20],1):fab.column_dimensions[get_column_letter(i)].width=width
-fab.cell(1,8,'Supplier part code');fab.cell(1,9,'Product image');fab.column_dimensions['H'].width=28;fab.column_dimensions['I'].width=15
+for i,width in enumerate([32,24,48,20,22,20],1):fab.column_dimensions[get_column_letter(i)].width=width
+fab.cell(1,7,'Supplier part code');fab.cell(1,8,'Product image');fab.column_dimensions['G'].width=28;fab.column_dimensions['H'].width=15
 rownum=2
 for line in po['lines']:
  if line.get('fabricated'):
   for child in line.get('children',[]):
-   cell=fab.cell(rownum,8,child.get('supplierPartCode') or 'Pending');cell.data_type='s';cell.alignment=Alignment(wrap_text=True,vertical='center');fab.row_dimensions[rownum].height=64
+   cell=fab.cell(rownum,7,child.get('supplierPartCode') or 'Pending');cell.data_type='s';cell.alignment=Alignment(wrap_text=True,vertical='center');fab.row_dimensions[rownum].height=64
    if child.get('imageData'):
     with PILImage.open(io.BytesIO(base64.b64decode(child['imageData'],validate=True))) as decoded:
      if decoded.width*decoded.height>40000000:raise ValueError('Image is too large.')
      data=io.BytesIO();decoded.convert('RGB').save(data,format='PNG')
-    image=Image(io.BytesIO(data.getvalue()));scale=min(80/image.width,72/image.height,1);image.width*=scale;image.height*=scale;fab.add_image(image,f'I{rownum}')
-   else:fab.cell(rownum,9,'Photo pending')
+    image=Image(io.BytesIO(data.getvalue()));scale=min(80/image.width,72/image.height,1);image.width*=scale;image.height*=scale;fab.add_image(image,f'H{rownum}')
+   else:fab.cell(rownum,8,'Photo pending')
    rownum+=1
 for row in fab:
  for cell in row:cell.alignment=Alignment(wrap_text=True,vertical='top')
 for cell in fab[1]:cell.fill=PatternFill('solid',fgColor='204321');cell.font=Font(color='FFFFFF',bold=True)
-fab.freeze_panes='D2';fab.auto_filter.ref=f'A1:I{max(1,fab.max_row)}';fab.print_title_rows='1:1';fab.sheet_properties.pageSetUpPr.fitToPage=True;fab.page_setup.orientation='landscape';fab.page_setup.fitToWidth=1;fab.page_setup.fitToHeight=0
+fab.freeze_panes='D2';fab.auto_filter.ref=f'A1:H{max(1,fab.max_row)}';fab.print_title_rows='1:1';fab.sheet_properties.pageSetUpPr.fitToPage=True;fab.page_setup.orientation='landscape';fab.page_setup.fitToWidth=1;fab.page_setup.fitToHeight=0
 priced_transport=[line for line in po['lines'] if line.get('transportInCost') and not po['quantityOnly']]
 if priced_transport:
  basis=wb.create_sheet('Price basis');basis.append(['Component','Base INR / unit','Transport %','Transport INR / unit','Rate incl. transport INR / unit','Order quantity','Amount INR'])

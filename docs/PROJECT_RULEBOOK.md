@@ -565,3 +565,7 @@ GLOBAL RULE. Home cards, division hubs, sidebars, selectors and bookmarked views
 
 ## Utility module exception and closing-stock contract — 2026-10-13
 MODULE-SPECIFIC, explicit user instruction, DEC-136 / WF-131. Utility uses the confirmed closing-stock drill-down and inherited SKU/date-batch remarks described in [the module contract](UTILITY_PRICE_WORKINGS.md). For authorized changes confined to this module only, release backups and repeated prelaunch test cycles are waived 13–19 October 2026 India time. Resume the existing release rulebook on 20 October. Necessary data reconciliation, authorization/conflict checks and exact live verification remain; unrelated modules and global defaults are unchanged.
+
+
+## Fabrication weight-only basis — DEC-153 / WF-148
+MODULE-SPECIFIC RULE, Implements and BOM & Syntax, user confirmed 2026-10-24. Individual fabricated components use the final uploaded combined kg per machine. Piece quantity is not required or multiplied into weight/cost. Fabrication views, editors, technical exports and PO component schedules show weight rather than piece PPM. Historical piece fields remain compatible metadata, not active requirements. Missing chargeable weight remains pending even when a historical piece quantity was zero. Retain the input-shaft-shield exclusion. Purchased-component quantities and complete-subassembly inventory/order counts retain their existing semantics. Approval, permissions and historical records remain authoritative.

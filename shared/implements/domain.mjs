@@ -31,7 +31,7 @@ export function purchasePrice(part){
 export const fabricationCalculationExcluded=row=>row.partId==='source-row-33';
 export function fabricationTotals(model){
  const all=model.fabrication||[],rows=all.filter(r=>!fabricationCalculationExcluded(r)),knownWeight=round(rows.reduce((a,r)=>a+(r.weight??0),0),6);
- const pending=rows.filter(r=>r.weight==null&&r.ppm!==0).length;
+ const pending=rows.filter(r=>r.weight==null).length;
  return {knownWeight,totalWeight:rows.length&&!pending&&knownWeight>0?knownWeight:null,pending,excluded:all.length-rows.length,syntaxWeight:model.syntaxWeight};
 }
 function calculatePlan(state){
