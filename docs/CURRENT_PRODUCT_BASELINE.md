@@ -943,3 +943,7 @@ Payment-planner local follow-up (DEC-149/WF-144): month checkboxes now update we
 
 ### Fabrication weight-only local candidate — 2026-10-24
 DEC-153 / WF-148: fabricated component details use final uploaded combined kg per machine without a required piece quantity. Current weights, purchased PPM, subassembly inventory counts and approval workflow are preserved. Publication is not implied by this candidate note.
+
+
+### Segment-wise BOM screen — DEC-154 / WF-149
+2026-10-24 candidate: read-only shared view at /implements/#/segments and /bom/#/segments; default SKU-finalised filter, all-catalogue controls, segment paging, technical images/codes and filtered CSV. Existing source BOMs, rates, staff approvals and inventory are unchanged. Publication requires the independent release verification gates.

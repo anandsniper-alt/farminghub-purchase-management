@@ -1239,3 +1239,7 @@ User approved this supplier cleanup for live on 2026-10-17. Full local regressio
 
 ## WF-148 — Review fabricated components by combined weight (DEC-153)
 2026-10-24. Open a model fabrication schedule and review/edit combined kg per machine. A piece count is not required. Vendor PDF/Excel component schedules and technical BOM downloads use these same weights. Missing chargeable weight remains pending; input shaft shield retains its confirmed exclusion. Purchased components continue to use PPM. Existing technical corrections still require the established approval workflow.
+
+
+## WF-149 — Review model BOMs by segment (DEC-154)
+2026-10-24. Select Segment-wise BOMs in Purchasing or BOM & Syntax. Filter SKU finalisation, series, model, BOM coverage, type and segment; search codes/names. Expand a segment, page through model rows, open the original model or download all filtered rows as CSV. Pending catalogue models remain visible as pending, never zero requirements. Prices and existing approval/editing workflows remain unchanged.

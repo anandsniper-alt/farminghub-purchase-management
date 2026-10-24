@@ -10,6 +10,7 @@ export const bomAssets=new Map();
 for(const name of readdirSync(join(root,'web/bom-management')))if(mime[extname(name)])bomAssets.set('/bom/'+name,{file:join(root,'web/bom-management',name),type:mime[extname(name)]});
 for(const name of ['part-icons.mjs','part-photos.mjs'])bomAssets.set('/bom/'+name,{file:join(root,'shared/implements',name),type:mime['.mjs']});
 bomAssets.set('/bom/',bomAssets.get('/bom/index.html'));
+bomAssets.set('/bom/bom-segments.mjs',implementsAssets.get('/implements/bom-segments.mjs'));
 bomAssets.set('/shared/bom-management.mjs',{file:join(root,'shared/bom-management.mjs'),type:mime['.mjs']});
 for(const [url,asset] of implementsAssets)if(url.startsWith('/implements/assets/parts/')&&asset.type.startsWith('image/'))bomAssets.set(url.replace('/implements/','/bom/'),asset);
 bomAssets.set('/bom/sku-finalisation.mjs',{file:join(root,'shared/sku-finalisation.mjs'),type:mime['.mjs']});

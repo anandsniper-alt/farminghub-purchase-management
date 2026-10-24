@@ -815,3 +815,7 @@ Use exact reviewed aliases for truncated and booking names; retain source labels
 
 ### Fabrication quantity basis — DEC-153 / WF-148
 The combined weight of a complete per-machine fabrication set already represents its material requirement. Missing or historical piece PPM must not create fabrication issues or multiply that weight. Preserve legacy metadata for history/compatibility while removing piece controls from active views. A legacy zero piece value must not silently make a missing chargeable weight complete. Keep purchased-piece components distinct from the fabricated schedule.
+
+
+### Cross-model BOM projection — DEC-154 / WF-149
+Project only explicit technical fields into a shared cross-model view. Do not spread full item/model objects into report rows: purchase prices and cost history must never enter the report/CSV. Catalogue common defaults are not evidence of a complete BOM. Preserve raw categories, zero versus unknown quantities, combined fabrication weights and exclusions. Export the complete filtered population independently of display pagination.
