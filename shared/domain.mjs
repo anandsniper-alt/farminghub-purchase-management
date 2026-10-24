@@ -8,6 +8,7 @@ import {ensureRecordReferences,linkExternalReference,referenceRecords,normalized
 import {applyVmsCommand,syncVmsPrimaryContact} from './vms.mjs';
 import {templateForCategory,specDescriptionFromValues,brandDeltaSummary} from './plm.mjs';
 import {TRACKING_MILESTONES,previewTrackingImport,previewRateImport,rateVariance,shippingDocReadiness} from './shipping.mjs';
+import {PAYMENT_PLANNER_COMMANDS,applyPaymentPlannerCommand} from './payment-planner.mjs';
 /** Shared transaction rules — local LAE Import alpha.
  * Server calls the same commands as the portable review build. Each command returns
  * a new state; rejected commands do not partially update an order. Monetary amounts
@@ -522,7 +523,8 @@ export function execute(input,command,user,{now=new Date().toISOString(),id=()=>
  ensure(user?.id&&user.active!==false,'An active login is required.','FORBIDDEN');const state=clone(input);ensureOrderSerials(state);const ctx={now,id,user,command:command.type},p=command.payload||{};let result={};const type=command.type;
  try{ensureRecordReferences(state);}catch(e){throw new RuleError(e.message);}
  const touched=new Set(),usedExemptions=new Map();const order=(edit=true)=>{const o=dFindOrder(state,p.orderId,user,edit);touched.add(o.id);return o;};const log=(o,action,summary,old=null,updated=null)=>{touched.add(o.id);return dEvent(state,ctx,'order',o.id,action,summary,old,updated);};const gate=(o,stage,action,sid=null)=>{const allowed=processGateAllowed(o,stage,action,sid);if(allowed&&!processGateDone(o,stage,sid)){const x=activeProcessExemptions(o).find(x=>x.stage===stage&&x.shipmentId===(sid||null)&&x.actions.includes(action));usedExemptions.set(x.id,{orderId:o.id,exemptionId:x.id,stage,action,shipmentId:sid});}return allowed;};
- if(CI_COMMANDS.includes(type)){const o=order(false);result=applyCiPayment(state,o,type,p,ctx,{log:(...args)=>log(o,...args)});
+ if(PAYMENT_PLANNER_COMMANDS.includes(type)){result=applyPaymentPlannerCommand(state,type,p,ctx,{event:(...args)=>dEvent(state,ctx,...args),findOrder:oid=>dFindOrder(state,oid,user,true)});
+ }else if(CI_COMMANDS.includes(type)){const o=order(false);result=applyCiPayment(state,o,type,p,ctx,{log:(...args)=>log(o,...args)});
  }else if(['APPROVE_PROCESS_EXEMPTION','REVOKE_PROCESS_EXEMPTION'].includes(type)){const o=order(false);result=applyProcessExemption(state,o,type,p,ctx,(...args)=>log(o,...args));if(type==='APPROVE_PROCESS_EXEMPTION')dRefreshProductionWindow(state,o,ctx,log);
  }else if(type==='SAVE_PERSONAL_PREFERENCES'){
   ensure(p&&typeof p==='object'&&!Array.isArray(p)&&Object.keys(p).length===1&&typeof p.showPageGuides==='boolean','Supply only a boolean page-guide preference.');const profile=state.users.find(u=>u.id===user.id);ensure(profile&&profile.active!==false,'Your active user profile is required.','FORBIDDEN');const previous=personalPreferences(profile);profile.preferences={...(profile.preferences||{}),showPageGuides:p.showPageGuides};dEvent(state,ctx,'user',profile.id,'PERSONAL_PREFERENCES_UPDATED','Personal page-guide preference saved for this login.',previous,personalPreferences(profile));result={preferences:personalPreferences(profile)};

@@ -125,3 +125,18 @@ test('technical, unassigned and inactive profiles do not receive LAE or Utility 
   assert.equal(nav.canAccessView('overview'),false);assert.equal(nav.canAccessView('domestic'),false);assert.equal(nav.canAccessView('vms'),false);
  }
 });
+
+
+test('Payment planner is nested under Payments, with scoped entry and return navigation',()=>{
+ const nav=createNavigation(host({view:'payment-planner'}));
+ assert.equal(nav.area(),'orders');assert.equal(nav.canAccessView(),true);
+ assert.ok(!nav.sidebar().includes('data-to="payment-planner"'));
+ assert.ok(nav.sidebar().includes('data-to="payments" aria-current="page"'));
+ assert.match(nav.breadcrumb('Payment planner'),/href="#\/payments">Payments<\/a>/);
+ assert.match(nav.paymentSections(),/data-to="payment-planner" aria-current="page"/);
+ const payments=createNavigation(host({view:'payments'}));
+ assert.match(payments.paymentSections(),/data-to="payments" aria-current="page"/);
+ assert.ok(payments.paymentSections().includes('data-to="payment-planner"'));
+ const denied=createNavigation({...host({view:'payment-planner'}),context:()=>({ui:{view:'payment-planner'},user:{role:'VIEWER',scopes:['UTILITY_DOMESTIC']}})});
+ assert.equal(denied.canAccessView(),false);assert.equal(denied.paymentSections(),'');
+});

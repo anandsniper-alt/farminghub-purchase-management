@@ -1199,3 +1199,25 @@ User approved this supplier cleanup for live on 2026-10-17. Full local regressio
 
 
 **Publication verified — 2026-10-17 (DEC-144 / WF-139):** approved supplier dropdown cleanup is live at runtime `7d24d62bad685b23dcbd0ce2be2aa02d8b16c083`. The 83 recorded name variants resolve to 34 supplier options across 297 ROs, including user-confirmed RO 5260. Exact-commit CI, 743 native tests, 7 analytics tests, server/standalone checks and 34 read-only live browser checks passed. Every supplier filter returned its exact expected RO population. Both changed served modules match the commit. Fresh full recovery ZIP and original/candidate isolated restores passed with all 38 tables preserved. Post-release verification preserved all 37 protected tables exactly at workspace revision 1970; only authentication sessions changed. Historical labels, vendor IDs, financial values, evidence and reference counters remain unchanged. No business-data rewrite or local-data import occurred. This supersedes publication-pending status above; private backup and verification artifacts remain local.
+
+## WF-140 — LAE payment planner (DEC-145)
+2026-10-24. Local candidate. LAE Import > Payment planner reads existing PMS obligations and provides supplier/currency filters, monthly totals and days 1–7 / 8–14 / 15–21 / 22–month-end drilldowns. Manager/Admin may save a monthly estimated INR-per-USD rate or a separate planned payment date, with a reason. Authorized readers can review cash plans, overdue amounts, missing dates, blocked steps, uninvoiced exposure, acknowledgements and reconciliation differences. Payment execution stays in the existing controlled workflow. No spreadsheet connection/import, live publication or transfer of local business records occurred.
+
+## WF-141 — Weekly supplier payment matrix (DEC-146)
+2026-10-24. Local candidate. Payment planner opens a supplier-column grid with Week 1–4 rows and explicit dates for the selected month. Show month changes the weekly view. Month summary displays twelve month rows; Weekly plan switches back. Click a payment amount to inspect the supplier/month/week payment steps, then Back to return. Currency, exception lists, planning-rate/date edits and all approval/BL rules remain unchanged. No live publication or business-data update.
+
+
+## WF-142 — Management forecast and dual currency (DEC-147)
+2026-10-24. Local candidate. Weekly plan and Month summary now show USD plus estimated INR under each supplier. Use 3-month forecast > Starting month > Show 3 months. Enter estimated monthly rates through each month row, then Download for Excel for all selected suppliers, month totals and the three-month total. Missing rates/dates remain explicit; no live changes.
+
+
+## WF-143 — Excel and PDF downloads (DEC-148)
+2026-10-24. Local candidate. Open Weekly plan, Month summary or 3-month forecast; choose period, currency and supplier, then Download Excel or Download PDF. Both include every selected supplier page, both USD/estimated INR for USD plans, rates and review notes. The XLSX contains Payment plan and Assumptions sheets; PDF retains readable supplier groups with page numbers. This supersedes WF-142's CSV download button only. Existing browser drafts and live records are unchanged.
+
+
+## WF-144 — Tick months to update payment plan (DEC-149)
+2026-10-24. Local candidate. Tick or clear months under Months to plan; outstanding rows and totals update immediately. Month plan shows one row per selected month; Weekly plan shows four dated ranges per selected month with identical period totals. Excel/PDF include exactly the checked months. No Show month step or fixed three-month option. This supersedes WF-142/143 period selection, preserving their currencies, payment controls and file formats.
+
+
+## WF-145 - Payments subsection and final planner release scope (DEC-150)
+2026-10-24. Open Payments, then Payment planner. Weekly outstanding is the default; Month summary is optional. Selected months update immediately and drive both export formats. PDF widens to retain every supplier side by side. Overview is unchanged. Publication is authorized after verified recovery backup; live verification is recorded separately.

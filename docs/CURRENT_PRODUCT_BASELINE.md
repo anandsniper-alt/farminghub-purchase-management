@@ -928,3 +928,11 @@ User approved this supplier cleanup for live on 2026-10-17. Full local regressio
 
 
 **Publication verified — 2026-10-17 (DEC-144 / WF-139):** approved supplier dropdown cleanup is live at runtime `7d24d62bad685b23dcbd0ce2be2aa02d8b16c083`. The 83 recorded name variants resolve to 34 supplier options across 297 ROs, including user-confirmed RO 5260. Exact-commit CI, 743 native tests, 7 analytics tests, server/standalone checks and 34 read-only live browser checks passed. Every supplier filter returned its exact expected RO population. Both changed served modules match the commit. Fresh full recovery ZIP and original/candidate isolated restores passed with all 38 tables preserved. Post-release verification preserved all 37 protected tables exactly at workspace revision 1970; only authentication sessions changed. Historical labels, vendor IDs, financial values, evidence and reference counters remain unchanged. No business-data rewrite or local-data import occurred. This supersedes publication-pending status above; private backup and verification artifacts remain local.
+
+
+### 2026-10-24 — Native LAE payment planner, local candidate
+DEC-145 / WF-140 adds a lazy payment-planning screen, bounded scoped report and audited monthly forecast-rate/planned-date commands. It uses only PMS records; no Excel dependency or business-record import. Existing payment gates, order data, bank remittances and actual FX remain authoritative. Source and local verification are complete for the documented supplier-cash scope; publication and live validation remain pending. See PAYMENT_PLANNER.md.
+
+**2026-10-24 local planner refinement (DEC-146 / WF-141):** supplier columns and four weekly rows are now the default; Month summary exposes twelve month rows. Matrix amounts drill into existing payment details. Financial rules and local/live boundaries are unchanged; production publication remains pending.
+
+Payment-planner local follow-up (DEC-149/WF-144): month checkboxes now update weekly/monthly outstanding tables immediately; the fixed three-month and Show month controls are superseded. Excel/PDF match the exact selected months. Locally verified; publication remains pending.

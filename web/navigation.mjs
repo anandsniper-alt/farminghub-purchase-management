@@ -6,7 +6,7 @@ export function createNavigation(host){
  const divisions=[['lae-import','LAE Import','overview','LAE_IMPORT'],['lae-domestic','LAE Domestic','domestic/models','LAE_DOMESTIC']];
  const work=[['overview','Overview','grid'],['orders','Order pipeline','orders'],['tasks','Tasks & follow-ups','clock'],['payments','Payments','money'],['loading','Loading','box'],['flow-map','Purchase flow map','grid'],['ro-costings','RO costings','money'],['landing-prices','Landing prices','money'],['current-stock-costing','Current stock costing','money'],['stock-aging','Stock Aging','clock'],['shipments','Shipping & freight','ship'],['documents','QC & documents','file']];
  const masters=[['vendors','Vendor master','users'],['items','Item master','orders'],['prices','Supplier price lists','money'],['plm','Product Lifecycle (PLM)','box']];
- const activeView=()=>ctx().ui.view==='order'?'orders':ctx().ui.view==='product'?'plm':ctx().ui.view;
+ const activeView=()=>ctx().ui.view==='payment-planner'?'payments':ctx().ui.view==='order'?'orders':ctx().ui.view==='product'?'plm':ctx().ui.view;
  const area=()=>!canAccessView()?'home':ctx().ui.view==='lae-sales-analytics'?'analytics':['bom-management','production-stock'].includes(ctx().ui.view)?'production':ctx().ui.view==='vms'?'vms':ctx().ui.view==='implements'||ctx().ui.view==='domestic'||ctx().ui.view==='order-management'||[...work,...masters].some(([id])=>id===activeView())?'orders':'home';
  const allowedScope=scope=>scopeAllowed(ctx().user,scope);
  const laeImportAllowed=()=>allowedScope('LAE_IMPORT');
@@ -46,6 +46,7 @@ export function createNavigation(host){
   else if(ui.view==='price-workings')parts.push(['price-workings','Price list workings']);
   else if(section==='orders'){parts.push(['division/lae','LAE Division'],['order-management','Order Management']);if(ui.view==='domestic'){parts.push(['domestic/models','LAE Domestic']);last=ui.orderId==='items'?'Item Master':'Milking machines';}else if(ui.view!=='order-management')parts.push(['overview','LAE Import']);if(ui.view==='order-management'&&ui.orderId)last=divisions.find(([id])=>id===ui.orderId)?.[1]||last;}
   else if(section==='vms')parts.push(['division/lae','LAE Division'],['vms','Vendor Management System']);
+  if(ui.view==='payment-planner')parts.push(['payments','Payments']);
   if(ui.view!=='home'&&last!==parts.at(-1)[1])parts.push([null,last]);const external=['price-workings','implements','bom-management','production-stock','monthly-planning'].includes(ui.view);
   return '<div class="breadcrumb">'+parts.map(([to,title],i)=>(i?icon('chevron',11):'')+(to&&i<parts.length-1?'<a href="'+(['price-workings','implements-purchase','bom-management','production-stock'].includes(to)?moduleDestination(to):(external?'/#/':'#/')+to)+'">'+esc(title)+'</a>':'<b>'+esc(title)+'</b>')).join('')+'</div>';
  }
@@ -55,8 +56,12 @@ export function createNavigation(host){
   if(view==='lae-sales-analytics')return laeAllowed();
   if(view==='domestic')return laeDomesticAllowed();
   if(view==='price-workings')return utilityAllowed();
-  if(view==='vms'||['order','product',...work.map(([id])=>id),...masters.map(([id])=>id)].includes(view))return laeImportAllowed();
+  if(view==='vms'||['order','product','payment-planner',...work.map(([id])=>id),...masters.map(([id])=>id)].includes(view))return laeImportAllowed();
   return true;
  }
- return {sidebar,home,divisionHub,orderHub,breadcrumb,area,canAccessView};
+ function paymentSections(){
+  if(!['payments','payment-planner'].includes(ctx().ui.view)||!laeImportAllowed())return '';
+  return '<nav class="tabs" aria-label="Payments sections">'+[['payments','Payments & settlement'],['payment-planner','Payment planner']].map(([to,label])=>'<button type="button" class="tab '+(ctx().ui.view===to?'active':'')+'" data-action="nav" data-to="'+to+'"'+(ctx().ui.view===to?' aria-current="page"':'')+'>'+label+'</button>').join('')+'</nav>';
+ }
+ return {sidebar,home,divisionHub,orderHub,breadcrumb,area,canAccessView,paymentSections};
 }
