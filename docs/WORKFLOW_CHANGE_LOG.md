@@ -1243,3 +1243,7 @@ User approved this supplier cleanup for live on 2026-10-17. Full local regressio
 
 ## WF-149 — Review model BOMs by segment (DEC-154)
 2026-10-24. Select Segment-wise BOMs in Purchasing or BOM & Syntax. Filter SKU finalisation, series, model, BOM coverage, type and segment; search codes/names. Expand a segment, page through model rows, open the original model or download all filtered rows as CSV. Pending catalogue models remain visible as pending, never zero requirements. Prices and existing approval/editing workflows remain unchanged.
+
+
+## WF-150 — Open costing from the model BOM total (DEC-155)
+2026-10-24. Open an Implements purchasing model BOM. Read its current known or complete per-machine cost before GST at the top, including any missing-input warning. Select the highlighted summary to open the existing detailed price calculation. This is read-only navigation; costing rules and the production-facing price-free module are unchanged.

@@ -819,3 +819,7 @@ The combined weight of a complete per-machine fabrication set already represents
 
 ### Cross-model BOM projection — DEC-154 / WF-149
 Project only explicit technical fields into a shared cross-model view. Do not spread full item/model objects into report rows: purchase prices and cost history must never enter the report/CSV. Catalogue common defaults are not evidence of a complete BOM. Preserve raw categories, zero versus unknown quantities, combined fabrication weights and exclusions. Export the complete filtered population independently of display pagination.
+
+
+## 2026-10-24 model BOM cost highlight (DEC-155 / WF-150)
+Purchasing model detail now reuses calculateModelCost for a prominent clickable current-cost summary. Keep known subtotals visible with the existing warning icon/accessible pending-input label, and omit a zero-cost summary for catalogue models whose BOM is unentered. The price-free staff module is unchanged. Local desktop/mobile, larger-text, keyboard drill-down, complete/incomplete states and stored-data preservation passed; sampled price/background contrast is11.13:1. Twelve focused native tests passed after granting localhost access for sandbox-blocked connections. Build passed. Publish only after a fresh verified recovery archive and exact-commit release checks; dated live evidence is retained privately.
