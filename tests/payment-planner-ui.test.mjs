@@ -62,7 +62,7 @@ test('download requires the displayed revision and as-of day, not a newer unseen
   for(const changed of ['revision','asOf']){
    const state=createSeed('2026-10-15'),user=state.users.find(u=>u.role==='MANAGER');let calls=0;
    const report=paymentPlannerReport(state,user,{year:'2026',currency:'USD',section:'scheduled',supplierPage:1});
-   const planner=createPaymentPlannerUI({context:()=>({state,user,ui:{view:'payment-planner'},sandbox:false}),api:async()=>{const r=structuredClone(report);if(++calls>1){if(changed==='revision')r.revision++;else r.asOf='2026-10-25';}return r;},esc:String,field:()=>'',button:()=>'',head:()=>'',ph:()=>'',note:()=>'',badge:()=>'',render:()=>{}});
+   const planner=createPaymentPlannerUI({context:()=>({state,user,ui:{view:'payment-planner'},sandbox:false}),api:async()=>{const r=structuredClone(report);if(++calls>1){if(changed==='revision')r.revision++;else {const day=new Date(r.asOf+'T00:00:00Z');day.setUTCDate(day.getUTCDate()+1);r.asOf=day.toISOString().slice(0,10);}}return r;},esc:String,field:()=>'',button:()=>'',head:()=>'',ph:()=>'',note:()=>'',badge:()=>'',render:()=>{}});
    planner.page();await new Promise(r=>setImmediate(r));planner.page();
    await assert.rejects(planner.action('payment-plan-export',{format:'pdf'}),/Refresh before downloading/);
    assert.equal(calls,2);
