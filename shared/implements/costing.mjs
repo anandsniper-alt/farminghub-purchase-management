@@ -30,6 +30,22 @@ export function calculateModelCost(state,id){
 }
 
 export const verificationValue=(row,key)=>row[key]==null?'Pending':String(row[key]);
+// Presentation triage only: never close flags or alter BOM/cost inputs.
+export function classifyReviewFlags(state,modelId,flags){
+ const model=state.models.find(m=>m.id===modelId);if(!model)throw Error('Unknown model.');
+ const cost=calculateModelCost(state,modelId),missing=cost.rows.filter(r=>r.amount==null);
+ const referenceOnly=new Set(['Item code pending','Item details pending','Supplier pending','Source rate variance','Weight comparison']);
+ const missingWeights=model.fabrication.filter(l=>l.partId!=='source-row-33'&&l.weight==null);
+ const serious=[],mild=[];
+ for(const flag of flags){
+  if(flag.resolved||/^(Resolved|Weight question resolved)/i.test(flag.status||''))continue;
+  const keys=[flag.partId,flag.part,flag.itemCode,...String(flag.part||'').matchAll(/\bIMP-\d+\b/g)].map(key=>Array.isArray(key)?key[0]:key).filter(Boolean),matches=row=>keys.some(key=>key===row.id||key===row.partId||key===row.code)||Boolean(flag.name&&flag.name===row.name);
+  const missingBom=['Purchased BOM pending','Source gap'].includes(flag.category)&&(!model.bomAvailable||!model.lines.length);
+  const currentGap=missingBom||missing.some(matches)||missingWeights.some(matches);
+  (currentGap&&!referenceOnly.has(flag.category)?serious:mild).push(flag);
+ }
+ return {serious,mild};
+}
 export function filterVerificationRows(rows,view={}){
  const q=String(view.search||'').toLowerCase(),filters=view.filters||{};
  const result=rows.filter(r=>(!q||`${r.code} ${r.name} ${r.segment} ${r.supplierName||r.supplier}`.toLowerCase().includes(q))&&Object.entries(filters).every(([key,values])=>values.includes(verificationValue(r,key))));

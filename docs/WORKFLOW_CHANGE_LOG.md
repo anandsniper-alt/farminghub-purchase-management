@@ -1247,3 +1247,7 @@ User approved this supplier cleanup for live on 2026-10-17. Full local regressio
 
 ## WF-150 — Open costing from the model BOM total (DEC-155)
 2026-10-24. Open an Implements purchasing model BOM. Read its current known or complete per-machine cost before GST at the top, including any missing-input warning. Select the highlighted summary to open the existing detailed price calculation. This is read-only navigation; costing rules and the production-facing price-free module are unchanged.
+
+
+## WF-151 — Review serious and mild flags (DEC-156)
+2026-10-25. Read Serious flags and Mild flags separately on a purchasing model card or detail summary. Select either count to open the matching filtered records. Switch All/Serious/Mild in the flag list. The original flag reason, comparison and decision remain visible; existing downloads and correction approvals retain their behavior. No flag is closed by changing its display severity.
