@@ -1,7 +1,29 @@
-import {RuleError,scopeAllowed,canCreate,toMinor} from './domain.mjs';
+import {RuleError,scopeAllowed,canCreate,toMinor,dateValid} from './domain.mjs';
 
 export const RO_COST_SCOPE='LAE_IMPORT';
 export const RO_ACTUAL_FIELDS=['supplierInr','bankNet','forwarderNet','otherNet','bcd','sws'];
+
+// Use the displayed inward date, falling back to BOE only when inward is absent.
+export function roCostingSortDate(inwardDate,boeDate){return dateValid(inwardDate)?inwardDate:dateValid(boeDate)?boeDate:'';}
+export function compareRoCostingDatesDescending(a,b){
+ const left=roCostingSortDate(a.inwardDate,a.boeDate),right=roCostingSortDate(b.inwardDate,b.boeDate);
+ return left<right?1:left>right?-1:0;
+}
+
+export function roRecordItemCodes(record){
+ return [...new Set((record?.purchaseItems?.rows||[]).map(row=>typeof row?.itemCode==='string'?row.itemCode.trim():'').filter(Boolean))];
+}
+
+export function normalizeRoItemCodeFilter(itemCode=''){
+ if(typeof itemCode!=='string'||itemCode.length>120)throw new RuleError('Invalid RO item code filter.');
+ return itemCode.trim().toLowerCase();
+}
+// Match the saved purchase item identity only; descriptions and master mappings
+// are separate evidence. Selecting a record never narrows its costing amounts.
+export function matchesRoItemCode(record,itemCode=''){
+ const query=normalizeRoItemCodeFilter(itemCode);
+ return !query||(record?.purchaseItems?.rows||[]).some(row=>typeof row.itemCode==='string'&&row.itemCode.toLowerCase().includes(query));
+}
 
 // Read-only filter identity. Punctuation/conjunction formatting does not create
 // another option; shortened or different names need an explicit evidence mapping.

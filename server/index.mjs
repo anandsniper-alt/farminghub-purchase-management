@@ -123,7 +123,7 @@ export function makeServer(store,{origin=null,secureCookie=false,releaseSha=proc
   }
   if(path.startsWith('/api/ro-costings')){
    const module=getRoCostings(),actorId=session.user.id;
-   if(path==='/api/ro-costings'&&req.method==='GET')return json(res,200,module.list(actorId,{q:url.searchParams.get('q')||'',status:url.searchParams.get('status')||'',supplier:url.searchParams.get('supplier')||'',roNumber:url.searchParams.get('roNumber')||'',offset:Number(url.searchParams.get('offset')||0)}));
+   if(path==='/api/ro-costings'&&req.method==='GET')return json(res,200,module.list(actorId,{q:url.searchParams.get('q')||'',status:url.searchParams.get('status')||'',supplier:url.searchParams.get('supplier')||'',roNumber:url.searchParams.get('roNumber')||'',itemCode:url.searchParams.get('itemCode')||'',offset:Number(url.searchParams.get('offset')||0)}));
    if(path==='/api/ro-costings/record'&&req.method==='GET')return json(res,200,module.detail(actorId,url.searchParams.get('ro')));
    if(path==='/api/ro-costings/documents'&&req.method==='GET')return json(res,200,module.documents(actorId,url.searchParams.get('ro'),Number(url.searchParams.get('offset')||0)));
    if(path==='/api/ro-costings/source-library'&&req.method==='GET')return json(res,200,{sourceLibrary:module.sourceLibrary(actorId)});

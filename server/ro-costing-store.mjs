@@ -1,12 +1,17 @@
 import {createHash,randomUUID} from 'node:crypto';
 import {RuleError,MAX_UPLOAD_BYTES,UPLOAD_EXTENSIONS} from '../shared/domain.mjs';
-import {createRoSupplierDirectory,assertRoCostAccess,roCode,validateRoRecord,calculateRoCosting,worksheetComparisonSummary} from '../shared/ro-costing.mjs';
+import {createRoSupplierDirectory,assertRoCostAccess,roCode,validateRoRecord,calculateRoCosting,worksheetComparisonSummary,normalizeRoItemCodeFilter,roCostingSortDate,roRecordItemCodes} from '../shared/ro-costing.mjs';
 import {importantRoDocuments,forwardingAgentDocument,validateRoDriveUrl,RO_ESSENTIAL_DOCUMENT_KINDS} from '../shared/ro-documents.mjs';
 import {landingItemMasterIndex,projectLandingPriceRows,queryLandingPrices,validateLandingPriceQuery} from '../shared/landing-prices.mjs';
 
 const roDigest=value=>createHash('sha256').update(value).digest('hex');
 export class RoCostingStore{
- constructor(store){this.store=store;this.db=store.db;this.db.exec(`
+ constructor(store){this.store=store;this.db=store.db;
+  // SQLite's built-in lower/LIKE fold ASCII only. Keep saved item-code matching
+  // consistent with the shared browser matcher, including non-ASCII codes.
+  this.db.function('ro_costing_sort_date',{deterministic:true},roCostingSortDate);
+  this.db.function('ro_item_code_fold',{deterministic:true},value=>typeof value==='string'?value.toLowerCase():'');
+  this.db.exec(`
  CREATE TABLE IF NOT EXISTS ro_costings(ro TEXT PRIMARY KEY,revision INTEGER NOT NULL,supplier TEXT NOT NULL,status TEXT NOT NULL,payload TEXT NOT NULL,updated_at TEXT NOT NULL);
  CREATE INDEX IF NOT EXISTS ro_costings_status ON ro_costings(status,ro);
  CREATE TABLE IF NOT EXISTS ro_costing_events(id TEXT PRIMARY KEY,ro TEXT NOT NULL,revision INTEGER NOT NULL,actor_id TEXT NOT NULL,at TEXT NOT NULL,reason TEXT NOT NULL,before_value TEXT,after_value TEXT NOT NULL);
@@ -58,16 +63,18 @@ export class RoCostingStore{
   for(const ro of cache.records.keys())if(!current.has(ro))cache.records.delete(ro);
   return queryLandingPrices(rows,query,{totalRos:identities.length,rosWithItems,rosWithoutItems:identities.length-rosWithItems},options);
  }
- list(actorId,{q='',status='',supplier='',roNumber='',offset=0,limit=50}={}){
+ list(actorId,{q='',status='',supplier='',roNumber='',itemCode='',offset=0,limit=50}={}){
   this.actor(actorId);if(typeof q!=='string'||q.length>200||typeof supplier!=='string'||supplier.length>300||typeof roNumber!=='string'||roNumber.length>120||!['','Pending','Complete'].includes(status)||!Number.isSafeInteger(offset)||offset<0||!Number.isSafeInteger(limit)||limit<1||limit>50)throw new RuleError('Invalid RO list filter.');
+  const itemQuery=normalizeRoItemCodeFilter(itemCode);
   const contains=value=>'%'+value.trim().replace(/[\\%_]/g,'\\$&')+'%';
   const directory=createRoSupplierDirectory(this.store.read().vendors||[]);
   const identities=this.db.prepare("SELECT ro,supplier FROM ro_costings UNION SELECT r.ro,json_extract(i.value,'$.supplier') supplier FROM ro_costings r,json_each(r.payload,'$.invoices') i WHERE json_type(i.value,'$.supplier')='text'").all();
   const matches=[...new Set(identities.filter(r=>directory.matches(r,supplier)).map(r=>r.ro))];
   const supplierClause=!supplier.trim()?'1':matches.length?'ro IN ('+matches.map(()=>'?').join(',')+')':'0';
-  const query=contains(q),where="(ro LIKE ? ESCAPE '\\' OR supplier LIKE ? ESCAPE '\\') AND (?='' OR status=?) AND ro LIKE ? ESCAPE '\\' AND "+supplierClause,args=[query,query,status,status,contains(roNumber),...(supplier.trim()?matches:[])];
+  const itemClause=itemQuery?" AND EXISTS (SELECT 1 FROM json_each(ro_costings.payload,'$.purchaseItems.rows') item WHERE json_type(item.value,'$.itemCode')='text' AND instr(ro_item_code_fold(json_extract(item.value,'$.itemCode')),?)>0)":'';
+  const query=contains(q),where="(ro LIKE ? ESCAPE '\\' OR supplier LIKE ? ESCAPE '\\') AND (?='' OR status=?) AND ro LIKE ? ESCAPE '\\' AND "+supplierClause+itemClause,args=[query,query,status,status,contains(roNumber),...(supplier.trim()?matches:[]),...(itemQuery?[itemQuery]:[])];
   const total=this.db.prepare('SELECT count(*) n FROM ro_costings WHERE '+where).get(...args).n;
-  const rows=this.db.prepare('SELECT ro,revision,payload,updated_at FROM ro_costings WHERE '+where+' ORDER BY ro COLLATE NOCASE LIMIT ? OFFSET ?').all(...args,limit,offset).map(r=>{const record=JSON.parse(r.payload),cost=calculateRoCosting(record),important=this.important(r.ro,record);return {ro:r.ro,revision:r.revision,supplier:record.supplier,invoices:record.invoices.map(i=>i.invoice),inwardDate:record.inwardDate,boeDate:record.boeDate,updatedAt:r.updated_at,...cost,worksheetComparison:worksheetComparisonSummary(record),documents:important.commercialInvoices.length+important.inwardBoe.length+important.importerCopies.length};});
+  const rows=this.db.prepare('SELECT ro,revision,payload,updated_at FROM ro_costings WHERE '+where+(itemQuery?" ORDER BY ro_costing_sort_date(json_extract(payload,'$.inwardDate'),json_extract(payload,'$.boeDate')) DESC, ro COLLATE NOCASE, ro":' ORDER BY ro COLLATE NOCASE')+' LIMIT ? OFFSET ?').all(...args,limit,offset).map(r=>{const record=JSON.parse(r.payload),cost=calculateRoCosting(record),important=this.important(r.ro,record);return {ro:r.ro,revision:r.revision,itemCodes:roRecordItemCodes(record),supplier:record.supplier,invoices:record.invoices.map(i=>i.invoice),inwardDate:record.inwardDate,boeDate:record.boeDate,updatedAt:r.updated_at,...cost,worksheetComparison:worksheetComparisonSummary(record),documents:important.commercialInvoices.length+important.inwardBoe.length+important.importerCopies.length};});
   const suppliers=directory.options(identities.map(r=>r.supplier)).map(s=>s.label);
   return {rows,total,offset,limit,suppliers,sourceLibrary:this.sourceLibrary(actorId)};
  }

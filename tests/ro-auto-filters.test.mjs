@@ -6,8 +6,8 @@ test('automatic filters debounce typing, preserve focus, cancel reset and ignore
  const originals={FormData:globalThis.FormData,document:globalThis.document,setTimeout:globalThis.setTimeout,clearTimeout:globalThis.clearTimeout};
  const timers=new Map(),requests=[],pending=[],fields=[];let timerId=0,ui,html='',focusCount=0;
  const ctx={user:{id:'m',role:'MANAGER',scopes:['LAE_IMPORT']},state:{orders:[]},ui:{view:'ro-costings'},sandbox:false};
- const values={supplier:'',status:'',roNumber:''},form={id:'ro-filter',values,elements:{namedItem:name=>controls[name]}};
- const controls=Object.fromEntries(['supplier','status','roNumber'].map(name=>[name,{name,closest:()=>form,get value(){return values[name];},selectionStart:name==='roNumber'?3:null,selectionEnd:name==='roNumber'?3:null,focus:()=>focusCount++,setSelectionRange:(a,b)=>assert.equal(a,b)}]));
+ const values={supplier:'',status:'',roNumber:'',itemCode:''},form={id:'ro-filter',values,elements:{namedItem:name=>controls[name]}};
+ const controls=Object.fromEntries(['supplier','status','roNumber','itemCode'].map(name=>[name,{name,closest:()=>form,get value(){return values[name];},selectionStart:name==='roNumber'?3:null,selectionEnd:name==='roNumber'?3:null,focus:()=>focusCount++,setSelectionRange:(a,b)=>assert.equal(a,b)}]));
  const tick=()=>new Promise(resolve=>setImmediate(resolve));
  const finish=async(label='CURRENT')=>{const r=pending.shift();assert.ok(r);r.resolve({rows:[{ro:label,supplier:'Supplier',invoices:[],status:'Pending',documents:0}],total:1,suppliers:['Supplier A','Supplier B']});await tick();};
  try{
@@ -46,6 +46,16 @@ test('automatic filters debounce typing, preserve focus, cancel reset and ignore
   assert.equal(new URL('http://local'+requests.at(-1)).searchParams.get('roNumber'),'5678');
   assert.equal(new URL('http://local'+requests.at(-1)).searchParams.get('offset'),'0');assert.match(html,/>5678</);
   assert.equal(fields.findLast(f=>f.name==='roNumber').value,'');
+  // Item typing retains an applied RO whose entry has cleared, and keeps its own text visible.
+  values.roNumber='';values.itemCode='  GJ-SD2  ';globalThis.document.activeElement=controls.itemCode;
+  ui.input(controls.itemCode);assert.equal(timers.size,1);
+  const itemCallback=[...timers.values()][0];timers.clear();itemCallback();await tick();await finish('5678');
+  const itemParams=new URL('http://local'+requests.at(-1)).searchParams;
+  assert.equal(itemParams.get('itemCode'),'GJ-SD2');assert.equal(itemParams.get('roNumber'),'5678');
+  assert.equal(fields.findLast(f=>f.name==='itemCode').value,'  GJ-SD2  ');
+  values.itemCode='';ui.input(controls.itemCode);await ui.formSubmit({target:form});assert.equal(timers.size,0);await tick();await finish('5678');
+  assert.equal(new URL('http://local'+requests.at(-1)).searchParams.get('itemCode'),'');
+  assert.equal(new URL('http://local'+requests.at(-1)).searchParams.get('roNumber'),'5678');
   await ui.action('ro-reset-filters',{});assert.equal(timers.size,0);await tick();await finish();
   assert.equal(new URL('http://local'+requests.at(-1)).searchParams.get('roNumber'),'');
   assert.equal(fields.findLast(f=>f.name==='roNumber').value,'');

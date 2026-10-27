@@ -1,4 +1,4 @@
-import {createRoSupplierDirectory} from './ro-costing.mjs';
+import {createRoSupplierDirectory,normalizeRoItemCodeFilter,matchesRoItemCode,compareRoCostingDatesDescending} from './ro-costing.mjs';
 /** Invoice costing after port arrival. Monetary amounts are integer minor units. */
 import {scopeAllowed,ensure,text,toMinor,toRate,dateValid,documentReferenceKey,proportionalSlices,canEdit,canPerformApproval} from './domain.mjs';
 
@@ -78,7 +78,8 @@ export function applyArrivalCosting(state,type,p,ctx,o,{event,attach}){
 
 // A read-only view of finalized PO invoices. Never copy these amounts into
 // ro_costings: that would create a second, independently editable financial record.
-export function finalizedPoCostings(state,actor,{q='',status='',ro=null,supplier:filterSupplier='',roNumber=''}={}){
+export function finalizedPoCostings(state,actor,{q='',status='',ro=null,supplier:filterSupplier='',roNumber='',itemCode=''}={}){
+ const itemQuery=normalizeRoItemCodeFilter(itemCode);
  if(!state||!scopeAllowed(actor,'LAE_IMPORT')||status==='Pending')return [];
  const query=String(q).trim().toLowerCase(),rows=[],directory=createRoSupplierDirectory(state.vendors||[]);
  for(const order of state.orders||[]){
@@ -87,6 +88,9 @@ export function finalizedPoCostings(state,actor,{q='',status='',ro=null,supplier
   if(!directory.matches({supplier},filterSupplier))continue;
   for(const costing of order.arrivalCostings||[]){
    if(costing.status!=='FINAL')continue;
+   // Invoice lines retain the issued item-code snapshot; unrelated PO lines and
+   // later item-master corrections must not select this invoice.
+   if(itemQuery&&!matchesRoItemCode({purchaseItems:{rows:(costing.lines||[]).map(line=>({itemCode:line.code}))}},itemCode))continue;
    const shipment=(order.shipments||[]).find(s=>s.id===costing.shipmentId);
    if(!shipment||shipment.status==='CANCELLED'||!shipment.actualArrival)continue;
    const reference=String(costing.roReference||'').trim();
@@ -103,5 +107,5 @@ export function finalizedPoCostings(state,actor,{q='',status='',ro=null,supplier
     href:'#/order/'+encodeURIComponent(order.id)+'?tab=costing&costing='+encodeURIComponent(costing.id)});
   }
  }
- return rows.sort((a,b)=>String(b.finalizedAt||'').localeCompare(String(a.finalizedAt||''))||a.orderNumber.localeCompare(b.orderNumber)||a.costingId.localeCompare(b.costingId));
+ return rows.sort((a,b)=>(itemQuery?compareRoCostingDatesDescending(a,b):0)||String(b.finalizedAt||'').localeCompare(String(a.finalizedAt||''))||a.orderNumber.localeCompare(b.orderNumber)||a.costingId.localeCompare(b.costingId));
 }
