@@ -947,3 +947,8 @@ DEC-153 / WF-148: fabricated component details use final uploaded combined kg pe
 
 ### Segment-wise BOM screen — DEC-154 / WF-149
 2026-10-24 candidate: read-only shared view at /implements/#/segments and /bom/#/segments; default SKU-finalised filter, all-catalogue controls, segment paging, technical images/codes and filtered CSV. Existing source BOMs, rates, staff approvals and inventory are unchanged. Publication requires the independent release verification gates.
+
+### Forecast stock aging candidate — DEC-157 / WF-152
+2026-11-01 local candidate at #/stock-aging adds forecast-only physical inventory values, requested long-duration age bands and proportional oldest-first division allocations. Separate immutable snapshots avoid replacing existing current-stock records. See LAE_STOCK_AGING.md. Live publication has not occurred.
+
+2026-11-01 local redesign (DEC-159/WF-154): explicit overall/division scope, compact filters, per-unit stock/value/pending/unknown cards and a sticky-header aging table. Item summary remains above barcodes. This Stock Aging code remains unpublished; the separate authorized Current stock costing snapshot refresh does not publish this layout.

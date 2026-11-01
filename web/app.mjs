@@ -712,7 +712,7 @@ async function syncVmsEdit(item,owner){
 const vmsModule=createVmsModule({context:()=>({state,user,ui,sandbox,pageDirty}),refresh:refreshVms,syncEdit:syncVmsEdit,closeModal,toast,preferencesPanel:personalPreferencesPanel,usersPanel:()=>'<div class="toolbar">'+(!sandbox&&user.role==='ADMIN'?button('Create user','create-user',{},'primary','plus'):'')+'</div>'+userAccessPanel()+approvalControlsPanel(),esc,button,badge,field,head,ph,kpi,empty,note,dt,formatMoney,isoDay,scopeAllowed,canApprove,canCreate,command,uploadMany,showDialog,navigate,render,csv});
 const processUI=createProcessUI({context:()=>({state,user,ui}),esc,button,badge,ph,note,field,dt,showDialog,command,openTab:tab=>{closeModal();ui.tab=tab;render();}});
 const laeSalesAnalyticsUI=createLaeSalesAnalyticsUI({context:()=>({ui}),esc,head,icon,render});
-const laeStockAgingUI=createLaeStockAgingUI({context:()=>({state,user,ui,sandbox}),api,esc,field,button,head,note,render,navigate,showDialog});
+const laeStockAgingUI=createLaeStockAgingUI({context:()=>({state,user,ui,sandbox}),api,esc,field,button,head,note,render,renderModal,navigate,showDialog});
 const laeStockCostingUI=createLaeStockCostingUI({context:()=>({state,user,ui,sandbox}),api,esc,field,button,head,note,render,navigate});
 const landingPricesUI=createLandingPricesUI({context:()=>({state,user,ui,sandbox}),reviewStore:STORE,api,esc,field,button,head,note,badge,render,navigate});
 const roCostingUI=createRoCostingUI({context:()=>({state,user,ui,sandbox}),reviewStore:STORE,api,esc,field,button,head,ph,note,badge,showDialog,render,closeModal,toast,csv});

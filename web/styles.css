@@ -236,7 +236,8 @@ table tbody tr:hover{background:#fcfdf6}.code-link{color:var(--fh-green)}
 
 .stock-batch-ro{margin-block:6px;font-weight:600}.stock-batch-ro a{text-decoration:underline;text-underline-offset:3px}
 
-.stock-aging-table{min-width:960px}.stock-aging-table td,.stock-aging-table th{vertical-align:middle}.stock-aging-cell{background:transparent;border:0;color:var(--fh-green,#204321);font:inherit;font-weight:650;text-decoration:underline;text-underline-offset:3px;min-width:44px;min-height:44px;cursor:pointer}.stock-aging-cell:hover{background:var(--surface-soft,#f1f5f1)}.stock-aging-cell:focus-visible{outline:2px solid var(--fh-green,#204321);outline-offset:2px}.stock-aging-table tfoot{font-weight:650;background:var(--surface-soft,#f1f5f1)}.stock-aging-totals{display:flex;gap:28px;flex-wrap:wrap}.stock-aging-totals>div{display:grid;gap:5px}.stock-aging-totals strong{font-size:20px}.stock-aging-totals small{color:var(--muted,#59655a)}
+.stock-aging-table{min-width:1280px}.stock-aging-table td,.stock-aging-table th{vertical-align:middle}.stock-aging-cell{background:transparent;border:0;color:var(--fh-green,#204321);font:inherit;font-weight:650;text-decoration:underline;text-underline-offset:3px;min-width:44px;min-height:44px;cursor:pointer}.stock-aging-cell:hover{background:var(--surface-soft,#f1f5f1)}.stock-aging-cell:focus-visible{outline:2px solid var(--fh-green,#204321);outline-offset:2px}.stock-aging-table tfoot{font-weight:650;background:var(--surface-soft,#f1f5f1)}.stock-aging-totals{display:flex;gap:28px;flex-wrap:wrap}.stock-aging-totals>div{display:grid;gap:5px}.stock-aging-totals strong{font-size:20px}.stock-aging-totals small{color:var(--muted,#59655a)}
+.aging-view-switch{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}.aging-divisions{display:flex;align-items:center;gap:12px 22px;flex-wrap:wrap;border:1px solid var(--line,#d8dfd1);border-radius:8px;padding:10px 14px;margin:0}.aging-divisions legend{font-weight:650;padding:0 6px}.aging-divisions label{display:flex;align-items:center;gap:8px;min-height:44px;cursor:pointer}.aging-divisions input[type=checkbox]{width:18px;height:18px;min-height:18px;flex:none}.aging-value-cell{display:grid;text-align:right;width:100%;white-space:nowrap;padding:8px 4px;text-decoration:none}.aging-value-cell strong{text-decoration:underline;text-underline-offset:3px}.aging-value-cell span{font-size:12px;font-weight:400;margin-top:5px}.aging-pending{display:block;font-size:12px;color:#805600;white-space:nowrap}.aging-pagination{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:16px}.stock-aging-table th{min-width:105px}.stock-aging-table th:first-child{min-width:155px}.stock-aging-table td{font-variant-numeric:tabular-nums}.aging-plan-summary{margin-top:12px}@media(max-width:600px){.aging-divisions{gap:4px 14px}.aging-divisions label{flex-basis:44%}.aging-pagination{flex-wrap:wrap}.aging-view-switch .button{flex:1}}
 
 .order-journey .panel-head p{display:block!important;margin:6px 0 0;color:var(--muted);font-size:13px}.journey-production{display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap}.journey-production span{font-size:13px}.order-journey summary{cursor:pointer;font-weight:700;line-height:1.6}.journey-payments{margin-bottom:24px}.journey-payments th,.journey-payments td{white-space:normal;vertical-align:top}.journey-shipment{border-top:1px solid var(--border,#dbe3d6);padding:14px 0}.journey-stages{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));list-style:none;gap:10px;padding:0;margin:18px 0}.journey-stages li{display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:12px;background:#f5f7f1;border-radius:8px;min-width:0}.journey-stages b{font-size:13px}.journey-stages small,.journey-stages span{overflow-wrap:anywhere;font-size:12px}.journey-stages small{color:var(--muted)}.journey-blockers{padding:14px 18px;background:#fff7e8;border-left:3px solid #b48738;border-radius:4px}.journey-blockers ul{margin:8px 0 0;padding-left:20px}.journey-blockers li{margin:5px 0;line-height:1.5}.journey-ready{padding:12px;background:#edf5e9;border-radius:6px}@media(max-width:1000px){.journey-stages{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:520px){.journey-stages{grid-template-columns:1fr}.journey-payments table{min-width:640px}}
 
@@ -251,3 +252,35 @@ table tbody tr:hover{background:#fcfdf6}.code-link{color:var(--fh-green)}
 @media(max-width:640px){#ro-filter{grid-template-columns:minmax(0,1fr);gap:18px}}
 
 .ro-list-item-codes{min-width:140px;max-width:240px;white-space:normal;overflow-wrap:anywhere;line-height:1.6}
+.aging-item-summary h3,.aging-barcode-heading{font-size:16px;margin:0 0 10px}.aging-item-summary .sub{margin-bottom:12px}.aging-item-summary tfoot{font-weight:650;background:var(--surface-soft,#f1f5f1)}.aging-barcode-heading{margin-top:28px}
+
+/* Stock aging: clear scope, compact controls, values before source details. */
+.aging-page{gap:16px}.aging-controls .panel-body{padding:16px 20px}
+.aging-controls .aging-view-switch{margin-bottom:10px}
+.aging-divisions[hidden]{display:none}
+.aging-scope-help{margin:10px 0 16px;font-size:13px;line-height:1.5;color:var(--text)}
+.aging-main-filters{display:grid;grid-template-columns:minmax(180px,1.4fr) minmax(180px,1fr) minmax(180px,1fr) auto;gap:16px;align-items:end}
+.aging-main-filters>*{min-width:0}.aging-filter-actions{display:flex;gap:8px;align-items:center}
+.aging-more-filters{margin-top:12px}.aging-more-filters>summary,.aging-coverage>summary,.aging-notes>summary{cursor:pointer;min-height:44px;align-content:center;font-weight:650;color:var(--text)}
+.aging-extra-fields{display:grid;grid-template-columns:repeat(2,minmax(0,240px));gap:16px;padding-top:12px}
+.aging-report-context{display:flex;align-items:center;justify-content:space-between;gap:6px 20px;flex-wrap:wrap;margin:0;font-size:13px;line-height:1.5;color:var(--text)}
+.aging-report-context>span:nth-child(3){flex-basis:100%}
+.aging-demo-label{font-size:12px;color:var(--text);margin:0}
+.aging-summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin:0}
+.aging-summary-grid .aging-metric{padding:18px;margin:0;display:flex;flex-direction:column;gap:7px;min-width:0}
+.aging-metric>span{font-size:13px;font-weight:650}.aging-metric>strong{font-size:22px;line-height:1.3;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}.aging-metric>small{font-size:12px;color:var(--text)}
+.aging-report .panel-head{gap:12px;align-items:center}.aging-report .panel-head p{display:block!important;margin:6px 0 0;font-size:13px;color:var(--text)}
+.aging-table-hint{font-size:12px;color:var(--text)}.aging-table-region{max-height:65vh;isolation:isolate}
+.aging-report .stock-aging-table{min-width:1320px;border-collapse:separate;border-spacing:0}
+.aging-report .stock-aging-table th,.aging-report .stock-aging-table td{padding:12px 14px;font-size:13px}
+.aging-report .stock-aging-table thead th{position:sticky;top:0;z-index:2;background:var(--pale);white-space:nowrap}
+.aging-report .stock-aging-table tr>:first-child{position:sticky;left:0;background:var(--white);z-index:1;width:160px;min-width:160px;max-width:160px;white-space:normal;box-shadow:1px 0 0 var(--line)}
+.aging-report .stock-aging-table thead th:first-child{z-index:3;background:var(--pale)}
+.aging-report .stock-aging-table tfoot td,.aging-report .stock-aging-table tfoot th{background:var(--pale)}
+.aging-row-label>span,.aging-row-label>small{display:block;margin-top:5px;font-size:12px;font-weight:400;color:var(--text)}
+.aging-report .aging-row-total{background:var(--bg);font-variant-numeric:tabular-nums;white-space:nowrap}.aging-row-total>div{margin-top:5px;font-size:12px}
+.aging-report .aging-value-cell{font-size:13px;padding:4px 0}.aging-report .aging-value-cell:hover{background:var(--pale)}
+.aging-report .aging-pending{font-size:11px;color:var(--amber)}
+.aging-coverage>summary,.aging-notes>summary{padding:14px 20px}.aging-coverage .panel-body,.aging-notes .panel-body{padding:0 20px 16px}.aging-coverage p,.aging-notes p{font-size:13px;line-height:1.6}
+@media(max-width:1100px){.aging-main-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.aging-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.aging-filter-actions{min-height:44px}}
+@media(max-width:600px){.aging-controls .panel-body{padding:16px}.aging-main-filters{grid-template-columns:1fr}.aging-extra-fields{grid-template-columns:1fr}.aging-summary-grid{gap:10px}.aging-summary-grid .aging-metric{padding:14px}.aging-metric>strong{font-size:19px}.aging-filter-actions .button{flex:1}.aging-report .stock-aging-table tr>:first-child{width:120px;min-width:120px;max-width:120px}.aging-report .stock-aging-table th,.aging-report .stock-aging-table td{padding:10px}.aging-report .panel-head{display:block}.aging-table-hint{display:block;margin-top:10px}}

@@ -1251,3 +1251,12 @@ User approved this supplier cleanup for live on 2026-10-17. Full local regressio
 
 ## WF-151 — Review serious and mild flags (DEC-156)
 2026-10-25. Read Serious flags and Mild flags separately on a purchasing model card or detail summary. Select either count to open the matching filtered records. Switch All/Serious/Mild in the flag list. The original flag reason, comparison and decision remain visible; existing downloads and correction approvals retain their behavior. No flag is closed by changing its display severity.
+
+## WF-152 — Review forecast stock aging by division (DEC-157)
+2026-11-01. Open LAE Stock Aging. Review closing date, costing date and forecast period. Overall stock includes all forecast-linked stock once. Choose Division allocations or division checkboxes to review allocated stock only; shortages remain visible in coverage. Filter category/item/unit, select original or revised physical landing cost, and click an aging value for source batches. Unknown age/cost is visible. View changes do not reserve, transfer or mutate stock; publication/import follows separate release safeguards.
+
+## WF-153 — Read items before barcode evidence (DEC-158)
+2026-11-01. Select an aging value. Read Item summary and its complete matching totals first, then scroll to Barcode list for individual source records. Barcode pagination does not change item totals. Existing division/category/age/value-basis selection remains in effect.
+
+## WF-154 — Choose scope, read values, inspect evidence (DEC-159)
+2026-11-01, local demo. Start with Overall stock or Division allocations. In allocation view, choose the divisions. Search/filter, confirm stock/cost/as-of dates and forecast period, then review per-unit stock, known value, pending costs and unknown ages. Select an aging value to open item totals followed by barcodes. More filters holds unit and age date; coverage and explanatory detail remain available below the main table. Checkbox/filter changes remain bookmarkable and never reserve or redistribute stock.
