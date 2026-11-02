@@ -960,3 +960,5 @@ DEC-153 / WF-148: fabricated component details use final uploaded combined kg pe
 
 ### Current stock dashboard - DEC-166 / WF-161
 2026-11-02 local candidate. Category overview, full item-code drilldown, five ordered costing cards and optional component/barcode disclosures now reuse unchanged stock costing calculations. Read-only category/item projections and matching exports are additive; default API batches and existing models remain supported. Live publication is not established by this entry.
+
+2026-11-02 local display follow-up: category item rows now include sortable average landing INR/unit and revised INR/unit; both item code and name drill into the existing details. This follow-up is not yet published.

@@ -1287,3 +1287,7 @@ User approved this supplier cleanup for live on 2026-10-17. Full local regressio
 2026-11-02, local review. Open Current stock costing to see product categories and selected-stock summary. Filter by warehouse, brand or unit; select a category, then an item name. Review USD cost, landing conversion, landing INR, revised INR and dated closing quantity. Expand Revised cost breakup when needed, or Full details for barcode, RO, warehouse and source evidence. Use Back to items/categories without losing warehouse filters. Clear filters restores category overview. Existing model/batch links remain usable. Excel/PDF use the selected category/item projection on the authenticated server; private review data is not embedded in the distributable clean build.
 
 2026-11-02 WF-161 release scope: user authorised publishing the category-to-item costing dashboard after local review. Fresh recovery and isolated startup verification precede deployment; live verification uses read-only queries and navigation.
+
+2026-11-02 WF-161 follow-up, local candidate: after selecting a category, compare average landing and revised INR prices directly in the item list. Click its code or name to open the full cost metrics, optional breakup and barcode records.
+
+2026-11-02: average landing/revised prices beside item code and name approved for live publication; code and name retain full-detail navigation.

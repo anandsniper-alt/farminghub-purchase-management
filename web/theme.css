@@ -23,7 +23,7 @@
 .stock-category-table tbody tr:hover,.stock-item-table tbody tr:hover{background:#f6f8ef}.stock-category-table th:first-child{width:34%}.stock-category-value{min-width:230px;font-variant-numeric:tabular-nums}
 .stock-category-value>span{display:block;margin-bottom:8px}.stock-category-value small{display:block;color:#78531a;margin-top:6px}
 .stock-value-track{height:7px;border-radius:8px;background:#eef1e7;overflow:hidden}.stock-value-track>span{display:block;height:100%;background:var(--fh-green);border-radius:8px}
-.stock-item-table th:first-child{width:20%}.stock-item-table td:nth-child(2){width:48%}.stock-dashboard .sub{font-size:11px;line-height:1.5;color:#536050}
+.stock-item-table{min-width:850px}.stock-item-table th:first-child{width:16%}.stock-item-table td:nth-child(2){width:32%}.stock-item-average{white-space:nowrap;font-weight:650;font-variant-numeric:tabular-nums}.stock-item-average .sub{white-space:normal;font-weight:400}.stock-dashboard .sub{font-size:11px;line-height:1.5;color:#536050}
 .stock-item-heading{display:flex;justify-content:space-between;gap:16px;align-items:center}.stock-item-heading h2{margin:6px 0;font-size:28px;line-height:1.3}.stock-item-heading p{margin:6px 0;color:#536050;line-height:1.6}
 .stock-eyebrow{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#536050;font-weight:600}
 .stock-cost-breakup>summary span,.stock-full-details>summary span{display:block;font-weight:400;font-size:12px;color:#536050;padding:6px 0 0 18px;line-height:1.5}
