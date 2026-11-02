@@ -5,8 +5,14 @@ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 test('Unallotted is a fifth reporting choice with item and barcode detail, not a new plan',async()=>{
  const a=setup();a.snapshot.rows[0].quantity=150;const before=structuredClone(a.snapshot),ui=createLaeStockAgingUI(a.host);
  await ui.action('stock-aging-refresh');let html=ui.page();
- assert.match(html,/value="UNALLOTTED"/);assert.match(html,/>All stock<\/button>/);assert.doesNotMatch(html,/>Division allocations<\/button>/);
- await ui.action('stock-aging-all');assert.equal(new URLSearchParams(location.hash.split('?')[1]).get('divisions'),'TNWL,HYD,NORTH,FH,UNALLOTTED');
+ assert.match(html,/value="UNALLOTTED"/);assert.doesNotMatch(html,/>All stock<\/button>/);assert.doesNotMatch(html,/>Division allocations<\/button>/);assert.match(html,/>Unselect all<\/button>/);
+ await ui.action('stock-aging-all');assert.equal(new URLSearchParams(location.hash.split('?')[1]).get('view'),'overall');
+ assert.equal((ui.page().match(/name="division"[^>]*checked/g)||[]).length,5);
+ location.hash='#/stock-aging?view=allocated&divisions=TNWL&basis=original&productGroup=Cutters&page=3&itemPage=2';await ui.action('stock-aging-refresh');
+ await ui.action('stock-aging-none');await ui.action('stock-aging-refresh');
+ assert.match(ui.page(),/No stock matches/);assert.equal((ui.page().match(/name="division"[^>]*checked/g)||[]).length,0);
+ let cleared=new URLSearchParams(location.hash.split('?')[1]);assert.equal(cleared.get('basis'),'original');assert.equal(cleared.get('productGroup'),'Cutters');assert.equal(cleared.get('page'),'1');assert.equal(cleared.get('itemPage'),'1');
+ await ui.action('stock-aging-all');await ui.action('stock-aging-refresh');assert.equal((ui.page().match(/name="division"[^>]*checked/g)||[]).length,5);assert.match(ui.page(),/150 pcs/);
  location.hash='#/stock-aging?view=allocated&divisions=UNALLOTTED&basis=original&productGroup=Cutters';await ui.action('stock-aging-refresh');html=ui.page();
  assert.match(html,/View unallotted items/);assert.match(html,/50 pcs/);assert.match(html,/4,500.00/);
  await ui.action('stock-aging-unallotted-items');const modal=ui.modal('stock-aging-models');assert.match(modal.sub,/Unallotted/);assert.match(modal.sub,/Original/);
@@ -35,7 +41,7 @@ test('authorization and stale response protect cached page and detail data',asyn
  const slow=setup();let resolve,renders=0;slow.host.api=()=>new Promise(r=>resolve=r);slow.host.render=()=>renders++;const p=createLaeStockAgingUI(slow.host).action('stock-aging-refresh');slow.ctx.user=null;resolve(queryLaeAgingAllocation(slow.snapshot,{}));await p;assert.equal(renders,0);
 });
 test('view switching and reset use bookmarkable routes without a business write',async()=>{
- const a=setup(),ui=createLaeStockAgingUI(a.host);await ui.action('stock-aging-view',{view:'allocated'});assert.match(location.hash,/view=allocated/);await ui.action('stock-aging-all');assert.match(location.hash,/view=allocated/);await ui.action('stock-aging-reset');assert.equal(location.hash,'#/stock-aging');assert.equal(a.calls.length,0);
+ const a=setup(),ui=createLaeStockAgingUI(a.host);await ui.action('stock-aging-view',{view:'allocated'});assert.match(location.hash,/view=allocated/);await ui.action('stock-aging-all');assert.match(location.hash,/view=overall/);await ui.action('stock-aging-reset');assert.equal(location.hash,'#/stock-aging');assert.equal(a.calls.length,0);
 });
 
 test('asynchronous detail completion refreshes the shared modal, not the background page',async()=>{
@@ -48,7 +54,7 @@ test('asynchronous detail completion refreshes the shared modal, not the backgro
 test('redesigned report makes scope, dated costs and pending coverage explicit',async()=>{
  const a=setup();a.snapshot.metadata={planPeriod:'November 2026 - April 2027'};
  const ui=createLaeStockAgingUI(a.host);await ui.action('stock-aging-refresh');let html=ui.page();
- assert.doesNotMatch(html,/aging-divisions" hidden/);assert.match(html,/Stock by division · select one or more/);assert.doesNotMatch(html,/name="division" value="TNWL" checked/);assert.match(html,/Overall stock · all forecast items/);
+ assert.doesNotMatch(html,/aging-divisions" hidden/);assert.match(html,/Stock by division · select one or more/);assert.match(html,/name="division" value="TNWL" checked/);assert.match(html,/Overall stock · all forecast items/);
  assert.match(html,/Stock: 31 Oct 2026/);assert.match(html,/Costs through: 31 Oct 2026/);
  assert.match(html,/Forecast: November 2026 - April 2027/);assert.match(html,/Revised landing cost · INR before GST/);
  assert.match(html,/Known stock value/);assert.match(html,/Excludes missing costs/);assert.match(html,/Cost pending/);assert.match(html,/Age unknown/);

@@ -294,3 +294,5 @@ table tbody tr:hover{background:#fcfdf6}.code-link{color:var(--fh-green)}
 .aging-category-button{text-decoration:underline;text-underline-offset:3px;overflow-wrap:anywhere}.aging-cell-quantity{display:block;margin-top:5px;font-size:12px;font-weight:400}
 @media(max-width:900px){.aging-product-filters,.aging-display-options{grid-template-columns:repeat(2,minmax(0,1fr))}.aging-display-options .aging-scope-help{grid-column:1/-1}}
 @media(max-width:600px){.aging-product-filters,.aging-display-options{grid-template-columns:1fr}.aging-product-filters>*:only-child{max-width:none}}
+
+.aging-division-actions{display:flex;gap:8px;flex-wrap:nowrap;max-width:100%}

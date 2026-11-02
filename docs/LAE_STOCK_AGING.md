@@ -66,3 +66,6 @@ The user approved publication of the pending DEC-160/WF-155 controls and DEC-161
 
 ### Unallotted reporting group - 2 November 2026
 DEC-162/WF-157 adds UNALLOTTED to report filters only. Four division demands and their allocation remain unchanged. Residual positive stock and signed negative adjustments appear under Unallotted. All five selected groups reconcile to overall quantity and fixed-point value. Empty legacy allocated selection still means the four actual divisions. One All stock control and five checkboxes replace the former two scope buttons. View unallotted items opens the existing item-summary/barcode modal, retaining active item/category/attribute/cost filters while clearing its age-band restriction. No stock import, schema change or business write is required.
+
+### One division selector - local candidate, 2 November 2026
+DEC-163/WF-158 removes the separate All stock control and adds Unselect all adjacent to Select all. Overall/default routes show all five checkboxes checked. Choosing all five returns the combined physical-stock query; clearing all uses allocated/none, yielding empty results. Legacy explicitly allocated routes retain their established four-group default. Filters and valuation are unchanged. The separate requested review of forecast brand allocations and paired CCM-10 valuation is not implemented by these controls.

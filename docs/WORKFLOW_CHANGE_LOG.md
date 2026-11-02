@@ -1271,3 +1271,6 @@ User approved this supplier cleanup for live on 2026-10-17. Full local regressio
 
 ## WF-157 - Inspect Unallotted stock (DEC-162)
 2026-11-02. Choose TNWL, HYD, NORTH, FH and/or Unallotted. All stock combines the entire forecast-linked stock once; Select all shows the five reporting groups. Choose Unallotted and View unallotted items to see item quantities and values, then barcode records. Signed stock adjustments remain explicit. Existing category, attributes, cost basis and display controls apply; selections do not redistribute stock.
+
+## WF-158 - Select or clear the stock groups (DEC-163)
+2026-11-02, local candidate. Use the five division/reporting checkboxes directly. Select all shows the complete stock; Unselect all clears every choice and the report. Check one or more groups to inspect their existing allocation. Existing category, cost basis and product filters remain in effect. Separate overall/allocation buttons are removed; selecting groups never writes to the forecast or redistributes stock.

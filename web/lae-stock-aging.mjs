@@ -24,13 +24,13 @@ export function createLaeStockAgingUI(host){
   finally{if(token===sequence){loadingKey='';if(context().user&&context().ui.view==='stock-aging'){render();}}}
  }
  function filters(q){
-  const allocated=q.view==='allocated',selected=!allocated||q.divisions==='none'?[]:q.divisions?q.divisions.split(','):LAE_AGING_DIVISIONS,display=q.display||'both';
+  const allocated=q.view==='allocated',selected=!allocated?LAE_AGING_STOCK_GROUPS:q.divisions==='none'?[]:q.divisions?q.divisions.split(','):LAE_AGING_DIVISIONS,display=q.display||'both';
   const select=(name,label,options)=>field(name,label,q[name]||'','select',{options:[{value:'',label:'All '+label.toLowerCase()},...options.map(value=>({value,label:value}))]});
   const power=/power.*weed|weed/i.test(q.productGroup||''),chaff=/chaff/i.test(q.productGroup||'');
   const productFilters=(power?select('engine','Engine',cache?.facets?.engines||[])+select('grade','Grade',cache?.facets?.grades||[]):'')+(chaff?select('blades','Blade count',cache?.facets?.blades||[]):'')+select('vendor','Planned vendor',cache?.facets?.vendors||[]);
   return '<section class="panel aging-controls"><div class="panel-body"><form id="stock-aging-filter"><fieldset class="aging-divisions"><legend>Stock by division · select one or more</legend>'+
-   '<button type="button" class="button '+(!allocated?'primary':'ghost')+'" data-action="stock-aging-view" data-view="overall" aria-pressed="'+!allocated+'">All stock</button>'+divisions().map(d=>'<label><input type="checkbox" name="division" value="'+esc(d.id)+'" '+(selected.includes(d.id)?'checked':'')+'>'+esc(d.id==='UNALLOTTED'?d.label:d.id)+'</label>').join('')+'<button type="button" class="button ghost" data-action="stock-aging-all">Select all</button></fieldset>'+
-   '<p class="aging-scope-help">Unallotted is stock outside the four division plans, including stock adjustments. Selecting groups does not reassign stock.</p>'+(allocated&&selected.includes('UNALLOTTED')?'<button type="button" class="button ghost" data-action="stock-aging-unallotted-items">View unallotted items</button>':'')+'<div class="aging-main-filters">'+field('q','Search item code or name',q.q||'','search')+select('productGroup','Product category',cache?.facets?.productGroups||[])+
+   divisions().map(d=>'<label><input type="checkbox" name="division" value="'+esc(d.id)+'" '+(selected.includes(d.id)?'checked':'')+'>'+esc(d.id==='UNALLOTTED'?d.label:d.id)+'</label>').join('')+'<span class="aging-division-actions" role="group" aria-label="Stock group selection"><button type="button" class="button ghost" data-action="stock-aging-all">Select all</button><button type="button" class="button ghost" data-action="stock-aging-none">Unselect all</button></span></fieldset>'+
+   '<p class="aging-scope-help">Select all to include the four divisions and Unallotted stock. Unselect all clears the report. Selecting groups does not reassign stock.</p>'+(selected.includes('UNALLOTTED')?'<button type="button" class="button ghost" data-action="stock-aging-unallotted-items">View unallotted items</button>':'')+'<div class="aging-main-filters">'+field('q','Search item code or name',q.q||'','search')+select('productGroup','Product category',cache?.facets?.productGroups||[])+
    field('basis','Value basis',q.basis||'revised','select',{options:[{value:'revised',label:'Revised landing cost'},{value:'original',label:'Original landing cost'}]})+
    '<div class="aging-filter-actions"><button class="button primary" type="submit">Search</button>'+button('Reset','stock-aging-reset',{},'ghost')+'</div></div>'+
    '<div class="aging-product-filters">'+productFilters+'</div><p class="aging-scope-help">Product details and planned vendor follow the forecast reference; planned vendor is not necessarily the historical purchase supplier.</p>'+
@@ -98,7 +98,7 @@ export function createLaeStockAgingUI(host){
  function values(form){const data=new FormData(form);return Object.fromEntries(['q','productGroup','unit','basis','asOf','engine','grade','blades','vendor','display','sortMetric'].map(k=>[k,String(data.get(k)||'').trim()]));}
  async function formSubmit(e){if(e.target.id!=='stock-aging-filter')return false;go({...query(),...values(e.target)},'#stock-aging-filter [name=q]');return true;}
  async function change(el){if(!el.closest?.('#stock-aging-filter'))return false;
-  if(el.name==='division'){const chosen=[...new FormData(el.form).getAll('division')];go({...query(),...values(el.form),view:'allocated',divisions:chosen.join(',')||'none'},'#stock-aging-filter input[value="'+el.value+'"]');return true;}
+  if(el.name==='division'){const chosen=[...new FormData(el.form).getAll('division')],all=LAE_AGING_STOCK_GROUPS.every(id=>chosen.includes(id));go({...query(),...values(el.form),view:all?'overall':'allocated',divisions:all?'':chosen.join(',')||'none',page:'1',itemPage:'1'},'#stock-aging-filter input[value="'+el.value+'"]');return true;}
   if(el.tagName==='SELECT'||el.name==='asOf'){const next={...query(),...values(el.form),page:'1',itemPage:'1'};if(el.name==='productGroup'){next.engine='';next.grade='';next.blades='';next.vendor='';}if(el.name==='display'&&next.display!=='both')next.sortMetric=next.display;if(el.name==='display'&&next.display!=='quantity'&&next.sort==='totalValue'){next.sort='total';next.sortMetric='value';}go(next,'#stock-aging-filter [name="'+el.name+'"]');return true;}return false;
  }
  async function action(name,data={}){if(!name.startsWith('stock-aging-'))return false;assertLaeStockAccess(context().user);
@@ -107,7 +107,8 @@ export function createLaeStockAgingUI(host){
   if(name==='stock-aging-view')go({...query(),view:data.view},'[data-action="stock-aging-view"][data-view="'+data.view+'"]');
   if(name==='stock-aging-sort'){const q=query(),same=(q.sort||'total')===data.sort;go({...q,sort:data.sort,direction:same&&(q.direction||'desc')==='desc'?'asc':'desc'},'[data-action="stock-aging-sort"][data-sort="'+data.sort+'"]');}
   if(name==='stock-aging-category')go({...query(),productGroup:data.group||'',engine:'',grade:'',blades:'',vendor:'',page:'1',itemPage:'1'},'#stock-aging-filter [name="productGroup"]');
-  if(name==='stock-aging-all')go({...query(),view:'allocated',divisions:LAE_AGING_STOCK_GROUPS.join(',')});
+  if(name==='stock-aging-all')go({...query(),view:'overall',divisions:'',page:'1',itemPage:'1'},'[data-action="stock-aging-all"]');
+  if(name==='stock-aging-none')go({...query(),view:'allocated',divisions:'none',page:'1',itemPage:'1'},'[data-action="stock-aging-none"]');
   if(name==='stock-aging-unallotted-items'&&cache&&cacheKey===key())await loadDetail({...query(),view:'allocated',divisions:'UNALLOTTED',bucket:'',page:'1',itemPage:'1',pageSize:'50'});
   if(name==='stock-aging-models'&&cache&&cacheKey===key())await loadDetail({...query(),bucket:data.bucket,productGroup:data.group,unit:data.unit,...(data.division?{divisions:data.division}:{}),page:'1',itemPage:'1',pageSize:'50'});
   if(name==='stock-aging-item-page'&&detailQuery)await loadDetail({...detailQuery,itemPage:String(data.page)});
