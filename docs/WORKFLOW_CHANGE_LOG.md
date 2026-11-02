@@ -1268,3 +1268,6 @@ User approved this supplier cleanup for live on 2026-10-17. Full local regressio
 2026-11-02, local candidate. The purchase page starts with its left menu collapsed and workspace using the available width. Hover over the menu icon to reveal navigation and move into the drawer; leaving closes a temporary reveal. Click the icon to keep navigation open, or use Enter/Space on the focused icon. Choose a destination, click outside, use the close control or press Escape to dismiss. Touch users use the icon. Menu visibility changes do not submit, reset or recreate the current form.
 
 2026-11-02: subsequent explicit publication approval covers WF-155 and WF-156 together. Deployment status is separate from this workflow authorization; source stock and purchasing records remain unchanged by these view controls.
+
+## WF-157 - Inspect Unallotted stock (DEC-162)
+2026-11-02. Choose TNWL, HYD, NORTH, FH and/or Unallotted. All stock combines the entire forecast-linked stock once; Select all shows the five reporting groups. Choose Unallotted and View unallotted items to see item quantities and values, then barcode records. Signed stock adjustments remain explicit. Existing category, attributes, cost basis and display controls apply; selections do not redistribute stock.

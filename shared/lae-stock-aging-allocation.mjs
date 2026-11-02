@@ -1,6 +1,8 @@
 import {RuleError} from './domain.mjs';
 
 export const LAE_AGING_DIVISIONS=Object.freeze(['TNWL','HYD','NORTH','FH']);
+// Reporting groups include residual stock; only the four divisions own demand.
+export const LAE_AGING_STOCK_GROUPS=Object.freeze([...LAE_AGING_DIVISIONS,'UNALLOTTED']);
 export const LAE_AGING_ALLOCATION_BUCKETS=Object.freeze([
  {id:'0-60',label:'0–60 days',min:0,max:60},{id:'61-120',label:'61–120 days',min:61,max:120},
  {id:'121-240',label:'121–240 days',min:121,max:240},{id:'241-360',label:'241–360 days',min:241,max:360},
@@ -56,9 +58,9 @@ function filters(input,s){
  if(q.display!=='both')q.sortMetric=q.display;
  if(!['overall','allocated'].includes(q.view)||!['original','revised'].includes(q.basis)||day(q.asOf)===null||q.asOf<s.stockDate||q.bucket&&!LAE_AGING_ALLOCATION_BUCKETS.some(b=>b.id===q.bucket))fail('Invalid aging view, price basis, date or band.');
  const ds=q.divisions&&q.divisions!=='none'?q.divisions.split(','):[];
- if(ds.some(d=>!LAE_AGING_DIVISIONS.includes(d))||new Set(ds).size!==ds.length)fail('Invalid division filter.');
+ if(ds.some(d=>!LAE_AGING_STOCK_GROUPS.includes(d))||new Set(ds).size!==ds.length)fail('Invalid division filter.');
  if(!/^\d{1,7}$/.test(q.page)||Number(q.page)<1||!/^\d{1,7}$/.test(q.itemPage)||Number(q.itemPage)<1||!/^\d{1,3}$/.test(q.pageSize)||Number(q.pageSize)<1||Number(q.pageSize)>200)fail('Invalid aging detail page.');
- q.divisions=q.divisions==='none'?'none':LAE_AGING_DIVISIONS.filter(d=>ds.includes(d)).join(',');q.page=Number(q.page);q.pageSize=Number(q.pageSize);q.itemPage=Number(q.itemPage);return q;
+ q.divisions=q.divisions==='none'?'none':LAE_AGING_STOCK_GROUPS.filter(d=>ds.includes(d)).join(',');q.page=Number(q.page);q.pageSize=Number(q.pageSize);q.itemPage=Number(q.itemPage);return q;
 }
 
 // Hamilton largest remainder, using division order as the stable tie breaker.
@@ -133,15 +135,16 @@ function queryLaeAgingAllocation(snapshot,input={}){
  const categoryMatches=r=>(!q.productGroup||normal(q.productGroup)===normal(r.productGroup))&&(!q.unit||normal(q.unit)===normal(r.unit));
  const rowMatches=r=>categoryMatches(r)&&attributes.every(k=>!q[k]||normal(q[k])===normal(attribute(r,k)))&&tokens.every(t=>normal([r.masterCode,r.brandCode,r.itemName,r.batch,r.productGroup].join(' ')).includes(t));
  const overall=s.rows.filter(rowMatches).map(row=>({row,division:'',qty:quant(row.quantity)})),allocated=a.allocated.filter(e=>rowMatches(e.row)),unallocated=a.unallocated.filter(e=>rowMatches(e.row));
- const selected=(q.view==='overall'?overall:allocated.filter(e=>ds.includes(e.division))).map(e=>({...e,...age(e.row,asOf)}));
+ const reportingEntries=[...allocated,...unallocated.map(e=>({...e,division:'UNALLOTTED'}))];
+ const selected=(q.view==='overall'?overall:reportingEntries.filter(e=>ds.includes(e.division))).map(e=>({...e,...age(e.row,asOf)}));
  const result=aggregate(selected,{...q,priceKey}),detail=selected.filter(e=>!q.bucket||e.bucket===q.bucket).sort((a,b)=>(b.ageDays??-1)-(a.ageDays??-1)||compare(a.row.id,b.row.id)||compare(a.division,b.division)),pages=Math.max(1,Math.ceil(detail.length/q.pageSize)),page=Math.min(q.page,pages);
  const attributeFiltered=attributes.some(k=>q[k]);
  const planIds=new Set(overall.map(e=>e.row.planKey)),plans=a.controls.filter(p=>planIds.has(p.id)||!q.q&&!attributeFiltered&&categoryMatches(p));
  const units=[...new Set([...overall.map(e=>e.row.unit),...plans.map(p=>p.unit)])].sort();
  const allocationSummary=units.map(unit=>{const total=entries=>{const c=empty();for(const e of entries)if(e.row.unit===unit)add(c,e,priceKey);return cell(c);};return {unit,overall:total(overall),allocated:total(allocated),unallocated:total(unallocated),plannedQuantity:number(sum(plans.filter(p=>p.unit===unit).map(p=>quant(p.plannedQuantity)))),shortfallQuantity:number(sum(plans.filter(p=>p.unit===unit).map(p=>quant(p.shortfallQuantity))))};});
   const classificationFacets=Object.fromEntries(attributes.map(k=>[k==='blades'?'blades':k+'s',[...new Set(s.rows.filter(categoryMatches).map(r=>attribute(r,k)))].sort((a,b)=>a==='Not recorded'?1:b==='Not recorded'?-1:a.localeCompare(b,'en',{numeric:true,sensitivity:'base'}))]));
-  return {filters:{...q,page},snapshot:{stockDate:s.stockDate,costDate:s.costDate,metadata:structuredClone(s.metadata??{})},buckets:LAE_AGING_ALLOCATION_BUCKETS.map(({id,label})=>({id,label})),facets:{divisions:LAE_AGING_DIVISIONS.map(id=>({id,label:id})),productGroups:[...new Set(s.plans.map(p=>p.productGroup))].sort(),units:[...new Set(s.plans.map(p=>p.unit))].sort(),...classificationFacets},...result,
-  divisions:LAE_AGING_DIVISIONS.map(id=>({id,label:id,selected:ds.includes(id),summary:aggregate(allocated.filter(e=>e.division===id).map(e=>({...e,...age(e.row,asOf)})),{...q,view:'allocated',priceKey}).summary})),
+  return {filters:{...q,page},snapshot:{stockDate:s.stockDate,costDate:s.costDate,metadata:structuredClone(s.metadata??{})},buckets:LAE_AGING_ALLOCATION_BUCKETS.map(({id,label})=>({id,label})),facets:{divisions:LAE_AGING_STOCK_GROUPS.map(id=>({id,label:id==='UNALLOTTED'?'Unallotted':id})),productGroups:[...new Set(s.plans.map(p=>p.productGroup))].sort(),units:[...new Set(s.plans.map(p=>p.unit))].sort(),...classificationFacets},...result,
+  divisions:LAE_AGING_STOCK_GROUPS.map(id=>({id,label:id==='UNALLOTTED'?'Unallotted':id,selected:ds.includes(id),summary:aggregate(reportingEntries.filter(e=>e.division===id).map(e=>({...e,...age(e.row,asOf)})),{...q,view:'allocated',priceKey}).summary})),
   coverage:{sourceRows:s.rows.length,selectedRows:selected.length,unknownDateRows:selected.filter(e=>e.bucket==='unknown').length,futureDateRows:selected.filter(e=>day(e.row.importDate)>asOf).length,priceBasis:q.basis,priceDate:s.costDate,quantityPrecision:6,unitPricePrecision:6},
   itemSummary:itemSummary(detail,q,priceKey),
   allocation:{planScopeNotice:attributeFiltered||q.q?'Plan and shortfall figures cover the full matching item plans. Stock totals above reflect the selected filters; filters do not redistribute planned quantities.':'',plans:structuredClone(plans.slice(0,500)),planCount:plans.length,plansTruncated:plans.length>500,divisionControls:units.flatMap(unit=>LAE_AGING_DIVISIONS.map(division=>{const ps=plans.filter(p=>p.unit===unit);return {unit,division,...Object.fromEntries(['plannedQuantity','allocatedQuantity','shortfallQuantity'].map(k=>[k,number(sum(ps.map(p=>quant(p.divisions[division][k]))))]))};})),summary:allocationSummary,policy:'Oldest known import date first; unknown dates last. Proportional shortage and oldest-batch sharing with stable largest remainders. Negative adjustments remain unallocated.'},
