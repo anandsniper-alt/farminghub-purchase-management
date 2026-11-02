@@ -836,3 +836,9 @@ The payment-planner stale-export test used a fixed changed as-of date of25 Octob
 
 ### Forecast allocation and async stock detail refresh
 Allocate all divisions once before display filtering; reconcile original signed stock to allocated plus unallocated quantities and values. Explicit forecast quantity columns and period labels prevent confusing YES flags or multi-month demand with monthly quantities. Preserve physical costing separately from virtual sale-set additions. Native async detail loading must call the shared modal renderer, not only the background page renderer. Browser checks are needed because pure module HTML tests cannot detect a modal stuck on its loading markup.
+
+# Stock Aging classification filters — 2026-11-02
+MODULE-SPECIFIC: source planned vendor, engine, grade and blade classification from an exact forecast linkage. A forecast vendor must not be relabelled as an actual batch purchase supplier. Keep absent fields explicit. Apply display filters after global allocation and sum the matching stock before pagination; display measure and sorting must not change its quantity or value. Full model forecast demand cannot be silently split by an unplanned vendor or technical attribute. See DEC-160/WF-155.
+
+# Shared drawer navigation — 2026-11-02
+GLOBAL UI: keep drawer width independent of the legacy sidebar layout-width variable, which becomes zero on mobile. Shared drawer stacking must override module-specific mobile scrims; print must explicitly hide both drawer and scrim. Change visibility in the DOM without recreating page forms. Verify hover, click-pinning, outside/Escape, inert keyboard exclusion and actual destination clicks across shared and separate module shells (DEC-161/WF-156).

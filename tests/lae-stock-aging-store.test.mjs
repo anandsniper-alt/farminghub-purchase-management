@@ -20,6 +20,18 @@ const fixture=()=>{
 };
 const counts=db=>Object.fromEntries(['workspace','audit_events','lae_aging_snapshots','lae_aging_events','lae_aging_active','request_receipts'].map(t=>[t,db.prepare(`SELECT count(*) AS n FROM ${t}`).get().n]));
 
+test('stored classification filters remain read-only and cache each selection separately',()=>{
+ const f=fixture();try{
+  const source=snapshot([row('one',{quantity:3,engine:'170F',grade:'PRIME',vendor:'V01'}),row('two',{quantity:7,engine:'173F',grade:'REGAL',vendor:'V02'})]);
+  f.aging.import('admin',input(0,source),randomUUID());const before=counts(f.store.db),workspace=f.store.read();
+  const q={engine:'170F',grade:'PRIME',vendor:'V01',display:'quantity',sort:'61-120',direction:'desc',view:'allocated',divisions:'TNWL,HYD'};
+  const a=f.aging.read('reader',q);assert.equal(a.summary[0].quantity,3);assert.equal(a.summary[0].knownValueInr,330);
+  const b=f.aging.read('reader',{...q,engine:'173F',grade:'REGAL',vendor:'V02'});assert.equal(b.summary[0].quantity,7);
+  assert.deepEqual(f.aging.read('reader',q),a);assert.deepEqual(counts(f.store.db),before);assert.deepEqual(f.store.read(),workspace);
+  assert.throws(()=>f.aging.read('other',q),/access|scope|permission/i);
+ }finally{f.close();}
+});
+
 test('aging snapshot is independent, forecast-scoped, immutable and preserves original evidence',()=>{
  const f=fixture();try{
   new LaeStockStore(f.store);

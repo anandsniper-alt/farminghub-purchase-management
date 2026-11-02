@@ -35,7 +35,7 @@ test('asynchronous detail completion refreshes the shared modal, not the backgro
 test('redesigned report makes scope, dated costs and pending coverage explicit',async()=>{
  const a=setup();a.snapshot.metadata={planPeriod:'November 2026 - April 2027'};
  const ui=createLaeStockAgingUI(a.host);await ui.action('stock-aging-refresh');let html=ui.page();
- assert.match(html,/aging-divisions" hidden/);assert.match(html,/Overall stock · all forecast items/);
+ assert.doesNotMatch(html,/aging-divisions" hidden/);assert.match(html,/Planned divisions · select one or more/);assert.doesNotMatch(html,/name="division" value="TNWL" checked/);assert.match(html,/Overall stock · all forecast items/);
  assert.match(html,/Stock: 31 Oct 2026/);assert.match(html,/Costs through: 31 Oct 2026/);
  assert.match(html,/Forecast: November 2026 - April 2027/);assert.match(html,/Revised landing cost · INR before GST/);
  assert.match(html,/Known stock value/);assert.match(html,/Excludes missing costs/);assert.match(html,/Cost pending/);assert.match(html,/Age unknown/);
@@ -61,4 +61,39 @@ test('barcode and item paging retain the selected scope and each other query pag
  await ui.action('stock-aging-models',{group:'Cutters',unit:'pcs',bucket:'61-120'});
  assert.match(ui.modal('stock-aging-models').sub,/Overall stock/);assert.doesNotMatch(ui.modal('stock-aging-models').sub,/TNWL/);
  assert.match(ui.modal('stock-aging-models').body,/50 pcs/);
+});
+
+
+test('every total and age header sorts independently and preserves selected divisions',async()=>{
+ const a=setup(),ui=createLaeStockAgingUI(a.host);location.hash='#/stock-aging?view=allocated&divisions=TNWL,FH';await ui.action('stock-aging-refresh');
+ let html=ui.page();for(const id of ['category','total','0-60','61-120','121-240','241-360','361-720','721-1080','1081+','unknown'])assert.ok(html.includes('data-sort="'+id+'"'));
+ await ui.action('stock-aging-sort',{sort:'61-120'});let q=new URLSearchParams(location.hash.split('?')[1]);assert.equal(q.get('sort'),'61-120');assert.equal(q.get('direction'),'desc');assert.equal(q.get('divisions'),'TNWL,FH');
+ await ui.action('stock-aging-sort',{sort:'61-120'});q=new URLSearchParams(location.hash.split('?')[1]);assert.equal(q.get('direction'),'asc');
+ await ui.action('stock-aging-sort',{sort:'0-60'});q=new URLSearchParams(location.hash.split('?')[1]);assert.equal(q.get('direction'),'desc');await ui.action('stock-aging-refresh');html=ui.page();assert.match(html,/aria-sort="descending"><button[^>]*data-sort="0-60"/);
+});
+
+test('category drill-in exposes matching product controls and clears prior attributes',async()=>{
+ const a=setup();a.snapshot.plans[0].productGroup='POWER WEEDER';a.snapshot.rows[0].productGroup='POWER WEEDER';a.snapshot.rows[0].engine='170F';a.snapshot.rows[0].grade='HG';a.snapshot.rows[0].vendor='WMCM';
+ const ui=createLaeStockAgingUI(a.host);await ui.action('stock-aging-refresh');assert.match(ui.page(),/data-action="stock-aging-category" data-group="POWER WEEDER"/);
+ await ui.action('stock-aging-category',{group:'POWER WEEDER'});await ui.action('stock-aging-refresh');let html=ui.page();assert.match(html,/Overall stock · matching forecast items/);assert.match(html,/name="engine"/);assert.match(html,/name="grade"/);assert.match(html,/Planned vendor/);assert.doesNotMatch(html,/name="blades"/);assert.match(html,/All product categories/);
+ location.hash='#/stock-aging?productGroup=POWER%20WEEDER&engine=170F&grade=HG&vendor=WMCM&view=allocated&divisions=TNWL';await ui.action('stock-aging-category',{group:'CHAFF CUTTER'});const q=new URLSearchParams(location.hash.split('?')[1]);assert.equal(q.get('productGroup'),'CHAFF CUTTER');assert.equal(q.get('engine'),null);assert.equal(q.get('grade'),null);assert.equal(q.get('vendor'),null);assert.equal(q.get('divisions'),'TNWL');await ui.action('stock-aging-refresh');html=ui.page();assert.match(html,/name="blades"/);assert.doesNotMatch(html,/name="engine"/);assert.doesNotMatch(html,/name="grade"/);
+ await ui.action('stock-aging-category',{group:''});assert.equal(new URLSearchParams(location.hash.split('?')[1]).get('productGroup'),null);
+});
+
+test('quantity, value and combined display affect every body and footer cell consistently',async()=>{
+ const a=setup(),ui=createLaeStockAgingUI(a.host);
+ for(const display of ['quantity','value','both']){
+  location.hash='#/stock-aging?display='+display;await ui.action('stock-aging-refresh');const html=ui.page(),table=html.split('<table class="stock-aging-table">')[1].split('</table>')[0];
+  if(display==='quantity'){assert.match(table,/50 pcs/);assert.match(table,/Total quantity/);assert.match(table,/Total known value/);assert.match(table,/data-sort="totalValue"/);assert.equal((table.match(/₹5,000.00/g)||[]).length,2);assert.equal((table.match(/aging-row-value/g)||[]).length,2);}
+  if(display==='value'){assert.match(table,/₹5,000.00/);assert.doesNotMatch(table,/50 pcs<\//);assert.doesNotMatch(table,/aging-cell-quantity/);}
+  if(display==='both'){assert.match(table,/₹5,000.00/);assert.match(table,/aging-cell-quantity">50 pcs/);}
+  assert.match(table,/Filtered total/);
+ }
+});
+
+test('attribute scope and display survive detail paging and empty filtering remains honest',async()=>{
+ const a=setup();a.snapshot.rows[0].vendor='Dawn Agro';const ui=createLaeStockAgingUI(a.host);
+ location.hash='#/stock-aging?view=allocated&divisions=TNWL,FH&vendor=Dawn%20Agro&display=quantity&sort=61-120&sortMetric=quantity';await ui.action('stock-aging-refresh');await ui.action('stock-aging-models',{group:'Cutters',unit:'pcs',bucket:'61-120',division:'TNWL'});await ui.action('stock-aging-detail-page',{page:2});
+ const q=new URLSearchParams(a.calls.at(-1).split('?')[1]);assert.equal(q.get('vendor'),'Dawn Agro');assert.equal(q.get('display'),'quantity');assert.equal(q.get('sortMetric'),'quantity');assert.equal(q.get('divisions'),'TNWL');assert.match(ui.modal('stock-aging-models').body,/30 pcs/);
+ location.hash='#/stock-aging?vendor=missing';await ui.action('stock-aging-refresh');assert.match(ui.page(),/No stock matches this selection/);
 });

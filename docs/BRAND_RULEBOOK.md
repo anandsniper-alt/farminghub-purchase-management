@@ -406,3 +406,8 @@ WF-111 Production audit: retain the cost-free shell and shared branding. Show/fo
 
 
 **2026-10-08 RO preview — DEC-117 / WF-112:** Reuse existing panel, heading, ghost-button, border/radius and responsive tokens for an inline document viewer. Plain Preview document / Close preview actions and Google-open fallback retain native keyboard controls; focus moves to the document heading and returns to its action. No palette, typography, logo, global motion or print change. Synthetic server/review mobile checks and server screenshot inspection passed; real Google content is outside local visual verification.
+
+### Collapsible shared navigation — DEC-161
+The left drawer retains the existing Farming Hub logo, green/lime palette, route labels and permission-filtered content. Its menu control remains visible with a clear accessible name and expanded state. The hidden drawer must not reserve desktop workspace width; opening overlays the page beneath the topbar. Use at least44px touch controls and visible keyboard focus. Screen-only behavior must leave print output unchanged. Local candidate.
+
+Local verification for DEC-161: 18 navigation/build checks and 79 browser checks passed. Authenticated main and separate module routes, copied-data demo, desktop hover/pinning, keyboard focus/Escape, hidden tab exclusion, preserved typed input nodes, 390px touch menus, responsive resizing and print were checked. Fresh desktop/mobile screenshots were reviewed. These results do not constitute live publication.

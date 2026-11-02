@@ -284,3 +284,13 @@ table tbody tr:hover{background:#fcfdf6}.code-link{color:var(--fh-green)}
 .aging-coverage>summary,.aging-notes>summary{padding:14px 20px}.aging-coverage .panel-body,.aging-notes .panel-body{padding:0 20px 16px}.aging-coverage p,.aging-notes p{font-size:13px;line-height:1.6}
 @media(max-width:1100px){.aging-main-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.aging-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.aging-filter-actions{min-height:44px}}
 @media(max-width:600px){.aging-controls .panel-body{padding:16px}.aging-main-filters{grid-template-columns:1fr}.aging-extra-fields{grid-template-columns:1fr}.aging-summary-grid{gap:10px}.aging-summary-grid .aging-metric{padding:14px}.aging-metric>strong{font-size:19px}.aging-filter-actions .button{flex:1}.aging-report .stock-aging-table tr>:first-child{width:120px;min-width:120px;max-width:120px}.aging-report .stock-aging-table th,.aging-report .stock-aging-table td{padding:10px}.aging-report .panel-head{display:block}.aging-table-hint{display:block;margin-top:10px}}
+
+/* Stock aging interactive filters and independent column sorting. */
+.aging-product-filters,.aging-display-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:end;margin-top:16px}
+.aging-product-filters>*:only-child{max-width:440px}.aging-product-filters>*{min-width:0}.aging-display-options .aging-scope-help{margin:0;align-self:center}
+.aging-sort-button,.aging-category-button{appearance:none;border:0;background:transparent;color:var(--text);font:inherit;font-weight:650;cursor:pointer;min-height:44px;padding:6px 0;text-align:inherit}
+.aging-sort-button{width:100%;white-space:normal}.aging-sort-button:hover,.aging-category-button:hover{text-decoration:underline;text-underline-offset:3px}
+.aging-sort-button:focus-visible,.aging-category-button:focus-visible{outline:2px solid var(--fh-green);outline-offset:3px}
+.aging-category-button{text-decoration:underline;text-underline-offset:3px;overflow-wrap:anywhere}.aging-cell-quantity{display:block;margin-top:5px;font-size:12px;font-weight:400}
+@media(max-width:900px){.aging-product-filters,.aging-display-options{grid-template-columns:repeat(2,minmax(0,1fr))}.aging-display-options .aging-scope-help{grid-column:1/-1}}
+@media(max-width:600px){.aging-product-filters,.aging-display-options{grid-template-columns:1fr}.aging-product-filters>*:only-child{max-width:none}}

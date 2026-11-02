@@ -1,7 +1,53 @@
 import {scopeAllowed} from '../shared/domain.mjs';
+let purchaseDrawerInstalled=false;
+/** One DOM-only drawer controller for every shell; never rerender an editable page. */
+function installPurchaseDrawer(){
+ if(purchaseDrawerInstalled||typeof document==='undefined'||typeof window==='undefined'||typeof MutationObserver==='undefined'||!document.querySelector('#app'))return;
+ purchaseDrawerInstalled=true;
+ let side=null,toggle=null,pinned=false,opened=false,hovering=false,closeTimer=null;
+ const finePointer=()=>window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+ const clearClose=()=>{if(closeTimer!==null){clearTimeout(closeTimer);closeTimer=null;}};
+ const inDrawer=target=>target instanceof Element&&(side?.contains(target)||toggle?.contains(target));
+ const modalOpen=()=>Boolean(document.querySelector('dialog[open],#modal-root .modal'));
+ function sync(){
+  if(!side||!toggle)return;
+  const bottom=toggle.closest('.topbar')?.getBoundingClientRect().bottom||76;
+  document.body.style.setProperty('--fh-drawer-top',Math.max(0,Math.ceil(bottom))+'px');
+  side.classList.toggle('open',opened);side.inert=!opened;side.setAttribute('aria-hidden',String(!opened));
+  toggle.setAttribute('aria-expanded',String(opened));toggle.setAttribute('aria-controls',side.id);toggle.setAttribute('aria-label',pinned?'Close navigation':'Open navigation');
+  let scrim=document.querySelector('[data-purchase-drawer-scrim]');
+  if(opened&&!scrim){scrim=document.createElement('button');scrim.type='button';scrim.className='nav-scrim purchase-drawer-scrim';scrim.dataset.purchaseDrawerScrim='';scrim.setAttribute('aria-label','Close navigation');scrim.tabIndex=-1;side.after(scrim);}
+  if(!opened)scrim?.remove();
+ }
+ function close(restore=false){clearClose();const hadFocus=side?.contains(document.activeElement);pinned=false;opened=false;hovering=false;sync();if(restore||hadFocus)toggle?.focus({preventScroll:true});}
+ function show(pin=false,keyboard=false){if(!side||modalOpen())return;clearClose();pinned=pin||pinned;opened=true;sync();if(keyboard)(side.querySelector('.nav-link:not(:disabled),a[href],button:not(:disabled)'))?.focus({preventScroll:true});}
+ function scheduleClose(){clearClose();closeTimer=setTimeout(()=>{closeTimer=null;if(!pinned&&!hovering&&!side?.contains(document.activeElement))close();},220);}
+ function attach(){
+  const next=document.querySelector('.module-sidebar'),button=document.querySelector('.topbar .mobile-toggle');
+  document.body.classList.toggle('fh-drawer-shell',Boolean(next&&button));
+  if(next!==side||button!==toggle){clearClose();side=next;toggle=button;pinned=false;opened=false;hovering=false;document.querySelectorAll('[data-purchase-drawer-scrim]').forEach(el=>el.remove());if(side&&!side.id)side.id='purchase-navigation';sync();}
+ }
+ document.addEventListener('pointerover',event=>{if(event.pointerType!=='mouse'||!finePointer()||!inDrawer(event.target))return;hovering=true;clearClose();if(toggle?.contains(event.target))show();},true);
+ document.addEventListener('pointerout',event=>{if(event.pointerType!=='mouse'||!inDrawer(event.target))return;if(inDrawer(event.relatedTarget))return;hovering=false;scheduleClose();},true);
+ document.addEventListener('click',event=>{
+  const target=event.target instanceof Element?event.target:null;if(!target)return;
+  if(toggle?.contains(target)){event.preventDefault();event.stopImmediatePropagation();if(pinned)close(true);else show(true,event.detail===0);return;}
+  if(target.closest('[data-purchase-drawer-scrim],.drawer-close')){event.preventDefault();event.stopImmediatePropagation();close(true);return;}
+  if(!opened)return;
+  if(!side?.contains(target)){close(false);return;}
+  if(target.closest('[data-action="nav"],a[href]'))close(false);
+ },true);
+ document.addEventListener('keydown',event=>{if(event.key==='Escape'&&opened&&!modalOpen()){event.preventDefault();event.stopImmediatePropagation();close(true);}},true);
+ document.addEventListener('focusin',event=>{if(opened&&!inDrawer(event.target))close(false);},true);
+ document.addEventListener('focusout',event=>{if(inDrawer(event.target)&&!inDrawer(event.relatedTarget)&&!pinned)scheduleClose();},true);
+ document.addEventListener('change',event=>{if(event.target?.id==='module-select')close(false);},true);
+ window.addEventListener('hashchange',()=>close(false));window.addEventListener('resize',()=>{sync();requestAnimationFrame(sync);});
+ new MutationObserver(attach).observe(document.querySelector('#app'),{childList:true,subtree:true});attach();
+}
 /** Presentation hierarchy only. Existing routes and server scopes stay authoritative. */
 export function moduleDestination(to){const path=to==='lae-sales-analytics'?'/lae-analytics/':to==='price-workings'?'/price-workings/':to==='bom-management'?'/bom/':to==='production-stock'?'/production/':to==='monthly-planning'?'/planning/':to==='implements-purchase'?'/implements/#/models':'/#/'+to;return typeof location!=='undefined'&&location.protocol==='file:'?'https://purchase.dvjassociates.com'+path:path;}
 export function createNavigation(host){
+ installPurchaseDrawer();
  const {icon,esc,head,button}=host,ctx=host.context;
  const divisions=[['lae-import','LAE Import','overview','LAE_IMPORT'],['lae-domestic','LAE Domestic','domestic/models','LAE_DOMESTIC']];
  const work=[['overview','Overview','grid'],['orders','Order pipeline','orders'],['tasks','Tasks & follow-ups','clock'],['payments','Payments','money'],['loading','Loading','box'],['flow-map','Purchase flow map','grid'],['ro-costings','RO costings','money'],['landing-prices','Landing prices','money'],['current-stock-costing','Current stock costing','money'],['stock-aging','Stock Aging','clock'],['shipments','Shipping & freight','ship'],['documents','QC & documents','file']];
@@ -33,7 +79,7 @@ export function createNavigation(host){
   if(ui.view==='price-workings')inside='<div class="nav-section-title">Price list workings</div>'+nav('price-workings','Utility price','money',true);
   if(section==='vms'&&laeImportAllowed())inside=nav('division/lae','LAE Division','arrow')+'<div class="nav-section-title">Vendor workspace</div>'+host.vmsNavigation();
   const options=(laeAllowed()?'<optgroup label="LAE Sales Analytics"><option value="lae-sales-analytics">Sales, stock &amp; pipeline</option></optgroup>':'')+(utilityAllowed()?'<optgroup label="Price list workings"><option value="price-workings">Utility price</option></optgroup>':'')+(laeAllowed()?'<optgroup label="LAE Division"><option value="division/lae">All LAE modules</option><option value="order-management">Order Management</option>'+(laeImportAllowed()?'<option value="vms">Vendor Management System</option>':'')+'</optgroup>':'')+(implementsAllowed()?'<optgroup label="Implements Division"><option value="division/implements">All Implements modules</option>'+(purchaseAllowed()?'<option value="implements-purchase">Rotavator purchasing</option>':'')+(bomAllowed()?'<option value="bom-management">BOM &amp; Syntax</option>':'')+(productionAllowed()?'<option value="production-stock">Production &amp; Stock</option>':'')+(planningAllowed()?'<option value="monthly-planning">Monthly plan entry</option>':'')+'</optgroup>':'');
-  return '<aside class="sidebar module-sidebar '+(ui.mobile?'open':'')+'"><button type="button" class="brand brand-logo-block brand-home" data-action="nav" data-to="home" aria-label="Farming Hub home"><div class="brand-logo-shell"><img class="brand-logo" src="'+host.logo+'" alt="Farming Hub"></div></button><nav class="module-navigation" aria-label="'+(ui.view==='implements'?'Implements sections':section==='vms'?'VMS sections':section==='orders'?'Order Management sections':'Workspace')+'">'+inside+'</nav><div class="sidebar-bottom">'+nav('settings','Users & settings','settings',ui.view==='settings')+nav('versions','Version & edit log','history',ui.view==='versions')+'<div class="module-switcher"><label for="module-select">Modules</label><select id="module-select"><option value="" selected disabled>Select module...</option>'+options+'</select></div></div></aside>';
+  return '<aside id="purchase-navigation" class="sidebar module-sidebar" inert aria-hidden="true"><button type="button" class="brand brand-logo-block brand-home" data-action="nav" data-to="home" aria-label="Farming Hub home"><div class="brand-logo-shell"><img class="brand-logo" src="'+host.logo+'" alt="Farming Hub"></div></button><nav class="module-navigation" aria-label="'+(ui.view==='implements'?'Implements sections':section==='vms'?'VMS sections':section==='orders'?'Order Management sections':'Workspace')+'">'+inside+'</nav><div class="sidebar-bottom">'+nav('settings','Users & settings','settings',ui.view==='settings')+nav('versions','Version & edit log','history',ui.view==='versions')+'<div class="module-switcher"><label for="module-select">Modules</label><select id="module-select"><option value="" selected disabled>Select module...</option>'+options+'</select></div></div></aside>';
  }
  const card=(title,description,to,ic,pending=false)=>'<a class="module-card '+(pending?'pending':'')+'" href="'+(['lae-sales-analytics','price-workings','bom-management','production-stock','monthly-planning','implements-purchase'].includes(to)?moduleDestination(to):'#/'+to)+'"><span class="module-card-icon">'+icon(ic,24)+'</span><span class="module-card-copy"><h2>'+esc(title)+'</h2><p>'+esc(description)+'</p><span class="module-card-state">'+(pending?'Pending development':'Open '+(to.startsWith('division/')?'division':'module')+' '+icon('arrow',14))+'</span></span></a>';
  function home(){return head('Farming Hub','Your workspace','Choose a division or workspace.')+'<div class="module-cards division-cards">'+(laeAllowed()?card('LAE Division',laeImportAllowed()?'Orders and vendors.':'Domestic orders.','division/lae','orders'):'')+(implementsAllowed()?card('Implements Division',[purchaseAllowed()?'Rotavator purchasing':'',bomAllowed()?'BOM & Syntax':'',productionAllowed()?'Production & Stock':'',planningAllowed()?'Monthly plan entry':''].filter(Boolean).join(', ')+'.','division/implements','box'):'')+(utilityAllowed()?card('Price list workings','Utility price · supplier, item, batch and barcode cost review.','price-workings','money'):'')+(laeAllowed()?card('LAE Sales Analytics','Sales performance, stock, pipeline and item-wise purchase requirements.','lae-sales-analytics','grid'):'')+'</div>';}

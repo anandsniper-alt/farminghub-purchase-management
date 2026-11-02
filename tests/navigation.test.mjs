@@ -140,3 +140,12 @@ test('Payment planner is nested under Payments, with scoped entry and return nav
  const denied=createNavigation({...host({view:'payment-planner'}),context:()=>({ui:{view:'payment-planner'},user:{role:'VIEWER',scopes:['UTILITY_DOMESTIC']}})});
  assert.equal(denied.canAccessView(),false);assert.equal(denied.paymentSections(),'');
 });
+test('shared navigation starts closed and inaccessible even with stale mobile-open state',()=>{
+ for(const view of ['overview','domestic','vms','implements','bom-management','production-stock','monthly-planning']){
+  const markup=createNavigation(host({view,orderId:'models',mobile:true})).sidebar();
+  assert.match(markup,/<aside id="purchase-navigation" class="sidebar module-sidebar" inert aria-hidden="true">/);
+  assert.doesNotMatch(markup,/module-sidebar open/);
+  assert.match(markup,/aria-label="Farming Hub home"/);
+  assert.match(markup,/id="module-select"/);
+ }
+});

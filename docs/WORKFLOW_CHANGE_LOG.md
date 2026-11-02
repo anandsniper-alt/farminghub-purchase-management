@@ -1260,3 +1260,11 @@ User approved this supplier cleanup for live on 2026-10-17. Full local regressio
 
 ## WF-154 — Choose scope, read values, inspect evidence (DEC-159)
 2026-11-01, local demo. Start with Overall stock or Division allocations. In allocation view, choose the divisions. Search/filter, confirm stock/cost/as-of dates and forecast period, then review per-unit stock, known value, pending costs and unknown ages. Select an aging value to open item totals followed by barcodes. More filters holds unit and age date; coverage and explanatory detail remain available below the main table. Checkbox/filter changes remain bookmarkable and never reserve or redistribute stock.
+
+## WF-155 — Filter product details and compare aging measures (DEC-160)
+2026-11-02, local demo. Select TNWL, FH, HYD and/or NORTH to see their existing allocations. Choose Overall stock to include unallocated stock. Click a product category, then select engine/grade for powerweeders or blade count for chaff cutters and planned vendor. Select quantity, value or both; in both mode choose the sort measure. Click any total or age-band header for descending order, again for ascending. Read the filtered footer and open an age-band amount for matching item summaries and barcodes. Category changes clear incompatible attributes; Reset restores the overall default. No source stock, purchase ownership, price or planning allocation is changed.
+
+## WF-156 — Reveal the purchase menu when needed (DEC-161)
+2026-11-02, local candidate. The purchase page starts with its left menu collapsed and workspace using the available width. Hover over the menu icon to reveal navigation and move into the drawer; leaving closes a temporary reveal. Click the icon to keep navigation open, or use Enter/Space on the focused icon. Choose a destination, click outside, use the close control or press Escape to dismiss. Touch users use the icon. Menu visibility changes do not submit, reset or recreate the current form.
+
+2026-11-02: subsequent explicit publication approval covers WF-155 and WF-156 together. Deployment status is separate from this workflow authorization; source stock and purchasing records remain unchanged by these view controls.
