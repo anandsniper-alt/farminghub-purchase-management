@@ -15,7 +15,7 @@ jobs:
         with:
           node-version: '24'
       - name: Existing document export dependencies
-        run: sudo apt-get update && sudo apt-get install -y python3-openpyxl python3-reportlab
+        run: sudo apt-get update && sudo apt-get install -y python3-openpyxl python3-reportlab python3-pypdf
       - run: node --test tests/*.test.mjs
         env:
           FH_PYTHON: /usr/bin/python3

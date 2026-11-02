@@ -1,7 +1,7 @@
 import {RuleError,scopeAllowed} from './domain.mjs';
 
 export const LAE_STOCK_MAX_ROWS=50000;
-export const LAE_STOCK_FILTER_KEYS=['q','masterCode','productGroup','warehouse','brand','unit','status','ro','view','page','pageSize','sort','direction'];
+export const LAE_STOCK_FILTER_KEYS=['q','masterCode','itemCode','sourceId','productGroup','categoryMissing','warehouse','brand','unit','status','ro','view','page','pageSize','sort','direction'];
 const stockFail=message=>{throw new RuleError(message);};
 const stockText=(v,max=500)=>{if(v==null)return '';if(typeof v!=='string'||v.length>max||/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/.test(v))stockFail('Invalid stock text.');return v;};
 const stockNumber=v=>{if(v==null||v==='')return null;if(typeof v!=='number'||!Number.isFinite(v)||Math.abs(v)>1e14)stockFail('Invalid stock amount.');return v;};
@@ -9,7 +9,7 @@ const stockDate=v=>{const s=stockText(v,10),time=Date.parse(s+'T00:00:00Z');if(s
 const stockNumericKeys=['quantity','usdUnit','originalInrUnit','revisedInrUnit','interestInrUnit','rentInrUnit','dutyInrUnit','recordedValue','motorUsdUnit','motorOriginalInrUnit','saleSetOriginalInrUnit'];
 const stockStringKeys=['id','sourceSheet','batch','masterCode','brandCode','itemName','productGroup','brand','warehouse','unit','grade','colour','assignedRo','originalRo','priceRo','invoice','supplier','calcId','baseStatus','revisedStatus'];
 const stockNoteKeys=['matchBasis','costBasis','validationConcerns','sourceEvidence','terms','paymentDateBasis','rentBasis','dutyBasis'];
-const stockSortKeys=[...stockStringKeys,...stockNumericKeys,'inwardDate','importDate','originalRate','revisedRate','changePercent','netQuantity','originalAverage','revisedAverage','averageUsd','originalPendingQuantity','revisedPendingQuantity','importBatchCount'];
+const stockSortKeys=[...stockStringKeys,...stockNumericKeys,'inwardDate','importDate','originalRate','revisedRate','changePercent','netQuantity','positiveQuantity','originalValue','revisedValue','originalAverage','revisedAverage','averageUsd','originalPendingQuantity','revisedPendingQuantity','importBatchCount'];
 const stockNorm=v=>String(v??'').trim().toLocaleLowerCase('en');
 const stockCollator=new Intl.Collator('en',{numeric:true,sensitivity:'base'});
 export function assertLaeStockAccess(actor,write=false){if(!actor||actor.active===false||!scopeAllowed(actor,'LAE_IMPORT')||(write&&actor.role!=='ADMIN'))throw new RuleError('LAE Import '+(write?'administrator':'access')+' is required.','FORBIDDEN');}
@@ -35,7 +35,8 @@ export function validateLaeStockSnapshot(input){
 export function validateLaeStockQuery(input={}){
  if(!input||typeof input!=='object'||Array.isArray(input))stockFail('Invalid stock query.');const q={};
  for(const [k,v] of Object.entries(input)){if(!LAE_STOCK_FILTER_KEYS.includes(k)||typeof v!=='string'&&typeof v!=='number')stockFail('Invalid stock filter.');q[k]=String(v);if(q[k].length>500)stockFail('Stock filter is too long.');}
- q.view=q.view||'batches';if(!['batches','models'].includes(q.view))stockFail('Invalid stock view.');q.sort=q.sort||(q.view==='models'?'masterCode':'batch');if(!stockSortKeys.includes(q.sort))stockFail('Invalid stock sort.');q.direction=q.direction||'asc';if(!['asc','desc'].includes(q.direction))stockFail('Invalid stock sort direction.');
+ if(q.categoryMissing&&!['1'].includes(q.categoryMissing))stockFail('Invalid missing-category filter.');
+ q.view=q.view||'batches';if(!['batches','models','categories','items'].includes(q.view))stockFail('Invalid stock view.');q.sort=q.sort||({models:'masterCode',categories:'productGroup',items:'brandCode'}[q.view]||'batch');if(!stockSortKeys.includes(q.sort))stockFail('Invalid stock sort.');q.direction=q.direction||'asc';if(!['asc','desc'].includes(q.direction))stockFail('Invalid stock sort direction.');
  q.page=Number(q.page||1);q.pageSize=Number(q.pageSize||50);if(!Number.isSafeInteger(q.page)||q.page<1||!Number.isSafeInteger(q.pageSize)||q.pageSize<1||q.pageSize>200)stockFail('Invalid stock page.');return q;
 }
 export function projectLaeStockRow(row){
@@ -46,6 +47,13 @@ export function projectLaeStockRow(row){
 // Count the approved physical-lot assignment only. A price-reference RO is not ownership.
 function singleStockRo(value){const text=String(value||'').trim();return /^\d+[A-Za-z0-9._/-]*$/.test(text)?text:'';}
 function stockRoSummary(rows){const ros=new Set();let roPendingQuantity=0,roPendingRows=0;for(const r of rows){if(r.quantity<=0)continue;const ro=singleStockRo(r.assignedRo);if(ro)ros.add(ro);else{roPendingQuantity+=r.quantity;roPendingRows++;}}const importRos=[...ros].sort(stockCollator.compare);return {importBatchCount:importRos.length,importRos,roPendingQuantity,roPendingRows};}
+// All components share the revised-priced positive-stock population. The original
+// average above deliberately retains its existing, potentially wider coverage.
+function stockRevisedBreakup(rows){
+ const keys={originalAverage:'originalInrUnit',interestAverage:'interestInrUnit',rentAverage:'rentInrUnit',dutyAverage:'dutyInrUnit',revisedAverage:'revisedInrUnit'},values=Object.fromEntries(Object.keys(keys).map(k=>[k,0])),missing=new Set();let quantity=0,rentExcludedQuantity=0;
+ for(const r of rows){if(r.quantity<=0||r.quantityOnly||r.revisedInrUnit===null)continue;quantity+=r.quantity;if(r.rentExcluded)rentExcludedQuantity+=r.quantity;for(const [key,field] of Object.entries(keys)){if(r[field]==null)missing.add(key);else values[key]+=r.quantity*r[field];}}
+ return {quantity,rentExcludedQuantity,...Object.fromEntries(Object.entries(values).map(([key,value])=>[key,quantity>0&&!missing.has(key)?value/quantity:null]))};
+}
 function stockOneUnitSummary(rows){
  const s={rows:rows.length,unit:rows[0]?.unit||'',netQuantity:0,positiveQuantity:0,negativeQuantity:0,quantityOnlyQuantity:0,costBearingQuantity:0,originalPricedQuantity:0,revisedPricedQuantity:0,originalValue:0,revisedValue:0,pairedUsdQuantity:0,pairedUsdValue:0,pairedOriginalValue:0,pairedRevisedUsdQuantity:0,pairedRevisedUsdValue:0,pairedRevisedValue:0,comparisonQuantity:0,comparisonOriginalValue:0,comparisonRevisedValue:0,rentExcludedQuantity:0};
  for(const r of rows){const q=Math.max(r.quantity,0);s.netQuantity+=r.quantity;s.positiveQuantity+=q;s.negativeQuantity+=Math.min(r.quantity,0);if(r.quantityOnly){s.quantityOnlyQuantity+=q;continue;}s.costBearingQuantity+=q;
@@ -55,7 +63,7 @@ function stockOneUnitSummary(rows){
   if(r.originalInrUnit!==null&&r.revisedInrUnit!==null){s.comparisonQuantity+=q;s.comparisonOriginalValue+=q*r.originalInrUnit;s.comparisonRevisedValue+=q*r.revisedInrUnit;}if(r.rentExcluded)s.rentExcludedQuantity+=q;
  }
  const avg=(value,q)=>q>0?value/q:null;s.originalAverage=avg(s.originalValue,s.originalPricedQuantity);s.revisedAverage=avg(s.revisedValue,s.revisedPricedQuantity);s.averageUsd=avg(s.pairedUsdValue,s.pairedUsdQuantity);s.originalRate=avg(s.pairedOriginalValue,s.pairedUsdValue);s.revisedRate=avg(s.pairedRevisedValue,s.pairedRevisedUsdValue);
- s.originalPendingQuantity=s.costBearingQuantity-s.originalPricedQuantity;s.revisedPendingQuantity=s.costBearingQuantity-s.revisedPricedQuantity;s.comparisonOriginalAverage=avg(s.comparisonOriginalValue,s.comparisonQuantity);s.comparisonRevisedAverage=avg(s.comparisonRevisedValue,s.comparisonQuantity);s.changePercent=s.comparisonOriginalValue>0?(s.comparisonRevisedValue/s.comparisonOriginalValue-1)*100:null;return {...s,...stockRoSummary(rows)};
+ s.originalPendingQuantity=s.costBearingQuantity-s.originalPricedQuantity;s.revisedPendingQuantity=s.costBearingQuantity-s.revisedPricedQuantity;s.comparisonOriginalAverage=avg(s.comparisonOriginalValue,s.comparisonQuantity);s.comparisonRevisedAverage=avg(s.comparisonRevisedValue,s.comparisonQuantity);s.changePercent=s.comparisonOriginalValue>0?(s.comparisonRevisedValue/s.comparisonOriginalValue-1)*100:null;return {...s,breakup:stockRevisedBreakup(rows),...stockRoSummary(rows)};
 }
 export function summarizeLaeStock(rows){
  const units=new Map();for(const r of rows){if(!units.has(r.unit))units.set(r.unit,[]);units.get(r.unit).push(r);}const byUnit=[...units.values()].map(stockOneUnitSummary),mixedUnits=byUnit.length>1;
@@ -64,14 +72,20 @@ export function summarizeLaeStock(rows){
 export function queryLaeStock(rows,input={},snapshot=null,{exportAll=false}={}){
  const q=validateLaeStockQuery(input),all=rows.map(projectLaeStockRow),facet=(key)=>[...new Set(all.map(r=>r[key]).filter(Boolean))].sort(stockCollator.compare);
  const facets=Object.fromEntries(['masterCode','productGroup','warehouse','brand','unit','status'].map(k=>[k,facet(k)])),tokens=stockNorm(q.q).split(/\s+/).filter(Boolean);
- const filtered=all.filter(r=>['masterCode','productGroup','warehouse','brand','unit','status'].every(k=>!q[k]||stockNorm(r[k])===stockNorm(q[k]))&&(!q.ro||[r.assignedRo,r.originalRo,r.priceRo].some(v=>stockNorm(v)===stockNorm(q.ro)))&&tokens.every(t=>stockNorm([r.batch,r.masterCode,r.brandCode,r.itemName,r.productGroup,r.warehouse,r.assignedRo,r.priceRo,r.invoice,r.supplier].join(' ')).includes(t)));
+ const filtered=all.filter(r=>['masterCode','productGroup','warehouse','brand','unit','status'].every(k=>!q[k]||stockNorm(r[k])===stockNorm(q[k]))&&(!q.categoryMissing||!stockNorm(r.productGroup))&&(!q.itemCode||r.brandCode===q.itemCode)&&(!q.sourceId||r.id===q.sourceId)&&(!q.ro||[r.assignedRo,r.originalRo,r.priceRo].some(v=>stockNorm(v)===stockNorm(q.ro)))&&tokens.every(t=>stockNorm([r.batch,r.masterCode,r.brandCode,r.itemName,r.productGroup,r.warehouse,r.assignedRo,r.priceRo,r.invoice,r.supplier].join(' ')).includes(t)));
  const summary=summarizeLaeStock(filtered),warehouseMap=new Map(),models=new Map(),roMap=new Map();
  for(const r of filtered){const wk=JSON.stringify([r.warehouse,r.unit]),mk=JSON.stringify([r.productGroup,r.masterCode||r.brandCode||r.itemName,r.unit]);if(!warehouseMap.has(wk))warehouseMap.set(wk,[]);warehouseMap.get(wk).push(r);if(!models.has(mk))models.set(mk,[]);models.get(mk).push(r);}
  const warehouses=[...warehouseMap.values()].map(rs=>({warehouse:rs[0].warehouse,...stockOneUnitSummary(rs)}));
  for(const r of filtered){const key=JSON.stringify([r.purchaseRo,r.unit]);if(!roMap.has(key))roMap.set(key,[]);roMap.get(key).push(r);}
  const importBatches=[...roMap.values()].map(rs=>({ro:rs[0].purchaseRo,...stockOneUnitSummary(rs)})).filter(r=>r.positiveQuantity>0).sort((a,b)=>a.ro&&b.ro?stockCollator.compare(a.ro,b.ro)||stockCollator.compare(a.unit,b.unit):a.ro?-1:b.ro?1:stockCollator.compare(a.unit,b.unit));
  const modelRows=[...models.entries()].map(([id,rs])=>({id,masterCode:rs[0].masterCode,itemName:rs[0].itemName,productGroup:rs[0].productGroup,brand:[...new Set(rs.map(r=>r.brand).filter(Boolean))].join(', '),warehouse:[...new Set(rs.map(r=>r.warehouse).filter(Boolean))].join(', '),...stockOneUnitSummary(rs)}));
- const result=q.view==='models'?modelRows:filtered;result.sort((a,b)=>{const x=a[q.sort],y=b[q.sort];if(x==null&&y!=null)return 1;if(y==null&&x!=null)return -1;const order=typeof x==='number'&&typeof y==='number'?x-y:stockCollator.compare(String(x??''),String(y??''));return (q.direction==='desc'?-order:order)||stockCollator.compare(a.id,b.id);});
+ const categoryMap=new Map(),itemMap=new Map();
+ const itemKey=r=>JSON.stringify([r.productGroup,stockNorm(r.brandCode)?['code',r.brandCode]:['unmapped',r.id],r.unit]);
+ for(const r of filtered){for(const [map,key] of [[categoryMap,JSON.stringify([r.productGroup,r.unit])],[itemMap,itemKey(r)]]){if(!map.has(key))map.set(key,[]);map.get(key).push(r);}}
+ const distinct=(rs,key)=>[...new Set(rs.map(r=>r[key]).filter(Boolean))].sort(stockCollator.compare);
+ const categoryRows=[...categoryMap.entries()].map(([id,rs])=>({id,productGroup:rs[0].productGroup,itemCount:new Set(rs.map(itemKey)).size,...stockOneUnitSummary(rs)}));
+ const itemRows=[...itemMap.entries()].map(([id,rs])=>{const itemNames=distinct(rs,'itemName'),masterCodes=distinct(rs,'masterCode'),unmapped=!stockNorm(rs[0].brandCode);return {id,productGroup:rs[0].productGroup,brandCode:rs[0].brandCode,itemCode:rs[0].brandCode,unmapped,sourceId:unmapped?rs[0].id:'',itemName:itemNames.join('; '),itemNames,masterCode:masterCodes.join('; '),masterCodes,brand:distinct(rs,'brand').join(', '),warehouse:distinct(rs,'warehouse').join(', '),...stockOneUnitSummary(rs)};});
+ const result=({models:modelRows,categories:categoryRows,items:itemRows})[q.view]||filtered;result.sort((a,b)=>{const x=a[q.sort],y=b[q.sort];if(x==null&&y!=null)return 1;if(y==null&&x!=null)return -1;const order=typeof x==='number'&&typeof y==='number'?x-y:stockCollator.compare(String(x??''),String(y??''));return (q.direction==='desc'?-order:order)||stockCollator.compare(a.id,b.id);});
  const total=result.length,totalPages=Math.max(1,Math.ceil(total/q.pageSize)),page=Math.min(q.page,totalPages),start=(page-1)*q.pageSize;
- return {snapshot,rows:exportAll?result:result.slice(start,start+q.pageSize),summary,warehouses,importBatches,facets,filters:q,pagination:{total,totalPages,page,pageSize:q.pageSize,from:total?(exportAll?1:start+1):0,to:exportAll?total:Math.min(start+q.pageSize,total)},coverage:{sourceRows:rows.length,selectedSourceRows:filtered.length,models:modelRows.length}};
+ return {snapshot,rows:exportAll?result:result.slice(start,start+q.pageSize),summary,warehouses,importBatches,facets,filters:q,pagination:{total,totalPages,page,pageSize:q.pageSize,from:total?(exportAll?1:start+1):0,to:exportAll?total:Math.min(start+q.pageSize,total)},coverage:{sourceRows:rows.length,selectedSourceRows:filtered.length,models:modelRows.length,categories:categoryRows.length,items:itemRows.length}};
 }

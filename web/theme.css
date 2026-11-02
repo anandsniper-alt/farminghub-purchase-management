@@ -1,5 +1,38 @@
 /* Approved minimal presentation. Approved brand assets and colour/font tokens are inherited. */
 :root{--preview-strip:0px}
+/* Current stock dashboard: category -> item -> costs; read-only presentation. */
+.stock-dashboard{display:grid;grid-template-columns:240px minmax(0,1fr);gap:22px;align-items:start}
+.stock-dashboard .panel{min-width:0;margin:0}.stock-dashboard-content{min-width:0;display:grid;gap:18px}
+.stock-dashboard-filters{position:sticky;top:92px;border-top:4px solid var(--fh-green)}
+.stock-dashboard-filters>summary,.stock-cost-breakup>summary,.stock-full-details>summary{padding:18px 20px;font-weight:700;cursor:pointer;min-height:52px}
+.stock-dashboard-filters .panel-body{padding:0 18px 18px;display:grid;gap:14px}.stock-dashboard-filters .field{margin:0;min-width:0}
+.stock-dashboard-filters input,.stock-dashboard-filters select{width:100%;min-height:44px}.stock-filter-actions{display:grid;gap:8px}
+.stock-extra-filters summary{min-height:44px;display:flex;align-items:center;cursor:pointer;font-weight:600}.stock-extra-filters .field{margin:12px 0}
+.stock-dashboard .stock-breadcrumbs{display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:13px;line-height:1.6}
+.stock-dashboard .stock-drill-link{color:var(--fh-green);font-weight:650;text-decoration:underline;text-underline-offset:4px;display:inline-block;padding:9px 0;overflow-wrap:anywhere}
+.stock-dashboard .stock-drill-link:hover{color:#315d27}.stock-dashboard :focus-visible{outline:3px solid #627b26;outline-offset:3px}
+.stock-dashboard .stock-snapshot-note{margin:0;font-size:13px;color:#536050}.stock-dashboard-metrics,.stock-cost-kpis{display:grid;gap:12px;grid-template-columns:repeat(3,minmax(0,1fr))}
+.stock-dashboard-metrics>div,.stock-cost-kpis>div{border:1px solid var(--line,#d6dfd0);background:var(--white,#fff);border-radius:12px;padding:18px;min-width:0;display:flex;flex-direction:column;gap:10px}
+.stock-dashboard-metrics>div:first-child,.stock-cost-kpis>div:nth-child(4){border-top:4px solid var(--fh-green)}
+.stock-dashboard-metrics span,.stock-cost-kpis span{font-size:12px;font-weight:650;color:#4b5b47;line-height:1.5}
+.stock-dashboard-metrics strong{font-size:24px;color:var(--fh-green);font-variant-numeric:tabular-nums;overflow-wrap:anywhere;line-height:1.3}
+.stock-dashboard-metrics small,.stock-cost-kpis small{font-size:11px;color:#536050;line-height:1.6}
+.stock-cost-kpis{grid-template-columns:repeat(5,minmax(0,1fr))}.stock-cost-kpis>div{padding:16px 14px}.stock-cost-kpis strong{font-size:22px;line-height:1.3;font-variant-numeric:tabular-nums;color:var(--fh-green);overflow-wrap:anywhere}
+.stock-coverage{display:flex;flex-wrap:wrap;gap:8px 20px;color:#536050;font-size:12px;line-height:1.6}.stock-coverage strong{color:#78531a}.stock-coverage span{display:block}
+.stock-category-table,.stock-item-table{width:100%;min-width:640px;border-collapse:collapse}.stock-dashboard table th,.stock-dashboard table td{padding:16px 20px;vertical-align:middle}
+.stock-category-table tbody tr:hover,.stock-item-table tbody tr:hover{background:#f6f8ef}.stock-category-table th:first-child{width:34%}.stock-category-value{min-width:230px;font-variant-numeric:tabular-nums}
+.stock-category-value>span{display:block;margin-bottom:8px}.stock-category-value small{display:block;color:#78531a;margin-top:6px}
+.stock-value-track{height:7px;border-radius:8px;background:#eef1e7;overflow:hidden}.stock-value-track>span{display:block;height:100%;background:var(--fh-green);border-radius:8px}
+.stock-item-table th:first-child{width:20%}.stock-item-table td:nth-child(2){width:48%}.stock-dashboard .sub{font-size:11px;line-height:1.5;color:#536050}
+.stock-item-heading{display:flex;justify-content:space-between;gap:16px;align-items:center}.stock-item-heading h2{margin:6px 0;font-size:28px;line-height:1.3}.stock-item-heading p{margin:6px 0;color:#536050;line-height:1.6}
+.stock-eyebrow{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#536050;font-weight:600}
+.stock-cost-breakup>summary span,.stock-full-details>summary span{display:block;font-weight:400;font-size:12px;color:#536050;padding:6px 0 0 18px;line-height:1.5}
+.stock-dashboard .stock-full-details .stock-warehouse-summary{border:0;border-bottom:1px solid var(--line,#d6dfd0);border-radius:0}.stock-dashboard .stock-full-details .stock-warehouse-summary>summary{padding:14px 20px}
+.stock-dashboard .table-wrap{position:relative;max-width:100%;overflow:auto}.stock-dashboard .landing-pagination{padding:16px 20px}.stock-dashboard .panel-head{padding:20px}.stock-dashboard .panel-head p{margin:6px 0 0;color:#536050;font-size:13px}
+@media(max-width:1180px){.stock-dashboard{grid-template-columns:210px minmax(0,1fr);gap:16px}.stock-cost-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.stock-dashboard-metrics strong{font-size:21px}}
+@media(max-width:800px){.stock-dashboard{grid-template-columns:minmax(0,1fr)}.stock-dashboard-filters{position:static}.stock-dashboard-filters .panel-body{grid-template-columns:repeat(2,minmax(0,1fr))}.stock-dashboard-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.stock-dashboard-metrics>div:last-child{grid-column:1/-1}.stock-item-heading{align-items:flex-start;flex-direction:column}.stock-cost-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.stock-cost-kpis>div:last-child{grid-column:1/-1}.stock-dashboard table th,.stock-dashboard table td{padding:14px}.stock-dashboard .panel-head{flex-wrap:wrap}}
+@media(max-width:440px){.stock-dashboard-filters .panel-body{grid-template-columns:minmax(0,1fr)}.stock-dashboard-metrics{grid-template-columns:minmax(0,1fr)}.stock-dashboard-metrics>div:last-child{grid-column:auto}.stock-cost-kpis strong{font-size:20px}.stock-cost-kpis>div{padding:14px 12px}.stock-dashboard .landing-pagination{gap:12px;flex-wrap:wrap}.stock-dashboard .landing-pagination .flex{flex-wrap:wrap}}
+@media print{.stock-dashboard{display:block}.stock-dashboard-filters,.stock-breadcrumbs{display:none}.stock-dashboard-metrics,.stock-cost-kpis{break-inside:avoid}}
 /* Read-only LAE process map: native buttons, progressive detail and bounded 2D scrolling. */
 .lae-flow{display:grid;gap:20px;min-width:0}
 .lae-flow .panel{min-width:0;margin:0}
