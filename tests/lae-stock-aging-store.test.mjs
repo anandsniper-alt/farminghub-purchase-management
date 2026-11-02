@@ -20,6 +20,15 @@ const fixture=()=>{
 };
 const counts=db=>Object.fromEntries(['workspace','audit_events','lae_aging_snapshots','lae_aging_events','lae_aging_active','request_receipts'].map(t=>[t,db.prepare(`SELECT count(*) AS n FROM ${t}`).get().n]));
 
+test('brand policy persists and reads exact allocations without changing workspace or disclosing private metadata',()=>{
+ const f=fixture();try{
+  const s=snapshot([row('gj',{allocationBrand:'GJ-WP1'}),row('kd',{allocationBrand:'KD-WP1',brandCode:'KD-WP1',quantity:4})]);s.allocationPolicy='brand-first-v1';s.plans[0].brandQuantities={'GJ-WP1':{TNWL:5,HYD:0,NORTH:0,FH:0},'KD-WP1':{TNWL:0,HYD:5,NORTH:0,FH:0}};s.metadata.privatePath='E:\\private\\allocation.xlsx';
+  const before=f.store.read();f.aging.import('admin',input(0,s),randomUUID());const a=f.aging.read('reader',{view:'allocated',divisions:'HYD'});
+  assert.equal(a.snapshot.allocationPolicy,'brand-first-v1');assert.equal(a.summary[0].quantity,4);assert.ok(a.drilldown.rows.every(r=>r.brandCode==='KD-WP1'&&r.forecastBrand==='KD-WP1'));assert.equal(a.snapshot.metadata.privatePath,undefined);assert.deepEqual(f.store.read(),before);
+  a.allocation.plans[0].brandControls[0].divisions.TNWL.plannedQuantity=999;assert.equal(f.aging.read('reader',{view:'allocated',divisions:'HYD'}).allocation.plans[0].brandControls[0].divisions.TNWL.plannedQuantity,5);
+ }finally{f.close();}
+});
+
 test('stored classification filters remain read-only and cache each selection separately',()=>{
  const f=fixture();try{
   const source=snapshot([row('one',{quantity:3,engine:'170F',grade:'PRIME',vendor:'V01'}),row('two',{quantity:7,engine:'173F',grade:'REGAL',vendor:'V02'})]);

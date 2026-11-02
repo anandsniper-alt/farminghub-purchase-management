@@ -952,3 +952,8 @@ DEC-153 / WF-148: fabricated component details use final uploaded combined kg pe
 2026-11-01 local candidate at #/stock-aging adds forecast-only physical inventory values, requested long-duration age bands and proportional oldest-first division allocations. Separate immutable snapshots avoid replacing existing current-stock records. See LAE_STOCK_AGING.md. Live publication has not occurred.
 
 2026-11-01 local redesign (DEC-159/WF-154): explicit overall/division scope, compact filters, per-unit stock/value/pending/unknown cards and a sticky-header aging table. Item summary remains above barcodes. This Stock Aging code remains unpublished; the separate authorized Current stock costing snapshot refresh does not publish this layout.
+
+### Brand-first allocation correction - DEC-164 / WF-159
+2026-11-02 local/test candidate. The shared stock-aging query supports explicit brand demand, exact-brand priority, confirmed residual equivalence, same-identity signed adjustments and controlled CCM10 companions. Physical stock values/age buckets are conserved; division values may move. New public drilldowns retain stock/forecast identities and separate assigned/price-reference RO provenance. The motor disclosure includes supplementary combined values without adding them again to physical totals. Source snapshots without allocationPolicy retain their previous behavior. No live publication is established by this baseline entry.
+
+2026-11-02 release scope update: the user authorised publishing the completed DEC-164/165 allocation and aging changes with the reviewed policy snapshot. Preserve current physical costs, dates and quantities; exclude unfinished BC135 redistribution. Local test evidence is not a live publication claim.

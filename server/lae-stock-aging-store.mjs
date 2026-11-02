@@ -52,7 +52,7 @@ export class LaeStockAgingStore{
    const event=this.history(active);
    if(!saved||digest(saved.payload)!==saved.content_sha256||!event||event.next_snapshot!==saved.id||event.content_sha256!==saved.content_sha256)throw new RuleError('Aging snapshot integrity check failed. Restore verified evidence before continuing.','CONFLICT');
    const snapshot=freeze(validateLaeAgingAllocationSnapshot(JSON.parse(saved.payload)));
-   this.cache={id:saved.id,revision:active.revision,snapshot,queries:new Map(),info:freeze({id:saved.id,revision:active.revision,contentHash:saved.content_sha256,stockDate:snapshot.stockDate,costDate:snapshot.costDate,metadata:publicMetadata(snapshot.metadata),importedAt:saved.created_at,rows:snapshot.rows.length,plans:snapshot.plans.length})};
+   this.cache={id:saved.id,revision:active.revision,snapshot,queries:new Map(),info:freeze({id:saved.id,revision:active.revision,contentHash:saved.content_sha256,stockDate:snapshot.stockDate,costDate:snapshot.costDate,metadata:publicMetadata(snapshot.metadata),...(snapshot.allocationPolicy?{allocationPolicy:snapshot.allocationPolicy}:{}),importedAt:saved.created_at,rows:snapshot.rows.length,plans:snapshot.plans.length})};
   }
   const key=JSON.stringify(Object.entries(query).sort(([a],[b])=>a.localeCompare(b)));
   let result=this.cache.queries.get(key);

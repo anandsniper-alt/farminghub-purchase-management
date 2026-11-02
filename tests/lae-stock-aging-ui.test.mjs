@@ -2,6 +2,18 @@ import test from 'node:test';import assert from 'node:assert/strict';
 import {createLaeStockAgingUI} from '../web/lae-stock-aging.mjs';
 import {queryLaeAgingAllocation} from '../shared/lae-stock-aging-allocation.mjs';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+test('brand-aware detail and linked motor summary explain actual allocation without adding value twice',async()=>{
+ const a=setup();a.snapshot.allocationPolicy='brand-first-v1';const p=a.snapshot.plans[0];p.quantities={TNWL:4,HYD:0,NORTH:0,FH:0};p.productGroup='Chaff cutter';p.brandQuantities={'GJ-CC1':{...p.quantities}};
+ Object.assign(a.snapshot.rows[0],{productGroup:p.productGroup,quantity:4,allocationBrand:'GJ-CC1',batch:'machine <script>',assignedRO:'123',priceReferenceRO:'124',ageBasis:'Confirmed inward date'});
+ const m={id:'motor',productGroup:'Motor',masterCode:'CCM10',unit:'pcs',quantities:{TNWL:0,HYD:0,NORTH:0,FH:99},brandQuantities:{'GJ-CCM10':{TNWL:0,HYD:0,NORTH:0,FH:99}}};a.snapshot.plans.push(m);
+ a.snapshot.rows.push({...a.snapshot.rows[0],id:'motor-row',planKey:m.id,productGroup:m.productGroup,masterCode:m.masterCode,allocationBrand:'GJ-CCM10',brandCode:'GJ-CCM10',batch:'motor <script>',quantity:3,originalInrUnit:10,revisedInrUnit:20,importDate:'2026-10-01'});
+ a.snapshot.companionRules=[{id:'companion',motorPlanKey:m.id,motorBrand:'GJ-CCM10',machinePlanKeys:[p.id],machineBrands:['GJ-CC1'],quantityPerMachine:1,status:'confirmed',decisionId:'Synthetic-approved',evidence:'Synthetic reviewed compatible motor'}];
+ location.hash='#/stock-aging?view=allocated&divisions=TNWL&pageSize=1';const ui=createLaeStockAgingUI(a.host);await ui.action('stock-aging-refresh');let html=ui.page();
+ assert.match(html,/Chaff cutter motors allocated with machines/);assert.match(html,/Exact item brand is matched first/);assert.match(html,/Each physical component keeps its own cost and age/);assert.match(html,/Combined known value/);assert.match(html,/machine &lt;script&gt;/);assert.doesNotMatch(html,/<script>/);
+ assert.match(html,/Next links/);await ui.action('stock-aging-companion-page',{page:2});await ui.action('stock-aging-refresh');assert.equal(new URLSearchParams(location.hash.split('?')[1]).get('companionPage'),'2');assert.match(ui.page(),/Motor shortfall/);
+ const table=ui.page().split('<table class="stock-aging-table">')[1].split('</table>')[0];assert.match(table,/₹460.00/);
+ await ui.action('stock-aging-models',{group:'Chaff cutter',unit:'pcs',bucket:'61-120',division:'TNWL'});const modal=ui.modal('stock-aging-models');assert.match(modal.body,/Exact brand match/);assert.match(modal.body,/Plan: GJ-CC1/);assert.match(modal.body,/Assigned RO: 123/);assert.match(modal.body,/Price reference RO: 124/);assert.match(modal.body,/Date: 31 Jul 2026/);assert.match(modal.body,/Age basis: Confirmed inward date/);
+});
 test('Unallotted is a fifth reporting choice with item and barcode detail, not a new plan',async()=>{
  const a=setup();a.snapshot.rows[0].quantity=150;const before=structuredClone(a.snapshot),ui=createLaeStockAgingUI(a.host);
  await ui.action('stock-aging-refresh');let html=ui.page();
@@ -20,6 +32,14 @@ test('Unallotted is a fifth reporting choice with item and barcode detail, not a
  let q=new URLSearchParams(a.calls.at(-1).split('?')[1]);assert.equal(q.get('divisions'),'UNALLOTTED');assert.equal(q.get('productGroup'),'Cutters');assert.equal(q.get('basis'),'original');
  location.hash='#/stock-aging?view=allocated';await ui.action('stock-aging-refresh');assert.doesNotMatch(ui.page(),/value="UNALLOTTED" checked/);
  assert.deepEqual(a.snapshot,before);
+});
+test('approved planning substitutions highlight stock and forecast brands without claiming identical specifications',async()=>{
+ const a=setup();a.snapshot.allocationPolicy='brand-first-v1';const p=a.snapshot.plans[0];p.brandQuantities={'TT-CC1':{...p.quantities}};a.snapshot.rows[0].allocationBrand='GJ-CC1';
+ a.snapshot.equivalenceGroups=[{id:'approved',planKey:p.id,brands:['GJ-CC1','TT-CC1'],status:'confirmed',decisionId:'USER-GENERAL-BRAND-MAPPING-CC1',evidence:'User approved same-master planning substitution with differences highlighted'}];
+ location.hash='#/stock-aging?view=allocated&divisions=TNWL';const ui=createLaeStockAgingUI(a.host);await ui.action('stock-aging-refresh');
+ assert.match(ui.page(),/does not certify identical specifications/);
+ await ui.action('stock-aging-models',{group:'Cutters',unit:'pcs',bucket:'61-120',division:'TNWL'});const body=ui.modal('stock-aging-models').body;
+ assert.equal((body.match(/Brand differs — mapped for planning/g)||[]).length,2);assert.match(body,/Stock: GJ-CC1/);assert.match(body,/Plan: TT-CC1/);assert.match(body,/Original barcode cost and age are retained/);assert.doesNotMatch(body,/Confirmed brand equivalent/);assert.doesNotMatch(body,/<script>/);
 });
 function setup(sandbox=false){
  const snapshot={schemaVersion:1,stockDate:'2026-10-31',costDate:'2026-10-31',plans:[{id:'p',productGroup:'Cutters',masterCode:'CC1',unit:'pcs',quantities:{TNWL:60,HYD:0,NORTH:0,FH:40}}],rows:[{id:'1',planKey:'p',productGroup:'Cutters',masterCode:'CC1',brandCode:'GJ-CC1',itemName:'Cutter <script>',unit:'pcs',warehouse:'SASTHA',quantity:50,importDate:'2026-07-31',originalInrUnit:90,revisedInrUnit:100,quantityOnly:false}]};

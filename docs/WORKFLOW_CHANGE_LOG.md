@@ -1274,3 +1274,11 @@ User approved this supplier cleanup for live on 2026-10-17. Full local regressio
 
 ## WF-158 - Select or clear the stock groups (DEC-163)
 2026-11-02, local candidate. Use the five division/reporting checkboxes directly. Select all shows the complete stock; Unselect all clears every choice and the report. Check one or more groups to inspect their existing allocation. Existing category, cost basis and product filters remain in effect. Separate overall/allocation buttons are removed; selecting groups never writes to the forecast or redistributes stock.
+
+## WF-159 - Review brand-specific division allocation (DEC-164)
+2026-11-02, local/test correction. Supply the closing physical stock, forecast brand/division demands and confirmed identity/equivalence/companion evidence in one reviewed snapshot. Select divisions and filters as before; these never recalculate ownership from a partial selection. Exact matches receive stock before approved substitutions. Open an age-band value to inspect item summaries, actual stock brand, requested forecast brand, match basis, assigned RO and separate price-reference RO. Inspect Chaff cutter motors allocated with machines for requirements, physical motor coverage, shortfalls and paginated component barcode links. Every linked component keeps its own age and value. Unresolved identities and surplus remain in Unallotted; a shortfall is not supplied from pipeline orders. Review the changed division totals before any later live publication.
+
+## WF-160 - Inspect a different-brand planning allocation (DEC-165)
+2026-11-02. Select a division, then open an age-band value. Item summary and barcode details highlight Brand differs — mapped for planning and show both stock and forecast codes for the newly approved substitutions. Original barcode cost and age stay intact. The full review list retains model-name, specification and supplier-evidence concerns. CC20 GJ/SG remains Unallotted; selecting filters never reallocates stock. Local review only.
+
+2026-11-02 WF-159/160 release scope: user approved production publication of the completed reviewed allocation workflow. Deploy compatible code and activate only the approved snapshot using revision guards. Keep unfinished BC135 redistribution outside this release and preserve current physical prices, dates and quantities.
