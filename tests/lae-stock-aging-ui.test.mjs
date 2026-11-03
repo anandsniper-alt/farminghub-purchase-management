@@ -136,3 +136,13 @@ test('attribute scope and display survive detail paging and empty filtering rema
  const q=new URLSearchParams(a.calls.at(-1).split('?')[1]);assert.equal(q.get('vendor'),'Dawn Agro');assert.equal(q.get('display'),'quantity');assert.equal(q.get('sortMetric'),'quantity');assert.equal(q.get('divisions'),'TNWL');assert.match(ui.modal('stock-aging-models').body,/30 pcs/);
  location.hash='#/stock-aging?vendor=missing';await ui.action('stock-aging-refresh');assert.match(ui.page(),/No stock matches this selection/);
 });
+
+test('category click shows types and type or age click keeps its filter through item and barcode detail',async()=>{
+ for(const [category,attribute,value] of [['POWER WEEDER','engine','170F'],['BRUSH CUTTER','engine','GX35-SP'],['CHAFF CUTTER','blades','4 blades']]){
+  const a=setup();a.snapshot.plans[0].productGroup=category;Object.assign(a.snapshot.rows[0],{productGroup:category,[attribute]:value});const ui=createLaeStockAgingUI(a.host);
+  await ui.action('stock-aging-refresh');await ui.action('stock-aging-category',{group:category});await ui.action('stock-aging-refresh');const html=ui.page();
+  assert.match(html,new RegExp('data-group-attribute="'+attribute+'" data-group-value="'+value+'"'));assert.match(html,/All product categories/);
+  for(const bucket of ['', '61-120']){await ui.action('stock-aging-models',{group:category,unit:'pcs',groupAttribute:attribute,groupValue:value,bucket});let params=new URLSearchParams(a.calls.at(-1).split('?')[1]);assert.equal(params.get(attribute),value);assert.equal(params.get('bucket')||'',bucket);assert.match(ui.modal('stock-aging-models').title,new RegExp(value));await ui.action('stock-aging-detail-page',{page:2});params=new URLSearchParams(a.calls.at(-1).split('?')[1]);assert.equal(params.get(attribute),value);}
+  await ui.action('stock-aging-category',{group:''});await ui.action('stock-aging-refresh');assert.equal(new URLSearchParams(location.hash.split('?')[1]).get('productGroup'),null);
+ }
+});

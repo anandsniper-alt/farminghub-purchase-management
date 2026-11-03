@@ -118,3 +118,23 @@ test('five-group totals preserve fixed-point precision, pending values and negat
  assert.equal(u.summary[0].quantity,-2);assert.equal(u.summary[0].valueInr,-14);assert.equal(u.drilldown.rows[0].division,'UNALLOTTED');
  assert.equal(query(negativeOnly,{view:'allocated'}).groups.length,0);
 });
+
+test('category types partition all age totals and division allocations without changing costs',()=>{
+ for(const [category,attribute,types] of [['POWER WEEDER','engine',['170F','173F']],['BRUSH CUTTER','engine',['GX35-SP','52CC-BP']],['CHAFF CUTTER','blades',['4 blades','5 blades']]]){
+  const s=snapshot();s.plans=[plan('TEST',category)];s.rows=[row('one',s.plans[0],7,30,100,{[attribute]:types[0]}),row('two',s.plans[0],3,400,200,{[attribute]:types[1]}),row('missing',s.plans[0],1,null,null),row('negative',s.plans[0],-1,30,100,{[attribute]:types[0]})];
+  const before=structuredClone(s);
+  for(const options of [{},{view:'allocated',divisions:'TNWL,FH,UNALLOTTED'},{view:'allocated',divisions:'none'}]){
+   const base=query(s,options),grouped=query(s,{...options,productGroup:category,pageSize:'1'});
+   assert.deepEqual(grouped.summary,base.summary);assert.deepEqual(grouped.allocation,base.allocation);
+   for(const g of grouped.groups){
+    assert.equal(g.groupAttribute,attribute);
+    const detail=query(s,{...options,productGroup:category,[attribute]:g.groupValue,...(g.division?{divisions:g.division}:{}),pageSize:'1'});
+    assert.equal(detail.itemSummary.summary[0].quantity,g.quantity);assert.equal(detail.itemSummary.summary[0].knownValueInr,g.knownValueInr);
+    for(const bucket of grouped.buckets)assert.deepEqual(detail.summary[0].buckets[bucket.id],g.buckets[bucket.id]);
+   }
+   if(grouped.summary.length){assert.equal(grouped.groups.reduce((n,g)=>n+g.quantity,0),grouped.summary[0].quantity);assert.equal(grouped.groups.reduce((n,g)=>n+g.knownValueInr,0),grouped.summary[0].knownValueInr);}
+  }
+  assert.deepEqual(query(s,{productGroup:category,sort:'category',direction:'asc'}).groups.map(g=>g.groupValue),[...types,'Not recorded'].sort((a,b)=>a.localeCompare(b,'en',{numeric:true,sensitivity:'base'})));
+  assert.deepEqual(s,before);
+ }
+});

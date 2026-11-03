@@ -962,3 +962,8 @@ DEC-153 / WF-148: fabricated component details use final uploaded combined kg pe
 2026-11-02 local candidate. Category overview, full item-code drilldown, five ordered costing cards and optional component/barcode disclosures now reuse unchanged stock costing calculations. Read-only category/item projections and matching exports are additive; default API batches and existing models remain supported. Live publication is not established by this entry.
 
 2026-11-02 local display follow-up: category item rows now include sortable average landing INR/unit and revised INR/unit; both item code and name drill into the existing details. This follow-up is not yet published.
+
+### Stock Aging category types - DEC-167 / WF-162
+2026-11-03 local candidate: Power Weeder and Brush Cutter category drilldowns show forecast engine/type groups; Chaff Cutter shows blade-count groups. Group labels and age cells open filtered item/barcode detail. Missing classifications remain Not recorded. Brush Cutter forecast types are restored in a separately verified local snapshot; operational quantities, costs, dates and allocation decisions are unchanged. Not yet published.
+
+2026-11-03 publication authorised: release DEC-167 / WF-162 category grouping and direct group-to-items navigation, with the verified Brush Cutter engine/type classification snapshot. Preserve all quantities, prices, dates, RO references and allocation decisions. Fresh recovery and isolated import checks precede deployment.

@@ -1291,3 +1291,8 @@ User approved this supplier cleanup for live on 2026-10-17. Full local regressio
 2026-11-02 WF-161 follow-up, local candidate: after selecting a category, compare average landing and revised INR prices directly in the item list. Click its code or name to open the full cost metrics, optional breakup and barcode records.
 
 2026-11-02: average landing/revised prices beside item code and name approved for live publication; code and name retain full-detail navigation.
+
+## WF-162 - Stock Aging type groups (DEC-167)
+2026-11-03 local demo. Category table -> Power Weeder engine / Brush Cutter forecast engine-type / Chaff Cutter blade-count table -> type or age-band click -> item summary -> barcode list. All product categories returns to category view. Division selection, grade/vendor filters and quantity/value modes remain available. Group totals and all age buckets retain the original physical-stock population. Publishing requires both compatible code and the reviewed Brush Cutter classification snapshot; no live publication is included in this task.
+
+2026-11-03 publication authorised: release DEC-167 / WF-162 category grouping and direct group-to-items navigation, with the verified Brush Cutter engine/type classification snapshot. Preserve all quantities, prices, dates, RO references and allocation decisions. Fresh recovery and isolated import checks precede deployment.

@@ -256,16 +256,17 @@ function add(c,entry,priceKey){const {row:r,qty}=entry;c.qty+=qty;c.positive+=qt
 function cell(c){return {quantity:number(c.qty),valueInr:c.knownRows?amount(c.value):null,knownValueInr:amount(c.value),knownQty:number(c.known),pendingQty:number(c.pending),knownPositiveQty:number(c.knownPositive),pendingPositiveQty:number(c.pendingPositive),quantityOnlyQty:number(c.quantityOnly),positive:number(c.positive),negative:number(c.negative),rows:c.rows};}
 function aggregate(entries,q){
  const groups=new Map(),units=new Map();
+ const groupAttribute=/^power\s*weeder$|^brush\s*cutter$/i.test(q.productGroup)?'engine':/^chaff\s*cutter$/i.test(q.productGroup)?'blades':'';
  const make=extra=>({...extra,total:empty(),buckets:Object.fromEntries(LAE_AGING_ALLOCATION_BUCKETS.map(b=>[b.id,empty()]))});
- for(const e of entries){const r=e.row,division=q.view==='allocated'?e.division:'',id=JSON.stringify([division,r.productGroup,r.unit]);
-  if(!groups.has(id))groups.set(id,make({id,division,productGroup:r.productGroup,unit:r.unit}));if(!units.has(r.unit))units.set(r.unit,make({unit:r.unit}));
+ for(const e of entries){const r=e.row,division=q.view==='allocated'?e.division:'',groupValue=groupAttribute?attribute(r,groupAttribute):'',id=JSON.stringify([division,r.productGroup,r.unit,...(groupAttribute?[groupValue]:[])]);
+  if(!groups.has(id))groups.set(id,make({id,division,productGroup:r.productGroup,unit:r.unit,...(groupAttribute?{groupAttribute,groupValue}:{})}));if(!units.has(r.unit))units.set(r.unit,make({unit:r.unit}));
   for(const target of [groups.get(id),units.get(r.unit)]){add(target.total,e,q.priceKey);add(target.buckets[e.bucket],e,q.priceKey);}
  }
   const finish=g=>{const {total,buckets,...rest}=g;return {...rest,...cell(total),buckets:Object.fromEntries(Object.entries(buckets).map(([k,v])=>[k,cell(v)]))};};
- const tie=(a,b)=>compare(a.division,b.division)||compare(a.productGroup,b.productGroup)||compare(a.unit,b.unit);
+ const tie=(a,b)=>compare(a.division,b.division)||compare(a.productGroup,b.productGroup)||compare(a.groupValue||'',b.groupValue||'')||compare(a.unit,b.unit);
  const order=(a,b)=>{
   const direction=q.direction==='asc'?1:-1;
-  if(q.sort==='category')return direction*a.productGroup.localeCompare(b.productGroup,'en',{numeric:true,sensitivity:'base'})||tie(a,b);
+  if(q.sort==='category')return direction*(a.groupValue||a.productGroup).localeCompare(b.groupValue||b.productGroup,'en',{numeric:true,sensitivity:'base'})||tie(a,b);
   const ac=['total','totalValue'].includes(q.sort)?a.total:a.buckets[q.sort],bc=['total','totalValue'].includes(q.sort)?b.total:b.buckets[q.sort],metric=q.sort==='totalValue'?'value':q.sortMetric;
   const av=metric==='quantity'?ac.qty:ac.value,bv=metric==='quantity'?bc.qty:bc.value;
   const ak=metric==='quantity'?ac.rows:ac.knownRows,bk=metric==='quantity'?bc.rows:bc.knownRows;
