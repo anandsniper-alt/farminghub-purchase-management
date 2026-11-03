@@ -146,3 +146,13 @@ test('category click shows types and type or age click keeps its filter through 
   await ui.action('stock-aging-category',{group:''});await ui.action('stock-aging-refresh');assert.equal(new URLSearchParams(location.hash.split('?')[1]).get('productGroup'),null);
  }
 });
+
+test('engine opens grade table, grade opens items, and back navigation retains other filters',async()=>{
+ for(const category of ['POWER WEEDER','BRUSH CUTTER']){
+  const a=setup();a.snapshot.plans[0].productGroup=category;Object.assign(a.snapshot.rows[0],{productGroup:category,engine:'170F',grade:'PRIME',vendor:'Supplier'});const ui=createLaeStockAgingUI(a.host);
+  location.hash='#/stock-aging?view=allocated&divisions=TNWL,FH&vendor=Supplier&display=quantity&basis=original';await ui.action('stock-aging-refresh');await ui.action('stock-aging-category',{group:category});await ui.action('stock-aging-refresh');assert.match(ui.page(),/data-action="stock-aging-engine"/);
+  await ui.action('stock-aging-engine',{group:category,groupValue:'170F',unit:'pcs',division:'TNWL'});await ui.action('stock-aging-refresh');let html=ui.page();assert.match(html,/170F · grade/);assert.match(html,/data-group-attribute="grade" data-group-value="PRIME"/);assert.match(html,/All engines/);
+  for(const bucket of ['', '61-120']){await ui.action('stock-aging-models',{group:category,groupAttribute:'grade',groupValue:'PRIME',unit:'pcs',division:'TNWL',bucket});const modal=ui.modal('stock-aging-models');assert.match(modal.title,/170F · PRIME/);assert.ok(modal.body.indexOf('Item summary')<modal.body.indexOf('Barcode list'));await ui.action('stock-aging-detail-page',{page:2});const q=new URLSearchParams(a.calls.at(-1).split('?')[1]);assert.equal(q.get('engine'),'170F');assert.equal(q.get('grade'),'PRIME');assert.equal(q.get('divisions'),'TNWL');assert.equal(q.get('basis'),'original');assert.equal(q.get('display'),'quantity');}
+  await ui.action('stock-aging-engine',{group:category,groupValue:''});await ui.action('stock-aging-refresh');const back=new URLSearchParams(location.hash.split('?')[1]);assert.equal(back.get('engine'),null);assert.equal(back.get('grade'),null);assert.equal(back.get('divisions'),'TNWL');assert.equal(back.get('basis'),'original');assert.match(ui.page(),/data-group-attribute="engine"/);
+ }
+});

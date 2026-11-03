@@ -256,7 +256,7 @@ function add(c,entry,priceKey){const {row:r,qty}=entry;c.qty+=qty;c.positive+=qt
 function cell(c){return {quantity:number(c.qty),valueInr:c.knownRows?amount(c.value):null,knownValueInr:amount(c.value),knownQty:number(c.known),pendingQty:number(c.pending),knownPositiveQty:number(c.knownPositive),pendingPositiveQty:number(c.pendingPositive),quantityOnlyQty:number(c.quantityOnly),positive:number(c.positive),negative:number(c.negative),rows:c.rows};}
 function aggregate(entries,q){
  const groups=new Map(),units=new Map();
- const groupAttribute=/^power\s*weeder$|^brush\s*cutter$/i.test(q.productGroup)?'engine':/^chaff\s*cutter$/i.test(q.productGroup)?'blades':'';
+ const groupAttribute=/^power\s*weeder$|^brush\s*cutter$/i.test(q.productGroup)?(q.engine?'grade':'engine'):/^chaff\s*cutter$/i.test(q.productGroup)?'blades':'';
  const make=extra=>({...extra,total:empty(),buckets:Object.fromEntries(LAE_AGING_ALLOCATION_BUCKETS.map(b=>[b.id,empty()]))});
  for(const e of entries){const r=e.row,division=q.view==='allocated'?e.division:'',groupValue=groupAttribute?attribute(r,groupAttribute):'',id=JSON.stringify([division,r.productGroup,r.unit,...(groupAttribute?[groupValue]:[])]);
   if(!groups.has(id))groups.set(id,make({id,division,productGroup:r.productGroup,unit:r.unit,...(groupAttribute?{groupAttribute,groupValue}:{})}));if(!units.has(r.unit))units.set(r.unit,make({unit:r.unit}));

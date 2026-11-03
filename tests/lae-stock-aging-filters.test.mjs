@@ -138,3 +138,19 @@ test('category types partition all age totals and division allocations without c
   assert.deepEqual(s,before);
  }
 });
+
+test('engine selection groups by grade while preserving allocation and age-band totals',()=>{
+ for(const category of ['POWER WEEDER','BRUSH CUTTER']){
+  const s=snapshot();s.plans=[plan('TEST',category)];const p=s.plans[0];s.rows=[row('prime',p,7,30,100,{engine:'ENGINE-A',grade:'PRIME'}),row('elite',p,3,400,200,{engine:'ENGINE-A',grade:'ELITE'}),row('missing-grade',p,1,null,null,{engine:'ENGINE-A'}),row('other',p,4,30,300,{engine:'ENGINE-B',grade:'PRIME'})];
+  const untouched=structuredClone(s);
+  for(const options of [{},{view:'allocated',divisions:'TNWL,FH,UNALLOTTED'},{view:'allocated',divisions:'none'}]){
+   const base=query(s,{...options,productGroup:category}),result=query(s,{...options,productGroup:category,engine:'ENGINE-A'});
+   assert(result.groups.every(g=>g.groupAttribute==='grade'));assert(!result.drilldown.rows.some(r=>r.id==='other'));
+   for(const g of result.groups){const d=query(s,{...options,productGroup:category,engine:'ENGINE-A',grade:g.groupValue,...(g.division?{divisions:g.division}:{})});assert.equal(d.itemSummary.summary[0].quantity,g.quantity);assert.equal(d.itemSummary.summary[0].knownValueInr,g.knownValueInr);for(const b of result.buckets)assert.deepEqual(d.summary[0].buckets[b.id],g.buckets[b.id]);}
+   for(const t of result.summary){assert.equal(result.groups.filter(g=>g.unit===t.unit).reduce((n,g)=>n+g.quantity,0),t.quantity);assert.equal(result.groups.filter(g=>g.unit===t.unit).reduce((n,g)=>n+g.knownValueInr,0),t.knownValueInr);}
+   assert.deepEqual(result.drilldown.rows,base.drilldown.rows.filter(r=>r.id!=='other'));assert.deepEqual(s,untouched);
+  }
+  assert.deepEqual(query(s,{productGroup:category,engine:'ENGINE-A',sort:'category',direction:'asc'}).groups.map(g=>g.groupValue),['ELITE','Not recorded','PRIME']);
+  assert.deepEqual(query(s,{productGroup:category,engine:'ENGINE-A',sort:'0-60',display:'quantity'}).groups.map(g=>g.groupValue),['PRIME','ELITE','Not recorded']);
+ }
+});

@@ -967,3 +967,8 @@ DEC-153 / WF-148: fabricated component details use final uploaded combined kg pe
 2026-11-03 local candidate: Power Weeder and Brush Cutter category drilldowns show forecast engine/type groups; Chaff Cutter shows blade-count groups. Group labels and age cells open filtered item/barcode detail. Missing classifications remain Not recorded. Brush Cutter forecast types are restored in a separately verified local snapshot; operational quantities, costs, dates and allocation decisions are unchanged. Not yet published.
 
 2026-11-03 publication authorised: release DEC-167 / WF-162 category grouping and direct group-to-items navigation, with the verified Brush Cutter engine/type classification snapshot. Preserve all quantities, prices, dates, RO references and allocation decisions. Fresh recovery and isolated import checks precede deployment.
+
+### Grade drilldown under engine - DEC-168 / WF-163
+2026-11-03 local candidate: Power Weeder and Brush Cutter now have engine -> grade -> item/barcode navigation. Uses existing classifications; no data import or calculation changes. Chaff Cutter remains grouped by blade count.
+
+2026-11-03 publication authorised for DEC-168 / WF-163: publish the engine-to-grade drilldown and grade-to-items navigation for Power Weeder and Brush Cutter. Read-only code release; retain all existing snapshots, stock, costs, dates and allocations.

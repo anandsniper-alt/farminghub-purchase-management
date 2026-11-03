@@ -1296,3 +1296,8 @@ User approved this supplier cleanup for live on 2026-10-17. Full local regressio
 2026-11-03 local demo. Category table -> Power Weeder engine / Brush Cutter forecast engine-type / Chaff Cutter blade-count table -> type or age-band click -> item summary -> barcode list. All product categories returns to category view. Division selection, grade/vendor filters and quantity/value modes remain available. Group totals and all age buckets retain the original physical-stock population. Publishing requires both compatible code and the reviewed Brush Cutter classification snapshot; no live publication is included in this task.
 
 2026-11-03 publication authorised: release DEC-167 / WF-162 category grouping and direct group-to-items navigation, with the verified Brush Cutter engine/type classification snapshot. Preserve all quantities, prices, dates, RO references and allocation decisions. Fresh recovery and isolated import checks precede deployment.
+
+## WF-163 - Engine to grade aging drilldown (DEC-168)
+Select Power Weeder or Brush Cutter, click an engine, then compare grade totals by age. Click a grade for item summary and barcode records, or an age value for that grade/band. All engines returns to engine groups; All product categories returns to category groups. Value, quantity, sorting and division filters remain available. Local demo only; no live publication in this change.
+
+2026-11-03 publication authorised for DEC-168 / WF-163: publish the engine-to-grade drilldown and grade-to-items navigation for Power Weeder and Brush Cutter. Read-only code release; retain all existing snapshots, stock, costs, dates and allocations.
