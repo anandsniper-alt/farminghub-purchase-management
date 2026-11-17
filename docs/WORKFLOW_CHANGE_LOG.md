@@ -1305,3 +1305,7 @@ Select Power Weeder or Brush Cutter, click an engine, then compare grade totals 
 
 ## WF-164 - Filter material requirements (DEC-169)
 2026-11-17. Material planner -> select Segment and/or Supplier -> inspect matching demand, allocated stock, buffer and extras -> select purchase items in view -> Prepare supplier POs. Search, component type and purchase-only scope combine with both filters; Reset filters clears local controls. Empty results explain recovery. Filtering is display-only and never changes source plans, stock or costs.
+
+
+## WF-165 - Scoped reading and one release gate (DEC-170)
+2026-11-17. Inspect current checkout/remote -> read concise active rules -> consult affected module/source -> classify full change -> implement and run focused checks -> required exact-candidate CI -> class-appropriate recovery -> authorized deployment -> read-only live verification -> one private evidence/archive batch. Documentation stops after consistency/link/scope checks. No changes to staff approvals, BOM, stock, purchasing or production workflows.

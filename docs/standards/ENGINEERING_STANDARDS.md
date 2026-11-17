@@ -34,7 +34,7 @@ Small compatible fixes need a concise impact check, not a separate design docume
 - Keep functions/modules cohesive; prefer scoped extraction over giant new dispatch branches. Avoid unrelated reformatting, competing helpers and speculative abstraction.
 - Tests prioritize money, permissions, invariants, persistence/replay, concurrency, historical bugs and failure recovery. Do not add tests that only mirror implementation. Test both server and standalone when shared behavior changes.
 - Do not claim a run passed, a bug is fixed, performance improved or a release is live without evidence. Label implemented, locally verified and live verified separately, including date/source.
-- Follow the existing [release backup gate](../BACKUP_RESTORE_RUNBOOK.md). No audit or passing local suite waives backup, preservation or live verification.
+- Follow the existing [release backup gate](../BACKUP_RESTORE_RUNBOOK.md). Apply its change classes; do not repeat full recovery for a qualified presentation-only or documentation change. Required preservation and live verification remain.
 
 ## Decisions and approval boundaries
 

@@ -12,7 +12,7 @@ Prioritize readable hierarchy and progressive detail (R021-R032), plain action l
 
 ## Project-specific adaptations
 
-- R027, R033, R040-R049, R081: retain the approved Farming Hub logo, licensed typography/fallbacks, green/lime identity and Minimal presentation. Do not replace the theme with an Apple visual clone. Preserve per-login guide settings and the movable mascot. Check actual contrast and readability for each changed component; this adoption does not certify existing tokens.
+- R027, R033, R040-R049, R081: retain the approved Farming Hub logo, licensed typography/fallbacks, green/lime identity and Minimal presentation. Do not replace the theme with an Apple visual clone. Preserve per-login page-guide settings. The mascot launcher/dock/tour remain hidden under DEC-120. Check actual contrast and readability for each changed component; this adoption does not certify existing tokens.
 - R006, R022, R100: keep required financial context, validation, pending steps and actionable warnings visible. Reduce repetition and defer optional detail without concealing obligations.
 - R002, R117-R119: recovery of issued orders and saved payments uses existing reasoned revisions, revocation or void/replacement commands and audit history. Generic Undo must not erase financial records or bypass permissions.
 - R129-R131: retain authenticated role/division access and administrator-managed accounts. Consumer account-deletion guidance does not authorize destruction of retained business or audit records.
@@ -29,4 +29,4 @@ This is adoption of a design reference, not an audit result, completed redesign 
 Use [UI_UX_RULEBOOK.md](standards/UI_UX_RULEBOOK.md) with this reference for every new module and UI change. It contains the approved web rules, GSAP lifecycle contract, lessons and evidence checklist. Source HIG text remains unchanged.
 ## User-management application — 2026-10-08
 
-DEC-118/WF-113 applies R021/R024/R025/R027/R081/R105/R135 and UI-01–UI-12 to the existing shared user-access matrix: clear priority, aligned growing rows, centred targets, readable wrapping and named internal scrolling. Account dialogs fit above the guide dock. No native Apple visual assets or business-policy changes. [Verification and boundaries](USER_ACCESS_LAYOUT.md).
+DEC-118/WF-113 applies R021/R024/R025/R027/R081/R105/R135 and UI-01–UI-12 to the existing shared user-access matrix: clear priority, aligned growing rows, centred targets, readable wrapping and named internal scrolling. Account dialogs remain usable within the viewport; DEC-120 removes the guide dock. No native Apple visual assets or business-policy changes. [Verification and boundaries](USER_ACCESS_LAYOUT.md).

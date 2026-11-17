@@ -1,30 +1,16 @@
-# Farming Hub project memory
+# Farming Hub project instructions
 
-> Engineering update (DEC-081, 2026-09-26): start with [docs/README.md](docs/README.md), [current state](docs/handover/CURRENT_STATE.md) and the relevant [architecture](docs/architecture/SYSTEM_ARCHITECTURE.md), [scale risks](docs/handover/SCALABILITY_RISKS.md) and [engineering standards](docs/standards/ENGINEERING_STANDARDS.md). These extend, not replace, the six canonical product documents. Assess current/10x/100x impact for significant work; preserve the distinction between implemented, verified and proposed. Keep the existing DEC ledger as the single decision source, using ADR fields for substantial architecture choices.
+Current workflow: DEC-170 / WF-165, 2026-11-17. Preserve project-specific business and release protections; remove repeated work.
 
-Read [docs/PROJECT_RULEBOOK.md](docs/PROJECT_RULEBOOK.md), [docs/BRAND_RULEBOOK.md](docs/BRAND_RULEBOOK.md), [docs/CURRENT_PRODUCT_BASELINE.md](docs/CURRENT_PRODUCT_BASELINE.md), and the relevant entries in [docs/PROJECT_LEARNINGS.md](docs/PROJECT_LEARNINGS.md), [docs/DECISION_LOG.md](docs/DECISION_LOG.md), and [docs/WORKFLOW_CHANGE_LOG.md](docs/WORKFLOW_CHANGE_LOG.md) before changing code. These files are persistent project memory, established by the user's 2026-09-12 master instruction.
+1. Read the parent PMS `CLOUD_WORK_SYNC.md` at task start. Inspect branch/remote/dirty files, fetch current remote changes and read accessible relevant cloud updates. Record unavailable context once; preserve concurrent local/cloud work.
+2. Start with [PROJECT_RULEBOOK.md](docs/PROJECT_RULEBOOK.md). Read only affected module contracts and relevant DEC/WF entries. Historical baseline, reference rulebooks and release reports are lookup sources, not a mandatory full reading list.
+3. For UI edits, read [UI rules](docs/standards/UI_UX_RULEBOOK.md) and [brand rules](docs/BRAND_RULEBOOK.md); consult relevant [HIG adaptations](docs/APPLE_HIG_APPLICATION.md)/reference IDs. Minimal only; mascot hidden. Preserve shared navigation, accessibility and dirty forms.
+4. Reuse native ESM/domain helpers. Preserve permissions, transaction/revision/retry safety, issued snapshots, financial/stock semantics and audit. No framework rewrite, inferred business values, live demos or unrelated edits. `vms-reference/` is reference material, not the active runtime.
+5. Validate the affected behavior. Full final-candidate suites/build in CI can satisfy the full-suite gate without a duplicate local run; use local focused regression and relevant server/standalone/browser checks. Do not reuse evidence after its inputs change.
+6. [BACKUP_RESTORE_RUNBOOK.md](docs/BACKUP_RESTORE_RUNBOOK.md) alone defines release classes/recovery. Documentation needs no DB read or deploy. Qualified presentation-only changes use compatible code rollback plus an existing verified archive. Behavior/data/platform changes require fresh full recovery and isolated restore. Verify live SHA/assets/behavior/preservation before claiming publication.
+7. Update the owning contract when necessary. Add DEC for a meaningful decision and WF for a changed workflow. Do not repeat the same narrative in six documents. Keep detailed evidence, credentials, databases and backups private. Preserve old decision history.
+8. Batch related changes and archive final local learnings once per completed release/review batch. Retain two verified recovery ZIPs and two verified learning ZIPs per the parent policy; use safe cleanup dry-run before pruning.
 
-- Preserve established behaviour, calculations, terminology, branding, workflows, and conventions unless the user explicitly changes them. Search first: reuse -> extend -> refactor -> create new.
-- Distinguish ideas, options, recommendations, proposed decisions, confirmed decisions, and implemented decisions. An observed implementation is a baseline, not proof of business approval. Preserve behaviour when a material requirement is ambiguous.
-- Evaluate important proposals: existing rule, proposed change, practical issue, alternatives, trade-offs, recommendation. Discuss material conflicts in finance, permissions, data, architecture, workflows or major UX. Follow the user's final explicit decision consistently; do not silently change requirements or repeatedly reopen settled decisions without new evidence.
-- Update applicable memory documents in the same development cycle. Use append-only decision/workflow records, stable IDs and supersession links. Classify GLOBAL RULE versus MODULE-SPECIFIC RULE and document deliberate exceptions.
-- Keep business enforcement in `shared/domain.mjs` and shared helpers. Server identity, authorization, transactions, optimistic revisions, immutable issued snapshots and append-only audit history must remain authoritative.
-- The application is vanilla JavaScript ESM + native Node HTTP/SQLite, not the React/Express/Prisma stack in `vms-reference/`. That directory is recovered reference material; do not run, deploy or modify it as the active application by assumption.
-- Keep `.env`, credentials, tokens, databases, backups, logs and test artifacts out of documentation and Git. Refer to variable names, never values. Do not read private database contents for a documentation task.
-- Verify only what the change requires. For code changes run relevant native tests; verify both server and standalone review modes when shared code is affected. Browser results from old documents are historical evidence, not a current test run.
-- Before every live release, download a fresh consistent production backup and package it with the matching running application source and recovery instructions as a private ZIP. Verify its checksum, contents and isolated restore before pushing/deploying. Keep the two newest verified release ZIPs in the main checkout's ignored `backups/releases/`; prune older managed ZIPs only after the new one passes. A failed backup/download/verification blocks release. Follow `docs/BACKUP_RESTORE_RUNBOOK.md`. Never commit credentials or backup files.
-- Do not redesign or rewrite during a documentation pass. Known gaps are recorded in the baseline; recording one does not authorize a fix or a new product policy.
+Small fixes need a concise impact note; substantial architecture/data-volume/concurrency changes still use [engineering standards](docs/standards/ENGINEERING_STANDARDS.md) and current scale risks. No rulebook cleanup authorizes destructive data changes or weaker finance/security rules.
 
-Local start: `node --env-file=.env server/index.mjs`. Native tests: `node --test tests/*.test.mjs`. Review build: `node scripts/build.mjs`. See the baseline and `docs/COOLIFY_DEPLOYMENT.md` for deployment boundaries.
-
-
-## Apple HIG design reference
-For UI work, read [docs/APPLE_HIG_RULEBOOK.md](docs/APPLE_HIG_RULEBOOK.md) and [docs/APPLE_HIG_APPLICATION.md](docs/APPLE_HIG_APPLICATION.md). Apply relevant rules with their IDs, adapt them to semantic web controls and accessibility, preserve approved branding and business behavior, and document justified exceptions. User adoption: 2026-09-29, DEC-098 / WF-092.
-
-
-## Permanent UI and release lessons
-Before any new module or UI change, read [docs/standards/UI_UX_RULEBOOK.md](docs/standards/UI_UX_RULEBOOK.md) (DEC-101 / WF-095), alongside the existing product and brand authorities. Apply its reusable UI-01–UI-12 rules, GSAP lifecycle/reduced-motion contract and change-review checklist. Revalidate dated evidence; do not treat prior test counts as a current pass.
-
-
-## Cloud coordination — user instruction 2026-10-09
-Before new work, fetch and compare current GitHub changes and read relevant accessible Codex cloud chats. Preserve dirty work and reconcile overlapping changes. Distinguish decisions, implementation, tests and live verification. Archive final learnings with source provenance on the user device using its PMS/CLOUD_WORK_SYNC.md procedure when available. Never claim unpushed inaccessible cloud files were backed up. Daily reviews identify improvements; they do not themselves authorize production writes or deployment.
+Runtime: `node --env-file=.env server/index.mjs`. Tests: `node --test tests/*.test.mjs`; review build: `node scripts/build.mjs`. See [deployment](docs/COOLIFY_DEPLOYMENT.md).

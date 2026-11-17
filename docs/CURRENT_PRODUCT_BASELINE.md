@@ -1,5 +1,7 @@
 # Current product baseline
 
+> Historical implementation/release record. Under DEC-170, use PROJECT_RULEBOOK.md for active rules and verify current source/runtime separately. Do not reread this entire file or append every small release here.
+
 > **2026-10-12 publication continuation:** User authorized publication of all pending updates. See [integrated scope and live verification](PUBLICATION_2026-10-12.md). Release/data status is recorded there; earlier candidate and historical release statements remain dated evidence.
 
 > **2026-10-12 local candidate:** Audit repairs under DEC-132 / WF-127 implement the final-BL-before-payment policy, explicit test-data classification, approval/stock correctness and recoverable saves. See [repair coverage and verification](AUDIT_REPAIRS_2026-10-12.md). These local changes are not a new live release and do not publish the pending 3D planner, ERP connector or other deferred modules.

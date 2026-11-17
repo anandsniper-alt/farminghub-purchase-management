@@ -46,7 +46,7 @@ These are lessons from the September 2026 work, not fresh results for a future c
 | Motion interruption must restore styles, not merely kill a tween. | Content stuck faint, translated or scaled after navigation/reduced-motion changes. | GSAP contexts and future animated containers. |
 | Shared UI changes affect many routes, and native-server success does not prove standalone behavior. | Broken review builds and regressions in another module. | Shared components; select representative routes plus affected end-to-end flows. |
 | Running source, deployment source and a local checkout may differ. Verify the exact release and build asset hashes. | Publishing an untested checkout or archiving mismatched recovery source. | Every release; previous commit IDs and test counts are historical. |
-| A downloaded file existing is not proof of a complete recovery backup. Verify size, hashes, archive members and isolated restore. | Truncated or unusable recovery copies. | Every live release, including UI-only changes. |
+| A downloaded file existing is not proof of a complete recovery backup. Verify size, hashes, archive members and isolated restore. | Truncated or unusable recovery copies. | Full-gate releases under DEC-170; verify existing recovery for qualified presentation-only releases. |
 
 ## Required change review record
 
@@ -61,12 +61,8 @@ For each significant change, record in the existing owner documents:
 
 ## Release and recovery rule
 
-Follow [BACKUP_RESTORE_RUNBOOK.md](../BACKUP_RESTORE_RUNBOOK.md) before every live release. Download a fresh consistent production snapshot and package it with matching running application source, recovery instructions and a checksum manifest into a private ZIP. Verify the complete download, archive integrity and isolated candidate startup/restore before release push/deployment. Keep the five newest verified managed ZIPs in the main checkout's ignored backups/releases/; prune only older managed copies after the new archive passes, with checked paths. Failure blocks release.
-
-Deploy the exact tested commit; verify healthy runtime, served assets, affected live screens and read-only data preservation. Reconcile legitimate concurrent changes instead of overwriting them. Demos, credentials, databases, backups and private test artifacts stay out of Git and public output. Keep temporary maintenance credentials private, restrict access, avoid printing their values and remove them after use. Do not turn release snapshots into a claim that scheduled off-site backup is configured.
-
-A documentation-only update needs document/link/scope checks, not a production deployment or a fresh database read. This rulebook does not itself authorize unrelated code changes, infrastructure changes or future publication.
+Use [Recovery and release](../BACKUP_RESTORE_RUNBOOK.md) as the single checklist. DEC-170 replaces the blanket download/restore requirement for documentation and strictly presentation-only changes. Keep all affected UI tests and full recovery for changes with behavior/data/platform impact. Read-only live verification and compatible rollback remain required for publication. Keep detailed release evidence privately, once per release batch.
 
 ## Evidence and ownership
 
-The [HIG review](../HIG_UI_REVIEW.md), [GSAP assessment](../GSAP_MOTION.md) and [2026-09-29 release report](../HIG_RELEASE_REPORT.md) record the implementation that informed these rules. They are not an exhaustive accessibility certification or a capacity guarantee. Future maintainers must update the applicable rulebook, baseline, learnings and append-only DEC/WF records in the same development cycle when an approved rule changes.
+The [HIG review](../HIG_UI_REVIEW.md), [GSAP assessment](../GSAP_MOTION.md) and [2026-09-29 release report](../HIG_RELEASE_REPORT.md) record the implementation that informed these rules. They are not an exhaustive accessibility certification or a capacity guarantee. Update the owning rule when it changes; keep one DEC/WF record where applicable. Do not duplicate a release narrative across historical documents (DEC-170).

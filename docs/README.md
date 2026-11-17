@@ -6,11 +6,12 @@ Reviewed 2026-09-26 against source commit `1297840ecac1dbe26893f086d32fd776383de
 
 ## Read order
 
-1. [Project Rulebook](PROJECT_RULEBOOK.md) and [Brand Rulebook](BRAND_RULEBOOK.md).
-2. [Current state](handover/CURRENT_STATE.md) and [system architecture](architecture/SYSTEM_ARCHITECTURE.md).
-3. Relevant [decisions](DECISION_LOG.md), [workflow history](WORKFLOW_CHANGE_LOG.md), and [learnings](PROJECT_LEARNINGS.md).
-4. Relevant module guide and implementation; check [technical debt](handover/TECHNICAL_DEBT.md) and [scale risks](handover/SCALABILITY_RISKS.md).
-5. For substantial changes, use [engineering standards](standards/ENGINEERING_STANDARDS.md) and the [scale review](architecture/SCALABILITY_ARCHITECTURE.md).
+1. Read the concise [Project Rulebook](PROJECT_RULEBOOK.md).
+2. Search only the affected module contract, relevant decision/workflow entries and actual source.
+3. For UI work, use [UI rules](standards/UI_UX_RULEBOOK.md) and [Brand Rulebook](BRAND_RULEBOOK.md); consult relevant HIG reference IDs.
+4. For release/data work, use [Recovery and release](BACKUP_RESTORE_RUNBOOK.md). For substantial architecture work, consult engineering/scale guidance.
+
+DEC-170 removes mandatory full-history reading and duplicated release narratives. The reference rulebooks, baseline and old release reports remain searchable history; dates and current source must be checked before relying on them.
 
 ## One owner for each kind of knowledge
 
