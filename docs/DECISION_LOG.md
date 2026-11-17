@@ -1409,3 +1409,7 @@ Reuse shared branded tables, controls, focus restoration and audited dialogs (UI
 2026-11-03 local candidate. Power Weeder and Brush Cutter use Category -> Engine -> Grade -> Items -> Barcodes. Engine labels now open the grade aging table; grade labels open all-age item/barcode detail, while age cells retain direct detail navigation. Existing recorded forecast grades, costs, dates, source quantities and allocations are reused without snapshot edits. Missing grades remain Not recorded. All engines clears engine/grade while preserving other filters; division and unit context follow the clicked row. Chaff Cutter remains blade count -> items.
 
 2026-11-03 publication authorised for DEC-168 / WF-163: publish the engine-to-grade drilldown and grade-to-items navigation for Power Weeder and Brush Cutter. Read-only code release; retain all existing snapshots, stock, costs, dates and allocations.
+
+
+## DEC-169 - Material planner segment and supplier filters
+2026-11-17, MODULE-SPECIFIC. Add combinable segment and effective supplier filters to the existing MRP search/type controls, including unassigned supplier and reset. Apply filters after full monthly stock allocation and calculation. Selection counts, visible select-all and PO preparation use the same visible scope; hidden selections remain available when clearing filters but are not added to a filtered PO. Preserve all plans, stock, BOMs, costs and issued snapshots. Reuse UI-03/04/05/06/12 and native labelled controls. No API/schema or permission change. Local and live verification are separate gates.

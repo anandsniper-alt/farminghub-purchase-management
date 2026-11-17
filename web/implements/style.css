@@ -27,3 +27,8 @@
 
 .flag-counts{display:flex;flex-wrap:wrap;gap:6px}.flag-counts a.flag-badge{display:inline-flex;align-items:center;min-height:32px;padding:5px 9px;white-space:normal;text-decoration:none;border:1px solid transparent}.badge.flag-serious{background:#fbe9e7;color:#873a35}.badge.flag-mild{background:#fff3df;color:#785016}.flag-counts a.flag-badge:hover{border-color:currentColor;text-decoration:underline}.model-card .card-foot{flex-wrap:wrap}.flag-summary>a{display:flex;align-items:center;justify-content:space-between;font-size:12px;text-decoration:none}.flag-summary .flag-counts{margin:10px 0}.flag-summary .flag-counts a{font-size:12px}.flag-summary small{display:block}.flag-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}.flag-filters [aria-current=page]{background:var(--green);border-color:var(--green);color:white}
 @media(max-width:700px){.flag-counts a.flag-badge{min-height:44px}.flag-filters .button{min-height:44px}.model-card .card-foot .flag-counts{width:100%}}
+
+/* MRP filters share the existing responsive form controls. */
+.mrp-filters{flex-wrap:wrap;align-items:end}.mrp-filters label{min-width:150px}.mrp-filters .search{flex:1 1 260px}.mrp-filters select{width:100%}#selection-count{overflow-wrap:anywhere}
+@media(max-width:760px){.mrp-filters label{min-width:0;width:100%}.mrp-filters .search{flex-basis:auto}}
+.mrp-filters input,.mrp-filters select{min-height:44px}

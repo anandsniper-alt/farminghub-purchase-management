@@ -848,3 +848,7 @@ GLOBAL UI: keep drawer width independent of the legacy sidebar layout-width vari
 
 ### Costing dashboard coverage and disclosure scope
 2026-11-02, module-specific. Category/item dashboards must retain full code and unit identity, isolate unmapped rows, and distinguish zero from absent prices. Component averages reconcile only when they use the same revised-priced quantity. Preserve expanded detail during barcode pagination and keep a positioned table scroll wrapper so off-screen accessible header labels do not widen mobile pages. Test auth/API projections, clean review bundling, filter/back navigation and exact metric order independently of data imports.
+
+
+### Material planner filtering and PO scope
+2026-11-17. Filter a fully calculated MRP report, never its plan or stock inputs. Use effective row supplier after purchase overrides. Keep visible selection counts, select-all and PO preparation consistent so hidden preselected items do not enter a filtered supplier order. Preserve selection across filter changes and make the scope explicit.

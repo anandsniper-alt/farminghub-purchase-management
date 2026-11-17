@@ -4,6 +4,11 @@ import {visualFor} from './part-icons.mjs';
 // These pure rules can later be called from the production shared-domain dispatcher.
 export const normalizeCode=v=>String(v??'').trim().toUpperCase().replace(/^IMP[\s-]*0*(\d+)$/,'IMP-$1');
 export const clone=v=>structuredClone(v);
+// Display-only MRP scope. Filter the calculated report, never the source plan or stock.
+export function filterMrpRows(rows,{search='',type='',segment='',supplier='',purchaseOnly=false}={}){
+ const q=search.trim().toLowerCase();
+ return rows.filter(r=>(!purchaseOnly||r.orderQty>0)&&(!type||r.fabricated===(type==='fab'))&&(!segment||(r.category||'__unassigned__')===segment)&&(!supplier||(r.supplier||'__unassigned__')===supplier)&&(!q||`${r.code} ${r.name} ${(r.models||[]).map(m=>m.model).join(' ')}`.toLowerCase().includes(q)));
+}
 export const round=(v,d=3)=>Math.round((v+Number.EPSILON)*10**d)/10**d;
 export const quantityUnit=part=>['kg','ltr'].includes(part?.uom)?part.uom:'pcs';
 export function quantity(value,label,part,options={}){

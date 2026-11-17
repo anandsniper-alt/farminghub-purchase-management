@@ -1301,3 +1301,7 @@ User approved this supplier cleanup for live on 2026-10-17. Full local regressio
 Select Power Weeder or Brush Cutter, click an engine, then compare grade totals by age. Click a grade for item summary and barcode records, or an age value for that grade/band. All engines returns to engine groups; All product categories returns to category groups. Value, quantity, sorting and division filters remain available. Local demo only; no live publication in this change.
 
 2026-11-03 publication authorised for DEC-168 / WF-163: publish the engine-to-grade drilldown and grade-to-items navigation for Power Weeder and Brush Cutter. Read-only code release; retain all existing snapshots, stock, costs, dates and allocations.
+
+
+## WF-164 - Filter material requirements (DEC-169)
+2026-11-17. Material planner -> select Segment and/or Supplier -> inspect matching demand, allocated stock, buffer and extras -> select purchase items in view -> Prepare supplier POs. Search, component type and purchase-only scope combine with both filters; Reset filters clears local controls. Empty results explain recovery. Filtering is display-only and never changes source plans, stock or costs.
