@@ -54,7 +54,7 @@ export function createNavigation(host){
  const masters=[['vendors','Vendor master','users'],['items','Item master','orders'],['prices','Supplier price lists','money'],['plm','Product Lifecycle (PLM)','box']];
  const activeView=()=>ctx().ui.view==='payment-planner'?'payments':ctx().ui.view==='order'?'orders':ctx().ui.view==='product'?'plm':ctx().ui.view;
  const area=()=>!canAccessView()?'home':ctx().ui.view==='lae-sales-analytics'?'analytics':['bom-management','production-stock'].includes(ctx().ui.view)?'production':ctx().ui.view==='vms'?'vms':ctx().ui.view==='implements'||ctx().ui.view==='domestic'||ctx().ui.view==='order-management'||[...work,...masters].some(([id])=>id===activeView())?'orders':'home';
- const allowedScope=scope=>scopeAllowed(ctx().user,scope);
+ const allowedScope=scope=>(globalThis.window?.FH_APP_MODE!=='implements'||['IMPLEMENTS_DOMESTIC','BOM_MANAGEMENT','PRODUCTION_MANAGEMENT','IMPLEMENTS_PLANNING'].includes(scope))&&scopeAllowed(ctx().user,scope);
  const laeImportAllowed=()=>allowedScope('LAE_IMPORT');
  const laeDomesticAllowed=()=>allowedScope('LAE_DOMESTIC');
  const laeAllowed=()=>laeImportAllowed()||laeDomesticAllowed();

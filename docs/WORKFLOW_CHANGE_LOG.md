@@ -1309,3 +1309,8 @@ Select Power Weeder or Brush Cutter, click an engine, then compare grade totals 
 
 ## WF-165 - Scoped reading and one release gate (DEC-170)
 2026-11-17. Inspect current checkout/remote -> read concise active rules -> consult affected module/source -> classify full change -> implement and run focused checks -> required exact-candidate CI -> class-appropriate recovery -> authorized deployment -> read-only live verification -> one private evidence/archive batch. Documentation stops after consistency/link/scope checks. No changes to staff approvals, BOM, stock, purchasing or production workflows.
+
+
+## WF-166 — Implements application cutover
+
+2026-11-17. Move purchasing, BOM & Syntax, production/stores and external monthly planning together. Staff use the original application until the explicit write freeze, then sign in at the new hostname with existing credentials after verification. Old links redirect; stale saves fail without overwriting either database. Existing approval, costing, material issue and stock workflows remain authoritative. See [separation contract](IMPLEMENTS_SEPARATION.md).

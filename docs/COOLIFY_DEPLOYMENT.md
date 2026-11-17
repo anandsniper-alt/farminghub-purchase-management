@@ -36,3 +36,8 @@ No deployment is needed for a documentation-only change or a data update applied
 ## Historical evidence
 
 Earlier deployments and their dated test results are in [release history](COOLIFY_RELEASE_HISTORY.md). Do not append the same release report here, in the recovery procedure and in every rulebook. Keep detailed new receipts privately and record an applicable decision/handover once.
+
+
+## Separate Implements deployment
+
+See [Independent Implements application](IMPLEMENTS_SEPARATION.md) for the separate hostname, exclusive volume, runtime mode and guarded database cutover. Purchase and Implements are independently deployed applications; an additional DNS name alone is not the separation.
