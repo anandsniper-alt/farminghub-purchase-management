@@ -5,6 +5,7 @@ from openpyxl.styles import Font,PatternFill,Alignment
 from openpyxl.utils import get_column_letter
 from openpyxl.drawing.image import Image
 from PIL import Image as PILImage
+from export_style import format_workbook
 po=json.load(sys.stdin);wb=Workbook();ws=wb.active;ws.title='Purchase Order'
 rows=[['FARMING HUB - PURCHASE ORDER',po['id']],['Status',po.get('lifecycleStatus','DRAFT').replace('_',' ')],['Date',po['date']],['Supplier',po['supplier']['name']],['Supplier address',po['supplier'].get('address','')],['Buyer',po['buyer'].get('buyer','')],['Buyer address',po['buyer'].get('address','')],['Delivery',po.get('currentDelivery') or po.get('delivery','')],['Planning month',po.get('planningMonth','')],[],['Item code','Component','MRP pcs','Buffer pcs','Extras pcs','Order pcs','Weight kg','Rate INR','Basis','Amount INR']]
 mixed=any(line.get('uom') in ('kg','ltr') for line in po['lines'])
@@ -78,4 +79,8 @@ if priced_transport:
  for c in basis[1]:c.fill=PatternFill('solid',fgColor='204321');c.font=Font(color='FFFFFF',bold=True)
  for row in basis.iter_rows(min_row=2,min_col=2):
   for c in row:c.number_format='#,##0.###' if c.column==6 else '#,##0.00'
+# Keep metadata and notes in two readable, boxed columns above/below the item grid.
+for rownum in list(range(1,10))+list(range(13+len(po['lines']),ws.max_row+1)):
+ ws.merge_cells(start_row=rownum,start_column=2,end_row=rownum,end_column=photo_col)
+format_workbook(wb,{'Purchase Order':(1,11)})
 out=io.BytesIO();wb.save(out);sys.stdout.buffer.write(out.getvalue())

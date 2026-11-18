@@ -6,6 +6,7 @@ from openpyxl.drawing.image import Image
 from openpyxl.worksheet.table import Table,TableStyleInfo
 from openpyxl.utils import get_column_letter
 from PIL import Image as PILImage
+from export_style import format_workbook
 
 def export(data):
     wb=Workbook();ws=wb.active;ws.title='Item Master'
@@ -32,6 +33,7 @@ def export(data):
     table=Table(displayName='ItemMaster',ref=f'A1:K{len(data["rows"])+1}');table.tableStyleInfo=TableStyleInfo(name='TableStyleMedium4',showRowStripes=True);ws.add_table(table)
     ws.print_title_rows='1:1';ws.sheet_properties.pageSetUpPr.fitToPage=True;ws.page_setup.orientation='landscape';ws.page_setup.paperSize=ws.PAPERSIZE_A3;ws.page_setup.fitToWidth=1;ws.page_setup.fitToHeight=0
     notes=wb.create_sheet('Read me');notes.append(['Rotavator Item Master']);notes.append(['Downloaded from Farming Hub Implements purchase.']);notes.append(['Excel edits do not sync back. Use Item Master > Edit item to update the site.']);notes.append(['Photos are references. Confirm item codes, dimensions and grades for purchasing.']);notes.append(['Fabrication children are a component schedule; order the model subassembly through MRP.']);notes.append(['Missing Tally codes stay blank. PPM and weights remain in model BOMs.']);notes.column_dimensions['A'].width=110
+    format_workbook(wb)
     out=io.BytesIO();wb.save(out);return out.getvalue()
 
 try:sys.stdout.buffer.write(export(json.load(sys.stdin)))

@@ -1,5 +1,7 @@
 # Implements suppliers and product identification
 
+For current download layout and Excel/CSV choices, see [Implements exports](IMPLEMENTS_EXPORTS.md).
+
 DEC-113 / WF-107, 2026-10-06. Module-specific extension of Implements purchasing and cost-free technical checking. Implemented and locally verified; live publication needs deployment access and final verification.
 
 ## Supplier workflow

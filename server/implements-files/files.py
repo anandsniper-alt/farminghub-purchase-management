@@ -79,9 +79,12 @@ def pdf(po):
     from reportlab.lib.styles import getSampleStyleSheet,ParagraphStyle
     from reportlab.lib import colors
     from reportlab.lib.pagesizes import A4,landscape
-    from reportlab.lib.enums import TA_RIGHT
+    from reportlab.lib.enums import TA_CENTER
     out=io.BytesIO();styles=getSampleStyleSheet()
-    styles.add(ParagraphStyle(name='SmallCell',fontName='Helvetica',fontSize=8,leading=11,textColor=colors.HexColor('#203a25')))
+    styles.add(ParagraphStyle(name='SmallCell',fontName='Helvetica',fontSize=8,leading=11,alignment=TA_CENTER,textColor=colors.HexColor('#203a25')))
+    styles['Heading2'].alignment=TA_CENTER
+    styles['Heading3'].alignment=TA_CENTER
+    styles['Heading3'].keepWithNext=True
     styles.add(ParagraphStyle(name='WhiteCell',parent=styles['SmallCell'],textColor=colors.white,fontName='Helvetica-Bold'))
     styles.add(ParagraphStyle(name='SmallNote',parent=styles['SmallCell'],fontSize=9,leading=13))
     def p(v,style='SmallCell'):return Paragraph(escape(str(v or '')).replace('\n','<br/>'),styles[style])
@@ -98,12 +101,17 @@ def pdf(po):
     from PIL import Image as PillowImage
     with PillowImage.open(logo) as dimensions:iw,ih=dimensions.size
     image=Image(str(logo),width=126,height=126*ih/iw)
-    heading=Table([[image,p('PURCHASE ORDER\n'+po['id'],'Heading2')]],colWidths=[500,278]);heading.setStyle(TableStyle([('VALIGN',(0,0),(-1,-1),'TOP')]))
+    grid=[('GRID',(0,0),(-1,-1),0.5,colors.HexColor('#a8baa4')),('ALIGN',(0,0),(-1,-1),'CENTER'),('VALIGN',(0,0),(-1,-1),'MIDDLE')]
+    heading=Table([[image,p('PURCHASE ORDER\n'+po['id'],'Heading2')]],colWidths=[doc.width/2]*2)
+    heading.setStyle(TableStyle(grid+[('TOPPADDING',(0,0),(-1,-1),12),('BOTTOMPADDING',(0,0),(-1,-1),12)]))
     story=[heading,Spacer(1,12),p('PO status: '+po.get('lifecycleStatus','DRAFT').replace('_',' '),'SmallNote'),Spacer(1,12)]
     supplier=po['supplier'];buyer=po['buyer']
-    info=Table([[p('SUPPLIER\n'+supplier['name']+'\n'+supplier.get('address','')+'\nGSTIN: '+(supplier.get('gstin') or 'Pending')+'\n'+supplier.get('phone','')),p('BUYER\n'+buyer.get('buyer','')+'\n'+buyer.get('address','')+'\nGSTIN: '+(buyer.get('gstin') or 'Pending')),p('PO date: '+po['date']+'\nDelivery: '+(po.get('currentDelivery') or po.get('delivery') or 'To be agreed')+'\nPlan month: '+(po.get('planningMonth') or 'Not assigned')+'\nStock date: '+(po.get('stockAsOf') or 'Not supplied'))]],colWidths=[300,290,188])
+    info=Table([[p('SUPPLIER\n'+supplier['name']+'\n'+supplier.get('address','')+'\nGSTIN: '+(supplier.get('gstin') or 'Pending')+'\n'+supplier.get('phone','')),p('BUYER\n'+buyer.get('buyer','')+'\n'+buyer.get('address','')+'\nGSTIN: '+(buyer.get('gstin') or 'Pending')),p('PO date: '+po['date']+'\nDelivery: '+(po.get('currentDelivery') or po.get('delivery') or 'To be agreed')+'\nPlan month: '+(po.get('planningMonth') or 'Not assigned')+'\nStock date: '+(po.get('stockAsOf') or 'Not supplied'))]],colWidths=[doc.width*.38,doc.width*.38,doc.width*.24])
     info.setStyle(TableStyle([('VALIGN',(0,0),(-1,-1),'TOP'),('BACKGROUND',(0,0),(-1,-1),colors.HexColor('#f2f5dd')),('TOPPADDING',(0,0),(-1,-1),10),('BOTTOMPADDING',(0,0),(-1,-1),10)]));story.extend([info,Spacer(1,16)])
+    info.setStyle(TableStyle(grid))
     priced=not po['quantityOnly']
+    widths=[278,53,53,53,58,68,75,45,95] if priced else [393,70,70,70,80,95]
+    widths=[w*doc.width/sum(widths) for w in widths]
     mixed=any(l.get('uom') in ('ltr','kg') for l in po['lines'])
     heads=['Item code / component','MRP\nqty' if mixed else 'MRP\npcs','Buffer\nqty' if mixed else 'Buffer\npcs','Extras\nqty' if mixed else 'Extras\npcs','Order\nqty' if mixed else 'Order\npcs','Weight\nkg']+(['Rate INR','Basis','Amount INR'] if priced else [])
     rows=[[p(h,'WhiteCell') for h in heads]]
@@ -112,15 +120,14 @@ def pdf(po):
         if l.get('fabricated'):label+='\nFabrication subassembly (one pc per machine)'
         if mixed:label+='\nQuantity unit: '+l.get('uom','pcs')
         if l.get('transportInCost') and priced:label+='\nBase INR '+money(l.get('purchaseBaseRate'))+' + '+n(l.get('purchaseTransportPercent'))+'% transport (included in rate)'
-        product=Table([[product_image(l),p(label)]],colWidths=[56,178 if priced else 300]);product.setStyle(TableStyle([('VALIGN',(0,0),(-1,-1),'TOP'),('LEFTPADDING',(0,0),(-1,-1),0),('RIGHTPADDING',(0,0),(-1,-1),3)]))
+        product=Table([[product_image(l),p(label)]],colWidths=[58,widths[0]-70])
+        product.setStyle(TableStyle([('VALIGN',(0,0),(-1,-1),'MIDDLE'),('ALIGN',(0,0),(-1,-1),'CENTER'),('LEFTPADDING',(0,0),(-1,-1),0),('RIGHTPADDING',(0,0),(-1,-1),3)]))
         line=[product,n(l['mrp']),n(l['buffer']),n(l['extras']),n(l['orderQty']),n(l.get('weight')) if l.get('weight') is not None else ('Pending' if l.get('fabricated') else '-')]
         if priced:line += [money(l['rate']),l['rateUnit'],money(l['amount'])]
         rows.append(line)
-    widths=[278,53,53,53,58,68,75,45,95] if priced else [393,70,70,70,80,95]
-    # Fit the writable page width exactly for both document types.
-    scale=778/sum(widths);widths=[w*scale for w in widths]
-    table=Table(rows,colWidths=widths,repeatRows=1,hAlign='LEFT')
+    table=Table(rows,colWidths=widths,repeatRows=1,hAlign='CENTER')
     table.setStyle(TableStyle([('BACKGROUND',(0,0),(-1,0),colors.HexColor('#204321')),('ROWBACKGROUNDS',(0,1),(-1,-1),[colors.white,colors.HexColor('#f7f8f1')]),('FONTNAME',(0,1),(-1,-1),'Helvetica'),('FONTSIZE',(0,1),(-1,-1),8),('ALIGN',(1,1),(-1,-1),'RIGHT'),('VALIGN',(0,0),(-1,-1),'TOP'),('TOPPADDING',(0,0),(-1,-1),8),('BOTTOMPADDING',(0,0),(-1,-1),8),('LINEBELOW',(0,0),(-1,0),0.7,colors.HexColor('#204321'))]))
+    table.setStyle(TableStyle(grid))
     story.extend([table,Spacer(1,12),p(('Total before GST: INR '+money(po['total'])) if priced else 'Quantity-only PO. Rates, taxes and commercial totals are to be agreed.','SmallNote'),Spacer(1,8),p('MRP = combined model demand minus available stock, minimum zero. Buffer is shown separately; extras are manual additions. Missing stock is treated as zero until stock is supplied.','SmallNote')])
     if po.get('stockAllocation'):story.extend([Spacer(1,8),p('Stock allocation: '+po['stockAllocation'],'SmallNote')])
     if supplier.get('terms'):story.extend([Spacer(1,8),p('Payment terms: '+supplier['terms'],'SmallNote')])
@@ -130,8 +137,9 @@ def pdf(po):
         story.extend([Spacer(1,18),p(l['name']+' - component schedule','Heading3')])
         children=[[p('Code / drawing','WhiteCell'),p('Fabricated component','WhiteCell'),p('kg / machine','WhiteCell'),p('Order weight kg','WhiteCell')]]
         for c in l.get('children',[]):children.append([p(c.get('code') or c.get('drawingCode') or 'Pending'),[product_image(c),p(c['name']+'\nSupplier part code: '+(c.get('supplierPartCode') or 'Pending'))],n(c.get('weight')) if c.get('weight') is not None else 'Pending',n(c['weight']*l['orderQty']) if c.get('weight') is not None else 'Pending'])
-        t=Table(children,colWidths=[90,460,110,118],repeatRows=1)
+        t=Table(children,colWidths=[doc.width*w/778 for w in [90,460,110,118]],repeatRows=1,hAlign='CENTER')
         t.setStyle(TableStyle([('BACKGROUND',(0,0),(-1,0),colors.HexColor('#204321')),('ROWBACKGROUNDS',(0,1),(-1,-1),[colors.white,colors.HexColor('#f7f8f1')]),('FONTSIZE',(0,1),(-1,-1),8),('VALIGN',(0,0),(-1,-1),'TOP'),('TOPPADDING',(0,0),(-1,-1),6),('BOTTOMPADDING',(0,0),(-1,-1),6)]));story.append(t)
+        t.setStyle(TableStyle(grid))
     def footer(canvas,document):
         canvas.saveState()
         canvas.setFillColor(colors.HexColor('#203e32'))

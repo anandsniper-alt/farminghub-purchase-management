@@ -4,6 +4,7 @@ from openpyxl import Workbook
 from openpyxl.styles import Font,PatternFill,Alignment
 from openpyxl.worksheet.table import Table,TableStyleInfo
 from openpyxl.utils import get_column_letter
+from export_style import format_workbook
 
 def sheet(wb,title,headers,rows,widths,money_columns=()):
     ws=wb.create_sheet(title);ws.append(headers)
@@ -36,6 +37,7 @@ def export(data):
     sheet(wb,'Cost detail',['Model','Segment','Tally code','Component / charge','Type','PPM / qty','kg per machine','Rate INR','Rate unit','Cost per machine INR','Status','Fabrication base INR/kg','Fabrication transport INR/kg'],detail,[18,30,22,65,26,15,20,20,16,26,40,25,28],(8,10,12,13))
     notes=wb.create_sheet('Read me');notes.column_dimensions['A'].width=115
     for text in ['Current cost per machine: calculated BOM parts plus fabricated subassembly plus other charges. INR before GST.','Model costs shows the whole model. Segment totals and Cost detail follow the exported row filters when used.','Current totals include calculated lines only. Missing values are excluded, not assumed to be zero. The separate Complete cost stays blank until all inputs are entered.','BOM amount = quantity per machine x price per item unit (pcs, ltr or kg). Fabrication = combined kg per machine x (base price per kg + transport per kg), once.','A set-of-two combined weight is not multiplied by PPM again. Source discrepancies remain in the flags register.','PTO shaft, warning and series brand sticker sets, and common name plate are physical BOM items. Coating, assembly, rack stand and buffer cost are charges.','Stock, purchase buffers and extras do not alter this per-machine cost. No profit margin or tax is added.','These are calculated values at download time. Use the website to change inputs and recalculate; workbook edits do not sync.']:notes.append([text])
+    format_workbook(wb)
     out=io.BytesIO();wb.save(out);return out.getvalue()
 
 try:sys.stdout.buffer.write(export(json.load(sys.stdin)))
