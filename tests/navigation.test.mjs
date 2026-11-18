@@ -5,6 +5,27 @@ import {renderModuleShell,moduleDestination,implementsSections} from '../web/imp
 const esc=s=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('"','&quot;');
 const icon=()=>'<svg></svg>';
 const host=ui=>({context:()=>({ui,user:{role:'ADMIN'}}),head:()=>'',button:()=>'',esc,icon,logo:'/logo.png',vmsNavigation:()=>'<div>Vendor sections</div>'});
+
+test('separate Purchase home and menus omit Implements while old division bookmarks point to the new site',()=>{
+ const original=globalThis.window;
+ try{
+  globalThis.window={FH_APP_MODE:'purchase'};
+  const nav=createNavigation(host({view:'home'}));
+  for(const markup of [nav.home(),nav.sidebar()]){
+   assert.doesNotMatch(markup,/Implements Division|Rotavator purchasing|BOM &amp; Syntax|Monthly plan entry/);
+   assert.match(markup,/LAE Division/);
+   assert.match(markup,/Price list workings/);
+  }
+  assert.match(nav.divisionHub('implements'),/href="https:\/\/implements\.dvjassociates\.com\/"/);
+  assert.doesNotMatch(nav.divisionHub('implements'),/href="\/(implements|bom|production|planning)\//);
+  assert.match(nav.divisionHub('lae'),/Order Management/);
+  globalThis.window={FH_APP_MODE:'implements'};
+  const separate=createNavigation(host({view:'home'}));
+  assert.match(separate.sidebar(),/Implements Division/);
+  assert.doesNotMatch(separate.sidebar(),/LAE Division|Utility price/);
+  assert.match(separate.divisionHub('implements'),/href="\/bom\/"/);
+ }finally{if(original===undefined)delete globalThis.window;else globalThis.window=original;}
+});
 test('Implements sections stay local while global navigation leaves the module',()=>{
  for(const [id] of implementsSections){assert.equal(moduleDestination('implements/'+id),'#/'+id);}
  for(const route of ['home','settings','versions','order-management','vms'])assert.equal(moduleDestination(route),'/#/'+route);
