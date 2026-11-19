@@ -63,10 +63,14 @@ function calculatePlan(state){
   const grossDemand=r.demand,productionIssued=Math.min(grossDemand,state.productionPickCredits?.[r.key]||0);r.demand=round(grossDemand-productionIssued,3);
   const stockEntry=state.stock[r.key],stock=stockEntry?.qty??0,stockKnown=stockEntry!=null;
   const mrp=round(Math.max(0,r.demand-stock),3),adjust=state.adjustments[r.key]||{},percent=number(adjust.bufferPercent??state.settings.bufferPercent,'Buffer %',{max:1000});
-  const scale=quantityUnit(r)==='pcs'?1:1000,buffer=Math.ceil(round(mrp*percent/100*scale,8))/scale,extras=quantity(adjust.extras??0,'Extras',r),orderQty=round(mrp+buffer+extras,3);
+  const manualOrder=adjust.orderQty!=null,scale=quantityUnit(r)==='pcs'?1:1000;
+  const extras=manualOrder?0:quantity(adjust.extras??0,'Extras',r);
+  const orderQty=manualOrder?quantity(adjust.orderQty,'Order quantity',r):round(mrp+Math.ceil(round(mrp*percent/100*scale,8))/scale+extras,3);
+  const buffer=manualOrder?round(Math.max(0,orderQty-mrp),3):Math.ceil(round(mrp*percent/100*scale,8))/scale;
+  const shortage=round(Math.max(0,mrp-orderQty),3);
   const weight=r.fabricated&&r.weightPerPiece!=null?round(orderQty*r.weightPerPiece,6):null;
   const amount=r.rate==null||(r.fabricated&&weight==null)?null:Math.round((r.fabricated?weight:orderQty)*r.rate*100)/100;
-  return {...r,...(productionIssued?{grossDemand,productionIssued}:{}),stock,stockKnown,mrp,bufferPercent:percent,buffer,extras,orderQty,weight,amount,supplier:adjust.supplier??r.supplier};
+  return {...r,...(productionIssued?{grossDemand,productionIssued}:{}),...(manualOrder?{manualOrder:true,shortage}:{}),stock,stockKnown,mrp,bufferPercent:percent,buffer,extras,orderQty,weight,amount,supplier:adjust.supplier??r.supplier};
  }).sort((a,b)=>a.fabricated-b.fabricated||a.code.localeCompare(b.code,undefined,{numeric:true})||a.name.localeCompare(b.name));
  return {rows,issues,machines:Object.values(state.plan).reduce((a,n)=>a+Number(n||0),0)};
 }
@@ -192,7 +196,7 @@ export function createOrders(state,selectedKeys,{date,delivery='',notes='',quant
 export function validateOrder(po){
  if(!po?.id||!Array.isArray(po.lines)||!po.lines.length||po.lines.length>1000||!po.supplier?.name||!po.buyer||typeof po.quantityOnly!=='boolean')throw Error('Invalid saved purchase order.');
  validDate(po.date,'PO date');if(po.delivery){validDate(po.delivery,'Delivery date');if(po.delivery<po.date)throw Error('Delivery date cannot be before the PO date.');}
- for(const l of po.lines){validateProductImage(l.image);if(l.supplierPartCode!==undefined)supplierText(l.supplierPartCode,'PO supplier part code',120);for(const c of l.children||[]){validateProductImage(c.image);if(c.supplierPartCode!==undefined)supplierText(c.supplierPartCode,'PO supplier part code',120);}for(const key of ['mrp','buffer','extras','orderQty'])quantity(l[key],'PO '+key,l);if(round(l.mrp+l.buffer+l.extras,3)!==l.orderQty)throw Error('Purchase order quantities do not reconcile.');if(!po.quantityOnly){number(l.rate,'PO rate');number(l.amount,'PO amount');const basis=l.fabricated?number(l.weight,'PO weight'):l.orderQty;if(Math.abs(round(basis*l.rate,2)-l.amount)>.011)throw Error('Purchase order amount does not reconcile.');}}
+ for(const l of po.lines){validateProductImage(l.image);if(l.supplierPartCode!==undefined)supplierText(l.supplierPartCode,'PO supplier part code',120);for(const c of l.children||[]){validateProductImage(c.image);if(c.supplierPartCode!==undefined)supplierText(c.supplierPartCode,'PO supplier part code',120);}for(const key of ['mrp','buffer','extras','orderQty'])quantity(l[key],'PO '+key,l);if(l.shortage!=null)quantity(l.shortage,'PO shortage',l);if(l.manualOrder!==undefined&&typeof l.manualOrder!=='boolean')throw Error('Invalid manual order flag.');if((l.shortage||0)>0&&!l.manualOrder)throw Error('Shortage requires a manual order quantity.');if(l.manualOrder&&(l.extras!==0||l.buffer!==round(Math.max(0,l.orderQty-l.mrp),3)||(l.shortage||0)!==round(Math.max(0,l.mrp-l.orderQty),3)))throw Error('Manual order difference does not reconcile.');if(round(l.mrp+l.buffer+l.extras-(l.shortage||0),3)!==l.orderQty)throw Error('Purchase order quantities do not reconcile.');if(!po.quantityOnly){number(l.rate,'PO rate');number(l.amount,'PO amount');const basis=l.fabricated?number(l.weight,'PO weight'):l.orderQty;if(Math.abs(round(basis*l.rate,2)-l.amount)>.011)throw Error('Purchase order amount does not reconcile.');}}
  if(!po.quantityOnly){number(po.total,'PO total');if(Math.abs(round(po.lines.reduce((a,l)=>a+l.amount,0),2)-po.total)>.011)throw Error('Purchase order total does not reconcile.');}return po;
 }
 export function validateState(s){
@@ -205,7 +209,7 @@ export function validateState(s){
  number(s.revision,'Workspace revision',{integer:true});if(!Array.isArray(s.audit))throw Error('Workspace audit history is missing.');
  const stockKeys=new Set([...s.parts.filter(p=>!p.fabricated).map(p=>p.id),...s.models.map(m=>'fab:'+m.id)]),suppliers=new Set(s.suppliers.map(x=>x.id));
  for(const key of Object.keys(s.stock))if(!stockKeys.has(key))throw Error('Unknown stock item '+key);
- const adjustments=values=>{for(const [key,r] of Object.entries(values)){if(!stockKeys.has(key))throw Error('Unknown purchase adjustment item.');if(r.extras!=null)quantity(r.extras,'Extras',s.parts.find(p=>p.id===key));if(r.bufferPercent!=null)number(r.bufferPercent,'Buffer %',{max:1000});if(r.supplier&&!suppliers.has(r.supplier))throw Error('Unknown adjustment supplier.');}};
+ const adjustments=values=>{for(const [key,r] of Object.entries(values)){if(!stockKeys.has(key))throw Error('Unknown purchase adjustment item.');if(r.extras!=null)quantity(r.extras,'Extras',s.parts.find(p=>p.id===key));if(r.orderQty!=null)quantity(r.orderQty,'Order quantity',s.parts.find(p=>p.id===key));if(r.bufferPercent!=null)number(r.bufferPercent,'Buffer %',{max:1000});if(r.supplier&&!suppliers.has(r.supplier))throw Error('Unknown adjustment supplier.');}};
  adjustments(s.adjustments);for(const values of Object.values(s.monthlyAdjustments||{}))adjustments(values);
  if(new Set(s.orders.map(o=>o.id)).size!==s.orders.length)throw Error('Duplicate purchase order identity.');for(const po of s.orders)validateOrder(po);
  number(s.settings.bufferPercent,'Buffer %',{max:1000});fabricationPrice(s.settings);

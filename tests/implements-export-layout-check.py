@@ -34,22 +34,23 @@ def workbook(raw):
 line={'code':'IMP-28','name':'PIPE CLAMP 76MM BOTTOM S.GI','supplierPartCode':'000123','mrp':72,'buffer':8,'extras':0,'orderQty':80,'uom':'pcs','weight':None,'rate':12.5,'rateUnit':'pc','amount':1000,'imageData':photo,'transportInCost':True,'purchaseBaseRate':12,'purchaseTransportPercent':4.16666667,'purchaseTransportAmount':.5}
 po={'id':'TEST-PO-0016','date':'2026-11-18','supplier':{'name':'Test supplier','address':'First address line\nSecond address line'},'buyer':{'buyer':'Farming Hub','address':'Test address'},'quantityOnly':False,'total':1000,'lines':[line],'notes':'Keep original values, quantities and source identity.','stockAllocation':'Earliest month first'}
 wb=workbook(export('export-po.py',po,'po-priced.xlsx'))
-ws=wb['Purchase Order'];assert ws['C12'].value==72 and ws['F12'].value==80 and ws['J12'].value==1000
-assert ws['K12'].value=='000123' and ws['B14'].value==1000 and ws['B15'].value==po['notes']
-assert ws.print_title_rows=='$11:$11'
+ws=wb['Purchase Order'];assert ws['E11'].value==80 and ws['C11'].value=='000123'
+assert ws['B13'].value==po['notes'] and ws.max_column==6
+assert [c.value for c in ws[10]]==['Item code','Component','Supplier part code','Unit','Total PO quantity','Product image']
+assert wb.sheetnames==['Purchase Order'] and ws.print_title_rows=='$10:$10'
 pdf=PdfReader(io.BytesIO(export('files.py',po,'po-priced.pdf',['pdf'])));text='\n'.join(p.extract_text() for p in pdf.pages)
 assert '1,000.00' in text and '000123' in text and 'TEST-PO-0016' in text
 
 po['quantityOnly']=True
-wb=workbook(export('export-po.py',po,'po-quantity.xlsx'));assert wb['Purchase Order']['H12'].value is None and wb['Purchase Order']['J12'].value is None
+wb=workbook(export('export-po.py',po,'po-quantity.xlsx'));assert wb['Purchase Order']['E11'].value==80 and wb['Purchase Order'].max_column==6
 text='\n'.join(p.extract_text() for p in PdfReader(io.BytesIO(export('files.py',po,'po-quantity.pdf',['pdf']))).pages)
 assert '1,000.00' not in text and 'Rate INR' not in text and 'Quantity-only PO' in text
 
 po['quantityOnly']=False
 po['lines']=[{**line,'code':f'IMP-{i+1}','name':f'Component {i+1}: long product identification and supplier specification, grade and size retained','uom':'ltr' if i==0 else 'pcs','orderQty':1.25 if i==0 else 80} for i in range(35)]
 po['lines'].append({**line,'name':'Fabrication subassembly','fabricated':True,'weight':25,'children':[{'code':'FP-1','name':'Combined component set','weight':2.77,'supplierPartCode':'FP01','imageData':photo},{'code':'FP-2','name':'Weight not supplied','weight':None}]})
-wb=workbook(export('export-po.py',po,'po-long.xlsx'));assert wb['Purchase Order']['C12'].value=='ltr' and wb['Purchase Order']['G12'].value==1.25
-assert wb['Fabrication']['D2'].value==2.77 and wb['Fabrication']['F2'].value==2.77*80 and wb['Fabrication']['F3'].value is None
+wb=workbook(export('export-po.py',po,'po-long.xlsx'));assert wb['Purchase Order']['D11'].value=='ltr' and wb['Purchase Order']['E11'].value==1.25
+assert wb['Fabrication']['E2'].value=='kg' and wb['Fabrication']['F2'].value==round(2.77*80,6) and wb['Fabrication']['F3'].value is None
 pages=PdfReader(io.BytesIO(export('files.py',po,'po-long.pdf',['pdf']))).pages
 assert len(pages)>2
 text='\n'.join(p.extract_text() for p in pages)

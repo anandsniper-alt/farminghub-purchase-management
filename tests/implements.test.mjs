@@ -23,6 +23,14 @@ async function setup(){
  return {base,dir,store,mod,call,login,close:async()=>{await new Promise(r=>server.close(r));store.close();rmSync(dir,{recursive:true,force:true});}};
 }
 const payload=(state,message='Reviewed update')=>({state,expectedRevision:state.revision,requestId:randomUUID(),message});
+test('server persists manual purchase quantities and verifies shortage snapshots against MRP',async()=>{
+ const f=await setup();try{
+  let s=f.mod.save(payload(fixture()),'admin');s.plan={'S2.V58':10};s.monthlyPlans[s.activeMonth]=s.plan;s.stock={'IMP-1':{qty:8}};s.adjustments={'IMP-1':{orderQty:20}};s.monthlyAdjustments[s.activeMonth]=s.adjustments;
+  s.orders=createOrders(s,['IMP-1'],{date:'2026-10-01',quantityOnly:false});s=f.mod.save(payload(s),'admin');
+  assert.equal(s.orders[0].lines[0].shortage,12);assert.equal(s.orders[0].lines[0].orderQty,20);assert.equal(f.mod.read().adjustments['IMP-1'].orderQty,20);
+  const forged=structuredClone(s);forged.orders[0].lines[0].shortage=0;assert.throws(()=>f.mod.save(payload(forged),'admin'),/reconcile|retained|rewritten/);
+ }finally{await f.close();}
+});
 test('server retains kg/litre orders and rejects altered unit or quantity snapshots',async()=>{
  const f=await setup();try{
   const input=fixture();Object.assign(input.parts[0],{name:'Grease',uom:'kg',rate:258.75});input.models[0].lines[0].ppm=0.4;

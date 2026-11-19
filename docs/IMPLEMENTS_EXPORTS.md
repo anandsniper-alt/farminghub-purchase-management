@@ -1,5 +1,7 @@
 # Implements download presentation
 
+Vendor PO Excel now contains item code, component name, supplier part code, unit, final PO quantity and product image. Buyer/supplier, PO/date/status/delivery and notes remain. Internal MRP, buffer, extras, pricing and stock allocation are omitted from Excel, including the price-basis sheet. Fabrication orders retain a separate identification and total ordered kg schedule; unknown weights remain blank. Existing saved quantities and issued snapshots are unchanged; PDF retains its existing layout.
+
 PDF and Excel tables use dark-green headings, a border around every cell, centred horizontal and vertical alignment, wrapped text, consistent padding, proportional photos and repeated headings on printed pages. PO metadata is boxed separately. Excel sheets retain frozen headings, filters, numeric values and print areas, with landscape pages fitted to one page wide.
 
 Existing PO PDF/Excel, Item Master Excel and model/segment costing Excel use these formats. Stores pick lists use the same table presentation when printed or saved as PDF; the production root overrides the shared application's hidden-content print rule.

@@ -1,86 +1,41 @@
-"""Portable review PO workbook with quantity and fabrication schedules."""
+"""Vendor-facing PO with item identification and final quantities."""
 import sys,json,io,base64
 from openpyxl import Workbook
-from openpyxl.styles import Font,PatternFill,Alignment
+from openpyxl.styles import Font,PatternFill
 from openpyxl.utils import get_column_letter
 from openpyxl.drawing.image import Image
 from PIL import Image as PILImage
 from export_style import format_workbook
 po=json.load(sys.stdin);wb=Workbook();ws=wb.active;ws.title='Purchase Order'
-rows=[['FARMING HUB - PURCHASE ORDER',po['id']],['Status',po.get('lifecycleStatus','DRAFT').replace('_',' ')],['Date',po['date']],['Supplier',po['supplier']['name']],['Supplier address',po['supplier'].get('address','')],['Buyer',po['buyer'].get('buyer','')],['Buyer address',po['buyer'].get('address','')],['Delivery',po.get('currentDelivery') or po.get('delivery','')],['Planning month',po.get('planningMonth','')],[],['Item code','Component','MRP pcs','Buffer pcs','Extras pcs','Order pcs','Weight kg','Rate INR','Basis','Amount INR']]
-mixed=any(line.get('uom') in ('kg','ltr') for line in po['lines'])
-for line in po['lines']:rows.append([line.get('code',''),line['name'],line['mrp'],line['buffer'],line['extras'],line['orderQty'],line.get('weight'),None if po['quantityOnly'] else line.get('rate'),line.get('rateUnit',''),None if po['quantityOnly'] else line.get('amount')])
-if mixed:
- rows[10]=[h.replace(' pcs',' qty') for h in rows[10]];rows[10].insert(2,'Unit')
- for row,line in zip(rows[11:],po['lines']):row.insert(2,line.get('uom','pcs'))
-rows += [[],['Total before GST',None if po['quantityOnly'] else po['total']],['Notes',po.get('notes','')],['Stock allocation',po.get('stockAllocation','')]]
-for row in rows:ws.append(row)
-for row in ws:
- for c in row:
-  if isinstance(c.value,str):c.data_type='s'
-  c.alignment=Alignment(vertical='top',wrap_text=True)
-  if isinstance(c.value,(float,int)):c.number_format='#,##0.00'
-for rownum in [1,11]:
- for c in ws[rownum]:c.fill=PatternFill('solid',fgColor='204321');c.font=Font(color='FFFFFF',bold=True)
-for i,width in enumerate([26,55]+([10] if mixed else [])+[14,14,14,14,16,16,14,20],1):ws.column_dimensions[get_column_letter(i)].width=width
-if mixed:
- for row in ws.iter_rows(min_row=12,max_row=11+len(po['lines']),min_col=4,max_col=7):
-  for cell in row:cell.number_format='#,##0.###'
-ws.freeze_panes='D12' if mixed else 'C12';ws.auto_filter.ref=f'A11:{"K" if mixed else "J"}{11+len(po["lines"])}'
-# Append identification columns so existing quantity/rate columns keep their positions.
-code_col=12 if mixed else 11;photo_col=code_col+1
-ws.cell(11,code_col,'Supplier part code');ws.cell(11,photo_col,'Product image')
-ws.column_dimensions[get_column_letter(code_col)].width=28;ws.column_dimensions[get_column_letter(photo_col)].width=15
-for rownum,line in enumerate(po['lines'],12):
- c=ws.cell(rownum,code_col,line.get('supplierPartCode') or 'Pending');c.data_type='s';c.alignment=Alignment(wrap_text=True,vertical='center');ws.row_dimensions[rownum].height=64
- if line.get('imageData'):
-  with PILImage.open(io.BytesIO(base64.b64decode(line['imageData'],validate=True))) as decoded:
-   if decoded.width*decoded.height>40000000:raise ValueError('Image is too large.')
-   data=io.BytesIO();decoded.convert('RGB').save(data,format='PNG')
-  image=Image(io.BytesIO(data.getvalue()));scale=min(80/image.width,72/image.height,1);image.width*=scale;image.height*=scale;ws.add_image(image,f'{get_column_letter(photo_col)}{rownum}')
- else:ws.cell(rownum,photo_col,'Photo pending')
-for cell in ws[11]:cell.fill=PatternFill('solid',fgColor='204321');cell.font=Font(color='FFFFFF',bold=True);cell.alignment=Alignment(wrap_text=True)
-ws.auto_filter.ref=f'A11:{get_column_letter(photo_col)}{11+len(po["lines"])}';ws.print_title_rows='11:11';ws.sheet_properties.pageSetUpPr.fitToPage=True;ws.page_setup.orientation='landscape';ws.page_setup.fitToWidth=1;ws.page_setup.fitToHeight=0
-fab=wb.create_sheet('Fabrication');fab.append(['Subassembly','Drawing / code','Component','kg per machine','Ordered subassemblies','Order kg'])
-for line in po['lines']:
- if line.get('fabricated'):
-  for child in line.get('children',[]):fab.append([line['name'],child.get('code') or child.get('drawingCode'),child['name'],child.get('weight'),line['orderQty'],None if child.get('weight') is None else child['weight']*line['orderQty']])
-for row in fab:
- for c in row:
-  if isinstance(c.value,str):c.data_type='s'
-for i,width in enumerate([32,24,48,20,22,20],1):fab.column_dimensions[get_column_letter(i)].width=width
-fab.cell(1,7,'Supplier part code');fab.cell(1,8,'Product image');fab.column_dimensions['G'].width=28;fab.column_dimensions['H'].width=15
-rownum=2
-for line in po['lines']:
- if line.get('fabricated'):
+for row in [['FARMING HUB - PURCHASE ORDER',po['id']],['Status',po.get('lifecycleStatus','DRAFT').replace('_',' ')],['Date',po['date']],['Supplier',po['supplier']['name']],['Supplier address',po['supplier'].get('address','')],['Buyer',po['buyer'].get('buyer','')],['Buyer address',po['buyer'].get('address','')],['Delivery',po.get('currentDelivery') or po.get('delivery','')],[],['Item code','Component','Supplier part code','Unit','Total PO quantity','Product image']]:ws.append(row)
+def picture(sheet,row,col,line):
+ if not line.get('imageData'):sheet.cell(row,col,'Photo pending');return
+ with PILImage.open(io.BytesIO(base64.b64decode(line['imageData'],validate=True))) as decoded:
+  if decoded.width*decoded.height>40000000:raise ValueError('Image is too large.')
+  data=io.BytesIO();decoded.convert('RGB').save(data,format='PNG')
+ image=Image(io.BytesIO(data.getvalue()));scale=min(80/image.width,72/image.height,1);image.width*=scale;image.height*=scale
+ sheet.add_image(image,f'{get_column_letter(col)}{row}');sheet.row_dimensions[row].height=64
+for row,line in enumerate(po['lines'],11):
+ ws.append([line.get('code',''),line['name'],line.get('supplierPartCode') or 'Pending',line.get('uom','pcs'),line['orderQty']]);ws.cell(row,5).number_format='#,##0.###';picture(ws,row,6,line)
+ws.append([]);ws.append(['Notes',po.get('notes','')])
+for row in list(range(1,9))+[ws.max_row]:ws.merge_cells(start_row=row,start_column=2,end_row=row,end_column=6)
+for col,width in enumerate([22,62,28,12,22,18],1):ws.column_dimensions[get_column_letter(col)].width=width
+ws.freeze_panes='D11';ws.auto_filter.ref=f'A10:F{10+len(po["lines"])}';ws.print_title_rows='10:10'
+if any(line.get('fabricated') and line.get('children') for line in po['lines']):
+ fab=wb.create_sheet('Fabrication');fab.append(['Subassembly','Drawing / code','Component','Supplier part code','Unit','Total PO quantity','Product image'])
+ for line in po['lines']:
+  if not line.get('fabricated'):continue
   for child in line.get('children',[]):
-   cell=fab.cell(rownum,7,child.get('supplierPartCode') or 'Pending');cell.data_type='s';cell.alignment=Alignment(wrap_text=True,vertical='center');fab.row_dimensions[rownum].height=64
-   if child.get('imageData'):
-    with PILImage.open(io.BytesIO(base64.b64decode(child['imageData'],validate=True))) as decoded:
-     if decoded.width*decoded.height>40000000:raise ValueError('Image is too large.')
-     data=io.BytesIO();decoded.convert('RGB').save(data,format='PNG')
-    image=Image(io.BytesIO(data.getvalue()));scale=min(80/image.width,72/image.height,1);image.width*=scale;image.height*=scale;fab.add_image(image,f'H{rownum}')
-   else:fab.cell(rownum,8,'Photo pending')
-   rownum+=1
-for row in fab:
- for cell in row:cell.alignment=Alignment(wrap_text=True,vertical='top')
-for cell in fab[1]:cell.fill=PatternFill('solid',fgColor='204321');cell.font=Font(color='FFFFFF',bold=True)
-fab.freeze_panes='D2';fab.auto_filter.ref=f'A1:H{max(1,fab.max_row)}';fab.print_title_rows='1:1';fab.sheet_properties.pageSetUpPr.fitToPage=True;fab.page_setup.orientation='landscape';fab.page_setup.fitToWidth=1;fab.page_setup.fitToHeight=0
-priced_transport=[line for line in po['lines'] if line.get('transportInCost') and not po['quantityOnly']]
-if priced_transport:
- basis=wb.create_sheet('Price basis');basis.append(['Component','Base INR / unit','Transport %','Transport INR / unit','Rate incl. transport INR / unit','Order quantity','Amount INR'])
- for line in priced_transport:basis.append([line['name']+' ['+line.get('uom','pcs')+']',line.get('purchaseBaseRate'),line.get('purchaseTransportPercent'),line.get('purchaseTransportAmount'),line.get('rate'),line['orderQty'],line.get('amount')])
- for row in basis:
-  for c in row:
-   if isinstance(c.value,str):c.data_type='s'
-   c.alignment=Alignment(vertical='top',wrap_text=True)
- for i,width in enumerate([55,22,18,24,32,18,22],1):basis.column_dimensions[get_column_letter(i)].width=width
- basis.freeze_panes='B2';basis.auto_filter.ref=f'A1:G{basis.max_row}';basis.row_dimensions[1].height=36
- for c in basis[1]:c.fill=PatternFill('solid',fgColor='204321');c.font=Font(color='FFFFFF',bold=True)
- for row in basis.iter_rows(min_row=2,min_col=2):
-  for c in row:c.number_format='#,##0.###' if c.column==6 else '#,##0.00'
-# Keep metadata and notes in two readable, boxed columns above/below the item grid.
-for rownum in list(range(1,10))+list(range(13+len(po['lines']),ws.max_row+1)):
- ws.merge_cells(start_row=rownum,start_column=2,end_row=rownum,end_column=photo_col)
-format_workbook(wb,{'Purchase Order':(1,11)})
+   total=None if child.get('weight') is None else round(child['weight']*line['orderQty'],6)
+   fab.append([line['name'],child.get('code') or child.get('drawingCode'),child['name'],child.get('supplierPartCode') or 'Pending','kg',total]);fab.cell(fab.max_row,6).number_format='#,##0.######';picture(fab,fab.max_row,7,child)
+ for col,width in enumerate([32,22,55,28,12,22,18],1):fab.column_dimensions[get_column_letter(col)].width=width
+ fab.freeze_panes='C2';fab.auto_filter.ref=f'A1:G{fab.max_row}';fab.print_title_rows='1:1'
+for sheet in wb:
+ for row in sheet:
+  for cell in row:
+   if isinstance(cell.value,str):cell.data_type='s'
+ for rownum in ([1,10] if sheet==ws else [1]):
+  for cell in sheet[rownum]:cell.fill=PatternFill('solid',fgColor='204321');cell.font=Font(color='FFFFFF',bold=True)
+ sheet.sheet_properties.pageSetUpPr.fitToPage=True;sheet.page_setup.orientation='landscape';sheet.page_setup.fitToWidth=1;sheet.page_setup.fitToHeight=0
+format_workbook(wb,{'Purchase Order':(1,10)})
 out=io.BytesIO();wb.save(out);sys.stdout.buffer.write(out.getvalue())
