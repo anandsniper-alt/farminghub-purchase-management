@@ -53,7 +53,7 @@ export function createLaeSalesAnalyticsUI({context,esc,head,render,api}) {
   function page(){
     syncOwner();if(result&&result.view&&result.view!==view()){result=null;requestKey='';}
     const tabs=`<nav class="analytics-tabs" aria-label="Analytics sections">${LAE_ANALYTICS_SECTIONS.map(([id,title])=>`<a href="#/lae-sales-analytics/${id}"${view()===id?' aria-current="page"':''}>${title}</a>`).join('')}</nav>`;
-    const heading=head('LAE Sales Analytics',view()==='review'?'Stock, sales & plan':'Filter sales quantities',view()==='review'?'Category → Engine / blade → Grade → SKU / model':'Compare quantities by item, zone, quarter, half-year or selected months.');
+    const heading=head('Sales Analytics Module',view()==='review'?'Stock, sales & plan':'Filter sales quantities',view()==='review'?'Category → Engine / blade → Grade → SKU / model':'Compare quantities by item, zone, quarter, half-year or selected months.');
     if(error)return `<div class="review-report">${heading}${tabs}<section class="panel" role="alert"><h2>Report unavailable</h2><p>${esc(error)}</p>${button('Retry','refresh')}</section></div>`;
     if(!result)return `<div class="review-report">${heading}${tabs}<section class="panel" role="status">${api?'Loading stock, sales and plan…':'No data available.'}</section></div>`;
     if(!result.ready)return `<div class="review-report">${heading}${tabs}<section class="panel"><h2>Awaiting data</h2><p>MASTER stock and sales imports are required. Existing source data is preserved.</p></section></div>`;
