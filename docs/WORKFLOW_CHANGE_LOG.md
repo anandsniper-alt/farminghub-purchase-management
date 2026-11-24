@@ -1314,3 +1314,7 @@ Select Power Weeder or Brush Cutter, click an engine, then compare grade totals 
 ## WF-166 — Implements application cutover
 
 2026-11-17. Move purchasing, BOM & Syntax, production/stores and external monthly planning together. Staff use the original application until the explicit write freeze, then sign in at the new hostname with existing credentials after verification. Old links redirect; stale saves fail without overwriting either database. Existing approval, costing, material issue and stock workflows remain authoritative. See [separation contract](IMPLEMENTS_SEPARATION.md).
+
+
+## WF-167 - Choose an LAE workspace (DEC-172)
+2026-11-24. Farming Hub -> LAE Division -> LAE Purchase Order Module for orders and SCM, Purchase Analytics Module for stock/cost reports, or Sales Analytics Module for existing sales reports. Use the Modules selector to switch and the LAE Division link to return. Report bookmarks and payment-planner nesting remain valid. No business process, data or approval changes.
