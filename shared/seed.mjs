@@ -1,7 +1,7 @@
 import {SOURCE_ROWS,LAE_CATEGORIES} from './source-items.mjs';
 import {execute,isoDay,addDays,TERMS,orderTotal,major,paymentSchedule,shipmentTotals,SCHEMA_VERSION} from './domain.mjs';
 import {PLM_TEMPLATES,brandDeltaSummary} from './plm.mjs';
-export function createSeed(today=isoDay()){
+export function createSeed(today=isoDay(),reviewOrders){
  let serial=0;const id=()=>`demo-${String(++serial).padStart(5,'0')}`;
  const users=[['u-admin','Administrator','ADMIN',['LAE_IMPORT','LAE_DOMESTIC','UTILITY_DOMESTIC','IMPLEMENTS_DOMESTIC']],['u-manager','Purchase Manager','MANAGER',['LAE_IMPORT','LAE_DOMESTIC']],['u-exec','Purchase Executive','EXECUTIVE',['LAE_IMPORT']],['u-product','Product Manager','PRODUCT_MANAGER',['LAE_IMPORT']],['u-viewer','Viewer','VIEWER',['LAE_IMPORT']]].map(([id,name,role,scopes])=>({id,name:'Demo '+name,role,scopes,active:true}));
  const codes=[...new Set(SOURCE_ROWS.slice(1).map(r=>r[0]).filter(Boolean))];
@@ -47,6 +47,11 @@ export function createSeed(today=isoDay()){
   for(const type of ['COMMERCIAL_INVOICE','PACKING_LIST'])run('ATTACH_DOCUMENT',{orderId:oid,shipmentId:sid,type,invoiceNumber:oid+'-CI-'+sid,invoiceDate:planDate,fileId:evidence(oid,type)},planDate);
   run('RECORD_BL_DRAFT',{orderId:oid,shipmentId:sid,number:'DEMO-DRAFT-BL-'+id(),remarks:'DEMO optional BL-draft particulars check.',fileId:evidence(oid,'BL-draft')},planDate);
   if(dispatch){run('DISPATCH_SHIPMENT',{orderId:oid,shipmentId:sid,date:etd,vessel:'DEMO VESSEL',voyage:'DEMO-001',reason:'Shipping / forwarder',remarks:'DEMO loaded on vessel / ocean departure.'},etd);run('RECORD_BL',{orderId:oid,shipmentId:sid,number:'DEMO-BL-'+id(),date:etd,fileId:evidence(oid,'BL'),remarks:'DEMO final BL verified after vessel loading.'},etd);run('RECORD_INSURANCE',{orderId:oid,shipmentId:sid,masterPolicy:state.settings.insuranceMasterPolicy,declarationNumber:'DEMO-INS-'+id(),insuredValue:major(orderTotal(o)),currency:o.currency,date:etd,remarks:'DEMO individual shipment insurance after final BL verification.',fileId:evidence(oid,'insurance')},etd);if(arrive)run('ARRIVE_SHIPMENT',{orderId:oid,shipmentId:sid,date:arrive,reason:'Shipping / forwarder',remarks:'DEMO India destination-port arrival. No warehouse receipt posted.'},arrive);}return sid;
+ }
+ if(reviewOrders){
+  reviewOrders({state:()=>state,create,order,run,pi,pay,produce,evidence,today});
+  state.seededEventCount=state.events.length;
+  return state;
  }
  let oid=create('DEMO-LAE-1001','GJPW12',250,'245.00',48);pi(oid,addDays(today,-47));pay(oid,0,null,addDays(today,-46));produce(oid,addDays(today,-45),addDays(today,-17));ship(oid,250,addDays(today,-15),addDays(today,7));
  oid=create('DEMO-LAE-1002','KDPW12',180,'242.00',39);pi(oid,addDays(today,-38));pay(oid,0,null,addDays(today,-37));produce(oid,addDays(today,-36));

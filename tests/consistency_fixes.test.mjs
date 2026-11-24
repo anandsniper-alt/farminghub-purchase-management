@@ -8,12 +8,15 @@ import {scopedState} from '../server/index.mjs';
 test('division projection filters prices, complaints and shipping history without mutating storage',()=>{
  const s=createCleanSeed('2026-09-12'),base=s.bases.find(b=>b.vendorId),item=s.items.find(i=>i.baseId===base.id);
  s.complaints=[{id:'complaint',itemId:item.id,baseId:base.id}];s.shippingImports=[{id:'batch',rows:[{raw:{Ref:'private'}}]}];
+ s.scm={invoices:[{id:'private-invoice',number:'CI-X'}],ros:[{id:'private-ro',number:'RO-X'}]};
  const original=structuredClone(s),restricted={id:'utility-viewer',role:'VIEWER',active:true,scopes:['UTILITY_DOMESTIC']};
  const out=scopedState(s,restricted);
  for(const collection of ['orders','items','bases','vendors','priceLists','complaints','freightRates','freightImports','shippingImports','vendorImports','plmTemplates'])assert.deepEqual(out[collection],[],collection);
+ assert.equal(out.scm,undefined);
+ assert.equal(scopedState(s,{...restricted,role:'PLAN_OPERATOR'}).scm,undefined);
  const allowed=scopedState(s,{...restricted,scopes:['LAE_IMPORT']});
  for(const collection of ['priceLists','complaints','freightRates','freightImports','shippingImports'])assert.deepEqual(allowed[collection],s[collection],collection);
- assert.deepEqual(s,original);
+ assert.deepEqual(allowed.scm,s.scm);assert.deepEqual(s,original);
 });
 
 test('a shared supplier cannot expose prices or complaints belonging to another division',()=>{

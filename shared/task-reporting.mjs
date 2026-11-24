@@ -21,8 +21,41 @@ export function taskDailySummary(rows,day=taskDay()){
 export function taskBrandSummary(order){
  const groups=new Map();for(const l of order.lines||[]){const brand=l.brandPrefix||l.brand||'Unspecified brand';let group=groups.get(brand);if(!group){group={brand,quantity:0,items:[]};groups.set(brand,group);}group.quantity+=Number(l.quantity)||0;group.items.push({code:l.code||'',name:l.name||'',quantity:l.quantity});}return [...groups.values()];
 }
-export function taskEfforts(events,orderIds,day){
- const ids=new Set(orderIds);return (events||[]).filter(e=>e.entityType==='order'&&ids.has(e.entityId)&&['FOLLOWUP_COMPLETED','INTERACTION'].includes(e.action)&&taskDay(e.at)===day);
+export function taskScmFollowups(scm,orderIds){
+ const selected=new Set(orderIds),roOrders=new Map(),followups=[];
+ const collect=(type,owner,ids)=>{
+  for(const note of owner.followups||[])followups.push({type,ownerId:owner.id,number:owner.number,orderIds:ids,note});
+ };
+ for(const invoice of scm?.invoices||[]){
+  const ids=[...new Set((invoice.members||[]).map(member=>member.orderId).filter(id=>selected.has(id)))];
+  if(!ids.length)continue;
+  collect('invoice',invoice,ids);
+  if(invoice.roId&&!invoice.cancelledAt){
+   if(!roOrders.has(invoice.roId))roOrders.set(invoice.roId,new Set());
+   for(const id of ids)roOrders.get(invoice.roId).add(id);
+  }
+ }
+ for(const ro of scm?.ros||[]){
+  const ids=roOrders.get(ro.id);
+  if(ids)collect('ro',ro,[...ids]);
+ }
+ return followups;
+}
+export function taskEfforts(events,orderIds,day,scm){
+ const ids=new Set(orderIds),followupKey=(ownerId,noteId)=>JSON.stringify([ownerId,noteId]);
+ const scmById=new Map(taskScmFollowups(scm,ids).filter(({note})=>note.id).map(row=>[followupKey(row.ownerId,row.note.id),row]));
+ const efforts=[];
+ for(const event of events||[]){
+  if(event.entityType!=='order')continue;
+  if(event.action==='SCM_FOLLOWUP'){
+   const key=followupKey(event.newValue?.ownerId,event.newValue?.id),followup=scmById.get(key);
+   if(!followup||taskDay(event.at)!==day)continue;
+   // One source note generates an audit event on each PO linked when it was recorded.
+   efforts.push({...event,scmFollowup:followup});
+   scmById.delete(key);
+  }else if(ids.has(event.entityId)&&['FOLLOWUP_COMPLETED','INTERACTION'].includes(event.action)&&taskDay(event.at)===day)efforts.push(event);
+ }
+ return efforts;
 }
 export function taskMatches(t,status,day){
  const s=taskState(t,day);if(s==='NOT_CREATED')return false;

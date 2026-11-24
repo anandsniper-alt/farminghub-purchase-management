@@ -4,7 +4,7 @@ export function loadingStage(s){
  if(s.status==='CANCELLED')return 'CANCELLED';
  if(s.actualArrival)return 'ARRIVED';
  if(s.actualDeparture)return 'IN_TRANSIT';
- if((s.trackingMilestones||[]).some(m=>m.key==='FACTORY_LOADING'&&m.status==='COMPLETED'&&m.actualDate))return 'LOADED';
+ if(s.scmRoId || (s.trackingMilestones||[]).some(m=>m.key==='FACTORY_LOADING'&&m.status==='COMPLETED'&&m.actualDate))return 'LOADED';
  if(s.bookingStatus==='RELEASED'||s.releaseDate)return 'RELEASED';
  if(s.bookingStatus==='BOOKED'||s.bookingDate)return 'BOOKED';
  return 'PLANNED';

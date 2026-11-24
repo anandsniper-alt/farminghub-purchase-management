@@ -97,7 +97,7 @@ test('user creation validates fields and preserves state on duplicate or stale r
  }finally{await f.close();}
 });
 
-async function serverFixture(){const dir=mkdtempSync(join(tmpdir(),'fh-test-')),s=createSeed('2026-09-11');s.users.push({id:'u-utility',name:'Utility-only test viewer',role:'VIEWER',scopes:['UTILITY_DOMESTIC'],active:true});const store=new Store(join(dir,'test.sqlite'),s);for(const id of['u-admin','u-manager','u-exec','u-product','u-viewer','u-utility'])store.addAccount(id,id+'@example.test','Test-only-password-0123');const server=makeServer(store);await new Promise(r=>server.listen(0,'127.0.0.1',r));const origin='http://127.0.0.1:'+server.address().port;async function req(path,{method='GET',payload,token,csrf,originHeader=origin}={}){const res=await fetch(origin+path,{method,headers:{'Content-Type':'application/json',...(method!=='GET'?{Origin:originHeader}:{}),...(token?{Cookie:'fh_session='+token}:{}),...(csrf?{'X-CSRF-Token':csrf}:{})},...(payload!==undefined?{body:JSON.stringify(payload)}:{})});const text=await res.text();let data;try{data=JSON.parse(text);}catch{data=text;}return {status:res.status,data,headers:res.headers};}async function login(id='u-manager'){const r=await req('/api/login',{method:'POST',payload:{email:id+'@example.test',password:'Test-only-password-0123'}});const token=r.headers.get('set-cookie').match(/fh_session=([^;]+)/)[1],b=await req('/api/bootstrap',{token});return {token,csrf:b.data.csrf,state:b.data.state,user:b.data.user,cookie:r.headers.get('set-cookie')};}return{store,req,login,origin,close:async()=>{await new Promise(r=>server.close(r));store.close();rmSync(dir,{recursive:true,force:true});}};}
+async function serverFixture(s=createSeed('2026-09-11')){const dir=mkdtempSync(join(tmpdir(),'fh-test-'));s.users.push({id:'u-utility',name:'Utility-only test viewer',role:'VIEWER',scopes:['UTILITY_DOMESTIC'],active:true});const store=new Store(join(dir,'test.sqlite'),s);for(const id of['u-admin','u-manager','u-exec','u-product','u-viewer','u-utility'])store.addAccount(id,id+'@example.test','Test-only-password-0123');const server=makeServer(store);await new Promise(r=>server.listen(0,'127.0.0.1',r));const origin='http://127.0.0.1:'+server.address().port;async function req(path,{method='GET',payload,token,csrf,originHeader=origin,idempotencyKey}={}){const res=await fetch(origin+path,{method,headers:{'Content-Type':'application/json',...(idempotencyKey?{'Idempotency-Key':idempotencyKey}:{}),...(method!=='GET'?{Origin:originHeader}:{}),...(token?{Cookie:'fh_session='+token}:{}),...(csrf?{'X-CSRF-Token':csrf}:{})},...(payload!==undefined?{body:JSON.stringify(payload)}:{})});const text=await res.text();let data;try{data=JSON.parse(text);}catch{data=text;}return {status:res.status,data,headers:res.headers};}async function login(id='u-manager'){const r=await req('/api/login',{method:'POST',payload:{email:id+'@example.test',password:'Test-only-password-0123'}});const token=r.headers.get('set-cookie').match(/fh_session=([^;]+)/)[1],b=await req('/api/bootstrap',{token});return {token,csrf:b.data.csrf,state:b.data.state,user:b.data.user,cookie:r.headers.get('set-cookie')};}return{store,req,login,origin,close:async()=>{await new Promise(r=>server.close(r));store.close();rmSync(dir,{recursive:true,force:true});}};}
 
 test('unauthenticated state and evidence access return 401',async()=>{const f=await serverFixture();try{assert.equal((await f.req('/api/bootstrap')).status,401);assert.equal((await f.req('/api/files/anything')).status,401);}finally{await f.close();}});
 test('successful local authentication uses HttpOnly SameSite cookie; invalid login is generic',async()=>{const f=await serverFixture();try{const a=await f.login();assert.match(a.cookie,/HttpOnly/);assert.match(a.cookie,/SameSite=Strict/);assert.equal(a.state.orders.length,8);const bad=await f.req('/api/login',{method:'POST',payload:{email:'missing@example.test',password:'not-a-real-password'}});assert.equal(bad.status,401);assert.equal(bad.data.error,'Invalid credentials or inactive account.');}finally{await f.close();}});
@@ -122,5 +122,30 @@ test('approval controls affect existing sessions immediately and reject stale or
  const command=()=>f.req('/api/commands',{method:'POST',...manager,payload:{type:'APPROVE_ARTWORK',payload:{orderId:f.store.read().orders[0].id},expectedRevision:f.store.read().revision}});
  assert.equal((await command()).status,400,'Manager reaches readiness validation without logging in again');stages.APPROVE_ARTWORK=['PRODUCT_MANAGER'];assert.equal((await save(admin)).status,200);assert.equal((await command()).status,403,'Restoration immediately rejects the same Manager session');
  assert.equal((await f.req('/api/bootstrap',manager)).data.state.approvalControls.revision,2);assert.equal(f.store.read().events.filter(e=>e.action==='APPROVAL_CONTROLS_UPDATED').length,2);
+ }finally{await f.close();}
+});
+
+test('SCM hosted workflow serves its assets and stores a shared RO follow-up once on retry',async()=>{
+ const {scmPreviewState}=await import('../scripts/prepare-scm-preview.mjs');
+ const f=await serverFixture(scmPreviewState('2026-09-11'));
+ try{
+  const manager=await f.login(),viewer=await f.login('u-viewer'),utility=await f.login('u-utility');
+  for(const path of ['/scm-workspace.mjs','/po-scm-timeline.mjs','/po-branch-disclosure.mjs','/shared/scm.mjs','/scm.css']){
+   assert.equal((await f.req(path,manager)).status,200,path);
+  }
+  assert.equal(utility.state.scm?.ros?.length||0,0);
+  const ro=manager.state.scm.ros[0];
+  assert.equal(ro.blNumber,'DEMO-BL-301');
+  const command={type:'SCM_FOLLOWUP',requestId:'scm-shared-ro-retry-0001',expectedRevision:manager.state.revision,
+   payload:{roId:ro.id,date:'2026-09-10',remarks:'Confirmed revised port schedule with forwarder.'}};
+  const post=(actor,body)=>f.req('/api/commands',{method:'POST',...actor,payload:body,idempotencyKey:body.requestId});
+  assert.equal((await post(viewer,{...command,requestId:'scm-viewer-denied-0001'})).status,403);
+  const saved=await post(manager,command);
+  assert.equal(saved.status,200,JSON.stringify(saved.data.error));
+  assert.equal((await post(manager,command)).status,200);
+  const fresh=(await f.req('/api/bootstrap',manager)).data.state.scm;
+  assert.equal(fresh.ros[0].followups.length,1);
+  assert.equal(fresh.invoices.filter(i=>i.roId===ro.id).length,2);
+  assert.equal(fresh.ros[0].containers.length,2);
  }finally{await f.close();}
 });

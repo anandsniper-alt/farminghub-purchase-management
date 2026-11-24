@@ -1,3 +1,4 @@
+import {ARRIVAL_COST_FIELDS} from '../shared/arrival-costing.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createSeed} from '../shared/seed.mjs';
@@ -233,4 +234,153 @@ test('configured Manager artwork approval executes with policy revision; restore
 test('sample and initial-payment controls cannot be bypassed by existing editor rights',()=>{
  const f=fixture(),id=f.draft(),stages=standardApprovalStages();for(const cmd of ['APPROVE_PREPRODUCTION_SAMPLE','COMPLETE_INITIAL_PAYMENT']){assert.equal(canPerformApproval(f.role('EXECUTIVE'),cmd,'LAE_IMPORT',null,f.state,f.get(id)),true);assert.equal(canPerformApproval({...f.role('EXECUTIVE'),id:'unassigned'},cmd,'LAE_IMPORT',null,f.state,f.get(id)),false);stages[cmd]=[];}
  f.run('SAVE_APPROVAL_CONTROLS',{stages,remarks:'Restrict shortcuts',confirm:true},f.role('ADMIN'));for(const cmd of ['APPROVE_PREPRODUCTION_SAMPLE','COMPLETE_INITIAL_PAYMENT'])for(const role of ['MANAGER','EXECUTIVE'])assert.throws(()=>f.run(cmd,{orderId:id},f.role(role)),/not allowed/);
+});
+
+test('SCM combines invoice allocations across POs and vendors, reconciles container lists, advances one RO and retains actual costing controls',()=>{
+ const f=fixture(),a=f.draft(),b=f.draft(),c=f.draft();
+ for(const oid of [a,b,c]){f.issue(oid);f.produce(oid);}
+ // A second vendor provides a distinct invoice on the same BL.
+ const alternate=f.state.vendors.find(v=>v.kind==='SUPPLIER'&&v.id!==f.get(c).vendorId);
+ assert.ok(alternate);
+ f.get(c).vendorId=alternate.id;
+ const vendor=f.state.vendors.find(v=>v.kind==='LOGISTICS'&&v.status==='ACTIVE').id;
+ const member=(orderId,quantity)=>({orderId,lines:[{lineId:f.get(orderId).lines[0].id,quantity}]});
+ const booking=(number,members)=>({number,members,bookingRef:'BOOK-'+number,forwarderId:vendor,date:TODAY,etd:TODAY,eta:TODAY,origin:'Ningbo',destination:'Chennai'});
+ const stage=(roId,stage,more={})=>({roId,stage,date:TODAY,remarks:'Verified against evidence.',...more});
+ const ab=[a,b],all=[a,b,c],plan=f.run('ADD_SHIPMENT',{scmPlan:true,orderId:a,number:'Saved plan',etd:TODAY,eta:TODAY,lines:member(a,14).lines}).id;
+ rejects(f,'BOOK_CONTAINER',{orderId:a,shipmentId:plan},/commercial invoice in SCM/);
+ rejects(f,'PLAN_RO_LOADING',{roNumber:'EARLY',remarks:'Preloading assignment',orders:[{orderId:a,shipmentId:plan}]},/commercial invoice in SCM/);
+ const first=booking('INV-ONE',[{...member(a,14),shipmentId:plan},member(b,6)]);
+ const unauth={...f.role('EXECUTIVE'),id:'different-buyer'};
+ rejects(f,'SCM_BOOK_INVOICE',first,/assigned/,unauth);
+ rejects(f,'SCM_BOOK_INVOICE',booking('MIX',[member(a,1),member(c,1)]),/single supplier/);
+ f.run('CONFIGURE_CI_PAYMENTS',{orderId:a,rule:'FINAL_BL',days:10,reason:'Confirmed CI terms',confirm:true});
+ const inv=f.run('SCM_BOOK_INVOICE',first).invoiceId;
+ assert.equal(f.get(a).shipments.length,1);
+ rejects(f,'SCM_BOOK_INVOICE',booking('inv-one',[member(a,1)]),/already has/);
+ rejects(f,'SCM_BOOK_INVOICE',booking('INV-EXCESS',[member(a,87)]),/unallocated balance/);
+ const second=f.run('SCM_BOOK_INVOICE',{...booking('INV-TWO',[member(c,10)]),invoiceDate:TODAY,fileId:f.file([c])}).invoiceId;
+ const used=f.get(a).shipments[0],third=f.run('SCM_BOOK_INVOICE',booking('INV-THREE',[member(a,1)])).invoiceId;
+ assert.notEqual(third,inv);
+ rejects(f,'UPDATE_TRACKING_MILESTONE',{orderId:a,shipmentId:used.id},/SCM module/);
+ rejects(f,'ATTACH_DOCUMENT',{orderId:a,shipmentId:used.id,type:'COMMERCIAL_INVOICE',invoiceNumber:'WRONG'},/booked commercial invoice/);
+ const ci=f.file(ab);
+ rejects(f,'SCM_INVOICE_DOCUMENT',{invoiceId:inv,invoiceDate:TODAY,fileId:f.file([a])},/Evidence must belong/);
+ f.run('SCM_INVOICE_DOCUMENT',{invoiceId:inv,invoiceDate:TODAY,fileId:ci});
+ const evidenceCounts=ab.map(oid=>f.get(oid).documents.length);
+ f.run('SCM_INVOICE_DOCUMENT',{invoiceId:inv,invoiceDate:TODAY,fileId:ci});
+ assert.deepEqual(ab.map(oid=>f.get(oid).documents.length),evidenceCounts);
+ for(const invoiceId of [inv,second])f.run('SCM_RELEASE_INVOICE',{invoiceId,date:TODAY,reference:'Release '+invoiceId});
+ const packed=(oid,n)=>({orderId:oid,lineId:f.get(oid).lines[0].id,quantity:n});
+ const containers=[{number:'BOX-A',packingList:'PL/A',packingListFileId:f.file(ab),lines:[packed(a,10),packed(b,5)]},{number:'BOX-B',packingList:'PL/B',lines:[packed(a,4),packed(b,1)]}];
+ const load={invoiceId:inv,date:TODAY,roNumber:'RO-12',containers};
+ rejects(f,'SCM_LOAD_INVOICE',{...load,containers:[containers[0]]},/exactly/);
+ rejects(f,'SCM_LOAD_INVOICE',{...load,containers:[containers[0],{...containers[1],packingList:'pl/a'}]},/separate packing list/);
+ const {roId}=f.run('SCM_LOAD_INVOICE',load);
+ f.run('SCM_LOAD_INVOICE',{invoiceId:second,date:TODAY,roNumber:'ro-12',containers:[{number:'BOX-A',packingList:'PL/A',lines:[packed(c,10)]}]});
+ rejects(f,'DELETE_ORDERS',{orderIds:[c],remarks:'Partial archive'},/RO is shared/,f.role('ADMIN'));
+ rejects(f,'MARK_ORDER_TEST_DATA',{orderId:c,reason:'Partial classification'},/shared with/,f.role('ADMIN'));
+ assert.equal(f.state.scm.ros.length,1);
+ assert.equal(f.state.scm.ros[0].containers.length,2);
+ assert.equal(f.state.scm.ros[0].containers[0].lines.length,3);assert.deepEqual(f.state.scm.ros[0].containers[0].previousPackingListFileIds,[containers[0].packingListFileId]);
+ rejects(f,'SCM_FOLLOWUP',{invoiceId:inv,date:TODAY,remarks:'Note'},/against the RO/);
+ f.run('SCM_FOLLOWUP',{roId,date:TODAY,remarks:'Agent confirmation requested.'});
+ const tracking={rows:[{Ref:'RO-12',Status:'ETA Chennai 11/09/2026',BLNo:'FORWARDER-REPORT'}],filename:'example.csv',statusDate:TODAY,sourceFileId:f.file(all)};
+ f.run('COMMIT_TRACKING_IMPORT',tracking);
+ assert.equal(f.state.scm.ros[0].trackingReports.length,1);
+ assert.equal(f.state.scm.ros[0].blNumber,null);
+ assert.equal(f.get(a).shipments[0].trackingEvents.length,0);
+
+ const docs=stage(roId,'SHIPPING_DOCS',{reference:'DRAFT-22',fileId:f.file(all),packingListFiles:[{number:'BOX-A',fileId:f.file(all)},{number:'BOX-B',fileId:f.file(ab)}]});
+ rejects(f,'SCM_RO_STAGE',{...docs,packingListFiles:[]},/separate packing list/);
+ f.run('SCM_RO_STAGE',docs);
+ rejects(f,'SCM_RO_STAGE',docs,/next RO stage/);
+ for(const i of f.state.scm.invoices.filter(i=>i.roId===roId))for(const m of i.members)for(const due of paymentSchedule(f.state,f.get(m.orderId)).filter(x=>x.trigger==='SHIPMENT'&&x.shipmentId===m.shipmentId))f.pay(m.orderId,due.index,m.shipmentId);
+ const sailing=stage(roId,'SAILING',{vessel:'TEST OCEAN',voyage:'24'});
+ rejects(f,'SCM_RO_STAGE',sailing,/Record the Commercial Invoice value/);
+ const document=f.get(a).documents.find(d=>d.type==='COMMERCIAL_INVOICE'&&d.shipmentId===used.id);
+ f.run('SAVE_COMMERCIAL_INVOICE',{orderId:a,documentId:document.id,amount:'1400',advanceMode:'AUTO'});
+ f.run('SCM_RO_STAGE',sailing);
+ f.run('SCM_RO_STAGE',stage(roId,'BL',{reference:'FINAL-22',fileId:f.file(all)}));
+ rejects(f,'SCM_RO_STAGE',stage(roId,'INDIA_ARRIVAL'),/insurance/);
+ for(const [invoiceId,ids] of [[inv,ab],[second,[c]]]){
+  f.run('SCM_INSURE_INVOICE',{invoiceId,date:TODAY,reference:'INS-'+invoiceId,masterPolicy:'MP',currency:'USD',insuredValue:'300',fileId:f.file(ids)});
+ }
+ assert.equal(f.state.scm.invoices.find(i=>i.id===inv).insurance.insuredValueMinor,30000);
+ for(const m of f.state.scm.invoices.find(i=>i.id===inv).members)assert.equal(f.get(m.orderId).shipments.find(s=>s.id===m.shipmentId).insurance.insuredValueMinor,undefined);
+ f.run('SCM_RO_STAGE',stage(roId,'INDIA_ARRIVAL'));
+ rejects(f,'SCM_RO_STAGE',stage(roId,'COST_CAPTURE'),/Finalize actual costing/);
+ assert.equal(f.state.scm.ros[0].blNumber,'FINAL-22');
+ for(const i of f.state.scm.invoices.filter(i=>i.roId===roId))for(const m of i.members){
+  const shipment=f.get(m.orderId).shipments.find(s=>s.id===m.shipmentId);
+  assert.equal(shipment.blNumber,'FINAL-22');
+  assert.equal(shipment.actualArrival,TODAY);
+ }
+ assert.equal(f.get(a).shipments.find(s=>s.scmInvoiceId===third).actualArrival,undefined);
+ let reopened;
+ for(const i of f.state.scm.invoices.filter(i=>i.roId===roId))for(const m of i.members){
+  const order=f.get(m.orderId),lines=m.lines.map(l=>({...l,unitPrice:major(order.lines.find(ol=>ol.id===l.lineId).unitPriceMinor)}));
+  const invoiceAmount=major(lines.reduce((sum,l)=>sum+toMinor(l.unitPrice)*l.quantity,0));
+  const file=f.file([m.orderId]),costs=Object.fromEntries(ARRIVAL_COST_FIELDS.map(([k])=>[k,k==='supplierPayment'?'100000':'0']));
+  const payload={orderId:m.orderId,shipmentId:m.shipmentId,invoiceNumber:i.number,invoiceAmount,lines,boeNumber:'BOE-77',boeDate:TODAY,costs,gst:'0',boeTotals:{bcd:'0',sws:'0',gst:'0'},boeFileIds:[file],supportFileIds:[file],allocationNote:'Actual allocated share of documented payment and charges.'};
+  rejects(f,'SAVE_ARRIVAL_COSTING',{...payload,roReference:'OTHER RO'},/mapped at loading/);
+  const {id:costingId}=f.run('SAVE_ARRIVAL_COSTING',payload);
+  assert.equal(f.get(m.orderId).arrivalCostings.at(-1).roReference,'RO-12');
+  f.run('FINALIZE_ARRIVAL_COSTING',{orderId:m.orderId,costingId,confirmActuals:true});
+  reopened={orderId:m.orderId,costingId,reason:'Documented expense correction'};
+ }
+ f.run('SCM_RO_STAGE',stage(roId,'COST_CAPTURE'));
+ assert.equal(f.state.scm.ros[0].stages.length,5);
+ f.run('REOPEN_ARRIVAL_COSTING',reopened);
+ assert.equal(f.state.scm.ros[0].stages.at(-1).stage,'INDIA_ARRIVAL');
+ assert.equal(f.state.scm.ros[0].costingHistory.at(-1).stage,'COST_CAPTURE');
+
+});
+
+test('SCM allows more than ten partial invoices and preserves the production and QC boundary',()=>{
+ const f=fixture(),oid=f.draft(),vendor=f.state.vendors.find(v=>v.kind==='LOGISTICS'&&v.status==='ACTIVE').id;
+ const book=n=>({number:'SPLIT-'+n,date:TODAY,bookingRef:'BK'+n,forwarderId:vendor,etd:TODAY,eta:TODAY,members:[{orderId:oid,lines:[{lineId:f.get(oid).lines[0].id,quantity:1}]}]});
+ f.issue(oid);rejects(f,'SCM_BOOK_INVOICE',book(1),/production completed/);f.produce(oid);
+ const snapshot=structuredClone(f.state.payments);
+ for(let i=1;i<=12;i++)f.run('SCM_BOOK_INVOICE',book(i));
+ assert.equal(f.state.scm.invoices.length,12);assert.equal(f.get(oid).shipments.length,12);
+ assert.deepEqual(f.state.payments,snapshot);
+ const before=f.state.scm.invoices[0],args={invoiceId:before.id,remarks:'Incorrect packing allocation.'},evidence=f.file([oid]);
+ f.run('SCM_INVOICE_DOCUMENT',{invoiceId:before.id,invoiceDate:TODAY,fileId:evidence});
+ rejects(f,'SCM_CANCEL_INVOICE',args,/Manager access/,f.role('EXECUTIVE'));
+ f.run('SCM_CANCEL_INVOICE',args);
+ assert.ok(f.state.scm.invoices[0].cancelledAt);assert.equal(f.get(oid).shipments[0].status,'CANCELLED');
+ rejects(f,'SCM_RELEASE_INVOICE',{invoiceId:before.id,date:TODAY,reference:'Invalid'},/active SCM invoice/);
+ f.run('SCM_BOOK_INVOICE',{...book(1),invoiceDate:TODAY,fileId:evidence});
+ assert.equal(f.state.scm.invoices.at(-1).replacesInvoiceId,before.id);
+});
+
+test('SCM rejects late invoice dates and loading references that cannot be costed',()=>{
+ const f=fixture(),orderId=f.draft(),forwarderId=f.state.vendors.find(v=>v.kind==='LOGISTICS'&&v.status==='ACTIVE').id;
+ const later='2026-09-12',asOfLater=(type,payload)=>f.run(type,payload,f.role('MANAGER'),later);
+ f.issue(orderId);f.produce(orderId);
+ const lineId=f.get(orderId).lines[0].id,fileId=f.file([orderId]),number='DATE-CHECK';
+ const lines=[{lineId,quantity:10}];
+ const booking={number,bookingRef:'DATE-REFERENCE',date:TODAY,etd:TODAY,eta:TODAY,forwarderId,members:[{orderId,lines}]};
+ const beforeBooking=structuredClone(f.state);
+ assert.throws(()=>asOfLater('SCM_BOOK_INVOICE',{...booking,invoiceDate:later,fileId}),/cannot follow booking/);
+ assert.deepEqual(f.state,beforeBooking);
+
+ const {invoiceId}=f.run('SCM_BOOK_INVOICE',booking),shipmentId=f.get(orderId).shipments[0].id;
+ const beforeEvidence=structuredClone(f.state);
+ assert.throws(()=>asOfLater('SCM_INVOICE_DOCUMENT',{invoiceId,invoiceDate:later,fileId}),/cannot follow booking/);
+ assert.throws(()=>asOfLater('ATTACH_DOCUMENT',{type:'COMMERCIAL_INVOICE',invoiceNumber:number,invoiceDate:later,orderId,shipmentId,fileId}),/cannot follow booking/);
+ assert.deepEqual(f.state,beforeEvidence);
+ asOfLater('SCM_INVOICE_DOCUMENT',{invoiceId,invoiceDate:TODAY,fileId});
+
+ const historicalShipmentId=f.shipment(orderId,10);
+ asOfLater('ATTACH_DOCUMENT',{type:'COMMERCIAL_INVOICE',invoiceNumber:'LEGACY-DATE',invoiceDate:later,orderId,shipmentId:historicalShipmentId,fileId});
+ assert.ok(f.get(orderId).documents.some(d=>d.shipmentId===historicalShipmentId&&d.invoiceDate===later));
+
+ f.run('SCM_RELEASE_INVOICE',{invoiceId,date:TODAY,reference:'Release'});
+ const load={invoiceId,date:TODAY,containers:[{number:'CONTAINER',packingList:'PACKING',lines:[{orderId,lineId,quantity:10}]}]};
+ rejects(f,'SCM_LOAD_INVOICE',{...load,roNumber:'R'.repeat(121)},/120 characters or fewer/);
+ const roNumber='R'.repeat(120),{roId}=f.run('SCM_LOAD_INVOICE',{...load,roNumber});
+ assert.equal(f.state.scm.ros.find(r=>r.id===roId).number,roNumber);
+ assert.equal(f.get(orderId).shipments.find(s=>s.id===shipmentId).roNumber,roNumber);
 });
