@@ -2,9 +2,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createNavigation,moduleDestination as globalDestination} from '../web/navigation.mjs';
 import {renderModuleShell,moduleDestination,implementsSections} from '../web/implements/shell.mjs';
+import {LAE_ANALYTICS_SECTIONS} from '../web/lae-sales-analytics.mjs';
 const esc=s=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('"','&quot;');
 const icon=()=>'<svg></svg>';
-const host=ui=>({context:()=>({ui,user:{role:'ADMIN'}}),head:()=>'',button:()=>'',esc,icon,logo:'/logo.png',vmsNavigation:()=>'<div>Vendor sections</div>'});
+const host=(ui,user={role:'ADMIN'},sandbox=false)=>({context:()=>({ui,user,sandbox}),head:()=>'',button:()=>'',esc,icon,logo:'/logo.png',analyticsSections:LAE_ANALYTICS_SECTIONS,vmsNavigation:()=>'<div>Vendor sections</div>'});
+const purchaseReports=['stock-aging','current-stock-costing','landing-prices','ro-costings'];
+const cardDestinations=html=>[...html.matchAll(/<a class="module-card [^"]*" href="([^"]+)"/g)].map(([,href])=>href);
+const currentSections=html=>[...html.matchAll(/data-to="([^"]+)" aria-current="page"/g)].map(([,to])=>to);
 
 test('separate Purchase home and menus omit Implements while old division bookmarks point to the new site',()=>{
  const original=globalThis.window;
@@ -18,7 +22,7 @@ test('separate Purchase home and menus omit Implements while old division bookma
   }
   assert.match(nav.divisionHub('implements'),/href="https:\/\/implements\.dvjassociates\.com\/"/);
   assert.doesNotMatch(nav.divisionHub('implements'),/href="\/(implements|bom|production|planning)\//);
-  assert.match(nav.divisionHub('lae'),/Order Management/);
+  assert.match(nav.divisionHub('lae'),/LAE Purchase Order Module/);
   globalThis.window={FH_APP_MODE:'implements'};
   const separate=createNavigation(host({view:'home'}));
   assert.match(separate.sidebar(),/Implements Division/);
@@ -69,18 +73,20 @@ test('production operators have stock and BOM modules without commercial navigat
  assert.ok(!make({role:'PRODUCTION_OPERATOR',scopes:['PRODUCTION_MANAGEMENT']}).divisionHub('implements').includes('href="/bom/"'));assert.ok(!make({role:'BOM_REVIEWER',scopes:['BOM_MANAGEMENT','PRODUCTION_MANAGEMENT']}).divisionHub('implements').includes('href="/production/"'));assert.equal(moduleDestination('production-stock'),'/production/');
 });
 
-test('home preserves divisions and exposes independent Utility and analytics workspaces',()=>{
+test('home links to the three LAE modules through their division and preserves Utility and Implements',()=>{
  const nav=createNavigation(host({view:'home'}));
- assert.equal((nav.home().match(/class="module-card /g)||[]).length,4);assert.match(nav.home(),/href="\/price-workings\/"/);
- assert.match(nav.home(),/href="#\/division\/lae"/);assert.match(nav.home(),/href="#\/division\/implements"/);
+ assert.deepEqual(cardDestinations(nav.home()),['#/division/lae','#/division/implements','/price-workings/']);
  const lae=nav.divisionHub('lae'),implementsHub=nav.divisionHub('implements');
- assert.equal((lae.match(/class="module-card /g)||[]).length,4);assert.match(lae,/href="#\/current-stock-costing"/);assert.match(nav.home(),/href="\/lae-analytics\/"/);assert.doesNotMatch(lae,/LAE Sales Analytics/);
- assert.match(lae,/href="#\/order-management"/);assert.match(lae,/href="#\/vms"/);assert.ok(!lae.includes('/bom/'));
- assert.equal((implementsHub.match(/class="module-card /g)||[]).length,4);
- for(const url of ['/implements/#/models','/bom/','/production/','/planning/'])assert.ok(implementsHub.includes('href="'+url+'"'));
+ assert.deepEqual(
+  [...lae.matchAll(/<a class="module-card [^"]*" href="([^"]+)"[^>]*>[\s\S]*?<h2>([^<]+)<\/h2>/g)].map(([,href,label])=>[href,label]),
+  [['#/order-management','LAE Purchase Order Module'],['#/purchase-analytics','Purchase Analytics Module'],['/lae-analytics/','Sales Analytics Module']],
+ );
+ assert.deepEqual(cardDestinations(implementsHub),['/implements/#/models','/bom/','/production/','/planning/']);
  const categories=nav.orderHub();assert.ok(!categories.includes('href="#/order-management/implements"'));
- for(const [to,path] of [['division/implements','/#/division/implements'],['division/lae','/#/division/lae'],['implements-purchase','/implements/#/models'],['bom-management','/bom/'],['production-stock','/production/']])assert.equal(globalDestination(to),path);
- assert.match(nav.sidebar(),/<optgroup label="LAE Division">/);assert.match(nav.sidebar(),/<optgroup label="Implements Division">/);
+ for(const [to,path] of [['division/implements','/#/division/implements'],['division/lae','/#/division/lae'],['purchase-analytics','/#/purchase-analytics'],['lae-sales-analytics','/lae-analytics/'],['implements-purchase','/implements/#/models'],['bom-management','/bom/'],['production-stock','/production/']])assert.equal(globalDestination(to),path);
+ const sidebar=nav.sidebar();
+ assert.match(sidebar,/<optgroup label="LAE Division">/);assert.match(sidebar,/<optgroup label="Implements Division">/);
+ for(const [to,label] of [['order-management','LAE Purchase Order Module'],['purchase-analytics','Purchase Analytics Module'],['lae-sales-analytics','Sales Analytics Module']])assert.ok(sidebar.includes('<option value="'+to+'">'+label+'</option>'),to);
 });
 test('monthly planners see only their cost-free plan entry, even with mistaken commercial or production grants',()=>{
  const nav=createNavigation({...host({view:'home'}),context:()=>({ui:{view:'home'},user:{role:'PLAN_OPERATOR',scopes:['IMPLEMENTS_PLANNING','IMPLEMENTS_DOMESTIC','LAE_IMPORT','BOM_MANAGEMENT','PRODUCTION_MANAGEMENT']}})});
@@ -132,11 +138,86 @@ test('single-scope LAE accounts see only their assigned category and VMS require
   const ui={view:'order-management'},user={role:'MANAGER',scopes:[scope]};const nav=createNavigation({...host(ui),context:()=>({ui,user})});
   const own=scope==='LAE_IMPORT'?'overview':'domestic/models',other=scope==='LAE_IMPORT'?'domestic/models':'overview';
   assert.match(nav.home(),/href="#\/division\/lae"/);assert(nav.orderHub().includes('href="#/'+own+'"'));assert(!nav.orderHub().includes('href="#/'+other+'"'));
-  assert.equal(nav.sidebar().includes('value="vms"'),scope==='LAE_IMPORT');assert.equal(nav.divisionHub('lae').includes('href="#/vms"'),scope==='LAE_IMPORT');
+  assert.equal(nav.orderHub().includes('href="#/vms"'),scope==='LAE_IMPORT');
+  assert.ok(!nav.divisionHub('lae').includes('href="#/vms"'));
+  assert.equal(nav.canAccessView('vms'),scope==='LAE_IMPORT');
   assert(!nav.orderHub().includes('Utility Division'));
   ui.orderId=scope==='LAE_IMPORT'?'lae-domestic':'lae-import';assert(!nav.orderHub().includes('class="module-card'));assert.equal(nav.canAccessView(),false);
   ui.view=scope==='LAE_IMPORT'?'domestic':'overview';assert.equal(nav.canAccessView(),false);assert(!nav.sidebar().includes('data-to="'+other+'"'));
  }
+});
+
+test('purchase analytics owns the four existing report routes and their active drawer context',()=>{
+ const ui={view:'purchase-analytics'},nav=createNavigation(host(ui));
+ assert.equal(nav.area(),'purchase-analytics');
+ assert.deepEqual(cardDestinations(nav.purchaseAnalyticsHub()),purchaseReports.map(to=>'#/'+to));
+ assert.match(nav.breadcrumb('Purchase Analytics Module'),/href="#\/division\/lae">LAE Division<\/a>/);
+ for(const [view,title] of [
+  ['stock-aging','Stock Aging'],['current-stock-costing','Current stock costing'],
+  ['landing-prices','Landing prices'],['ro-costings','RO costings'],
+ ]){
+  ui.view=view;ui.orderId=view==='ro-costings'?'RO 1652 / revised':null;
+  assert.equal(nav.canAccessView(),true,view);
+  assert.equal(nav.area(),'purchase-analytics',view);
+  const sidebar=nav.sidebar();
+  assert.deepEqual(currentSections(sidebar),[view]);
+  for(const to of purchaseReports)assert.ok(sidebar.includes('data-to="'+to+'"'),to);
+  for(const to of ['orders','payments','loading','shipments','vms','vendors','items','prices','plm'])assert.ok(!sidebar.includes('data-to="'+to+'"'),to);
+  const breadcrumb=nav.breadcrumb(title);
+  assert.match(breadcrumb,/href="#\/division\/lae">LAE Division<\/a>/);
+  assert.match(breadcrumb,/href="#\/purchase-analytics">Purchase Analytics Module<\/a>/);
+  assert.ok(breadcrumb.includes('<b>'+title+'</b>'),view);
+ }
+});
+
+test('purchase orders retains its scoped operations, supplier tools, and detail navigation',()=>{
+ const ui={view:'order-management'},nav=createNavigation(host(ui));
+ assert.deepEqual(cardDestinations(nav.orderHub()),['#/overview','#/domestic/models','#/vms']);
+ for(const [view,orderId,active] of [['order','PO-123','orders'],['product','SKU-123','plm'],['payment-planner',null,'payments']]){
+  ui.view=view;ui.orderId=orderId;
+  const sidebar=nav.sidebar();
+  assert.deepEqual(currentSections(sidebar),[active]);
+  for(const to of ['overview','orders','tasks','payments','loading','flow-map','shipments','documents','vms','vendors','items','prices','plm'])assert.ok(sidebar.includes('data-to="'+to+'"'),to);
+  for(const to of purchaseReports)assert.ok(!sidebar.includes('data-to="'+to+'"'),to);
+  assert.match(nav.breadcrumb('Details'),/href="#\/order-management">LAE Purchase Order Module<\/a>/);
+ }
+ ui.view='domestic';ui.orderId='po-123';
+ assert.deepEqual(currentSections(nav.sidebar()),['domestic/orders']);
+ assert.match(nav.breadcrumb('Details'),/href="#\/order-management">LAE Purchase Order Module<\/a>/);
+ ui.view='vms';ui.orderId='vendor-123';
+ assert.match(nav.sidebar(),/Vendor sections/);
+ assert.match(nav.breadcrumb('Details'),/href="#\/order-management">LAE Purchase Order Module<\/a>/);
+});
+
+test('purchase analytics is Import-only and Sales Analytics keeps both existing LAE grants',()=>{
+ for(const [scope,hasImport,hasSales] of [['LAE_IMPORT',true,true],['LAE_DOMESTIC',false,true],['UTILITY_DOMESTIC',false,false]]){
+  const ui={view:'division',orderId:'lae'},nav=createNavigation(host(ui,{role:'MANAGER',scopes:[scope]}));
+  const hub=cardDestinations(nav.divisionHub());
+  assert.equal(hub.includes('#/purchase-analytics'),hasImport);
+  assert.equal(hub.includes('/lae-analytics/'),hasSales);
+  assert.equal(nav.sidebar().includes('value="purchase-analytics"'),hasImport);
+  assert.equal(nav.sidebar().includes('value="lae-sales-analytics"'),hasSales);
+  for(const view of ['purchase-analytics',...purchaseReports]){
+   ui.view=view;
+   assert.equal(nav.canAccessView(),hasImport,view);
+   if(!hasImport){
+    assert.equal(nav.area(),'home',view);
+    assert.match(nav.breadcrumb('Details'),/Module unavailable/);
+    for(const to of purchaseReports)assert.ok(!nav.sidebar().includes('data-to="'+to+'"'),to);
+   }
+  }
+  ui.view='lae-sales-analytics';ui.orderId='stock';
+  assert.equal(nav.canAccessView(),hasSales);
+  assert.deepEqual(currentSections(nav.sidebar()),hasSales?['lae-sales-analytics/stock']:[]);
+ }
+});
+
+test('sales analytics in the standalone review returns to its own LAE division hash',()=>{
+ const ui={view:'division',orderId:'lae'},nav=createNavigation(host(ui,undefined,true));
+ assert.ok(cardDestinations(nav.divisionHub()).includes('#/lae-sales-analytics'));
+ ui.view='lae-sales-analytics';ui.orderId='stock';
+ assert.match(nav.breadcrumb('Sales Analytics Module'),/href="#\/division\/lae">LAE Division<\/a>/);
+ assert.deepEqual(currentSections(nav.sidebar()),['lae-sales-analytics/stock']);
 });
 
 test('technical, unassigned and inactive profiles do not receive LAE or Utility navigation',()=>{
@@ -162,7 +243,7 @@ test('Payment planner is nested under Payments, with scoped entry and return nav
  assert.equal(denied.canAccessView(),false);assert.equal(denied.paymentSections(),'');
 });
 test('shared navigation starts closed and inaccessible even with stale mobile-open state',()=>{
- for(const view of ['overview','domestic','vms','implements','bom-management','production-stock','monthly-planning']){
+ for(const view of ['overview','domestic','vms','purchase-analytics',...purchaseReports,'lae-sales-analytics','implements','bom-management','production-stock','monthly-planning']){
   const markup=createNavigation(host({view,orderId:'models',mobile:true})).sidebar();
   assert.match(markup,/<aside id="purchase-navigation" class="sidebar module-sidebar" inert aria-hidden="true">/);
   assert.doesNotMatch(markup,/module-sidebar open/);
