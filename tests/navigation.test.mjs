@@ -79,14 +79,14 @@ test('LAE Division opens each LAE module directly and preserves Utility and Impl
  const lae=nav.divisionHub('lae'),implementsHub=nav.divisionHub('implements');
  assert.deepEqual(
   [...lae.matchAll(/<a class="module-card [^"]*" href="([^"]+)"[^>]*>[\s\S]*?<h2>([^<]+)<\/h2>/g)].map(([,href,label])=>[href,label]),
-  [['#/orders','Orders'],['#/scm','SCM'],['#/domestic/models','Domestic'],['#/purchase-analytics','Purchase Analytics'],['/lae-analytics/','Sales Analytics']],
+  [['#/orders','Orders'],['#/scm','SCM'],['#/lae-plm','PLM'],['#/domestic/models','Domestic'],['#/purchase-analytics','Purchase Analytics'],['/lae-analytics/','Sales Analytics']],
  );
  assert.deepEqual(cardDestinations(implementsHub),['/implements/#/models','/bom/','/production/','/planning/']);
  const categories=nav.orderHub();assert.ok(!categories.includes('href="#/order-management/implements"'));
  for(const [to,path] of [['division/implements','/#/division/implements'],['division/lae','/#/division/lae'],['purchase-analytics','/#/purchase-analytics'],['lae-sales-analytics','/lae-analytics/'],['implements-purchase','/implements/#/models'],['bom-management','/bom/'],['production-stock','/production/']])assert.equal(globalDestination(to),path);
  const sidebar=nav.sidebar();
  assert.match(sidebar,/<optgroup label="LAE Division">/);assert.match(sidebar,/<optgroup label="Implements Division">/);
- for(const [to,label] of [['orders','Orders'],['scm','SCM'],['domestic/models','Domestic'],['purchase-analytics','Purchase Analytics'],['lae-sales-analytics','Sales Analytics']])assert.ok(sidebar.includes('<option value="'+to+'">'+label+'</option>'),to);
+ for(const [to,label] of [['orders','Orders'],['scm','SCM'],['lae-plm','PLM'],['domestic/models','Domestic'],['purchase-analytics','Purchase Analytics'],['lae-sales-analytics','Sales Analytics']])assert.ok(sidebar.includes('<option value="'+to+'">'+label+'</option>'),to);
 });
 test('monthly planners see only their cost-free plan entry, even with mistaken commercial or production grants',()=>{
  const nav=createNavigation({...host({view:'home'}),context:()=>({ui:{view:'home'},user:{role:'PLAN_OPERATOR',scopes:['IMPLEMENTS_PLANNING','IMPLEMENTS_DOMESTIC','LAE_IMPORT','BOM_MANAGEMENT','PRODUCTION_MANAGEMENT']}})});
@@ -139,7 +139,7 @@ test('single-scope LAE accounts see only their assigned category and VMS require
   const own=scope==='LAE_IMPORT'?'overview':'domestic/models',other=scope==='LAE_IMPORT'?'domestic/models':'overview';
   assert.match(nav.home(),/href="#\/division\/lae"/);assert(nav.orderHub().includes('href="#/'+own+'"'));assert(!nav.orderHub().includes('href="#/'+other+'"'));
   assert.deepEqual(cardDestinations(nav.divisionHub('lae')),scope==='LAE_IMPORT'
-   ?['#/orders','#/scm','#/purchase-analytics','/lae-analytics/']
+   ?['#/orders','#/scm','#/lae-plm','#/purchase-analytics','/lae-analytics/']
    :['#/domestic/models','/lae-analytics/']);
   assert.equal(nav.orderHub().includes('href="#/scm"'),scope==='LAE_IMPORT');
   assert.ok(!nav.divisionHub('lae').includes('href="#/vms"'));
@@ -173,10 +173,27 @@ test('purchase analytics owns the four existing report routes and their active d
  }
 });
 
+test('forecast and technical product routes share the standalone LAE PLM module and Import scope',()=>{
+ const ui={view:'lae-plm'},nav=createNavigation(host(ui));
+ for(const [view,selected] of [['lae-plm','lae-plm'],['plm','plm'],['product','plm']]){
+  ui.view=view;
+  assert.equal(nav.area(),'plm');
+  assert.deepEqual(currentSections(nav.sidebar()),[selected]);
+  assert.match(nav.sidebar(),/data-to="division\/lae"/);
+  assert.match(nav.breadcrumb('Details'),/href="#\/division\/lae"/);
+  if(view!=='lae-plm')assert.match(nav.breadcrumb('Details'),/href="#\/lae-plm"/);
+  for(const scope of ['LAE_DOMESTIC','UTILITY_DOMESTIC','IMPLEMENTS_DOMESTIC']){
+   const denied=createNavigation(host(ui,{role:'VIEWER',scopes:[scope]}));
+   assert.equal(denied.canAccessView(),false);
+   assert.doesNotMatch(denied.sidebar(),/value="lae-plm"/);
+  }
+ }
+});
+
 test('purchase orders retains its scoped operations, supplier tools, and detail navigation',()=>{
  const ui={view:'order-management'},nav=createNavigation(host(ui));
  assert.deepEqual(cardDestinations(nav.orderHub()),['#/overview','#/scm','#/domestic/models']);
- for(const [view,orderId,active] of [['order','PO-123','orders'],['product','SKU-123','plm'],['payment-planner',null,'payments']]){
+ for(const [view,orderId,active] of [['order','PO-123','orders'],['payment-planner',null,'payments']]){
   ui.view=view;ui.orderId=orderId;
   const sidebar=nav.sidebar();
   assert.deepEqual(currentSections(sidebar),[active]);

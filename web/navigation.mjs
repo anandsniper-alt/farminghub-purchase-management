@@ -54,6 +54,7 @@ export function createNavigation(host){
  const laeModules=[
   ['orders','Orders','orders','Import purchase orders, approvals, payments and follow-ups.','LAE_IMPORT'],
   ['scm','SCM','ship','Commercial invoices, container loading, RO tracking and arrival costing.','LAE_IMPORT'],
+  ['lae-plm','PLM','box','Forecast model register and product specifications.','LAE_IMPORT'],
   ['domestic/models','Domestic','box','Milking machine BOMs, suppliers, price lists and purchase orders.','LAE_DOMESTIC'],
   ['purchase-analytics','Purchase Analytics','money','Stock aging, current stock costs, landing prices and RO costings.','LAE_IMPORT'],
   ['lae-sales-analytics','Sales Analytics','grid','Sales performance, stock coverage and purchase requirements.'],
@@ -67,6 +68,7 @@ export function createNavigation(host){
  function area(){
   const {view}=ctx().ui;
   if(!canAccessView(view))return 'home';
+  if(['lae-plm','plm','product'].includes(view))return 'plm';
   if(scmPages.some(([id])=>id===view))return 'scm';
   if(view==='lae-sales-analytics')return 'analytics';
   if(view==='purchase-analytics'||purchaseReports.some(([id])=>id===view))return 'purchase-analytics';
@@ -105,6 +107,7 @@ export function createNavigation(host){
   if(laeAllowed()&&(ui.view==='division'&&ui.orderId==='lae'||ui.view==='order-management'&&ui.orderId!=='implements'))inside='<div class="nav-section-title">LAE Division</div>'+visibleLaeModules().map(([to,label,ic])=>nav(to,label,ic)).join('');
   if(section==='orders'&&laeImportAllowed()&&!['order-management','implements'].includes(ui.view))inside=laeBack+'<div class="nav-section-title">LAE Import Orders</div>'+work.map(([to,label,ic])=>nav(to,label,ic,activeView()===to)).join('')+nav('vms','Vendor Management System','users')+'<details class="nav-catalogues" '+(masters.some(([id])=>id===activeView())?'open':'')+'><summary>Master data & products</summary>'+masters.map(([to,label,ic])=>nav(to,label,ic,activeView()===to)).join('')+'</details>';
   if(section==='scm')inside=laeBack+'<div class="nav-section-title">SCM</div>'+scmPages.map(([to,label,ic])=>nav(to,label,ic,ui.view===to)).join('');
+  if(section==='plm')inside=laeBack+'<div class="nav-section-title">PLM</div>'+nav('lae-plm','Forecast models','grid',ui.view==='lae-plm')+nav('plm','Technical products','box',activeView()==='plm');
   if(section==='purchase-analytics')inside=laeBack+nav('purchase-analytics','Purchase Analytics','grid',ui.view==='purchase-analytics')+purchaseReports.map(([to,label,ic])=>nav(to,label,ic,ui.view===to)).join('');
   if(ui.view==='implements')inside=nav('division/implements','Implements Division','arrow')+'<div class="nav-section-title">Implements purchase</div>'+(host.implementsSections||[]).map(([to,label,ic])=>nav('implements/'+to,label,ic,ui.orderId===to)).join('');
   if(section==='domestic'){
@@ -118,7 +121,7 @@ export function createNavigation(host){
   if(ui.view==='price-workings')inside='<div class="nav-section-title">Price list workings</div>'+nav('price-workings','Utility price','money',true);
   if(section==='vms')inside=nav('orders','Orders','arrow')+'<div class="nav-section-title">Vendor workspace</div>'+host.vmsNavigation();
   const options=(utilityAllowed()?'<optgroup label="Price list workings"><option value="price-workings">Utility price</option></optgroup>':'')+(laeAllowed()?'<optgroup label="LAE Division"><option value="division/lae">All LAE modules</option>'+visibleLaeModules().map(([to,label])=>'<option value="'+to+'">'+esc(label)+'</option>').join('')+'</optgroup>':'')+(showImplementsDivision()?'<optgroup label="Implements Division"><option value="division/implements">All Implements modules</option>'+(purchaseAllowed()?'<option value="implements-purchase">Rotavator purchasing</option>':'')+(bomAllowed()?'<option value="bom-management">BOM &amp; Syntax</option>':'')+(productionAllowed()?'<option value="production-stock">Production &amp; Stock</option>':'')+(planningAllowed()?'<option value="monthly-planning">Monthly plan entry</option>':'')+'</optgroup>':'');
-  const sectionLabel={vms:'VMS sections',scm:'SCM sections',orders:'Orders sections',domestic:'Domestic sections','purchase-analytics':'Purchase Analytics sections',analytics:'Sales Analytics sections'};
+  const sectionLabel={vms:'VMS sections',scm:'SCM sections',plm:'PLM sections',orders:'Orders sections',domestic:'Domestic sections','purchase-analytics':'Purchase Analytics sections',analytics:'Sales Analytics sections'};
   return '<aside id="purchase-navigation" class="sidebar module-sidebar" inert aria-hidden="true"><button type="button" class="brand brand-logo-block brand-home" data-action="nav" data-to="home" aria-label="Farming Hub home"><div class="brand-logo-shell"><img class="brand-logo" src="'+host.logo+'" alt="Farming Hub"></div></button><nav class="module-navigation" aria-label="'+(ui.view==='implements'?'Implements sections':sectionLabel[section]||'Workspace')+'">'+inside+'</nav><div class="sidebar-bottom">'+nav('settings','Users & settings','settings',ui.view==='settings')+nav('versions','Version & edit log','history',ui.view==='versions')+'<div class="module-switcher"><label for="module-select">Modules</label><select id="module-select"><option value="" selected disabled>Select module...</option>'+options+'</select></div></div></aside>';
  }
  const card=(title,description,to,ic,pending=false)=>'<a class="module-card '+(pending?'pending':'')+'" href="'+(to==='lae-sales-analytics'&&ctx().sandbox?'#/'+to:['lae-sales-analytics','price-workings','bom-management','production-stock','monthly-planning','implements-purchase'].includes(to)?moduleDestination(to):'#/'+to)+'"><span class="module-card-icon">'+icon(ic,24)+'</span><span class="module-card-copy"><h2>'+esc(title)+'</h2><p>'+esc(description)+'</p><span class="module-card-state">'+(pending?'Pending development':'Open '+(to.startsWith('division/')?'division':'module')+' '+icon('arrow',14))+'</span></span></a>';
@@ -137,6 +140,7 @@ export function createNavigation(host){
   else if(implementsView){parts.push(['division/implements','Implements Division']);if(ui.view==='implements')parts.push(['implements-purchase','Rotavator purchasing']);else if(ui.view==='bom-management')parts.push(['bom-management','BOM & Syntax']);else if(ui.view==='production-stock')parts.push(['production-stock','Production & Stock']);else if(ui.view==='monthly-planning')parts.push(['monthly-planning','Monthly plan entry']);else last='Implements Division';}
   else if(section==='analytics'){parts.push(['division/lae','LAE Division']);last='Sales Analytics';}
   else if(section==='scm'){parts.push(['division/lae','LAE Division'],['scm','SCM']);if(ui.view==='scm')last='SCM';}
+  else if(section==='plm'){parts.push(['division/lae','LAE Division'],['lae-plm','PLM']);if(ui.view==='lae-plm')last='PLM';if(ui.view==='product')parts.push(['plm','Technical products']);}
   else if(section==='purchase-analytics'){parts.push(['division/lae','LAE Division'],['purchase-analytics','Purchase Analytics']);if(ui.view==='purchase-analytics')last='Purchase Analytics';}
   else if(section==='domestic'){
    const {section:page,detail}=domesticLocation();
@@ -161,6 +165,7 @@ export function createNavigation(host){
   if(view==='order-management')return ctx().ui.orderId==='implements'?implementsAllowed():ctx().ui.orderId==='lae-import'?laeImportAllowed():ctx().ui.orderId==='lae-domestic'?laeDomesticAllowed():laeAllowed();
   if(view==='lae-sales-analytics')return laeAllowed();
   if(view==='domestic')return laeDomesticAllowed();
+  if(view==='lae-plm')return laeImportAllowed();
   if(view==='price-workings')return utilityAllowed();
   if(scmPages.some(([id])=>id===view))return laeImportAllowed();
   if(view==='purchase-analytics'||purchaseReports.some(([id])=>id===view))return laeImportAllowed();
