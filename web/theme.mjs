@@ -41,7 +41,7 @@ document.addEventListener('click',e=>{
  if(target.closest('#modal-root')&&target.dataset.action==='close'&&hasDialogChanges()&&!allowDiscard){e.preventDefault();e.stopImmediatePropagation();askToDiscard();}
 },true);
 document.addEventListener('keydown',e=>{
- const modal=document.querySelector('#modal-root .modal');if(!modal||document.querySelector('#support-tour[open],#domestic-inline-picture'))return;
+ const modal=document.querySelector('#modal-root .modal');if(!modal||document.querySelector('#support-tour[open],#domestic-inline-picture,#development-request-dialog[open]'))return;
  if(e.key==='Escape'&&hasDialogChanges()){e.preventDefault();e.stopImmediatePropagation();askToDiscard();return;}
  if(e.key==='Tab'){const controls=focusables(modal),first=controls[0],last=controls.at(-1);if(!first)return;
   if(e.shiftKey&&(document.activeElement===first||!controls.includes(document.activeElement))){e.preventDefault();e.stopImmediatePropagation();last.focus();}
@@ -55,6 +55,7 @@ function access(main,modal){
  else if(dialogOpen){dialogOpen=false;dialogDirty=false;document.querySelector('#app').inert=false;document.body.classList.remove('dialog-open');(returnFocus?.isConnected?returnFocus:document.querySelector('main.content'))?.focus({preventScroll:true});}
  const error=document.querySelector('#modal-error.visible');if(error&&error.textContent&&error.dataset.announced!==error.textContent){error.dataset.announced=error.textContent;error.tabIndex=-1;error.focus();error.scrollIntoView({block:'nearest'});}
 }
+document.addEventListener('development-request-dialog-open',e=>animate(e.target,'modal'));
 function stopMotion(){for(const context of activeMotion.values())context.revert();activeMotion.clear();}
 function animate(el,kind='page'){
  // GSAP is locally bundled. A missing asset must never block the application.

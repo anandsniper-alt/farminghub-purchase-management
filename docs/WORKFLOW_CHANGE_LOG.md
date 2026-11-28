@@ -1318,3 +1318,8 @@ Select Power Weeder or Brush Cutter, click an engine, then compare grade totals 
 
 ## WF-167 - Choose an LAE workspace (DEC-172)
 2026-11-24. Farming Hub -> LAE Division -> LAE Purchase Order Module for orders and SCM, Purchase Analytics Module for stock/cost reports, or Sales Analytics Module for existing sales reports. Use the Modules selector to switch and the LAE Division link to return. Report bookmarks and payment-planner nesting remain valid. No business process, data or approval changes.
+
+
+## Record and review development requests
+
+2026-11-28. Choose **Log development** on a signed-in screen and enter a title, description and priority. The form records the reporter and screen. Open **Development requests** to follow your concerns. Managers can select **All requests**, filter by **Reported by**, open a request, add a note or change its status. **Copy Codex brief** copies one request with its context and history for a later development task.

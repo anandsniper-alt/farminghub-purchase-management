@@ -1426,3 +1426,8 @@ Reuse shared branded tables, controls, focus restoration and audited dialogs (UI
 
 ## DEC-172 - LAE operational and analytics module navigation
 2026-11-24, user-requested local candidate. LAE Division now offers LAE Purchase Order Module, Purchase Analytics Module and Sales Analytics Module. Purchase analytics owns the existing Stock Aging, Current stock costing, Landing prices and RO costings entry points. Orders retains Import/Domestic, payments and payment planner, loading, shipping, QC/documents, supplier coordination and progressively disclosed masters. VMS moves into the order module. Existing route hashes, data, financial rules and access scopes remain unchanged; purchase reports remain Import-only. Reuse shared cards, drawer, breadcrumbs and module switcher (UI-03/04/05/12). Sales Analytics is independently deployed: its narrow label/return-link patch is maintained on its own current branch, never replaced with the older Purchase copy. Local review only; no live release claimed.
+
+
+## Development request ownership
+
+2026-11-28. Development requests belong to the signed-in reporter. Store the reporter ID and name at submission and the acting user on each follow-up. Managers and administrators may review all requests within their application. Each application keeps its own register in its existing SQLite database. The Codex brief is copied on demand.

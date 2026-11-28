@@ -1,0 +1,9 @@
+.concern-entry { display:inline-flex; align-items:center; justify-content:center; gap:.4rem; white-space:nowrap; min-height:44px; }
+.concern-launcher { position:fixed; right:max(1rem,env(safe-area-inset-right)); bottom:max(1rem,env(safe-area-inset-bottom)); z-index:35; box-shadow:0 2px 8px #173d3029; }
+body:has(.concern-launcher) :is(main.content,main.closing-content,.concern-page) { padding-bottom:max(5rem,env(safe-area-inset-bottom)); }
+body:has(#app[inert],#modal-root .modal,dialog[open]) > .concern-launcher { display:none; }
+.modal-head > .concern-entry { order:1; margin-left:auto; }
+.modal-head > .concern-entry ~ [aria-label*="Close"] { order:2; }
+.concern-page { max-width:1280px; margin:auto; padding:clamp(14px,3vw,36px); }
+.concern-toolbar { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1rem; }
+@media print { .concern-entry, .concern-toolbar, [data-concern-register] { display:none!important; } }
