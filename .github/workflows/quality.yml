@@ -15,10 +15,11 @@ jobs:
         with:
           node-version: '24'
       - name: Existing document export dependencies
-        run: sudo apt-get update && sudo apt-get install -y python3-openpyxl python3-reportlab python3-pypdf
+        run: sudo apt-get update && sudo apt-get install -y python3-openpyxl python3-reportlab python3-pypdf weasyprint fonts-liberation fonts-noto-cjk
       - run: node --test tests/*.test.mjs
         env:
           FH_PYTHON: /usr/bin/python3
+          FH_PO_PDF_QA_OUTPUT: ${{ runner.temp }}/po-pdf-qa
       - run: node scripts/build.mjs --domestic-preview
   analytics:
     runs-on: ubuntu-latest

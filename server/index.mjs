@@ -6,6 +6,7 @@ import {LaeStockStore} from './lae-stock-store.mjs';
 import {readPlmForecast,importPlmForecast} from './lae-plm-forecast.mjs';
 import {assertLaeStockAccess as assertPlmAccess} from '../shared/lae-stock-costing.mjs';
 import {LaeStockAgingStore} from './lae-stock-aging-store.mjs';
+import {purchaseOrderDownload,renderPurchaseOrderPdf as renderPoPdf,renderPurchaseOrderXlsx as renderPoXlsx} from './purchase-order-download.mjs';
 import {buildLaeStockXlsx,buildLaeStockPdf} from './lae-stock-exports.mjs';
 import {RoCostingStore} from './ro-costing-store.mjs';
 import {buildLandingPricesXlsx,buildLandingPricesPdf} from './landing-price-exports.mjs';
@@ -47,13 +48,15 @@ const uuid='[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
 const developmentRequestPath=new RegExp('^/api/development-requests/(DR-'+uuid+')(?:/images/('+uuid+'))?$');
 const ext=s=>'.'+s.split('.').at(-1).toLowerCase();
 const MIME={'.wasm':'application/wasm','.json':'application/json; charset=utf-8','.svg':'image/svg+xml','.webmanifest':'application/manifest+json','.mjs':'text/javascript; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.html':'text/html; charset=utf-8','.pdf':'application/pdf','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.webp':'image/webp','.txt':'text/plain','.csv':'text/csv','.eml':'message/rfc822','.docx':'application/vnd.openxmlformats-officedocument.wordprocessingml.document','.xlsx':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'};
-export function makeServer(store,{origin=null,secureCookie=false,applicationMode=process.env.FH_APP_MODE||'purchase',migrationSource=process.env.FH_MIGRATION_SOURCE||'https://purchase.dvjassociates.com',migrationTarget=process.env.FH_MIGRATION_TARGET||'https://implements.dvjassociates.com',releaseSha=process.env.SOURCE_COMMIT||process.env.FH_RELEASE_SHA||null,log=event=>console.log(JSON.stringify(event))}={}){const standalone=applicationMode==='implements';let developmentRequestStore;const getDevelopmentRequests=()=>developmentRequestStore||(developmentRequestStore=new DevelopmentRequestStore(store,standalone?'implements':'purchase'));let laeAgingStore;const getLaeAging=()=>laeAgingStore||(laeAgingStore=new LaeStockAgingStore(store));let laeStockStore;const getLaeStock=()=>laeStockStore||(laeStockStore=new LaeStockStore(store));let roCostingStore;const getRoCostings=()=>roCostingStore||(roCostingStore=new RoCostingStore(store));let implementsStore;const getImplements=()=>implementsStore||(implementsStore=guardModule(new ImplementsStore(store),store,standalone,['save']));let bomStore;const getBom=()=>bomStore||(bomStore=guardModule(new BomManagementStore(store,getImplements()),store,standalone,['command']));let productionStore;const getProduction=()=>productionStore||(productionStore=guardModule(new ProductionStore(store,getImplements()),store,standalone,['command']));let planningStore;const getPlanning=()=>planningStore||(planningStore=guardModule(new PlanningStore(store,getImplements()),store,standalone,['command']));let utilityPriceStore;const getUtilityPrices=()=>utilityPriceStore||(utilityPriceStore=new UtilityPriceStore(store));const readCache=new ReadCache();const cachedJson=(res,key,session,build)=>{const generation=store.readGeneration();const value=readCache.get(key+'|'+JSON.stringify([session.user.id,session.user.role,session.user.scopes,session.csrf]),generation,()=>{const data=build(),token=data.editContext,revision=data.state?.revision;return {value:JSON.stringify(data),isValid:token?()=>{try{store.editVersions.read(token,session.user.id,revision);return true;}catch{return false;}}:null};});res.writeHead(200,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'private, no-store'});res.end(value);};const attempts=new Map(),release=/^[a-f0-9]{7,64}$/i.test(releaseSha||'')?releaseSha:null;return http.createServer(async(req,res)=>{
+export function makeServer(store,{origin=null,secureCookie=false,applicationMode=process.env.FH_APP_MODE||'purchase',migrationSource=process.env.FH_MIGRATION_SOURCE||'https://purchase.dvjassociates.com',migrationTarget=process.env.FH_MIGRATION_TARGET||'https://implements.dvjassociates.com',releaseSha=process.env.SOURCE_COMMIT||process.env.FH_RELEASE_SHA||null,renderPurchaseOrderPdf=renderPoPdf,renderPurchaseOrderXlsx=renderPoXlsx,log=event=>console.log(JSON.stringify(event))}={}){const standalone=applicationMode==='implements';let developmentRequestStore;const getDevelopmentRequests=()=>developmentRequestStore||(developmentRequestStore=new DevelopmentRequestStore(store,standalone?'implements':'purchase'));let laeAgingStore;const getLaeAging=()=>laeAgingStore||(laeAgingStore=new LaeStockAgingStore(store));let laeStockStore;const getLaeStock=()=>laeStockStore||(laeStockStore=new LaeStockStore(store));let roCostingStore;const getRoCostings=()=>roCostingStore||(roCostingStore=new RoCostingStore(store));let implementsStore;const getImplements=()=>implementsStore||(implementsStore=guardModule(new ImplementsStore(store),store,standalone,['save']));let bomStore;const getBom=()=>bomStore||(bomStore=guardModule(new BomManagementStore(store,getImplements()),store,standalone,['command']));let productionStore;const getProduction=()=>productionStore||(productionStore=guardModule(new ProductionStore(store,getImplements()),store,standalone,['command']));let planningStore;const getPlanning=()=>planningStore||(planningStore=guardModule(new PlanningStore(store,getImplements()),store,standalone,['command']));let utilityPriceStore;const getUtilityPrices=()=>utilityPriceStore||(utilityPriceStore=new UtilityPriceStore(store));const readCache=new ReadCache();const cachedJson=(res,key,session,build)=>{const generation=store.readGeneration();const value=readCache.get(key+'|'+JSON.stringify([session.user.id,session.user.role,session.user.scopes,session.csrf]),generation,()=>{const data=build(),token=data.editContext,revision=data.state?.revision;return {value:JSON.stringify(data),isValid:token?()=>{try{store.editVersions.read(token,session.user.id,revision);return true;}catch{return false;}}:null};});res.writeHead(200,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'private, no-store'});res.end(value);};const attempts=new Map(),release=/^[a-f0-9]{7,64}$/i.test(releaseSha||'')?releaseSha:null;return http.createServer(async(req,res)=>{
  const started=performance.now(),requestId=randomUUID();let route='static';
  res.setHeader('X-Request-ID',requestId);
  res.once('finish',()=>{const durationMs=Math.round(performance.now()-started);if(res.statusCode>=500||durationMs>=1000){try{log({event:'http_request',requestId,method:req.method,route,status:res.statusCode,durationMs});}catch{/* Logging failures must not affect a completed request. */}}});
  res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Referrer-Policy','same-origin');res.setHeader('X-Frame-Options','SAMEORIGIN');res.setHeader('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; frame-src 'self' blob: https://drive.google.com; frame-ancestors 'self'; base-uri 'none'; form-action 'self'");
  try{const url=new URL(req.url,'http://localhost'),path=url.pathname;route=path.startsWith('/api/')?(['/api/health','/api/bootstrap','/api/revision','/api/login','/api/logout','/api/commands','/api/users','/api/files','/api/integration/v1/snapshot'].includes(path)?path:path.startsWith('/api/files/')?'/api/files/:id':path.startsWith('/api/requests/')?'/api/requests/:id':'/api/other'):'static';
  if(isDevelopmentRequestsApi(path))route=path===DEVELOPMENT_REQUESTS_API?path:DEVELOPMENT_REQUESTS_API+'/:id';
+ const orderDownload=/^\/api\/orders\/([^/]+)\/(pdf|xlsx)$/.exec(path);
+ if(orderDownload)route=`/api/orders/:id/${orderDownload[2]}`;
  if(path==='/api/health'&&req.method==='GET'){try{if(!Number.isSafeInteger(store.revision()))throw Error();return json(res,200,{status:'ok',version:APP_VERSION,storage:'sqlite',releaseSha:release});}catch{return json(res,503,{status:'unavailable',version:APP_VERSION,storage:'sqlite',releaseSha:release});}}
  if(path==='/api/implements-migration-status'&&req.method==='GET')return json(res,200,publicTransferState(store,standalone));
  if(!standalone&&modulePage(path)&&['GET','HEAD'].includes(req.method)&&transferState(store)?.phase==='MOVED'){
@@ -202,6 +205,29 @@ export function makeServer(store,{origin=null,secureCookie=false,applicationMode
   }
   if(path==='/api/integration/v1/snapshot'&&req.method==='GET'){if(session.user.role!=='ADMIN')throw new RuleError('Administrator access required for integration export.','FORBIDDEN');return json(res,200,integrationSnapshot(scopedState(store.read(),session.user)));}
   if(path==='/api/revision'&&req.method==='GET')return json(res,200,{revision:store.revision()});
+  if(orderDownload&&req.method==='GET'){
+   const [,encodedId,format]=orderDownload,pdf=format==='pdf';
+   const {payload,filename}=purchaseOrderDownload(store.read(),session.user,encodedId,url.searchParams,format);
+   const controller=new AbortController(),disconnect=()=>controller.abort();
+   res.once('close',disconnect);
+   try{
+    const render=pdf?renderPurchaseOrderPdf:renderPurchaseOrderXlsx;
+    const bytes=await render(payload,{signal:controller.signal});
+    if(controller.signal.aborted)return;
+    const complete=Buffer.isBuffer(bytes)&&(pdf?bytes.subarray(0,5).toString()==='%PDF-'&&bytes.subarray(-16).toString().trimEnd().endsWith('%%EOF'):
+     bytes.subarray(0,4).toString('hex')==='504b0304'&&bytes.subarray(-22,-18).toString('hex')==='504b0506');
+    if(!complete){
+     return json(res,503,{error:pdf?'Purchase order PDF preparation is unavailable. Try again or use Print PO.':'Purchase order Excel preparation is unavailable. Try again.'});
+    }
+    const type=pdf?'application/pdf':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+    res.writeHead(200,{'Content-Type':type,'Content-Length':bytes.length,'Content-Disposition':`attachment; filename="${filename}"`,'Cache-Control':'private, no-store','Cross-Origin-Resource-Policy':'same-origin'});
+    return res.end(bytes);
+   }catch(error){
+    if(controller.signal.aborted)return;
+    if(['DOWNLOAD_UNAVAILABLE','PDF_UNAVAILABLE'].includes(error.code))return json(res,503,{error:error.message});
+    throw error;
+   }finally{res.removeListener('close',disconnect);}
+  }
   if(path==='/api/bootstrap'&&req.method==='GET')return cachedJson(res,path,session,()=>{const state=store.read();return {state:scopedState(state,session.user),user:session.user,csrf:session.csrf,editContext:store.editContext(state,session.user.id)};});
   if(path==='/api/users/reset-password'&&req.method==='POST'){
    if(session.user.role!=='ADMIN')throw new RuleError('Administrator access is required to reset passwords.','FORBIDDEN');

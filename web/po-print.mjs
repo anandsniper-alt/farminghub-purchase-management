@@ -1,5 +1,6 @@
 import {companyHtml} from '../shared/company-profile.mjs';
 import {costCenterName,costCenterReadiness} from '../shared/cost-centres.mjs';
+import {hasValueTerms,paymentTermsSummary} from '../shared/domain.mjs';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const num=value=>Number(value).toLocaleString('en-US');
@@ -11,6 +12,14 @@ export function poPrintSource(order,{revisionIndex,vendor,specificationForLine=(
  const issued=(order.revisions||[])[revisionIndex??order.revisions?.length-1];
  const snapshot=issued?.snapshot||{...order,vendor,lines:order.lines.map(line=>({...line,specification:specificationForLine(line)})),attachments:[]};
  return {snapshot,issued:!!issued,revision:issued?.revision??0,date:issued?.at||order.createdAt,actor:issued?.actor||'Pending approval',reference,demo};
+}
+
+export function poPrintOptions(snapshot,logo){
+ const {paymentTerms,priceConversion:fx}=snapshot;
+ const currencyName=currency=>currency==='CNY'?'RMB':currency;
+ const pair=fx?.quote==='USD_CNY';
+ return {logo,terms:hasValueTerms(paymentTerms)?paymentTermsSummary(paymentTerms):paymentTerms?.name,
+  fx:fx?`1 ${currencyName(pair?'USD':fx.from)} = ${fx.rate/1e6} ${currencyName(pair?'CNY':fx.to)} · ${date(fx.date)}`:''};
 }
 
 export function poAllocationSummary(snapshot) {
@@ -79,7 +88,8 @@ export const poPrintStyles=`
 .po-document .po-ref p{font-size:8pt;margin-top:3pt;color:#59665e}
 .po-document .po-status{display:inline-block;background:#f6f0dd;border:1px solid #d9c58b;color:#755a15;padding:4pt 8pt;font-size:8pt;font-weight:bold;margin-top:6pt}
 .po-document .po-status.issued{background:#edf3e8;border-color:#c7d6bb;color:#204321}
-.po-document .po-info{display:grid;grid-template-columns:1fr 1fr;gap:6pt 20pt;padding:8pt;background:#f4f6ee;border:1px solid #dce2d3;break-inside:avoid}
+.po-document .po-info{padding:8pt;background:#f4f6ee;border:1px solid #dce2d3;break-inside:avoid}
+.po-document .po-info>div{display:inline-block;vertical-align:top;width:49%;padding:0 10pt 6pt 0}
 .po-document .po-label{font-size:7pt;text-transform:uppercase;letter-spacing:.6pt;color:#657060;margin-bottom:3pt}
 .po-document .po-info strong{font-size:10pt}.po-document .po-muted{color:#637168;font-size:8pt}
 .po-document table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:8.5pt;line-height:1.35}
@@ -89,10 +99,15 @@ export const poPrintStyles=`
 .po-document tbody tr:nth-child(even){background:#f7f8f3}.po-document tr{break-inside:avoid}
 .po-document .po-number{text-align:right;font-variant-numeric:tabular-nums;overflow-wrap:normal;white-space:nowrap}
 .po-document .po-desc{font-size:8pt;color:#58695c;margin-top:1pt}
-.po-document .po-total{display:flex;justify-content:space-between;align-items:center;gap:12pt;background:#edf2e4;padding:8pt;margin-top:0;break-inside:avoid;border-top:2pt solid #204321}
-.po-document .po-total strong{font-size:17pt;color:#204321}
-.po-document .po-dual{font-size:7.5pt}.po-document .po-dual th{font-size:7pt;padding:6pt 4pt;white-space:normal}.po-document .po-dual td{padding:5pt 4pt}.po-document .po-currency-group{text-align:center;border-left:1px solid #7a9470}.po-document .po-dual th[rowspan]{vertical-align:middle}.po-document .po-currency-totals{display:flex;gap:22pt}.po-document .po-currency-totals strong{font-size:13pt}
-.po-document .po-notes{display:grid;grid-template-columns:1fr 1fr;gap:20pt;margin-top:10pt;break-inside:avoid}
+.po-document .po-total{display:table;table-layout:fixed;width:100%;background:#edf2e4;padding:8pt;break-inside:avoid;border-top:2pt solid #204321}
+.po-document .po-total>span,.po-document .po-total>div{display:table-cell;vertical-align:middle}
+.po-document .po-total>span{width:27%}
+.po-document .po-total strong{font-size:17pt;color:#204321;white-space:normal}
+.po-document .po-dual{font-size:7.5pt}.po-document .po-dual th{font-size:7pt;padding:6pt 4pt;white-space:normal}.po-document .po-dual td{padding:5pt 4pt}.po-document .po-currency-group{text-align:center;border-left:1px solid #7a9470}.po-document .po-dual th[rowspan]{vertical-align:middle}.po-document .po-currency-totals>div{display:inline-block;width:50%;padding-left:6pt;vertical-align:top}.po-document .po-currency-totals strong{font-size:13pt}
+.po-document .po-notes{margin-top:10pt;break-inside:avoid}
+.po-document .po-notes>div{display:inline-block;vertical-align:top;width:49%;padding-right:10pt}
+.po-document .po-notes.long{break-inside:auto}
+.po-document .po-notes.long>div{display:block;width:auto;padding:0 0 6pt}
 .po-document .po-notes h3{font-size:9pt;margin-bottom:5pt}.po-document .po-pre{white-space:pre-wrap;line-height:1.5;margin:0;font:inherit}
 .po-document .po-warning{padding:8pt 10pt;border-left:3pt solid #b29242;background:#faf4e5;color:#715615;font-size:8pt;margin-top:10pt;break-inside:avoid}
 .po-document .po-allocation{break-before:page}
@@ -136,7 +151,10 @@ export function renderPoPrint(data,{logo='',terms='',fx=''}={}) {
  const title=esc(s.number||'Unnumbered draft');
  const header=`<header class="po-head"><div>${logo?'<img class="po-logo" src="'+esc(logo)+'" alt="Farming Hub">':''}<h1>Purchase order</h1></div><div class="po-ref"><strong>${title}</strong><p>PO revision ${esc(data.revision)} / ${esc(date(data.date))}</p>${data.issued?'':'<span class="po-status">DRAFT / NOT ISSUED</span>'}</div></header>`;
  const orderTable=dual?dualCurrencyTable(dual,lines,a.quantity,esc):`<h2>01 / Order items</h2><table aria-label="Purchase order items"><colgroup><col style="width:7%"><col style="width:18%"><col style="width:39%"><col style="width:9%"><col style="width:13%"><col style="width:14%"></colgroup><thead><tr><th>#</th><th>Item Category</th><th>ERP item / description</th><th class="po-number">Qty</th><th class="po-number">Unit price<br>${currency}</th><th class="po-number">Amount<br>${currency}</th></tr></thead><tbody>${lines.map((l,i)=>`<tr><td>${i+1}</td><td>${esc(String(l.category||'').trim()||'Not recorded')}</td><td><b>${esc(l.code)}</b><div class="po-desc">${esc(l.name)}</div></td><td class="po-number">${num(l.quantity)}</td><td class="po-number">${money(l.unitPriceMinor)}</td><td class="po-number"><b>${money(l.quantity*l.unitPriceMinor)}</b></td></tr>`).join('')}</tbody></table><div class="po-total"><span><b>${num(a.quantity)} units</b><br><span class="po-muted">${lines.length} ERP item lines</span></span><div class="po-number"><div class="po-label">Total purchase value</div><strong>${currency} ${money(total)}</strong></div></div>`;
- const notes=`<div class="po-notes"><div><h3>Commercial remarks</h3><div class="po-pre">${esc(s.notes||'None recorded.')}</div></div><div><h3>${data.issued?'Issued':'Draft'} document manifest</h3><div class="po-pre">${s.attachments?.length?s.attachments.map(d=>esc(d.name)+(d.fileId?' / '+esc(d.fileId):'')).join('<br>'):data.issued?'No additional files attached at the time of issue.':'No issued document manifest yet.'}</div></div></div><div class="po-end">${data.issued?'Issued by':'Approval'}: ${esc(data.actor)}${data.demo?' / DEMONSTRATION ONLY - not a real commercial order.':''}</div>`;
+ const remarks=String(s.notes||'None recorded.');
+ const manifest=s.attachments?.map(d=>esc(d.name)+(d.fileId?' / '+esc(d.fileId):''))||[];
+ const longNotes=remarks.length>1200||remarks.split('\n').length>15||manifest.length>15||manifest.join('').length>1200;
+ const notes=`<div class="po-notes${longNotes?' long':''}"><div><h3>Commercial remarks</h3><div class="po-pre">${esc(remarks)}</div></div><div><h3>${data.issued?'Issued':'Draft'} document manifest</h3><div class="po-pre">${manifest.length?manifest.join('<br>'):data.issued?'No additional files attached at the time of issue.':'No issued document manifest yet.'}</div></div></div><div class="po-end">${data.issued?'Issued by':'Approval'}: ${esc(data.actor)}${data.demo?' / DEMONSTRATION ONLY - not a real commercial order.':''}</div>`;
  const summary=`<table aria-label="Cost centre purchase value summary"><colgroup><col style="width:39%"><col style="width:17%"><col style="width:25%"><col style="width:19%"></colgroup><thead><tr><th>Cost centre</th><th class="po-number">Allocated qty</th><th class="po-number">Purchase value (${currency})</th><th class="po-number">Share of value</th></tr></thead><tbody>${a.centres.map(c=>`<tr><td><b>${esc(c.name)}</b><div class="po-desc">${esc(c.id)}</div></td><td class="po-number">${num(c.quantity)}</td><td class="po-number">${money(c.value)}</td><td class="po-number">${a.value?(100*c.value/a.value).toFixed(2)+'%':'N/A'}</td></tr>`).join('')}</tbody></table>`;
  const detail=a.centres.length?`<h2>Item allocation details</h2><table class="po-allocation-table" aria-label="Item cost centre quantities and purchase values"><colgroup><col style="width:17%"><col style="width:8%"><col style="width:12%">${a.centres.map(()=>'<col style="width:'+21/a.centres.length+'%"><col style="width:'+42/a.centres.length+'%">').join('')}</colgroup><thead><tr><th rowspan="2">ERP item</th><th rowspan="2" class="po-number">PO<br>qty</th><th rowspan="2" class="po-number">Unit price<br>${currency}</th>${a.centres.map(c=>'<th colspan="2" class="group">'+esc(c.name)+'</th>').join('')}</tr><tr>${a.centres.map(()=>'<th class="po-number centre-start">Qty</th><th class="po-number">'+currency+'</th>').join('')}</tr></thead><tbody>${a.rows.map(r=>`<tr><td><b>${esc(r.line.code)}</b>${r.remaining?'<div class="po-desc">'+num(r.remaining)+' unallocated</div>':''}</td><td class="po-number">${num(r.line.quantity)}</td><td class="po-number">${money(r.line.unitPriceMinor)}</td>${r.allocations.map(c=>'<td class="po-number centre-start">'+num(c.quantity)+'</td><td class="po-number">'+money(c.value)+'</td>').join('')}</tr>`).join('')}</tbody><tfoot><tr><td>Total</td><td class="po-number">${num(a.quantity)}</td><td></td>${a.centres.map(c=>'<td class="po-number centre-start">'+num(c.quantity)+'</td><td class="po-number">'+money(c.value)+'</td>').join('')}</tr></tfoot></table>`:'';
  const balanced=!a.errors.length&&a.allocatedValue===total&&a.allocatedQuantity===a.quantity;
