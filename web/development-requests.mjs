@@ -3,6 +3,10 @@ const register='/development-requests.html';
 const statuses=['Open','In progress','Resolved','Closed'];
 const priorities=['Normal','High','Low'];
 const openSelector='[data-development-request-open]';
+const imageLimit=5;
+const imageSizeLimit=5*1024*1024;
+const imageTypes={'image/png':'png','image/jpeg':'jpg','image/webp':'webp'};
+const imageExtensions={png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',webp:'image/webp'};
 const titles={
  home:'Modules',overview:'Purchase overview',orders:'Order pipeline',order:'Purchase order',
  'order-management':'Order Management',division:'Division',domestic:'Domestic purchase',scm:'LAE Import SCM',
@@ -91,7 +95,7 @@ export function developmentRequestContext(pageHref,{route,dialog}={}){
 }
 
 async function request(path='',{data,signal}={}){
- const timeout=AbortSignal.timeout(15000);
+ const timeout=AbortSignal.timeout(data?.images?.length?180000:15000);
  let response;
  try{
   response=await fetch(collection+path,{
@@ -112,9 +116,10 @@ async function request(path='',{data,signal}={}){
  return result;
 }
 
-function nextAttempt(previous,payload){
+function nextAttempt(previous,payload,images=[]){
  const signature=JSON.stringify(payload);
- return previous?.signature===signature?previous:{signature,id:crypto.randomUUID()};
+ const sameImages=images.length===previous?.images?.length&&images.every((image,index)=>image===previous.images[index]);
+ return previous?.signature===signature&&sameImages?previous:{signature,images:[...images],id:crypto.randomUUID()};
 }
 
 function showMessage(element,message=''){
@@ -133,6 +138,96 @@ const discardNotice=`<div class="dev-request-discard" hidden>
  <strong>Discard unsaved changes?</strong>
  <div class="dev-request-actions"><button type="button" class="button primary" data-request-keep>Keep editing</button><button type="button" class="button" data-request-discard>Discard changes</button></div>
 </div>`;
+
+function encodeImage({file,name,type}){
+ return new Promise((resolve,reject)=>{
+  const reader=new FileReader();
+  reader.onload=()=>resolve({name,type,data:reader.result.slice(reader.result.indexOf(',')+1)});
+  reader.onerror=()=>reject(new Error('Could not read '+name+'. Remove it and add it again.'));
+  reader.readAsDataURL(file);
+ });
+}
+
+function imagePicker(form){
+ const input=form.querySelector('[data-request-images]');
+ const list=form.querySelector('[data-request-image-previews]');
+ const count=form.querySelector('[data-request-image-count]');
+ const error=form.querySelector('[data-request-image-error]');
+ const images=[];
+ let busy=false,screenshotNumber=1;
+
+ function render(){
+  input.disabled=busy||images.length>=imageLimit;
+  count.textContent=images.length+' of '+imageLimit+' attached';
+  list.hidden=!images.length;
+  list.innerHTML=images.map(({preview,name},index)=>`<li class="dev-request-image-card">
+    <img src="${esc(preview)}" alt="">
+    <span title="${esc(name)}">${esc(name)}</span>
+    <button class="button" type="button" data-request-remove-image="${index}" aria-label="Remove ${esc(name)}">Remove</button>
+   </li>`).join('');
+ }
+
+ function add(files,pasted=false){
+  const pickerFocused=document.activeElement===input;
+  const problems=new Set();
+  for(const file of files){
+   const filename=file.name.trim();
+   const extension=filename.split('.').at(-1).toLowerCase();
+   const type=file.type||imageExtensions[extension];
+   if(!Object.hasOwn(imageTypes,type)){
+    problems.add('Choose PNG, JPG or WebP images.');
+   }else if(!file.size||file.size>imageSizeLimit){
+    problems.add(file.size?'Each image must be 5 MB or smaller.':'An empty image could not be added.');
+   }else if(images.length>=imageLimit){
+    problems.add('You can attach up to five images. Remove one to add another.');
+   }else if(!pasted&&(!filename||filename.length>200||!filename.isWellFormed()||/[\\/\x00-\x1f\x7f]/.test(filename))){
+    problems.add('Rename the image with a valid filename of up to 200 characters and try again.');
+   }else{
+    const name=pasted?'Screenshot '+screenshotNumber+'.'+imageTypes[type]:filename;
+    images.push({file,name,type,preview:URL.createObjectURL(file.type?file:file.slice(0,file.size,type))});
+    if(pasted)screenshotNumber++;
+   }
+  }
+  render();
+  if(input.disabled&&pickerFocused)list.querySelector('button')?.focus();
+  showMessage(error,[...problems].join(' '));
+ }
+
+ input.addEventListener('change',()=>{
+  if(busy)return;
+  add(input.files);
+  input.value='';
+ });
+ list.addEventListener('click',event=>{
+  const control=event.target.closest('[data-request-remove-image]');
+  if(!control||busy)return;
+  const index=Number(control.dataset.requestRemoveImage);
+  const [removed]=images.splice(index,1);
+  URL.revokeObjectURL(removed.preview);
+  render();
+  showMessage(error);
+  (list.querySelectorAll('button')[Math.min(index,images.length-1)]||input).focus();
+ });
+ render();
+ return {
+  images,
+  paste(event){
+   const files=event.clipboardData?.files;
+   if(!files?.length)return;
+   event.preventDefault();
+   if(!busy)add(files,true);
+  },
+  setBusy(value){
+   busy=value;
+   input.disabled=busy||images.length>=imageLimit;
+  },
+  clear(){
+   for(const {preview} of images)URL.revokeObjectURL(preview);
+   images.length=0;
+   list.replaceChildren();
+  },
+ };
+}
 
 export function configureDevelopmentRequests(next){
  const identityChanged=session?.user?.id!==next?.user?.id;
@@ -161,6 +256,17 @@ export function openDevelopmentRequest(trigger=document.activeElement){
   <div class="dev-request-field"><label for="development-request-title">Title</label><input id="development-request-title" name="title" required maxlength="120" autocomplete="off"></div>
   <div class="dev-request-field"><label for="development-request-description">Description</label><textarea id="development-request-description" name="description" required maxlength="4000" rows="5" aria-describedby="development-request-description-help"></textarea><small id="development-request-description-help">Describe what happened or what should change, and how it affects your work.</small></div>
   <div class="dev-request-field dev-request-priority"><label for="development-request-priority">Priority</label><select id="development-request-priority" name="priority">${options(priorities,'Normal')}</select></div>
+  <div class="dev-request-field dev-request-images">
+   <label id="development-request-images-label" for="development-request-images">Images and screenshots <span class="dev-request-optional">(optional)</span></label>
+   <div class="dev-request-image-picker">
+    <input id="development-request-images" type="file" accept="image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp" multiple aria-labelledby="development-request-images-label" aria-describedby="development-request-images-help development-request-images-count" data-request-images>
+    <label for="development-request-images" class="button dev-request-choose-images" aria-hidden="true">Choose images</label>
+    <small id="development-request-images-count" role="status" data-request-image-count></small>
+   </div>
+   <small id="development-request-images-help">Choose images or paste screenshots here. PNG, JPG or WebP, up to 5 MB each.</small>
+   <p class="dev-request-error" role="alert" data-request-image-error hidden></p>
+   <ul class="dev-request-image-grid" aria-label="Images to attach" data-request-image-previews hidden></ul>
+  </div>
   <p class="dev-request-error" role="alert" hidden></p>
   ${discardNotice}
   <div class="dev-request-dialog-foot">
@@ -175,10 +281,12 @@ export function openDevelopmentRequest(trigger=document.activeElement){
  </div>`;
  const form=dialog.querySelector('form');
  const heading=dialog.querySelector('h2');
- const errorBox=dialog.querySelector('.dev-request-error');
+ const errorBox=form.querySelector(':scope > .dev-request-error');
  const submit=form.querySelector('[type="submit"]');
+ const picker=imagePicker(form);
  const values=()=>Object.fromEntries(new FormData(form));
- const isDirty=()=>!saved&&!!(form.elements.title.value||form.elements.description.value||form.elements.priority.value!=='Normal');
+ const isDirty=()=>!saved&&!!(form.elements.title.value||form.elements.description.value||form.elements.priority.value!=='Normal'||picker.images.length);
+ const dialogController=new AbortController();
  let pending=false,attempt=null,saved=false;
  const beforeUnload=event=>{if(isDirty()){event.preventDefault();event.returnValue='';}};
  const close=()=>{if(dialog.open)dialog.close();};
@@ -188,12 +296,15 @@ export function openDevelopmentRequest(trigger=document.activeElement){
   else close();
  };
  const onClose=()=>{
+  dialogController.abort();
+  picker.clear();
   window.removeEventListener('beforeunload',beforeUnload);
   dialog.remove();
   if(capture?.dialog===dialog)capture=null;
   if(trigger?.isConnected)trigger.focus({preventScroll:true});
  };
  dialog.addEventListener('close',onClose,{once:true});
+ dialog.addEventListener('paste',event=>{if(!saved)picker.paste(event);});
  dialog.addEventListener('cancel',event=>{event.preventDefault();cancel();});
  dialog.addEventListener('keydown',event=>{
   if(event.key==='Escape'){event.stopPropagation();return;}
@@ -218,17 +329,26 @@ export function openDevelopmentRequest(trigger=document.activeElement){
    form.elements[payload.title?'description':'title'].focus();
    return;
   }
-  attempt=nextAttempt(attempt,payload);
+  attempt=nextAttempt(attempt,payload,picker.images);
   pending=true;
   form.setAttribute('aria-busy','true');
   showMessage(errorBox);
   for(const control of form.elements)control.disabled=true;
+  picker.setBusy(true);
   submit.textContent='Submitting…';
   try{
-   const result=await request('',{data:{...payload,requestId:attempt.id}});
+   if(!dialog.open)return;
+   const images=await Promise.all(picker.images.map(encodeImage));
+   if(!dialog.open||session?.user.id!==actor.id)return;
+   const result=await request('',{
+    data:{...payload,requestId:attempt.id,...(images.length?{images}:{})},
+    signal:dialogController.signal,
+   });
    if(!dialog.open)return;
    saved=true;
    form.hidden=true;
+   picker.clear();
+   attempt=null;
    const success=dialog.querySelector('.dev-request-success');
    success.hidden=false;
    success.querySelector('[data-development-request-status]').textContent=result.request.title+' was added to your requests.';
@@ -241,6 +361,7 @@ export function openDevelopmentRequest(trigger=document.activeElement){
    pending=false;
    form.removeAttribute('aria-busy');
    for(const control of form.elements)control.disabled=false;
+   picker.setBusy(false);
    submit.textContent='Submit request';
   }
  });
@@ -256,6 +377,21 @@ export function openDevelopmentRequest(trigger=document.activeElement){
 function statusChange(event){
  if(!event.fromStatus)return 'Request logged';
  return event.fromStatus===event.toStatus?'Note added':event.fromStatus+' → '+event.toStatus;
+}
+
+const imageUrl=(requestId,imageId)=>collection+'/'+encodeURIComponent(requestId)+'/images/'+encodeURIComponent(imageId);
+
+function renderSavedImages(requestId,images){
+ if(!images?.length)return '';
+ return `<section class="dev-request-saved-images" aria-label="Attached images">
+  <h2>Attached images</h2>
+  <ul class="dev-request-image-grid">${images.map(image=>{
+   const url=imageUrl(requestId,image.id);
+   return `<li><a class="dev-request-image-card" href="${esc(url)}" target="_blank" rel="noopener" aria-label="Open ${esc(image.name)} (opens in a new tab)">
+    <img src="${esc(url)}" alt="" loading="lazy" decoding="async"><span>${esc(image.name)}</span>
+   </a></li>`;
+  }).join('')}</ul>
+ </section>`;
 }
 
 function codexBrief({request:record,history}){
@@ -443,7 +579,7 @@ export function mountDevelopmentRequests(root){
  function renderDetail(data,back,preserved,{saved=false}={}){
   detailData=data;
   update=null;
-  const {request:record,history}=data;
+  const {request:record,history,images}=data;
   detailView.innerHTML=`<div class="dev-request-detail-nav">${back}</div>
    <div class="dev-request-panel dev-request-detail">
     <div class="dev-request-page-head"><div><p class="dev-request-meta">${esc(record.id)}</p><h1 tabindex="-1">${esc(record.title)}</h1></div>${statusBadge(record.status)}</div>
@@ -457,6 +593,7 @@ export function mountDevelopmentRequests(root){
      <div><dt>Updated</dt><dd>${time(record.updatedAt)}</dd></div>
     </dl>
     <h2>Description</h2><p class="dev-request-long">${esc(record.description)}</p>
+    ${renderSavedImages(record.id,images)}
     <div class="dev-request-actions"><button type="button" class="button" data-request-copy>Copy Codex brief</button><p data-request-copy-result role="status"></p></div>
     <div class="dev-request-field" data-request-copy-fallback hidden><label for="dev-request-copy-text">Codex brief</label><textarea id="dev-request-copy-text" rows="8" readonly></textarea></div>
    </div>

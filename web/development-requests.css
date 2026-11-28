@@ -140,6 +140,84 @@ body :is(.dev-requests, .dev-request-dialog) .button {
 .dev-request-field small { color: var(--request-muted); font-size: .8125rem; }
 .dev-request-priority { max-width: 14rem; }
 
+.dev-request-optional {
+  color: var(--request-muted);
+  font-weight: 400;
+  margin-inline-start: 2px;
+}
+
+.dev-request-image-picker {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px 12px;
+}
+
+.dev-request-image-picker input[type="file"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  min-height: 0;
+  padding: 0;
+  clip-path: inset(50%);
+  overflow: hidden;
+}
+
+.dev-request-image-picker .dev-request-choose-images {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid #81917f;
+  border-radius: 8px;
+  color: var(--request-green);
+  background: var(--request-surface);
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.dev-request-image-picker input:enabled + label:hover { background: var(--request-soft); }
+.dev-request-image-picker input:focus-visible + label { outline: 3px solid #586f32; outline-offset: 3px; }
+.dev-request-image-picker input:disabled + label { color: var(--request-muted); background: var(--request-soft); cursor: default; }
+
+.dev-request-image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(8rem, 100%), 1fr));
+  gap: 8px;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dev-request-image-card {
+  display: grid;
+  gap: 6px;
+  align-content: start;
+  min-width: 0;
+  padding: 6px;
+  border: 1px solid var(--request-border);
+  border-radius: 8px;
+  color: var(--request-green);
+  background: var(--request-surface);
+  font-size: .8125rem;
+}
+
+.dev-request-image-card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  border-radius: 4px;
+  object-fit: contain;
+  background: var(--request-soft);
+}
+
+.dev-request-image-card span { padding-inline: 2px; overflow-wrap: anywhere; }
+a.dev-request-image-card { text-decoration: underline; text-underline-offset: .2em; }
+a.dev-request-image-card:hover { border-color: #81917f; }
+.dev-request-saved-images { display: grid; gap: 5px; }
+
 .dev-request-results-head {
   flex-wrap: wrap;
   padding: 16px 18px;

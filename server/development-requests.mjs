@@ -4,13 +4,89 @@ import {RuleError} from '../shared/domain.mjs';
 export const DEVELOPMENT_REQUESTS_API = '/api/development-requests';
 export const isDevelopmentRequestsApi = path => path === DEVELOPMENT_REQUESTS_API || path.startsWith(DEVELOPMENT_REQUESTS_API + '/');
 
+const maxImages = 5;
+const maxImageBytes = 5 * 1024 * 1024;
+const maxEncodedImageLength = Math.ceil(maxImageBytes / 3) * 4;
+export const DEVELOPMENT_REQUEST_CREATE_BYTES = maxImages * maxEncodedImageLength + 64 * 1024;
+
 const statuses = ['Open', 'In progress', 'Resolved', 'Closed'];
 const priorities = ['Normal', 'High', 'Low'];
-const createFields = ['title', 'description', 'screen', 'route', 'priority', 'requestId'];
+const createFields = ['title', 'description', 'screen', 'route', 'priority', 'requestId', 'images'];
 const updateFields = ['status', 'note', 'expectedVersion', 'requestId'];
 const canManage = actor => ['ADMIN', 'MANAGER'].includes(actor.role);
 const person = (id, name) => ({id, name});
 const hash = value => createHash('sha256').update(JSON.stringify(value)).digest('hex');
+const pngHeader = Buffer.from('89504e470d0a1a0a0000000d49484452', 'hex');
+
+function hasPngStructure(bytes) {
+  if (bytes.length < 57 || !bytes.subarray(0, 16).equals(pngHeader) ||
+    !bytes.readUInt32BE(16) || !bytes.readUInt32BE(20)) return false;
+  let imageData = false;
+  for (let start = 33; start + 12 <= bytes.length;) {
+    const size = bytes.readUInt32BE(start);
+    const type = bytes.toString('latin1', start + 4, start + 8);
+    start += size + 12;
+    if (start > bytes.length) return false;
+    if (type === 'IDAT' && size > 0) imageData = true;
+    if (type === 'IEND') return imageData && size === 0 && start === bytes.length;
+  }
+  return false;
+}
+
+function hasJpegStructure(bytes) {
+  if (bytes.length < 20 || bytes.readUInt16BE() !== 0xffd8 || bytes.readUInt16BE(bytes.length - 2) !== 0xffd9) return false;
+  let frame = false;
+  for (let start = 2; start + 4 <= bytes.length;) {
+    if (bytes[start++] !== 0xff) return false;
+    while (start < bytes.length && bytes[start] === 0xff) start++;
+    if (start + 3 > bytes.length) return false;
+    const marker = bytes[start++];
+    const size = bytes.readUInt16BE(start);
+    if (size < 2 || start + size > bytes.length - 2) return false;
+    if (marker === 0xda) return frame && size >= 6 && start + size < bytes.length - 2;
+    if (marker >= 0xc0 && marker <= 0xcf && ![0xc4, 0xc8, 0xcc].includes(marker)) {
+      if (size < 8 || !bytes.readUInt16BE(start + 3) || !bytes.readUInt16BE(start + 5)) return false;
+      frame = true;
+    }
+    start += size;
+  }
+  return false;
+}
+
+function imageType(bytes) {
+  if (hasPngStructure(bytes)) return 'image/png';
+  if (hasJpegStructure(bytes)) return 'image/jpeg';
+  if (bytes.length >= 26 && bytes.toString('latin1', 0, 4) === 'RIFF' && bytes.readUInt32LE(4) === bytes.length - 8 &&
+    bytes.toString('latin1', 8, 12) === 'WEBP') {
+    const firstChunk = bytes.toString('latin1', 12, 16);
+    const size = bytes.readUInt32LE(16);
+    if (firstChunk === 'VP8 ' && size >= 10 && size <= bytes.length - 20 &&
+      bytes.subarray(23, 26).equals(Buffer.from([0x9d, 0x01, 0x2a]))) return 'image/webp';
+    if (firstChunk === 'VP8L' && size >= 5 && size <= bytes.length - 20 && bytes[20] === 0x2f) return 'image/webp';
+    if (firstChunk === 'VP8X' && size === 10 && bytes.length >= 38) return 'image/webp';
+  }
+  return null;
+}
+
+function readImages(input) {
+  if (input === undefined) return [];
+  if (!Array.isArray(input) || input.length > maxImages) throw new RuleError('Attach up to five images.');
+  return input.map(image => {
+    if (!image || typeof image !== 'object' || Array.isArray(image) || Object.keys(image).some(key => !['name', 'type', 'data'].includes(key))) {
+      throw new RuleError('Invalid image attachment.');
+    }
+    const name = field(image.name, 'Image name', 200, {required: true});
+    if (!name.isWellFormed() || /[\\/]/.test(name)) throw new RuleError('Invalid image name.');
+    const {type, data} = image;
+    if (!['image/png', 'image/jpeg', 'image/webp'].includes(type)) throw new RuleError('Choose PNG, JPEG or WebP images.');
+    if (typeof data !== 'string' || !data.length || data.length > maxEncodedImageLength) throw new RuleError('Each image must contain data and be 5 MB or smaller.');
+    const bytes = Buffer.from(data, 'base64');
+    if (bytes.toString('base64') !== data) throw new RuleError('Invalid image encoding.');
+    if (!bytes.length || bytes.length > maxImageBytes) throw new RuleError('Each image must contain data and be 5 MB or smaller.');
+    if (imageType(bytes) !== type) throw new RuleError('An attachment does not match its image format.');
+    return {name, type, bytes, digest: createHash('sha256').update(bytes).digest('hex')};
+  });
+}
 
 function requestView(row) {
   return {
@@ -102,6 +178,19 @@ export class DevelopmentRequestStore {
         BEFORE UPDATE ON development_request_events BEGIN SELECT RAISE(ABORT,'Development request history is append-only'); END;
       CREATE TRIGGER IF NOT EXISTS development_request_events_no_delete
         BEFORE DELETE ON development_request_events BEGIN SELECT RAISE(ABORT,'Development request history is append-only'); END;
+      CREATE TABLE IF NOT EXISTS development_request_images (
+        application TEXT NOT NULL,
+        request_id TEXT NOT NULL,
+        id TEXT NOT NULL,
+        position INTEGER NOT NULL CHECK(position BETWEEN 1 AND ${maxImages}),
+        name TEXT NOT NULL,
+        type TEXT NOT NULL CHECK(type IN ('image/png', 'image/jpeg', 'image/webp')),
+        size INTEGER NOT NULL CHECK(size BETWEEN 1 AND ${maxImageBytes}),
+        content BLOB NOT NULL CHECK(length(content) = size),
+        PRIMARY KEY(application, request_id, id),
+        UNIQUE(application, request_id, position),
+        FOREIGN KEY(application, request_id) REFERENCES development_requests(application, id)
+      );
     `);
   }
 
@@ -184,11 +273,25 @@ export class DevelopmentRequestStore {
     const history = this.db.prepare(`
       SELECT * FROM development_request_events WHERE application = ? AND request_id = ? ORDER BY version
     `).all(this.application, id).map(eventView);
-    return {request, history, canManage: canManage(actor)};
+    const images = this.db.prepare(`
+      SELECT id, name, type, size FROM development_request_images WHERE application = ? AND request_id = ? ORDER BY position
+    `).all(this.application, id);
+    return {request, history, images, canManage: canManage(actor)};
   }
 
   detail(sessionToken, id) {
     return this.#transaction(() => this.#detail(this.#actor(sessionToken), id));
+  }
+
+  image(sessionToken, requestId, imageId) {
+    return this.#transaction(() => {
+      this.#request(this.#actor(sessionToken), requestId);
+      const image = this.db.prepare(`
+        SELECT name, type, size, content FROM development_request_images WHERE application = ? AND request_id = ? AND id = ?
+      `).get(this.application, requestId, imageId);
+      if (!image) throw new RuleError('Image not found.', 'NOT_FOUND');
+      return image;
+    });
   }
 
   #save(sessionToken, requestId, digest, write, {managerOnly = false} = {}) {
@@ -226,8 +329,11 @@ export class DevelopmentRequestStore {
     if (route && (!route.startsWith('/') || route.startsWith('//') || route.includes('\\'))) throw new RuleError('Enter a local screen route.');
     const priority = input.priority === undefined ? 'Normal' : input.priority;
     if (!priorities.includes(priority)) throw new RuleError('Select a valid priority.');
+    const images = readImages(input.images);
+    const fingerprint = ['create', title, description, screen, route, priority];
+    if (images.length) fingerprint.push(images.map(({name, type, digest}) => [name, type, digest]));
 
-    return this.#save(sessionToken, input.requestId, hash(['create', title, description, screen, route, priority]), (actor, at) => {
+    return this.#save(sessionToken, input.requestId, hash(fingerprint), (actor, at) => {
       const id = 'DR-' + randomUUID();
       const search = [id, title, description, screen, route, actor.name].join('\n').toLowerCase();
       this.db.prepare(`
@@ -235,6 +341,13 @@ export class DevelopmentRequestStore {
           (application, id, title, description, screen, route, priority, status, created_by_id, created_by_name, created_at, updated_at, version, search_text)
         VALUES (?, ?, ?, ?, ?, ?, ?, 'Open', ?, ?, ?, ?, 1, ?)
       `).run(this.application, id, title, description, screen, route, priority, actor.id, actor.name, at, at, search);
+      if (images.length) {
+        const insert = this.db.prepare(`
+          INSERT INTO development_request_images (application, request_id, id, position, name, type, size, content)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `);
+        images.forEach(({name, type, bytes}, index) => insert.run(this.application, id, randomUUID(), index + 1, name, type, bytes.length, bytes));
+      }
       return {id, fromStatus: null, toStatus: 'Open', note: '', version: 1};
     });
   }

@@ -1,6 +1,5 @@
-import {ensure,text,scopeAllowed,canApprove,dateValid,isoDay,toRate,convertMinor,orderTotal,paymentSchedule,allocationsFor,isBusinessOrder} from './domain.mjs';
+import {ensure,text,scopeAllowed,canApprove,dateValid,isoDay,toRate,convertMinor,orderTotal,paymentSchedule,allocationsFor,isBusinessOrder,initialPaymentGateBlockers} from './domain.mjs';
 import {ciEnabled,ciInvoices} from './ci-payments.mjs';
-import {processGateAllowed} from './process-exemptions.mjs';
 
 const CURRENCIES=['USD','CNY','INR'];
 export const PAYMENT_PLANNER_COMMANDS=['SAVE_PAYMENT_PLAN_RATE','SAVE_PAYMENT_PLAN_DATE'];
@@ -20,11 +19,10 @@ export function paymentPlannerMilestoneFingerprint(o,m){
 function readiness(o,m){
  const blockers=[];
  if(o.deletedAt)blockers.push('Deleted PO: restore it before any payment action.');
- if(o.pi?.status!=='APPROVED')blockers.push('Approve the PI before payment.');
+ if(m.trigger==='PI')blockers.push(...initialPaymentGateBlockers(o));
+ else if(o.pi?.status!=='APPROVED')blockers.push('Approve the PI before payment.');
  if(m.ciId){if(!m.eligible)blockers.push(m.reason||'Complete the CI payment readiness checks.');}
- else if(m.trigger==='PI'){
-  for(const [stage,label] of [['CONFIRM','Supplier PO acknowledgement'],['SPEC_CONFIRM','Supplier technical specification confirmation'],['ARTWORK','Approved artwork and supplier artwork confirmation']])if(!processGateAllowed(o,stage,'PAYMENT'))blockers.push(label+' is required before payment.');
- }else if(!m.shipmentId)blockers.push('Allocate a shipment before this payment.');
+ else if(m.trigger!=='PI'&&!m.shipmentId)blockers.push('Allocate a shipment before this payment.');
  if(m.trigger==='BL'){
   const s=o.shipments.find(s=>s.id===m.shipmentId&&s.status!=='CANCELLED');
   if(!text(s?.blNumber)||!dateValid(s?.blDate))blockers.push('Record the final BL for this shipment before payment.');

@@ -17,6 +17,12 @@ test('process map is role scoped and renders no protected order data for an out-
  const ui=createLaeFlowUI({context:()=>context,empty:s=>s,visibleOrders:()=>{throw Error('Must not access order data');}});
  assert.equal(ui.page(),'LAE Import access is required.');
 });
+test('lead-time confirmation precedes the initial payment and supplier artwork confirmation',()=>{
+ const sequence=LAE_FLOW_EDGES.filter(e=>e.kind==='sequence').map(e=>e.from+'>'+e.to);
+ for(const edge of ['lead-confirm>advance','advance>artwork','artwork>lead'])assert.ok(sequence.includes(edge),edge);
+ assert.ok(!sequence.includes('artwork>advance'));
+ assert.ok(LAE_FLOW_EDGES.some(e=>e.from==='lead-confirm'&&e.to==='artwork'&&e.label.includes('no initial advance')));
+});
 test('source evidence for central loading audit findings still matches the implemented branches',()=>{
  const s=readFileSync(new URL('../shared/domain.mjs',import.meta.url),'utf8');
  const section=name=>s.split("type==='"+name+"'){")[1]?.split(' }else if')[0]||'';

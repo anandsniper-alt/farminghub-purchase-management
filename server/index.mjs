@@ -20,7 +20,7 @@ import {PlanningStore,assertPlanningAccess} from './planning-store.mjs';
 import {planningAssets} from './planning-files.mjs';
 import {domesticImageAsset} from '../shared/domestic.mjs';
 import {scopedRecordReferences,integrationSnapshot} from '../shared/references.mjs';
-import {DEVELOPMENT_REQUESTS_API,DevelopmentRequestStore,isDevelopmentRequestsApi} from './development-requests.mjs';
+import {DEVELOPMENT_REQUESTS_API,DEVELOPMENT_REQUEST_CREATE_BYTES,DevelopmentRequestStore,isDevelopmentRequestsApi} from './development-requests.mjs';
 /** Isolated local alpha. Never point it at the live VMS/ERP database.
  * The bundled native SQLite store is a review/pilot adapter, not the final shared schema.
  */
@@ -43,6 +43,8 @@ export function scopedState(state,actor){if(actor.role==='PLAN_OPERATOR'){const 
 function json(res,status,data){res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});res.end(JSON.stringify(data));}
 async function body(req,maxBytes=12*1024*1024){let n=0;const parts=[];for await(const p of req){n+=p.length;if(n>maxBytes)throw new RuleError('Request too large.');parts.push(p);}try{return JSON.parse(Buffer.concat(parts).toString('utf8')||'{}');}catch{throw new RuleError('Invalid JSON request.');}}
 const cookie=req=>String(req.headers.cookie||'').split(';').map(x=>x.trim()).find(x=>x.startsWith('fh_session='))?.slice(11)||null;
+const uuid='[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
+const developmentRequestPath=new RegExp('^/api/development-requests/(DR-'+uuid+')(?:/images/('+uuid+'))?$');
 const ext=s=>'.'+s.split('.').at(-1).toLowerCase();
 const MIME={'.wasm':'application/wasm','.json':'application/json; charset=utf-8','.svg':'image/svg+xml','.webmanifest':'application/manifest+json','.mjs':'text/javascript; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.html':'text/html; charset=utf-8','.pdf':'application/pdf','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.webp':'image/webp','.txt':'text/plain','.csv':'text/csv','.eml':'message/rfc822','.docx':'application/vnd.openxmlformats-officedocument.wordprocessingml.document','.xlsx':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'};
 export function makeServer(store,{origin=null,secureCookie=false,applicationMode=process.env.FH_APP_MODE||'purchase',migrationSource=process.env.FH_MIGRATION_SOURCE||'https://purchase.dvjassociates.com',migrationTarget=process.env.FH_MIGRATION_TARGET||'https://implements.dvjassociates.com',releaseSha=process.env.SOURCE_COMMIT||process.env.FH_RELEASE_SHA||null,log=event=>console.log(JSON.stringify(event))}={}){const standalone=applicationMode==='implements';let developmentRequestStore;const getDevelopmentRequests=()=>developmentRequestStore||(developmentRequestStore=new DevelopmentRequestStore(store,standalone?'implements':'purchase'));let laeAgingStore;const getLaeAging=()=>laeAgingStore||(laeAgingStore=new LaeStockAgingStore(store));let laeStockStore;const getLaeStock=()=>laeStockStore||(laeStockStore=new LaeStockStore(store));let roCostingStore;const getRoCostings=()=>roCostingStore||(roCostingStore=new RoCostingStore(store));let implementsStore;const getImplements=()=>implementsStore||(implementsStore=guardModule(new ImplementsStore(store),store,standalone,['save']));let bomStore;const getBom=()=>bomStore||(bomStore=guardModule(new BomManagementStore(store,getImplements()),store,standalone,['command']));let productionStore;const getProduction=()=>productionStore||(productionStore=guardModule(new ProductionStore(store,getImplements()),store,standalone,['command']));let planningStore;const getPlanning=()=>planningStore||(planningStore=guardModule(new PlanningStore(store,getImplements()),store,standalone,['command']));let utilityPriceStore;const getUtilityPrices=()=>utilityPriceStore||(utilityPriceStore=new UtilityPriceStore(store));const readCache=new ReadCache();const cachedJson=(res,key,session,build)=>{const generation=store.readGeneration();const value=readCache.get(key+'|'+JSON.stringify([session.user.id,session.user.role,session.user.scopes,session.csrf]),generation,()=>{const data=build(),token=data.editContext,revision=data.state?.revision;return {value:JSON.stringify(data),isValid:token?()=>{try{store.editVersions.read(token,session.user.id,revision);return true;}catch{return false;}}:null};});res.writeHead(200,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'private, no-store'});res.end(value);};const attempts=new Map(),release=/^[a-f0-9]{7,64}$/i.test(releaseSha||'')?releaseSha:null;return http.createServer(async(req,res)=>{
@@ -77,12 +79,24 @@ export function makeServer(store,{origin=null,secureCookie=false,applicationMode
   if(path==='/api/session'&&req.method==='GET')return json(res,200,{user:{id:session.user.id,name:session.user.name,role:session.user.role,scopes:session.user.scopes,active:session.user.active!==false},csrf:session.csrf});
   if(isDevelopmentRequestsApi(path)){
    const collection=path===DEVELOPMENT_REQUESTS_API;
-   const id=collection?null:path.slice(DEVELOPMENT_REQUESTS_API.length+1);
-   if(!collection&&!/^DR-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(id))throw new RuleError('Request not found.','NOT_FOUND');
+   const match=developmentRequestPath.exec(path);
+   if(!collection&&!match)throw new RuleError('Request not found.','NOT_FOUND');
+   const [,id,imageId]=match||[];
    const sessionToken=cookie(req),requests=getDevelopmentRequests();
+   if(imageId){
+    if(!['GET','HEAD'].includes(req.method)){
+     res.setHeader('Allow','GET, HEAD');
+     return json(res,405,{error:'GET or HEAD required.'});
+    }
+    const image=requests.image(sessionToken,id,imageId);
+    const filename=encodeURIComponent(image.name).replace(/['()*]/g,char=>'%'+char.charCodeAt(0).toString(16).toUpperCase());
+    res.writeHead(200,{'Content-Type':image.type,'Content-Length':image.size,
+     'Content-Disposition':`inline; filename*=UTF-8''${filename}`,'Cache-Control':'private, no-store','Cross-Origin-Resource-Policy':'same-origin'});
+    return res.end(req.method==='HEAD'?undefined:image.content);
+   }
    if(req.method==='GET')return json(res,200,collection?{...requests.list(sessionToken,url.searchParams),csrf:session.csrf}:requests.detail(sessionToken,id));
    if(req.method==='POST'){
-    const input=await body(req,64*1024);
+    const input=await body(req,collection?DEVELOPMENT_REQUEST_CREATE_BYTES:64*1024);
     return collection?json(res,201,requests.create(sessionToken,input)):json(res,200,requests.update(sessionToken,id,input));
    }
    res.setHeader('Allow','GET, POST');

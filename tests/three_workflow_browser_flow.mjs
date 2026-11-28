@@ -7,10 +7,11 @@ import {ARRIVAL_COST_FIELDS,arrivalCostingStatus} from '../shared/arrival-costin
 import {Store} from '../server/store.mjs';
 import {makeServer} from '../server/index.mjs';
 import {createCleanSeed} from '../shared/clean-seed.mjs';
-import {execute,managerWorkflowStages,orderStatus,financials,shipmentTotals} from '../shared/domain.mjs';
+import {execute,managerWorkflowStages,orderStatus,financials,initialPaymentStatus,shipmentTotals} from '../shared/domain.mjs';
 
 const managerRelaxed=process.argv.includes('--manager-relaxed');
 const managerOnly=managerRelaxed||process.argv.includes('--manager-only');
+const throughProduction=process.argv.includes('--through-production');
 const secondManager=process.argv.includes('--second-manager'),managerId=secondManager?'u-second-manager':'u-manager';
 const out=resolve(process.env.FH_TEST_OUTPUT_ROOT||'test-output',managerRelaxed?'manager-relaxed-workflows':managerOnly?'manager-only-workflows':'three-workflows',new Date().toISOString().replace(/[:.]/g,'-'));mkdirSync(out,{recursive:true});
 let seed=createCleanSeed();
@@ -38,7 +39,7 @@ async function fill(name,value){const input=page.locator('#dialog-form [name="'+
 async function select(name,value){const input=page.locator('#dialog-form [name="'+name+'"]');await input.evaluate(e=>{for(let p=e.parentElement;p;p=p.parentElement)if(p.tagName==='DETAILS')p.open=true;});await input.selectOption(value);}
 async function submit(){await page.locator('#dialog-form button[type=submit]').click();await page.getByRole('dialog').waitFor({state:'hidden',timeout:20000});}
 async function files(label){const count=current.multiple?2:1;await page.locator('#dialog-form input[type=file]').setInputFiles(Array.from({length:count},(_,i)=>({name:current.id+'-'+label+'-'+(i+1)+'.txt',mimeType:'text/plain',buffer:Buffer.from('ISOLATED TEST EVIDENCE ONLY: '+current.id+' '+label+' '+(i+1))})));}
-async function login(role){if(managerOnly)assert.equal(role,'manager','Manager-only run cannot switch accounts');if(await page.getByRole('button',{name:'Sign out',exact:true}).count())await action('Sign out');await page.getByLabel(/^Email/).fill((role==='manager'?managerId:'u-'+role)+'@example.test');await page.getByLabel(/^Password/).fill(password);await action('Sign in');await page.locator('.sidebar').waitFor();current.roles.add(role);current.activeRole=role;}
+async function login(role){if(managerOnly)assert.equal(role,'manager','Manager-only run cannot switch accounts');const signOut=page.getByRole('button',{name:'Sign out',exact:true});if(await signOut.count())await action('Sign out');await page.getByLabel(/^Email/).fill((role==='manager'?managerId:'u-'+role)+'@example.test');await page.getByLabel(/^Password/).fill(password);await action('Sign in');await signOut.waitFor();current.roles.add(role);current.activeRole=role;}
 async function screenshot(label){await page.screenshot({path:join(out,current.id+'-'+label+'.png'),fullPage:true});}
 async function overview(){await page.locator('.tab[data-action=tab][data-value=overview]').click();}
 async function response(button,label){await action(button);await files(label);await fill('remarks','Isolated test: '+label);await submit();}
@@ -72,12 +73,12 @@ async function recordManagerBoundary(){
  const denial=await page.evaluate(async orderId=>{const b=await fetch('/api/bootstrap').then(r=>r.json());const r=await fetch('/api/commands',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':b.csrf},body:JSON.stringify({type:'APPROVE_ARTWORK',payload:{orderId},expectedRevision:b.state.revision})});return {status:r.status,body:await r.json(),role:b.user.role};},o.id);
  check('Authenticated MANAGER artwork approval is rejected by server',denial.role==='MANAGER'&&denial.status===403&&/Product Manager/i.test(denial.body.error));
  check('Denied approval leaves the complete workspace unchanged',JSON.stringify(store.read())===JSON.stringify(before));
- check('Production has not started without approved artwork',!order().productionWindowStartedAt&&!order().artwork.current);
+ check('Bulk production remains blocked without approved artwork',!order().productionStartedAt&&!order().artwork.current);
  const state=store.read(),events=state.events.filter(e=>e.entityId===o.id);
  check('Every order workflow audit event belongs to Purchase Manager',events.length>0&&events.every(e=>e.actorId===managerId));
  check('Only Purchase Manager account used',current.roles.size===1&&current.roles.has('manager'));
- current.blocker={command:'APPROVE_ARTWORK',httpStatus:denial.status,message:denial.body.error,requiredRole:'PRODUCT_MANAGER or ADMIN',unreached:['Supplier artwork acknowledgement','Production lead-time start','Sample/bulk production/QC','Shipment booking through port arrival','Final financial settlement']};
- current.summary={orderNumber:o.number,status:orderStatus(o),piStatus:o.pi.status,pendingArtwork:!!o.artwork.pending,productionStarted:!!o.productionWindowStartedAt};
+ current.blocker={command:'APPROVE_ARTWORK',httpStatus:denial.status,message:denial.body.error,requiredRole:'PRODUCT_MANAGER or ADMIN',unreached:['Supplier artwork acknowledgement','Sample/bulk production/QC','Shipment booking through port arrival','Final financial settlement']};
+ current.summary={orderNumber:o.number,status:orderStatus(o),piStatus:o.pi.status,pendingArtwork:!!o.artwork.pending,productionStarted:!!o.productionStartedAt};
  current.status='BLOCKED_BY_ROLE';current.roles=[...current.roles];await screenshot('manager-artwork-blocked');
  console.log('BLOCKED '+current.id+': '+denial.body.error);
  writeFileSync(join(out,'report.json'),JSON.stringify(report,(_,v)=>v instanceof Set?[...v]:v,2));
@@ -98,15 +99,37 @@ async function workflow(config){
  if(current.operator==='exec')await login('exec');
  await response('Technical specification confirmation','technical-response');
  if(managerOnly)check('Purchase Manager records supplier technical confirmation',order().technicalConfirmation?.revision===order().revision);
+ await page.locator('.tab[data-action=tab][data-value=items]').click();
  await response('Submit artwork','artwork');
- if(managerOnly&&!managerRelaxed){await recordManagerBoundary();return;}
- if(current.operator==='exec'&&!false)check('Executive submits artwork but cannot approve it',await page.getByRole('button',{name:'Approve artwork',exact:true}).count()===0);if(!delegated&&!managerRelaxed)await login('product');await action('Approve artwork');await login(current.operator||'manager');await response('Supplier artwork confirmation','artwork-response');check('Artwork approval and supplier artwork acknowledgement complete',!!order().artwork.supplierConfirmed);
- if(await page.getByRole('button',{name:'Complete payment',exact:true}).count()){
-  await action('Complete payment');await select('currency',config.currency);const advance=config.terms==='30-70'?0.3:0.1;await fill('amount',(config.quantity*config.unitPrice*advance).toFixed(2));await fill('invoiceRate','1');await fill('inrRate',config.currency==='CNY'?'12':'85');await fill('reference',current.id+'-ADV');await files('advance');await fill('remarks','Isolated test initial remittance.');await submit();
+ if(!managerOnly||managerRelaxed){
+  if(current.operator==='exec'&&!false)check('Executive submits artwork but cannot approve it',await page.getByRole('button',{name:'Approve artwork',exact:true}).count()===0);
+  if(!delegated&&!managerRelaxed)await login('product');
+  await page.locator('.tab[data-action=tab][data-value=items]').click();
+  await action('Approve artwork');
+  if(!managerRelaxed)await login(current.operator||'manager');
  }
+ const advanceStatus=initialPaymentStatus(store.read(),order());
+ if(advanceStatus.required)check('Supplier artwork confirmation is unavailable before the initial payment',await page.locator('[data-action=artwork-confirm]').count()===0);
+ await overview();
+ if(advanceStatus.required){
+  await action('Complete payment');await select('currency',config.currency);const advance=config.terms==='30-70'?0.3:0.1;await fill('amount',(config.quantity*config.unitPrice*advance).toFixed(2));await fill('invoiceRate','1');await fill('inrRate',config.currency==='CNY'?'12':'85');await fill('reference',current.id+'-ADV');await files('advance');await fill('remarks','Isolated test initial remittance.');await submit();
+  check('Initial payment is recorded with confirmed lead time and supplier artwork still pending',order().pi.commitmentConfirmed&&initialPaymentStatus(store.read(),order()).complete&&!order().artwork.supplierConfirmed);
+ }else{
+  check('Credit terms require no initial bank remittance',!store.read().payments.some(p=>p.allocations.some(a=>a.orderId===order().id)));
+ }
+ if(managerOnly&&!managerRelaxed){await page.locator('.tab[data-action=tab][data-value=items]').click();await recordManagerBoundary();return;}
+ await response('Supplier artwork confirmation','artwork-response');
+ check('Supplier artwork acknowledgement is retained before sample approval',!!order().artwork.supplierConfirmed&&!order().preproductionSample);
  check('Production lead time starts after applicable payment/commercial gates',!!order().productionWindowStartedAt);await screenshot('commercial');
  await response('Record sample completion','sample');await action('Approve pre-production sample');await select('result','APPROVED');await fill('remarks','Isolated sample approved.');await submit();
  await action('Start bulk production');await fill('remarks','Isolated bulk production start.');await submit();await response('Record bulk QC','bulk-qc');await action('Complete production');await fill('remarks','Isolated production completed after QC.');await submit();check('Sample approval, bulk QC PASS and production completed',order().bulkQc.result==='PASS'&&!!order().productionCompletedAt);
+ if(throughProduction){
+  const completed=order();
+  await screenshot('production-complete');
+  current.summary={orderNumber:completed.number,status:orderStatus(completed,store.read()),piStatus:completed.pi.status,productionCompletedAt:completed.productionCompletedAt};
+  current.status='PASS';current.roles=[...current.roles];
+  return;
+ }
  for(const [index,quantity] of config.shipments.entries()){
   const seq=index+1;await overview();await action('Plan shipment');await fill('number',current.id+'-SHIP-'+seq);await fill('shipqty-0',quantity);await submit();
   // Use shipment cards so the second shipment does not accidentally target the first one.

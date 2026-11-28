@@ -144,7 +144,9 @@ test('SCM hosted workflow serves its assets and stores a shared RO follow-up onc
   assert.equal(saved.status,200,JSON.stringify(saved.data.error));
   assert.equal((await post(manager,command)).status,200);
   const fresh=(await f.req('/api/bootstrap',manager)).data.state.scm;
-  assert.equal(fresh.ros[0].followups.length,1);
+  const followups=fresh.ros.find(record=>record.id===ro.id).followups;
+  assert.equal(followups.length,ro.followups.length+1);
+  assert.equal(followups.filter(entry=>entry.remarks===command.payload.remarks).length,1);
   assert.equal(fresh.invoices.filter(i=>i.roId===ro.id).length,2);
   assert.equal(fresh.ros[0].containers.length,2);
  }finally{await f.close();}

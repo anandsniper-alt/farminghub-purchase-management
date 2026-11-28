@@ -4,6 +4,7 @@ import {mkdtempSync, rmSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {DatabaseSync} from 'node:sqlite';
+import {crc32} from 'node:zlib';
 import test from 'node:test';
 import {makeServer} from '../server/index.mjs';
 import {Store} from '../server/store.mjs';
@@ -13,6 +14,10 @@ const api = '/api/development-requests';
 const password = 'Synthetic-requests-password-2026';
 const create = (title, extra = {}) => ({title, description: 'Page detail from the reporter', requestId: randomUUID(), ...extra});
 const update = (expectedVersion, status, note = '') => ({status, note, expectedVersion, requestId: randomUUID()});
+const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGPocDEGAAJXAQCuNfOCAAAAAElFTkSuQmCC', 'base64');
+const webp = Buffer.from('UklGRjYAAABXRUJQVlA4ICoAAACQAQCdASoBAAEAAUAmJaACdLoAA5gA/vDEC/G7LOHB7/43jwK8l2OgAAA=', 'base64');
+const jpeg = Buffer.from('/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/wAALCAABAAEBAREA/8QAFAABAAAAAAAAAAAAAAAAAAAABv/EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAD8AJP/Z', 'base64');
+const image = (name, bytes = png, type = 'image/png') => ({name, type, data: bytes.toString('base64')});
 
 function fixture(t) {
   const directory = mkdtempSync(join(tmpdir(), 'fh-development-requests-'));
@@ -225,4 +230,111 @@ test('Purchase and standalone Implements registers and retries are isolated even
   assert.deepEqual((await purchase.json(api, administrator)).data.requests.map(row => row.id), [p.data.request.id]);
   assert.deepEqual((await standalone.json(api, administrator)).data.requests.map(row => row.id), [i.data.request.id]);
   assert.equal(purchase.store.db.prepare('SELECT count(*) AS n FROM request_receipts').get().n, 0);
+});
+
+test('saves five private images in order, replays atomically, and restores their exact bytes', async t => {
+  const f = fixture(t);
+  const app = await f.open(f.first);
+  const owner = await app.login('u-exec');
+  const viewer = await app.login('u-viewer');
+  const manager = await app.login('u-manager');
+  const administrator = await app.login('u-admin');
+  const files = [image("Review (operator's).png"), image('二.png'), image('three.png'),
+    image('four.webp', webp, 'image/webp'), image('five.jpg', jpeg, 'image/jpeg')];
+  const command = create('Review screenshots', {images: files});
+  const results = await Promise.all([app.post(api, owner, command), app.post(api, owner, command)]);
+  assert.equal(results[0].status, 201);
+  assert.equal(results[1].status, 201);
+  assert.deepEqual(results[0].data, results[1].data);
+  const {request, images, history} = results[0].data;
+  assert.equal(history.length, 1);
+  assert.deepEqual(images.map(({name, type, size}) => [name, type, size]), files.map(({name, type, data}) => [name, type, Buffer.from(data, 'base64').length]));
+  assert.equal(new Set(images.map(({id}) => id)).size, 5);
+  assert.equal(app.store.db.prepare('SELECT count(*) AS count FROM development_request_images').get().count, 5);
+  assert.equal((await app.post(api, owner, {...command, images: [...files].reverse()})).status, 409);
+  assert.deepEqual((await app.json(api + '/' + request.id, manager)).data.images, images);
+  assert.equal((await app.json(api, owner)).data.requests[0].images, undefined);
+  assert.deepEqual((await app.post(api + '/' + request.id, manager, update(1, 'In progress'))).data.images, images);
+
+  const url = api + '/' + request.id + '/images/' + images[0].id;
+  assert.equal((await app.json(url)).status, 401);
+  assert.equal((await app.json(url, viewer)).status, 404);
+  const other = await app.post(api, owner, create('Different request without images'));
+  assert.deepEqual(other.data.images, []);
+  assert.equal((await app.json(api + '/' + other.data.request.id + '/images/' + images[0].id, owner)).status, 404);
+  const implementsApp = await f.open(undefined, 'implements');
+  assert.equal((await implementsApp.json(url, administrator)).status, 404);
+
+  for (const actor of [owner, manager, administrator]) {
+    const served = await app.request(url, actor);
+    assert.equal(served.status, 200);
+    assert.equal(served.headers.get('content-type'), 'image/png');
+    assert.equal(served.headers.get('x-content-type-options'), 'nosniff');
+    assert.equal(served.headers.get('cache-control'), 'private, no-store');
+    assert.equal(served.headers.get('content-length'), String(png.length));
+    assert.equal(served.headers.get('content-disposition'), "inline; filename*=UTF-8''Review%20%28operator%27s%29.png");
+    assert.deepEqual(Buffer.from(await served.arrayBuffer()), png);
+  }
+  const head = await app.request(url, owner, {method: 'HEAD'});
+  assert.equal(head.status, 200);
+  assert.equal((await head.arrayBuffer()).byteLength, 0);
+  const lastImage = await app.request(api + '/' + request.id + '/images/' + images.at(-1).id, owner);
+  assert.equal(lastImage.headers.get('content-type'), 'image/jpeg');
+  assert.deepEqual(Buffer.from(await lastImage.arrayBuffer()), jpeg);
+
+  const recovery = await app.request('/api/admin/recovery', administrator, {method: 'POST'});
+  assert.equal(recovery.status, 200);
+  const restored = join(f.directory, 'images-recovery.sqlite');
+  writeFileSync(restored, Buffer.from(await recovery.arrayBuffer()));
+  const restoredApp = await f.open(new Store(restored));
+  const restoredOwner = await restoredApp.login('u-exec');
+  const imageAfterRestore = await restoredApp.request(url, restoredOwner);
+  assert.equal(imageAfterRestore.status, 200);
+  assert.deepEqual(Buffer.from(await imageAfterRestore.arrayBuffer()), png);
+  assert.deepEqual((await restoredApp.json(api + '/' + request.id, restoredOwner)).data.images, images);
+});
+
+test('rejects excess or invalid image attachments without leaving a partial request', async t => {
+  const f = fixture(t);
+  const app = await f.open(f.first);
+  const owner = await app.login('u-exec');
+  const valid = image('one.png');
+  const badFiles = [
+    Array(6).fill(valid),
+    [valid, {...valid, type: 'image/svg+xml'}],
+    [valid, {...valid, type: 'image/jpeg'}],
+    [valid, {...valid, data: 'data:image/png;base64,' + valid.data}],
+    [valid, {...valid, data: valid.data.slice(0, -1)}],
+    [valid, {...valid, name: '../screenshot.png'}],
+    [valid, {name: 'oversize.png', type: 'image/png', data: Buffer.alloc(5 * 1024 * 1024 + 1).toString('base64')}],
+  ];
+  for (const images of badFiles) {
+    assert.equal((await app.post(api, owner, create('Invalid attachment', {images}))).status, 400);
+  }
+  assert.equal((await app.json(api, owner)).data.total, 0);
+  assert.equal(app.store.db.prepare('SELECT count(*) AS count FROM development_request_images').get().count, 0);
+  assert.equal(app.store.db.prepare('SELECT count(*) AS count FROM development_request_events').get().count, 0);
+
+  const command = create('Text-only backwards compatibility');
+  const stored = await app.post(api, owner, command);
+  assert.equal(stored.status, 201);
+  assert.deepEqual((await app.post(api, owner, {...command, images: []})).data, stored.data);
+  const noWrite = await app.post(api + '/' + stored.data.request.id, owner, {...update(1, 'Closed'), images: [valid]});
+  assert.equal(noWrite.status, 400);
+});
+
+test('accepts five images at the per-image byte limit in a single submission', async t => {
+  const f = fixture(t);
+  const app = await f.open(f.first);
+  const owner = await app.login('u-exec');
+  const limit = 5 * 1024 * 1024;
+  const chunk = Buffer.alloc(limit - png.length, 0x61);
+  chunk.writeUInt32BE(chunk.length - 12);
+  chunk.write('tEXtNote\0', 4, 'latin1');
+  chunk.writeUInt32BE(crc32(chunk.subarray(4, -4)), chunk.length - 4);
+  const atLimit = Buffer.concat([png.subarray(0, 33), chunk, png.subarray(33)]);
+  const images = Array.from({length: 5}, (_, index) => image(`Limit ${index + 1}.png`, atLimit));
+  const saved = await app.post(api, owner, create('Full attachment allowance', {images}));
+  assert.equal(saved.status, 201);
+  assert.deepEqual(saved.data.images.map(({size}) => size), Array(5).fill(limit));
 });

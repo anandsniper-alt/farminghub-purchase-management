@@ -4,11 +4,11 @@ import {ARRIVAL_COST_FIELDS} from '../shared/arrival-costing.mjs';
 
 // Isolated review examples. Use the same business commands as the application.
 export function scmPreviewState(today='2026-11-24',{tenCycles=false}={}){
- return createSeed(today,({state,create,order,run,pi,pay,produce,evidence})=>{
+ return createSeed(today,({state,create,order,run,pi,pay,confirmArtwork,produce,evidence})=>{
   const day=n=>addDays(today,-n);
   const ready=(sku,quantity,price,offset=0)=>{
    const id=create('SCM review',sku,quantity,price,45+offset);
-   pi(id,day(44+offset));pay(id,0,null,day(43+offset));produce(id,day(42+offset),day(7+offset));
+   pi(id,day(44+offset));pay(id,0,null,day(43+offset));confirmArtwork(id,day(42+offset));produce(id,day(42+offset),day(7+offset));
    return order(id);
   };
   const split=ready('GJPW12',120,'245.00');
@@ -43,6 +43,7 @@ export function scmPreviewState(today='2026-11-24',{tenCycles=false}={}){
   }
   stage('SAILING',{vessel:'Demo Carrier',voyage:'V-301',reason:'Shipping / forwarder'});
   stage('BL',{reference:'DEMO-BL-301',fileId:sharedFile('bill-of-lading')});
+  run('SCM_FOLLOWUP',{roId,date:day(1),nextDue:today,remarks:'Confirm invoice A01 insurance with the supplier.'},day(1));
   run('SCM_INSURE_INVOICE',{invoiceId:second,date:day(1),reference:'DEMO-INS-B01',masterPolicy:'DEMO-MASTER',currency:'USD',insuredValue:'1400',fileId:evidence(single.id,'insurance-B01')},day(1));
   const next=state().scm.invoices.find(inv=>inv.number==='DEMO-CI-A02');
   run('SCM_RELEASE_INVOICE',{invoiceId:next.id,date:today,reference:'DEMO-REL-A02'},today);
@@ -52,16 +53,16 @@ export function scmPreviewState(today='2026-11-24',{tenCycles=false}={}){
   }]},today);
   if(!tenCycles)return;
   create('SCM review','TTPW12',60,'247.00',1);
-  const confirm=id=>run('CONFIRM_SUPPLIER',{orderId:id,channel:'EMAIL',remarks:'Supplier accepted the demo PO.',fileId:evidence(id,'supplier-confirmation')},day(3));
+  const confirm=id=>run('CONFIRM_SUPPLIER',{orderId:id,channel:'EMAIL',remarks:'Supplier accepted the demo PO.',fileId:evidence(id,'supplier-confirmation',day(3))},day(3));
   const waitingPi=create('SCM review','GJCC01',75,'188.00',4);
   confirm(waitingPi);
   const reviewingPi=create('SCM review','GJBS01',100,'35.00',5);
   confirm(reviewingPi);
-  run('RECORD_PI',{orderId:reviewingPi,number:'DEMO-PI-06',date:day(2),currency:'USD',amount:'3500.00',quantity:100,termsConfirmed:true,commitmentConfirmed:true,fileId:evidence(reviewingPi,'supplier-PI')},day(2));
+  run('RECORD_PI',{orderId:reviewingPi,number:'DEMO-PI-06',date:day(2),currency:'USD',amount:'3500.00',quantity:100,termsConfirmed:true,commitmentConfirmed:true,fileId:evidence(reviewingPi,'supplier-PI',day(2))},day(2));
   const advance=create('SCM review','KDPW12',50,'242.00',8);
   pi(advance,day(6));
   const building=create('SCM review','GJCC01',80,'188.00',28);
-  pi(building,day(26));pay(building,0,null,day(25));produce(building,day(24));
+  pi(building,day(26));pay(building,0,null,day(25));confirmArtwork(building,day(24));produce(building,day(24));
   const released=ready('GJBC10',90,'82.50');
   release(book(released,'DEMO-CI-09',90));
 

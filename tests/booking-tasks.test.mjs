@@ -11,11 +11,12 @@ const REMINDER='Container booking · ';
 const isReminder=task=>task.title.startsWith(REMINDER);
 
 test('booking and cancellation close only the matching plan reminder; direct invoice bookings generate none',()=>{
- createSeed(TODAY,({state,create,order,run,pi,pay,produce})=>{
+ createSeed(TODAY,({state,create,order,run,pi,pay,confirmArtwork,produce})=>{
   const orderId=create('Booking reminder test','GJPW12',100,'245.00',45);
   const planned=addDays(TODAY,-4),booked=addDays(TODAY,-3),etd=addDays(TODAY,2);
   pi(orderId,addDays(TODAY,-42));
   pay(orderId,0,null,addDays(TODAY,-41));
+  confirmArtwork(orderId,addDays(TODAY,-40));
   produce(orderId,addDays(TODAY,-40),addDays(TODAY,-5));
   const lines=[{lineId:order(orderId).lines[0].id,quantity:10}];
   const plan=(number,scmPlan=false)=>run('ADD_SHIPMENT',{orderId,number,lines,etd,eta:etd,scmPlan},planned).id;

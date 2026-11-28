@@ -4,6 +4,7 @@ import {createSeed} from '../shared/seed.mjs';
 import {execute,paymentSchedule,major,formatMoney} from '../shared/domain.mjs';
 import {orderProgress,orderJourney} from '../shared/order-progress.mjs';
 import {renderOrderJourney} from '../web/order-journey.mjs';
+import {createProcessUI,laePoStages,processStageStates} from '../web/process-exemptions.mjs';
 
 const seed=createSeed('2026-10-14');
 const fresh=()=>structuredClone(seed);
@@ -70,4 +71,42 @@ test('read-only journey preserves all source records and escapes user content',(
  const original=structuredClone(state),esc=v=>String(v??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
  const html=renderOrderJourney(state,o,{esc,dt:x=>x,formatMoney,badge:v=>'<span>'+esc(v)+'</span>'});
  assert.match(html,/Payment & shipment progress/);assert.ok(html.includes('&lt;img'));assert.ok(!html.includes('<script>'));assert.deepEqual(state,original);
+});
+
+test('LAE purchase guidance keeps lead-time confirmation, advance, supplier artwork and production window distinct',()=>{
+ const state=fresh(),{o,user}=prepare(state);
+ const phases=laePoStages.map(([key])=>key);
+ assert.deepEqual(phases.slice(phases.indexOf('SPEC_CONFIRM'),phases.indexOf('SAMPLE_DONE')),['SPEC_CONFIRM','LEAD_TIME_CONFIRMED','PAYMENT','ARTWORK','LEAD_TIME']);
+ state.payments=state.payments.filter(p=>!p.allocations.some(a=>a.orderId===o.id));
+ Object.assign(o,{productionWindowStartedAt:null,productionStartedAt:null,productionCompletedAt:null,preproductionSample:null,processExemptions:[]});
+ o.artwork.supplierConfirmed=null;
+ const processUI=createProcessUI({context:()=>({state,user}),esc:String,button:(_label,action)=>`<button data-action="${action}">`,badge:String,note:String,dt:String});
+ const dialog=stage=>processUI.modal('process-view',{stage,id:o.id}).body;
+
+ o.pi.commitmentConfirmed=false;
+ assert.equal(orderProgress(state,o,user).action,'pi');
+ assert.doesNotMatch(dialog('PAYMENT'),/data-action="initial-payment"/);
+
+ o.pi.commitmentConfirmed=true;
+ assert.equal(orderProgress(state,o,user).action,'initial-payment');
+ assert.match(dialog('PAYMENT'),/data-action="initial-payment"/);
+ assert.match(dialog('ARTWORK'),/data-action="artwork"/);
+ assert.doesNotMatch(dialog('ARTWORK'),/data-action="artwork-confirm"/);
+ assert.equal(processStageStates(state,o).LEAD_TIME,false);
+
+ const proof=state.files.find(f=>f.orderIds.includes(o.id));
+ const advance=paymentSchedule(state,o).find(m=>m.trigger==='PI');
+ const paid=execute(state,{type:'COMPLETE_INITIAL_PAYMENT',payload:{orderId:o.id,termIndex:advance.index,date:'2026-10-14',currency:o.currency,amount:major(advance.amount),inrRate:'85',reference:'JOURNEY-ADVANCE-BANK',fileIds:[proof.id]}},user,{now:'2026-10-14T10:00:00Z',id:()=>crypto.randomUUID()}).state;
+ const after=paid.orders.find(x=>x.id===o.id);
+ assert.equal(processStageStates(paid,after).PAYMENT,true);
+ assert.equal(processStageStates(paid,after).LEAD_TIME,false);
+ assert.equal(orderProgress(paid,after,user).action,'artwork-confirm');
+
+ const remaining=o.paymentTerms.steps.at(-1);
+ o.paymentTerms.steps=[{...remaining,percent:100}];
+ assert.equal(processStageStates(state,o).PAYMENT,true);
+ assert.match(dialog('PAYMENT'),/No advance required/);
+ assert.equal(orderProgress(state,o,user).action,'artwork-confirm');
+ assert.match(dialog('ARTWORK'),/data-action="artwork-confirm"/);
+ assert.equal(processStageStates(state,o).LEAD_TIME,false);
 });

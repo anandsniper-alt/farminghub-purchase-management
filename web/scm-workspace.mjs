@@ -1,4 +1,4 @@
-import {canApprove, canCreate, canEdit, isBusinessOrder, scopeAllowed, REASONS, isoDay} from '../shared/domain.mjs';
+import {canApprove, canCreate, canEdit, dateValid, isBusinessOrder, scopeAllowed, REASONS, isoDay} from '../shared/domain.mjs';
 import {SCM_RO_NUMBER_MAX_LENGTH,scmInvoiceDocumentReady,scmInvoiceCostReady} from '../shared/scm.mjs';
 import {orderJourney} from '../shared/order-progress.mjs';
 
@@ -6,6 +6,24 @@ const STAGES = [
  ['SHIPPING_DOCS', 'Shipping documents'], ['SAILING', 'Vessel departure'],
  ['BL', 'Final bill of lading'], ['INDIA_ARRIVAL', 'India arrival'], ['COST_CAPTURE', 'Arrival costs captured']
 ];
+
+const trackingColumns=['RO / final BL','Current stage','Arrival','Linked invoices','Latest follow-up','Next action'];
+const byRecordedDate = (a,b)=>(b.date??'').localeCompare(a.date??'')||(b.at??'').localeCompare(a.at??'');
+
+function expectedArrival(ro,invoices){
+ const reports=(ro.trackingReports||[]).filter(report=>dateValid(report.date)&&dateValid(report.eta)).sort(byRecordedDate);
+ const latest=reports[0];
+ if(latest){
+  const dates=new Set(reports.filter(report=>byRecordedDate(report,latest)===0).map(report=>report.eta));
+  if(dates.size>1)return {label:'Forwarder ETAs differ',source:latest.date};
+  return {date:latest.eta,label:'Forwarder report',source:latest.date};
+ }
+ const booked=invoices.map(invoice=>invoice.eta);
+ const dates=new Set(booked.filter(dateValid));
+ if(dates.size>1)return {label:'Booking ETAs differ'};
+ if(dates.size===1&&booked.every(dateValid))return {date:booked[0],label:'Booking estimate'};
+ return {label:dates.size?'ETA missing on a linked invoice':'ETA unavailable'};
+}
 
 export function createScmUI({context, esc, head, command, uploadMany, legacyShipments, arrivalCosts, orderDocs}) {
  const data = () => context().state;
@@ -85,7 +103,63 @@ export function createScmUI({context, esc, head, command, uploadMany, legacyShip
  const actionLink=({href,label})=>'<a class="scm-link" href="'+esc(href)+'">'+esc(label)+'</a>';
  const roLink = id=>{const ro=model().ros.find(r=>r.id===id);return ro?link('ro',ro.id,ro.number):'RO unavailable';};
  const invoiceTable = rows=>list(['Commercial invoice','Supplier','Purchase orders','Booking','Status','RO'],rows.map(i=>[link('invoice',i.id,i.number),esc(supplier(i.vendorId)),poLinks(i),esc(i.bookingRef),esc(status(i)),i.roId?roLink(i.roId):i.cancelledAt?'—':'Pending loading']),'No SCM commercial invoices booked.');
- function nextActionLink(ro,po){const next=roNext(ro,po);return next?actionLink(next):'Complete';}
+ const dateText=date=>'<time datetime="'+esc(date)+'">'+esc(date)+'</time>';
+ const trackMeta=html=>'<div class="scm-track-meta">'+html+'</div>';
+ function trackingInvoices(ro,invoices){
+  const combined=invoices.length>1;
+  const invoiceLine=inv=>'<li>'+link('invoice',inv.id,inv.number)+trackMeta(esc(supplier(inv.vendorId)))+
+   trackMeta(poLinks(inv))+(combined?trackMeta('Booking ETA '+(dateValid(inv.eta)?dateText(inv.eta):'unavailable')):'')+'</li>';
+  const links='<ul class="scm-track-invoices">'+invoices.map(invoiceLine).join('')+'</ul>';
+  const containers=trackMeta(ro.containers.length+(ro.containers.length===1?' container':' containers'));
+  if(!combined)return links+containers;
+  const supplierCount=new Set(invoices.map(inv=>inv.vendorId)).size;
+  const poCount=new Set(invoices.flatMap(inv=>inv.members.map(member=>member.orderId))).size;
+  return '<details class="scm-track-invoice-details"><summary>'+invoices.length+' invoices · '+supplierCount+
+   (supplierCount===1?' supplier':' suppliers')+' · '+poCount+(poCount===1?' PO':' POs')+'</summary>'+links+'</details>'+containers;
+ }
+ function trackingArrival(ro,invoices){
+  const actual=ro.stages.find(step=>step.stage==='INDIA_ARRIVAL')?.date;
+  const expected=expectedArrival(ro,invoices);
+  const recorded=actual?'<strong>Actual '+dateText(actual)+'</strong>':'';
+  const forecast=expected.date?(actual?trackMeta('ETA '+dateText(expected.date)):'<strong>ETA '+dateText(expected.date)+'</strong>'):'';
+  const source=expected.date||!actual?trackMeta(esc(expected.label)+(expected.source?' · '+dateText(expected.source):'')):'';
+  return recorded+forecast+source;
+ }
+ function trackingStage(ro,invoices){
+  const stage=ro.stages.at(-1);
+  const day=stage?.date||invoices.map(inv=>inv.loadedAt).filter(dateValid).sort().at(-1);
+  return '<strong class="scm-track-stage">'+esc(stage?stageLabel(stage.stage):'Loaded')+'</strong>'+(day?trackMeta(dateText(day)):'')+
+   trackMeta(link('ro',ro.id,'View timeline'));
+ }
+ function trackingFollowup(ro){
+  const followup=(ro.followups||[]).slice().reverse().sort(byRecordedDate)[0];
+  if(!followup)return trackMeta('No follow-up recorded');
+  const date=followup.date?dateText(followup.date)+' · ':'';
+  const owner=esc(followup.assignedOwner||'Owner not recorded');
+  return '<div class="scm-track-note">'+esc(followup.remarks)+'</div>'+trackMeta(date+owner)+
+   (followup.nextDue?trackMeta('Due '+dateText(followup.nextDue)):'');
+ }
+ function trackingAction(ro,invoices,po){
+  if(!nextStage(ro))return 'Complete';
+  if(!editable(invoices.flatMap(invoiceOrders)))return link('ro',ro.id,'View RO');
+  return actionLink(roNext(ro,po));
+ }
+ function trackingTable(ros,po){
+  if(!ros.length)return '<p class="muted">A tracking record appears when a commercial invoice is loaded against an RO.</p>';
+  const body=ros.map(ro=>{
+   const invoices=roInvoices(ro);
+   const reference=link('ro',ro.id,ro.number)+trackMeta(ro.blNumber?'BL '+esc(ro.blNumber):'Final BL pending');
+   const fields=[trackingStage(ro,invoices),trackingArrival(ro,invoices),trackingInvoices(ro,invoices),
+    trackingFollowup(ro),trackingAction(ro,invoices,po)];
+   const cells=fields.map((html,index)=>'<td role="cell"><span class="scm-track-mobile-label" aria-hidden="true">'+
+    trackingColumns[index+1]+'</span>'+html+'</td>').join('');
+   return '<tr role="row"><th scope="row" role="rowheader">'+reference+'</th>'+cells+'</tr>';
+  }).join('');
+  const header=trackingColumns.map(label=>'<th scope="col" role="columnheader">'+label+'</th>').join('');
+  return '<div class="scm-scroll scm-ro-register" role="region" aria-label="RO tracking records" tabindex="0">'+
+   '<table role="table"><thead role="rowgroup"><tr role="row">'+header+'</tr></thead>'+
+   '<tbody role="rowgroup">'+body+'</tbody></table></div>';
+ }
  function orderRecords(o){
   renderedModel=null;
   const invoices=model().invoices.filter(i=>i.members.some(m=>m.orderId===o.id));
@@ -103,10 +177,14 @@ export function createScmUI({context, esc, head, command, uploadMany, legacyShip
   const ros=model().ros.filter(r=>!poId||invoices.some(i=>i.roId===r.id));
   const canBook=canCreate(context().user)&&bookable().some(o=>!poId||o.id===poId);
   const bookingHref='#/scm?book=1'+(poId?'&amp;po='+encodeURIComponent(poId):'');
-  const intro=head('LAE Import',scopedOrder?'SCM · '+esc(scopedOrder.number):'Supply Chain Management','Commercial invoices, container loading and RO tracking.',(scopedOrder?poLink(poId)+' '+back:'')+(canBook?'<a class="button primary" href="'+bookingHref+'">Book commercial invoice</a>':''));
+  const allShipments='<a class="button ghost" href="#/scm?view=shipments">All shipment timelines</a>';
+  const intro=head('LAE Import',scopedOrder?'SCM · '+esc(scopedOrder.number):'Supply Chain Management','Commercial invoices, container loading and RO tracking.',(scopedOrder?poLink(poId)+' '+back:'')+allShipments+(canBook?'<a class="button primary" href="'+bookingHref+'">Book commercial invoice</a>':''));
   const costs=scopedOrder&&(scopedOrder.arrivalCostings?.length||scopedOrder.shipments.some(s=>s.actualArrival))&&arrivalCosts?arrivalCosts(scopedOrder):'';
   const focusCosts=params().get('focus')==='costing';
-  let out=intro+(focusCosts?costs:'')+panel('Commercial invoices',invoiceTable([...invoices].reverse()))+panel('RO tracking',list(['RO number','BL number','Commercial invoices','Containers','Next action'],[...ros].reverse().map(r=>[link('ro',r.id,r.number),esc(r.blNumber||'Pending'),String(roInvoices(r).length),String(r.containers.length),nextActionLink(r,poId)]),'A tracking record appears when a commercial invoice is loaded against an RO.'));
+  const invoiceRegister=panel('Commercial invoices',invoiceTable([...invoices].reverse()));
+  const roRegister=panel('RO tracking',trackingTable([...ros].reverse(),poId));
+  const roFirst=!scopedOrder&&ros.length>0;
+  let out=intro+(focusCosts?costs:'')+(roFirst?roRegister+invoiceRegister:invoiceRegister+roRegister);
   const legacy=data().orders.filter(o=>(!poId||o.id===poId)&&visible(o)&&o.shipments.some(s=>!s.scmInvoiceId));
   if(!poId&&legacy.length)out+=panel('Existing shipments',list(['Purchase order','Supplier','Existing shipments'],legacy.map(o=>[link('po',o.id,o.number),esc(supplier(o.vendorId)),String(o.shipments.filter(s=>!s.scmInvoiceId).length)]),''));
   if(scopedOrder&&legacy.length&&legacyShipments)out+=legacyShipments(scopedOrder);
@@ -130,7 +208,7 @@ export function createScmUI({context, esc, head, command, uploadMany, legacyShip
   const orders=bookable().filter(o=>o.vendorId===vendorId);
   const unbooked=orders.flatMap(o=>o.lines.map(line=>({o,line,qty:remaining(o,line)})).filter(x=>x.qty>0));
   const plans=orders.flatMap(o=>o.shipments.filter(savedPlan).map(s=>{
-   const items=s.lines.map(l=>(o.lines.find(x=>x.id===l.lineId)?.code||l.lineId)+' Ã— '+l.quantity).join(', ');
+   const items=s.lines.map(l=>(o.lines.find(x=>x.id===l.lineId)?.code||l.lineId)+' × '+l.quantity).join(', ');
    const checked=params().get('po')===o.id&&params().get('plan')===s.id?' checked':'';
    return [poLink(o.id),esc(s.number),esc(items),'<input type="checkbox"'+checked+' data-scm-plan="'+esc(s.id)+'" data-order="'+esc(o.id)+'" aria-label="Use '+esc(s.number)+'">'];
   }));
@@ -139,8 +217,8 @@ export function createScmUI({context, esc, head, command, uploadMany, legacyShip
  function booking(){
   const requested=order(params().get('po')),eligible=bookable(), suppliers=[...new Set(eligible.map(o=>o.vendorId))].sort((a,b)=>supplier(a).localeCompare(supplier(b)));
   const defaultVendor=requested&&suppliers.includes(requested.vendorId)?requested.vendorId:suppliers.length===1?suppliers[0]:null;
-  const blank=panel('Available PO items','<p>Booking opens after production completion and a passed bulk QC. Check the orderâ€™s production and QC milestones.</p><a href="#/orders">Open order pipeline</a>');
-  const title=head('SCM','Book commercial invoice','Allocate quantities from the supplierâ€™s POs to this invoice.',detailBack());
+  const blank=panel('Available PO items','<p>Booking opens after production completion and a passed bulk QC. Check the order’s production and QC milestones.</p><a href="#/orders">Open order pipeline</a>');
+  const title=head('SCM','Book commercial invoice','Allocate quantities from the supplier’s POs to this invoice.',detailBack());
   if(!suppliers.length)return title+blank;
   const forwarders=data().vendors.filter(v=>v.kind==='LOGISTICS' && v.status==='ACTIVE').map(v=>[v.id,v.name]);
   const fields=select('vendorId','Supplier',suppliers.map(id=>[id,supplier(id)]),'Select',{},defaultVendor) +input('number','Commercial invoice number')+dated('Booking date')+select('forwarderId','Forwarding agent',forwarders)+input('bookingRef','Booking reference')+input('origin','Origin')+input('destination','Destination')+input('etd','Expected departure','date')+input('eta','Expected arrival','date')+input('evidence','Commercial invoice file (optional)','file',{required:false})+input('invoiceDate','Invoice date if attaching a file','date',{required:false,max:isoDay()});
@@ -169,7 +247,7 @@ export function createScmUI({context, esc, head, command, uploadMany, legacyShip
  function invoicePage(inv){
   const canWrite=editable(invoiceOrders(inv)),ro=model().ros.find(r=>r.id===inv.roId);
   const allocations=inv.members.flatMap(m=>m.lines.map(l=>[poLink(m.orderId),esc(order(m.orderId)?.lines.find(x=>x.id===l.lineId)?.code||l.lineId),String(l.quantity)]));
-  const recorded='<dl class="scm-facts"><div><dt>Booking</dt><dd>'+esc(inv.bookingRef)+' Â· '+esc(inv.bookedAt)+'</dd></div><div><dt>Container release</dt><dd>'+esc(inv.releasedAt?inv.releaseRef+' Â· '+inv.releasedAt:'Pending')+'</dd></div><div><dt>Loading / RO</dt><dd>'+(ro?link('ro',ro.id,ro.number)+' Â· '+esc(inv.loadedAt):inv.cancelledAt?'—':'Pending')+'</dd></div></dl>';
+  const recorded='<dl class="scm-facts"><div><dt>Booking</dt><dd>'+esc(inv.bookingRef)+' · '+esc(inv.bookedAt)+'</dd></div><div><dt>Container release</dt><dd>'+esc(inv.releasedAt?inv.releaseRef+' · '+inv.releasedAt:'Pending')+'</dd></div><div><dt>Loading / RO</dt><dd>'+(ro?link('ro',ro.id,ro.number)+' · '+esc(inv.loadedAt):inv.cancelledAt?'—':'Pending')+'</dd></div></dl>';
   const header=head('SCM / Commercial invoice',esc(inv.number),esc(supplier(inv.vendorId)),detailBack());
   let out=panel('Invoice status',recorded+list(['PO','Item','Invoice quantity'],allocations,'No item allocations.'));
   if(inv.cancelledAt){
@@ -178,11 +256,11 @@ export function createScmUI({context, esc, head, command, uploadMany, legacyShip
   }
   if(canWrite&&!inv.releasedAt)out+=panel('Container release',form('release',inv.id,'<div class="scm-fields">'+dated('Release date')+input('reference','Release reference')+'</div>','Record release'));
   if(canWrite&&inv.releasedAt&&!inv.loadedAt)out+=panel('Load invoice',roForm(inv));
-  out+=panel('PO payments',inv.members.map(m=>'<a class="button ghost" href="#/order/'+encodeURIComponent(m.orderId)+'?tab=finance">'+esc(order(m.orderId).number)+' Â· PI and invoice payments</a>').join(' '));
+  out+=panel('PO payments',inv.members.map(m=>'<a class="button ghost" href="#/order/'+encodeURIComponent(m.orderId)+'?tab=finance">'+esc(order(m.orderId).number)+' · PI and invoice payments</a>').join(' '));
   const hasInvoice=inv.members.every(m=>scmInvoiceDocumentReady(order(m.orderId),m.shipmentId,inv.number));
   const documentPanel=!hasInvoice&&canWrite?panel('Commercial invoice document',form('invoice-document',inv.id,'<div class="scm-fields">'+input('invoiceDate','Commercial invoice date','date',{max:inv.bookedAt})+input('evidence','Commercial invoice file','file')+'</div>','Attach invoice')):'';
   const insuranceFields=dated('Insurance date')+input('reference','Insurance declaration number')+input('masterPolicy','Master policy number')+input('currency','Insured currency','text',{value:invoiceOrders(inv)[0]?.currency,maxlength:3})+input('insuredValue','Insured invoice value','number',{min:'0.01',step:'0.01'})+input('evidence','Insurance evidence','file');
-  const insurancePanel=panel('Invoice insurance',inv.insurance?'<p>'+esc(inv.insurance.reference||inv.insurance.policyNumber)+' Â· '+esc(inv.insurance.date)+'</p>':canWrite&&ro?.blNumber?form('insure',inv.id,'<div class="scm-fields">'+insuranceFields+'</div>','Record invoice insurance'):'<p>Pending final BL or insurance declaration.</p>');
+  const insurancePanel=panel('Invoice insurance',inv.insurance?'<p>'+esc(inv.insurance.reference||inv.insurance.policyNumber)+' · '+esc(inv.insurance.date)+'</p>':canWrite&&ro?.blNumber?form('insure',inv.id,'<div class="scm-fields">'+insuranceFields+'</div>','Record invoice insurance'):'<p>Pending final BL or insurance declaration.</p>');
   const focus=params().get('focus');
   out=header+(focus==='insurance'?insurancePanel:'')+(focus==='document'?documentPanel:'')+out+(focus==='document'?'':documentPanel)+(focus==='insurance'?'':insurancePanel);
   if(ro)out+='<p>Record further follow-ups on '+link('ro',ro.id,'RO '+ro.number)+'.</p>';
@@ -191,13 +269,13 @@ export function createScmUI({context, esc, head, command, uploadMany, legacyShip
   return out;
  }
  function packing(ro){
-  return ro.containers.map(c=>'<details><summary>'+esc(c.number)+' Â· '+esc(c.packingList)+'</summary>'+list(['Invoice','PO','Item','Packed quantity'],c.lines.map(l=>[link('invoice',l.invoiceId,model().invoices.find(i=>i.id===l.invoiceId)?.number||'Invoice'),poLink(l.orderId),esc(order(l.orderId)?.lines.find(x=>x.id===l.lineId)?.code||l.lineId),String(l.quantity)]),'No lines recorded.')+'</details>').join('');
+  return ro.containers.map(c=>'<details><summary>'+esc(c.number)+' · '+esc(c.packingList)+'</summary>'+list(['Invoice','PO','Item','Packed quantity'],c.lines.map(l=>[link('invoice',l.invoiceId,model().invoices.find(i=>i.id===l.invoiceId)?.number||'Invoice'),poLink(l.orderId),esc(order(l.orderId)?.lines.find(x=>x.id===l.lineId)?.code||l.lineId),String(l.quantity)]),'No lines recorded.')+'</details>').join('');
  }
  function roStage(ro,stage,label){
   let fields=dated(label+' date');
   if(stage==='SHIPPING_DOCS'){
    fields+=input('reference','Draft BL number (optional)','text',{required:false})+input('evidence','Verified draft BL file (optional)','file',{required:false});
-   for(const c of ro.containers.filter(c=>!c.packingListFileId))fields+=input('packing-file','Packing list Â· '+c.number,'file',{'data-packing-for':c.number});
+   for(const c of ro.containers.filter(c=>!c.packingListFileId))fields+=input('packing-file','Packing list · '+c.number,'file',{'data-packing-for':c.number});
   }
   if(stage==='SAILING')fields+=input('vessel','Vessel')+input('voyage','Voyage');
   if(stage==='BL')fields+=input('reference','Final BL number')+input('evidence','Final BL evidence','file');
@@ -212,19 +290,75 @@ export function createScmUI({context, esc, head, command, uploadMany, legacyShip
    return list(['Commercial invoice','Invoice file'],invoices.map(i=>[link('invoice',i.id,i.number),i.members.every(m=>scmInvoiceDocumentReady(order(m.orderId),m.shipmentId,i.number))?'Attached':link('invoice',i.id,'Attach invoice')]),'');
   }
   if(stage==='INDIA_ARRIVAL')return list(['Commercial invoice','Insurance'],invoices.map(i=>[link('invoice',i.id,i.number),i.insurance?esc(i.insurance.reference):link('invoice',i.id,'Record invoice insurance')]),'');
-  if(stage==='COST_CAPTURE')return list(['Commercial invoice','Arrival costing by PO'],invoices.map(i=>[link('invoice',i.id,i.number),i.members.map(m=>link('po',m.orderId,'Open '+order(m.orderId).number+' costing')).join(' Â· ')]),'');
+  if(stage==='COST_CAPTURE')return list(['Commercial invoice','Arrival costing by PO'],invoices.map(i=>[link('invoice',i.id,i.number),i.members.map(m=>link('po',m.orderId,'Open '+order(m.orderId).number+' costing')).join(' · ')]),'');
   return '';
+ }
+ function milestoneRail(ro,invoices,next){
+  const step=(label,state,details)=>'<li class="scm-milestone '+state+'"'+(state==='next'?' aria-current="step"':'')+'><strong>'+
+   esc(label)+'</strong><small>'+({done:'Recorded',next:'Next milestone',pending:'Pending'})[state]+'</small>'+details+'</li>';
+  const loadDates=[...new Set(invoices.map(i=>i.loadedAt).filter(dateValid))].sort();
+  const loadRange=loadDates.length?dateText(loadDates[0])+(loadDates.length>1?' – '+dateText(loadDates.at(-1)):''):'Date unavailable';
+  const loading=step('Container loading','done',trackMeta(loadRange));
+  const stages=STAGES.map(([key,label])=>{
+   const record=ro.stages.find(s=>s.stage===key);
+   let details='';
+   if(record){
+    if(record.date)details+=trackMeta(dateText(record.date));
+    const reference=record.reference||(key==='BL'?ro.blNumber:'');
+    if(reference)details+=trackMeta(esc(reference));
+   }else if(key==='INDIA_ARRIVAL'){
+    const eta=expectedArrival(ro,invoices);
+    if(eta.date)details+=trackMeta('ETA '+dateText(eta.date)+' · '+esc(eta.label));
+    if(next?.[0]===key){
+     const missing=invoices.filter(i=>!i.insurance?.date).length;
+     if(missing)details+=trackMeta('Awaiting insurance on '+missing+' invoice'+(missing===1?'':'s'));
+    }
+   }
+   return step(label,record?'done':next?.[0]===key?'next':'pending',details);
+  }).join('');
+  return '<ol class="scm-ro-timeline" aria-label="RO milestones">'+loading+stages+'</ol>';
+ }
+ function roTimeline(ro,invoices,next){
+  const history=ro.stages.length?'<details class="scm-history"><summary>Stage references and updates</summary>'+
+   list(['Stage','Date','Reference / update'],ro.stages.map(s=>[esc(stageLabel(s.stage)),esc(s.date),esc([s.reference,s.remarks].filter(Boolean).join(' · '))]),'')+'</details>':'';
+  return panel('RO tracking timeline',milestoneRail(ro,invoices,next)+history);
+ }
+ function stageControls(ro,invoices,next,write){
+  if(!next)return '';
+  const needs=prerequisites(ro,next[0],origin());
+  if(needs.length)return panel('Before '+(next[0]==='INDIA_ARRIVAL'?'India arrival':next[1].toLowerCase()),
+   '<ul>'+needs.map(n=>'<li>'+actionLink(n)+'</li>').join('')+'</ul>');
+  return write?panel(next[1],evidenceActions(invoices,next[0])+roStage(ro,...next)):'';
+ }
+ function shipmentBoard(){
+  const {ros,invoices}=model(),byRo=new Map();
+  for(const inv of invoices){
+   if(!inv.roId)continue;
+   if(!byRo.has(inv.roId))byRo.set(inv.roId,[]);
+   byRo.get(inv.roId).push(inv);
+  }
+  const rows=ros.slice().reverse().map(ro=>({ro,next:nextStage(ro)}));
+  rows.sort((a,b)=>Number(!a.next)-Number(!b.next));
+  const heading=head('SCM','Shipment tracking',rows.length+' '+(rows.length===1?'RO':'ROs'),back);
+  if(!rows.length)return heading+'<p>No shipments have been loaded against an RO.</p>';
+  return heading+rows.map(({ro,next})=>{
+   const group=byRo.get(ro.id);
+   const references=group.map(i=>'<li><strong>'+esc(supplier(i.vendorId))+'</strong> · '+link('invoice',i.id,i.number)+'</li>').join('');
+   let control=next?'':'<strong>Complete</strong>';
+   if(next&&editable(group.flatMap(invoiceOrders)))control='<details class="scm-board-update"><summary>Update RO status</summary>'+
+    stageControls(ro,group,next,true)+'</details>';
+   return '<article class="panel scm-panel scm-shipment-card"><div class="panel-head"><h2>'+link('ro',ro.id,ro.number)+'</h2>'+
+    '<span>'+esc(ro.blNumber?'BL '+ro.blNumber:'Final BL pending')+'</span></div><div class="panel-body">'+
+    '<ul class="scm-shipment-refs" aria-label="Suppliers and commercial invoices">'+references+'</ul>'+
+    milestoneRail(ro,group,next)+control+'</div></article>';
+  }).join('');
  }
  function roPage(ro){
   const invoices=roInvoices(ro),write=editable(invoices.flatMap(invoiceOrders)),next=nextStage(ro);
   let out=head('SCM / Shipping agent RO','RO '+esc(ro.number),ro.blNumber?'BL '+esc(ro.blNumber):'Final BL pending',detailBack());
-  out+=panel('RO tracking',list(['Stage','Date','Reference / update'],ro.stages.map(s=>[esc(stageLabel(s.stage)),esc(s.date),esc([s.reference,s.remarks].filter(Boolean).join(' Â· '))]),'Loading recorded. Shipping documents are the next stage.'));
-  if(ro.trackingReports?.length)out+=panel('Forwarder tracking updates',list(['Report date','Forwarder status','ETD','ETA','Reported BL'],ro.trackingReports.map(r=>[esc(r.date),esc(r.remarks||'â€”'),esc(r.etd||'â€”'),esc(r.eta||'â€”'),esc(r.reportedBlNumber||'â€”')]),''));
-  if(next){
-   const needs=prerequisites(ro,next[0],origin());
-   if(needs.length)out+=panel('Before '+(next[0]==='INDIA_ARRIVAL'?'India arrival':next[1].toLowerCase()),'<ul>'+needs.map(n=>'<li>'+actionLink(n)+'</li>').join('')+'</ul>');
-   else if(write)out+=panel(next[1],evidenceActions(invoices,next[0])+roStage(ro,...next));
-  }
+  out+=roTimeline(ro,invoices,next);
+  if(ro.trackingReports?.length)out+=panel('Forwarder tracking updates',list(['Report date','Forwarder status','ETD','ETA','Reported BL'],ro.trackingReports.map(r=>[esc(r.date),esc(r.remarks||'—'),esc(r.etd||'—'),esc(r.eta||'—'),esc(r.reportedBlNumber||'—')]),''));
+  out+=stageControls(ro,invoices,next,write);
   return out+panel('Invoices on this RO',invoiceTable(invoices))+panel('Container packing lists',packing(ro))+followups('ro',ro.id,ro.followups,write);
  }
  function page(){
@@ -232,7 +366,8 @@ export function createScmUI({context, esc, head, command, uploadMany, legacyShip
   const p=params(),inv=model().invoices.find(i=>i.id===p.get('invoice')),ro=model().ros.find(r=>r.id===p.get('ro'));
   let body;
   if(p.has('invoice')||p.has('ro'))body=inv?invoicePage(inv):ro?roPage(ro):head('SCM','Record unavailable','Open the SCM register to choose a record.',back);
-  else body=p.has('book')?booking():register();
+  else if(p.has('book'))body=booking();
+  else body=p.get('view')==='shipments'?shipmentBoard():register();
   return '<div class="scm-workspace">'+body+'</div>';
  }
  function change(el){

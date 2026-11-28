@@ -35,6 +35,20 @@ test('full reported remittance awaiting acknowledgement creates no duplicate fut
  const f=fixture();f.pay('100');const row=f.plan().rows[0];assert.equal(row.futureMinor,0);assert.equal(row.awaitingAcknowledgementMinor,10000);assert.equal(row.status,'AWAITING_ACKNOWLEDGEMENT');assert.equal(f.plan().months.length,0);
 });
 
+test('advance readiness requires current PI lead time and technical confirmation while artwork is pending',()=>{
+ const f=fixture();
+ f.o.artwork={current:null,pending:null,history:[],supplierConfirmed:null};
+ assert.equal(f.plan().rows[0].ready,true);
+ f.o.pi.commitmentConfirmed=false;
+ assert.match(f.plan().rows[0].blockers.join(' '),/supplier production lead time.*current PO revision/i);
+ f.o.pi.commitmentConfirmed=true;
+ f.o.technicalConfirmation=null;
+ assert.match(f.plan().rows[0].blockers.join(' '),/technical specification/i);
+ f.o.technicalConfirmation={revision:f.o.revision};
+ f.o.confirmation=null;
+ assert.match(f.plan().rows[0].blockers.join(' '),/supplier PO acknowledgement/i);
+});
+
 test('USD monthly estimates round aggregate minor units exactly; currencies remain separate',()=>{
  const rows=[{month:'2026-11',currency:'USD',futureMinor:1},{month:'2026-11',currency:'USD',futureMinor:1},{month:'2026-11',currency:'CNY',futureMinor:100},{month:'2026-11',currency:'INR',futureMinor:101}];
  const groups=paymentPlannerMonths(rows,{'2026-11':{rate:85250000,remarks:'Treasury estimate'}});
