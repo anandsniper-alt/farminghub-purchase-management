@@ -810,7 +810,34 @@ function dExecute(state,command,user,{now,id},projection=false){
  }else if(type==='CREATE_BASE'){
   ensure(canCreate(user),'Purchase / product master-edit access required.','FORBIDDEN');const code=key(p.code);ensure(code&&!state.bases.some(b=>key(b.code)===code),'Base code is missing or already used.');const vendor=state.vendors.find(v=>v.id===p.vendorId&&v.kind==='SUPPLIER'&&v.status==='ACTIVE');ensure(vendor,'Select an ACTIVE VMS supplier.');const category=key(p.category||'');ensure(state.categories.some(c=>c.active&&key(c.name)===category),'Select an active LAE product category.');const template=state.plmTemplates?.find(t=>t.id===p.templateId)||templateForCategory(state,category);ensure(template,'Select a PLM template.');const b={id:id(),code,productName:text(p.productName||code),category,family:text(p.family||category),vendorId:vendor.id,scope:'LAE_IMPORT',templateId:template.id,previousBaseId:p.previousBaseId||null,creationReason:text(p.creationReason||'Initial product creation'),lifecycleStatus:'DRAFT',specifications:[],at:now};if(b.previousBaseId)ensure(state.bases.some(x=>x.id===b.previousBaseId),'Previous model does not exist.');state.bases.push(b);dEvent(state,ctx,'base',b.id,'PLM_PRODUCT_CREATED','PLM base product created and linked to one supplier.',null,b);result={id:b.id};
  }else if(type==='SAVE_BASE_META'){
-  ensure(canCreate(user)||canProductApprove(user),'No PLM product-edit access.','FORBIDDEN');const b=state.bases.find(b=>b.id===p.baseId);ensure(b&&scopeAllowed(user,b.scope),'PLM product not found.');const old=clone(b);if(p.productName!==undefined)b.productName=text(p.productName);if(p.family!==undefined)b.family=text(p.family);if(p.lifecycleStatus!==undefined){ensure(['DRAFT','ACTIVE','INACTIVE'].includes(p.lifecycleStatus),'Invalid lifecycle status.');b.lifecycleStatus=p.lifecycleStatus;}dEvent(state,ctx,'base',b.id,'PLM_PRODUCT_UPDATED','PLM product metadata updated.',old,b);
+  ensure(canCreate(user)||canProductApprove(user),'No PLM product-edit access.','FORBIDDEN');
+  const b=state.bases.find(b=>b.id===p.baseId);
+  ensure(b&&scopeAllowed(user,b.scope),'PLM product not found.');
+  const old=clone(b);
+  let grade,variants=[];
+  if(p.grade!==undefined){
+   ensure(b.scope==='LAE_IMPORT','Grade updates are available for LAE Import products only.');
+   ensure(typeof p.grade==='string'&&text(p.grade),'Enter a grade.');
+   ensure(typeof p.expectedGrade==='string','Supply the previous grade, or an empty string for a blank grade.');
+   const prior=key(b.grade);
+   ensure(prior===key(p.expectedGrade),'The base grade changed. Review its current grade before saving.','CONFLICT');
+   grade=key(p.grade);
+   variants=state.items.filter(i=>i.baseId===b.id&&i.scope==='LAE_IMPORT');
+   const divergent=variants.filter(i=>key(i.grade)&&key(i.grade)!==prior&&key(i.grade)!==grade);
+   ensure(!divergent.length,'Resolve different grades on linked ERP items before saving: '+divergent.map(i=>i.code).join(', ')+'.','CONFLICT');
+   if(prior!==grade)b.grade=grade;
+  }
+  if(p.productName!==undefined)b.productName=text(p.productName);
+  if(p.family!==undefined)b.family=text(p.family);
+  if(p.lifecycleStatus!==undefined){ensure(['DRAFT','ACTIVE','INACTIVE'].includes(p.lifecycleStatus),'Invalid lifecycle status.');b.lifecycleStatus=p.lifecycleStatus;}
+  if(grade===undefined||old.grade!==b.grade||old.productName!==b.productName||old.family!==b.family||old.lifecycleStatus!==b.lifecycleStatus)
+   dEvent(state,ctx,'base',b.id,'PLM_PRODUCT_UPDATED','PLM product metadata updated.',old,b);
+  for(const item of variants){
+   if(key(item.grade)===grade)continue;
+   const before=clone(item);
+   item.grade=grade;
+   dEvent(state,ctx,'item',item.id,'ITEM_GRADE_UPDATED','ERP item grade updated to match its linked base.',before,item);
+  }
  }else if(type==='CREATE_SUCCESSOR'){
   ensure(canCreate(user),'Purchase / product master-edit access required.','FORBIDDEN');const prev=state.bases.find(b=>b.id===p.previousBaseId);ensure(prev&&scopeAllowed(user,prev.scope),'Previous model not found.');const code=key(p.code);ensure(code&&!state.bases.some(b=>key(b.code)===code),'New product code is missing or already used.');const vendor=state.vendors.find(v=>v.id===(p.vendorId||prev.vendorId)&&v.kind==='SUPPLIER'&&v.status==='ACTIVE');ensure(vendor,'Select an ACTIVE supplier for the successor.');ensure(text(p.reason),'Significant-change reason is required.');const latest=latestApprovedSpec(state,prev.id);const template=state.plmTemplates.find(t=>t.id===prev.templateId)||templateForCategory(state,prev.category);const b={id:id(),code,productName:text(p.productName||prev.productName),category:prev.category,family:text(p.family||prev.family),vendorId:vendor.id,scope:prev.scope,templateId:template?.id||prev.templateId,previousBaseId:prev.id,creationReason:text(p.reason),lifecycleStatus:'DRAFT',specifications:[],at:now};if(latest){const version=text(p.version||'1.0');b.specifications.push({id:id(),version,fieldValues:clone(latest.fieldValues||{}),description:latest.description,changeSummary:'Initial specification copied from '+prev.code+' for successor review.',reason:text(p.reason),documents:[],status:'PENDING',at:now,by:user.name,sourceSpecId:latest.id});}state.bases.push(b);dEvent(state,ctx,'base',b.id,'SUCCESSOR_CREATED',prev.code+' → '+b.code+' created for significant product change.',{previousBaseId:prev.id},{code:b.code,reason:b.creationReason,vendorId:b.vendorId});result={id:b.id};
  }else if(type==='SAVE_SPEC'){
